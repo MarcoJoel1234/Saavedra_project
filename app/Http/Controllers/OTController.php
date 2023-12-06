@@ -29,7 +29,7 @@ class OTController extends Controller
         $molduras = Moldura::all(); //Obtengo todas las molduras.
         $oTrabajo = Orden_trabajo::all(); //Obtengo todas las OT.
         if($oTrabajo != "[]"){
-            $moldurasOT = [];
+            $moldurasOT = []; //Arreglo para guardar las molduras de la OT
             $contador = 0;
             foreach ($oTrabajo as $ot) { //Recorro las OT.
                 $moldura = Moldura::find($ot->id_moldura); //Busco la moldura de la OT.
@@ -158,8 +158,7 @@ class OTController extends Controller
         $clasesRegistradas = Clase::where('id_ot', $ot->id)->get();
  //Busco la clase ingresada         foreach($clasesRegistradas as $cls){
             if($cls->nombre == "Bombillo"){
- //Si la clase es bombillo                unset($clasesName[0]);
-            }else if(array_search($cls->nombre, $clasesName)){
+                 unset($clasesName[0]);;            }else if(array_search($cls->nombre, $clasesName)){
                 unset($clasesName[array_search($cls->nombre, $clasesName)]);
             }
         }
