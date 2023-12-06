@@ -49,12 +49,11 @@ class OTController extends Controller
                 foreach($clase as $clase){ //Recorro las clases de la OT
                     $proceso = Procesos::where('id_clase', $clase->id)->first();
                     if($proceso){
-                        Procesos::find($proceso->id)->delete();
-                    }
-                    Clase::find($clase->id)->delete();
-                }
+                        Procesos::find($proceso->id)->delete(); //Elimino el proceso de la clase                    }
+                     Clase::find($clase->id)->delete();
+ //Elimino la clase de la OT                }
                 Orden_trabajo::find($ot)->delete();
-                return redirect()->route('registerOT')->with('success', '¡Orden de trabajo eliminada con éxito!'); //Redirecciono a la vista de registro de la OT
+ //Elimino la OT                return redirect()->route('registerOT')->with('success', '¡Orden de trabajo eliminada con éxito!'); //Redirecciono a la vista de registro de la OT
         }
         return redirect()->route('registerOT')->withErrors('¡La orden de trabajo no se puede eliminar porque tiene piezas o metas asociadas!');
     }
@@ -85,7 +84,7 @@ class OTController extends Controller
                         $clase->tamanio = $request->tamanio;
                     } else { //Si la clase es obturador.
                         $clase->seccion = $request->seccion;
-                    }
+ //Actualizo                     }
                     $clase->save(); //Guardo los cambios.
                 }
                 //Cuando solamente se ingresa una clase que ya existe.
@@ -141,7 +140,7 @@ class OTController extends Controller
         $proceso = Procesos::where('id_clase', $clase->id)->first(); //Busco la clase ingresada
         if ($proceso) { //Si el proceso existe.
             $proceso->delete();
-        }
+ //Elimino el proceso de la clase        }
         $ot = $clase->id_ot; //Busco la OT ingresada.
         $ot = Orden_trabajo::find($ot); //Busco la OT ingresada
         Clase::destroy($clase->id); //Elimino la clase
