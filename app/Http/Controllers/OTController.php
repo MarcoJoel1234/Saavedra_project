@@ -30,11 +30,11 @@ class OTController extends Controller
         $oTrabajo = Orden_trabajo::all(); //Obtengo todas las OT.
         if($oTrabajo != "[]"){
             $moldurasOT = []; //Arreglo para guardar las molduras de la OT
-            $contador = 0;
+            $contador = 0; //Contador para las molduras de la OT
             foreach ($oTrabajo as $ot) { //Recorro las OT.
                 $moldura = Moldura::find($ot->id_moldura); //Busco la moldura de la OT.
                 $moldurasOT[$contador] = $ot->id . " - " .$moldura->nombre; //Guardo las molduras.
-                $contador++;
+                $contador++; //Aumento el contador 
             }
             return view('processesAdmin.RegistrarOT.registrarOT', ['molduras' => $molduras, 'moldurasOT' => $moldurasOT, 'oTrabajo' => $oTrabajo]); //Retorno la vista de registro de OT con las molduras.
         }
@@ -42,7 +42,7 @@ class OTController extends Controller
     }
 
     public function deleteOT($ot){
-        $piezas = Pieza::where('id_ot', $ot)->get();
+        $piezas = Pieza::where('id_ot', $ot)->get(); //Busco las piezas de la OT
         $meta = Metas::where('id_ot', $ot)->get();
         if(count($piezas) == 0 && count($meta) == 0){
             $clase = Clase::where('id_ot', $ot)->get();
