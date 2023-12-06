@@ -44,9 +44,9 @@ class OTController extends Controller
     public function deleteOT($ot){
         $piezas = Pieza::where('id_ot', $ot)->get(); //Busco las piezas de la OT
         $meta = Metas::where('id_ot', $ot)->get();
-        if(count($piezas) == 0 && count($meta) == 0){
-            $clase = Clase::where('id_ot', $ot)->get();
-                foreach($clase as $clase){ñ
+        if(count($piezas) == 0 && count($meta) == 0){ //Si la OT no tiene piezas ni metas asociadas entonces
+            $clase = Clase::where('id_ot', $ot)->get(); //Busco todas las clases que pertenecen a la OT
+                foreach($clase as $clase){ //Recorro las clases de la OT
                     $proceso = Procesos::where('id_clase', $clase->id)->first();
                     if($proceso){
                         Procesos::find($proceso->id)->delete();
