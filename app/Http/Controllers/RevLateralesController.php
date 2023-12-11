@@ -7,6 +7,7 @@ use App\Models\Metas;
 use App\Models\Moldura;
 use App\Models\Orden_trabajo;
 use App\Models\Pieza;
+use App\Models\Procesos;
 use App\Models\RevLaterales;
 use App\Models\RevLaterales_cnominal;
 use App\Models\RevLaterales_pza;
@@ -20,7 +21,33 @@ class RevLateralesController extends Controller
     public function show()
     {
         $ot = Orden_trabajo::all(); //Obtención de todas las ordenes de trabajo.
-        return view('processes.rev-laterales', ['ot' => $ot]);
+        if (count($ot) != 0) {
+            $oTrabajo = array(); //Declara arreglo para guardar las ordenes de trabajo disponibles en Cepillado.
+            //Recorre todas las ordenes de trabajo.
+            foreach ($ot as $ot) {
+                $contador = 0; //Contador para verificar que existan clases que pasaran por Cepillado
+                $clases = Clase::where('id_ot', $ot->id)->get();
+                //Recorre todas las clases registradas en la orden de trabajo.
+                foreach ($clases as $clase) {
+                    $proceso = Procesos::where('id_clase', $clase->id)->first(); //Obtención del proceso de la clase.
+                    if ($proceso) {
+                        if ($proceso->revision_laterales) { //Si existen maquinas en cepillado de esa clase, se almacena en el arreglo que se pasara a la vista
+                            $contador++;
+                        }
+                    }
+                }
+                //Si hay clases que pasaran por Cepillado, se almacena la orden de trabajo en el arreglo.
+                if ($contador != 0) {
+                    array_push($oTrabajo, $ot);
+                }
+            }
+            if(count($oTrabajo) != 0){
+                return view('processes.rev-laterales', ['ot' => $oTrabajo]); //Retorno a vista de Cepillado.
+            }
+            //Se retorna a la vista de Cepillado con las ordenes de trabajo que tienen clases que pasaran por cepillado.
+            return view('processes.rev-laterales', ['ot']); //Retorno a vista de Cepillado.
+        }
+        return view('processes.rev-laterales');
     }
     public function storeheaderTable(Request $request)
     {

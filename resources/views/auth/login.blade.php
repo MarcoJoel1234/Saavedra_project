@@ -47,12 +47,6 @@
                                     Iniciar Sesión
                                 </button>
                             </form>
-                            <div class="links">
-                                <a href="{{ route('register') }}" class="text-decoration-none">
-                                    <p class="mt-3">¿Aún no tienes una cuenta?<br>¡Registrate!
-                                    </p>
-                                </a>
-                            </div>
                         </div>
                     </div>
                 </div>

@@ -33,7 +33,7 @@ class Proceso {
                 }
                 return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined); // Crear tabla
                 
-            case "desbaste": //Proceso de cepillado
+            case "Desbaste Exterior": //Proceso de cepillado
                 titulos = ['', 'Diametro de mordaza', 'Diametro de ceja', 'Diametro de sufridera/Extra', 'Simetría ceja', 'Simetría Mordaza', 'Altura de ceja', 'Altura sufridera'];
 
                 cNominal = ['C.nominal', 'cNomi_diametro_mordaza', 'cNomi_diametro_ceja', 'cNomi_diametro_sufrideraExtra', 'cNomi_simetria_ceja', 'cNomi_simetria_mordaza', 'cNomi_altura_ceja', 'cNomi_altura_sufridera'];
@@ -49,7 +49,7 @@ class Proceso {
                 }
                 return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined); // Crear tabla
             
-            case "revLaterales": //Proceso de cepillado
+            case "Revision Laterales": //Proceso de cepillado
                 titulos = ['', 'Desfasamiento Entrada', 'Desfasamiento Salida', 'Ancho de simetria Entrada', 'Ancho de simetria Salida', 'Angulo de corte'];
 
                 cNominal = ['C.nominal', 'cNomi_desfasamiento_entrada', 'cNomi_desfasamiento_salida', 'cNomi_ancho_simetriaEntrada', 'cNomi_ancho_simetriaSalida', 'cNomi_angulo_corte'];
@@ -65,7 +65,7 @@ class Proceso {
                 }   
                 return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined); // Crear tabla
 
-            case "primeraOpeSoldadura": //Proceso de cepillado
+            case "Primera Operacion": //Proceso de cepillado
                 titulos = ['', 'Diametro 1', 'Profundidad 1 ', 'Diametro 2', 'Profundidad 2', 'Diametro 3', 'Profunfidad 3','Diametro de soldadura', 'Profundidad de soldadura', 'Diametro de barreno', 'Simetria línea de partida', 'Perno de alineación', 'Simetría a 90°'];
 
                 cNominal = ['C.nominal', 'cNomi_diametro1', 'cNomi_profundidad1', 'cNomi_diametro2', 'cNomi_profundidad2', 'cNomi_diametro3', 'cNomi_profundidad3', 'cNomi_diametroSoldadura', 'cNomi_diametroBarreno', 'cNomi_profundidadSoldadura', 'cNomi_simetriaLinea_partida', 'cNomi_pernoAlineacion', 'cNomi_Simetria90G'];
@@ -81,7 +81,7 @@ class Proceso {
                 }   
                 return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined); // Crear tabla
 
-            case "segundaOpeSoldadura": //Proceso de cepillado
+            case "Segunda Operacion": //Proceso de cepillado
                 titulos = ['', 'Diametro 1', 'Profundidad 1 ', 'Diametro 2', 'Profundidad 2', 'Diametro 3', 'Profunfidad 3','Diametro de soldadura', 'Profundidad de soldadura', 'Altura total', 'Simetría a 90°', 'Simetria línea de partida'];
 
                 cNominal = ['C.nominal', 'cNomi_diametro1', 'cNomi_profundidad1', 'cNomi_diametro2', 'cNomi_profundidad2', 'cNomi_diametro3', 'cNomi_profundidad3', 'cNomi_diametroSoldadura', 'cNomi_profundidadSoldadura', 'cNomi_alturaTotal', 'cNomi_Simetria90G', 'cNomi_simetriaLinea_partida'];
@@ -97,7 +97,7 @@ class Proceso {
                 }   
                 return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined); // Crear tabla
                 
-            case "pysOpeSoldadura": //Proceso de cepillado
+            case "Operacion Equipo": //Proceso de cepillado
                 titulos = ['', 'Altura', 'ø Altura de candado', 'Altura asiento obturador', 'ø Profundidad de soldadura', 'ø de PushUp'];
 
                 cNominal = ['C.nominal', 'cNomi_altura', 'cNomi_alturaCandado1', 'cNomi_alturaCandado2', 'cNomi_alturaAsientoObturador1', 'cNomi_alturaAsientoObturador2', 'cNomi_profundidadSoldadura1', 'cNomi_profundidadSoldadura2', 'cNomi_pushUp'];
@@ -337,7 +337,7 @@ class Proceso {
                             <input type="text" class="ot" value="{{$clase->nombre}}" readonly>
                             <input type="hidden" name="clase" class="ot" value="{{$clase->id}}">
                             <!--Valor del proceso elegido-->
-                            <input type="text" id="select-proceso" class="ot" value="{{$proceso}}" readonly>
+                            <input type="text" name="proceso" id="select-proceso" class="ot" value="{{$proceso}}" readonly>
                         </div>
                     @else
                         <div class="row" id="row">
@@ -395,26 +395,10 @@ class Proceso {
                 
             @endif
             <!--Enviar valores de procesos-->
-            @if(isset($proceso) && $proceso == 'Cepillado')
-                <input type="hidden" name="proceso" value="Cepillado">
+            @isset($proceso)
+                <input type="hidden" name="proceso" value="{{$proceso}}">
                 <input type="hidden" name="clase" class="ot" value="{{$clase->id}}">
-            @elseif (isset($proceso) && $proceso == 'desbaste')
-                <input type="hidden" name="proceso" value="desbaste">
-                <input type="hidden" name="clase" class="ot" value="{{$clase->id}}">
-            @elseif (isset($proceso) && $proceso == 'revLaterales')
-                <input type="hidden" name="proceso" value="revLaterales">
-                <input type="hidden" name="clase" class="ot" value="{{$clase->id}}">
-            @elseif (isset($proceso) && $proceso == 'primeraOpeSoldadura')
-                <input type="hidden" name="proceso" value="primeraOpeSoldadura">
-                <input type="hidden" name="clase" class="ot" value="{{$clase->id}}">
-            @elseif (isset($proceso) && $proceso == 'segundaOpeSoldadura')
-                <input type="hidden" name="proceso" value="segundaOpeSoldadura">
-                <input type="hidden" name="clase" class="ot" value="{{$clase->id}}">
-            @elseif (isset($proceso) && $proceso == 'pysOpeSoldadura')
-                <input type="hidden" name="proceso" value="pysOpeSoldadura">
-                <input type="hidden" name="clase" class="ot" value="{{$clase->id}}">
-                <input type="hidden" name="operacion" class="ot" value="{{$operacion}}">
-            @endif
+            @endisset
         </div>
         <!--Aparecer boton-->
         @if(isset($existe))

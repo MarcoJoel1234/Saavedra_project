@@ -5,7 +5,6 @@
     <title>Registrar Orden de trabajo</title>
     <link rel="stylesheet" href="{{asset('bootstrap/css/bootstrap.min.css')}}">
     @vite('resources/css/RegistrarOT/agregarOT.css')
-    @vite('resources/js/agregarColumnas.js')
 </head>
 @if(isset($ot))
     <style>

@@ -111,6 +111,11 @@ Route::get('/piezasGenerales', [PzasGeneralesController::class, 'show'])->name('
 //Ruta para el controlador de piezas generales
 Route::post('/searchPiezas', [PzasGeneralesController::class, 'search'])->name('searchPzasGenerales');
 
+//Ruta para la vista de piezas por maquina
+Route::get('/piezasMaquina', [PzasGeneralesController::class, 'showVistaMaquina'])->name('vistaPzasMaquina');
+//Ruta para ver los procesos de las maquinas
+Route::post('/piezasMaquina', [PzasGeneralesController::class, 'showMachinesProcess'])->name('showMachinesProcess');
+
 //Vista de Desbaste exterior
 Route::get('/desbasteExterior', [DesbasteExteriorController::class, 'show'])->name('desbasteExterior');
 //Guardar encabezado de la tabla Desbaste Exterior

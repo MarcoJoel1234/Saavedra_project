@@ -26,66 +26,69 @@ class OTController extends Controller
 {
     public function show()
     {
-        $molduras = Moldura::all(); //Obtengo todas las molduras.
-        $oTrabajo = Orden_trabajo::all(); //Obtengo todas las OT.
-        if($oTrabajo != "[]"){
-            $moldurasOT = []; //Arreglo para guardar las molduras de la OT
-            $contador = 0; //Contador para las molduras de la OT
-            foreach ($oTrabajo as $ot) { //Recorro las OT.
-                $moldura = Moldura::find($ot->id_moldura); //Busco la moldura de la OT.
-                $moldurasOT[$contador] = $ot->id . " - " .$moldura->nombre; //Guardo las molduras.
-                $contador++; //Aumento el contador 
+        $molduras = Moldura::all();
+        $oTrabajo = Orden_trabajo::all();
+        //Si existen ordenes de trabajo registradas.
+        if ($oTrabajo != "[]") {
+            $moldurasOT = []; //Arreglo para guardar las molduras de cada OT
+            $contador = 0; // Contador para las molduras y OT
+            foreach ($oTrabajo as $ot) {
+                $moldura = Moldura::find($ot->id_moldura);
+                $moldurasOT[$contador] = $ot->id . " - " . $moldura->nombre;
+                $contador++;
             }
             return view('processesAdmin.RegistrarOT.registrarOT', ['molduras' => $molduras, 'moldurasOT' => $moldurasOT, 'oTrabajo' => $oTrabajo]); //Retorno la vista de registro de OT con las molduras.
         }
         return view('processesAdmin.RegistrarOT.registrarOT', ['molduras' => $molduras]); //Retorno la vista de registro de OT con las molduras.
     }
 
-    public function deleteOT($ot){
+    public function deleteOT($ot)
+    {
         $piezas = Pieza::where('id_ot', $ot)->get(); //Busco las piezas de la OT
         $meta = Metas::where('id_ot', $ot)->get();
-        if(count($piezas) == 0 && count($meta) == 0){ //Si la OT no tiene piezas ni metas asociadas entonces
+        if (count($piezas) == 0 && count($meta) == 0) { //Si la OT no tiene piezas ni metas asociadas entonces
             $clase = Clase::where('id_ot', $ot)->get(); //Busco todas las clases que pertenecen a la OT
-                foreach($clase as $clase){ //Recorro las clases de la OT
-                    $proceso = Procesos::where('id_clase', $clase->id)->first();
-                    if($proceso){
-                        Procesos::find($proceso->id)->delete(); //Elimino el proceso de la clase                    }
-                     Clase::find($clase->id)->delete();
- //Elimino la clase de la OT                }
-                Orden_trabajo::find($ot)->delete();
- //Elimino la OT                return redirect()->route('registerOT')->with('success', '¡Orden de trabajo eliminada con éxito!'); //Redirecciono a la vista de registro de la OT
+            foreach ($clase as $clase) { //Recorro las clases de la OT
+                $proceso = Procesos::where('id_clase', $clase->id)->first();
+                if ($proceso) {
+                    Procesos::find($proceso->id)->delete(); //Elimino el proceso de la clase                    
+                }
+                Clase::find($clase->id)->delete(); //Elimino la clase de la OT                
+            }
+            Orden_trabajo::find($ot)->delete(); //Elimino la OT
+            return redirect()->route('registerOT')->with('success', '¡Orden de trabajo eliminada con éxito!'); //Redirecciono a la vista de registro de la OT
         }
         return redirect()->route('registerOT')->withErrors('¡La orden de trabajo no se puede eliminar porque tiene piezas o metas asociadas!');
     }
-    public function store(OTRequest $request) //Función para registrar una OT.
+    public function store(OTRequest $request) //Funcion para registrar una OT.
     {
-        if(isset($request->ot)){
+        if (isset($request->ot)) {
             $ot = Orden_trabajo::find($request->ot); //Busco la OT ingresada
-        }else{
+        } else {
             $ot = Orden_trabajo::find($request->otSeleccionada); //Busco a la OT seleccionada
         }
         //Si la orden de trabajo existe.
         if ($ot) {
-            $moldura = Moldura::find($request->id_moldura); //Busco la moldura de la OT.
+            $moldura = Moldura::find($request->id_moldura);
             //Si el usuario ingreso datos una clase.
             if (isset($request->clase)) {
                 $clase = Clase::where('id_ot', $request->ot)->where('nombre', $request->clase)->first(); //Busco la clase.
                 if (!$clase) { //Si la clase no existe.
                     //Asigno los datos de la clase.
                     $clase = new Clase();
-                    //Actualización de los datos de la OT
-                    $clase->id_ot = $request->ot; 
-                    $clase->nombre = $request->clase; 
+                    $clase->id_ot = $request->ot;
+                    $clase->nombre = $request->clase;
                     $clase->piezas = $request->piezas;
                     $clase->pedido = $request->pedido;
                     $clase->fecha_inicio = $request->fecha_inicio;
                     $clase->hora_inicio = $request->hora_inicio;
-                    if ($request->clase != "Obturador") { //Si la clase no es obturador.
+                    //Si la clase no es obturador.
+                    if ($request->clase != "Obturador") {
                         $clase->tamanio = $request->tamanio;
                     } else { //Si la clase es obturador.
                         $clase->seccion = $request->seccion;
- //Actualizo                     }
-                    $clase->save(); //Guardo los cambios.
+                    }
+                    $clase->save();
                 }
                 //Cuando solamente se ingresa una clase que ya existe.
                 $proceso = Procesos::where('id_clase', $clase->id)->first(); //Busco la clase.
@@ -134,13 +137,15 @@ class OTController extends Controller
         $clasesEncontradas = Clase::where('id_ot', $ot)->get(); //Busco la clase.
         return view('processesAdmin.RegistrarOT.registrarOT', ['ot' => $ot, 'moldura' => $moldura, 'clasesEncontradas' => $clasesEncontradas]); //Redirecciono a la vista de registro de OT.
     }
-    public function deleteClass($clase, $claseIndice)     {
-        $clase = Clase::find($clase); //Busco la clase ingresada.
-        $claseIndice = Clase::find($claseIndice); //Busco la clase ingresada. 
-        $proceso = Procesos::where('id_clase', $clase->id)->first(); //Busco la clase ingresada
-        if ($proceso) { //Si el proceso existe.
-            $proceso->delete();
- //Elimino el proceso de la clase        }
+    public function deleteClass($clase, $claseIndice)
+    {
+        $clase = Clase::find($clase);
+        $claseIndice = Clase::find($claseIndice);
+        $proceso = Procesos::where('id_clase', $clase->id)->first();
+        //Si el proceso existe.
+        if ($proceso) {
+            $proceso->delete(); //Elimino el proceso de la clase
+        }
         $ot = $clase->id_ot; //Busco la OT ingresada.
         $ot = Orden_trabajo::find($ot); //Busco la OT ingresada
         Clase::destroy($clase->id); //Elimino la clase
@@ -149,37 +154,46 @@ class OTController extends Controller
     }
     public function editClass($clase)
     {
+        // Se buscan los elementos de la clase que se solicita editar
         $clase = Clase::find($clase);
- //Busco la clase ingresada         $clases = Clase::where('id', $clase->id)->get();
         $ot = Orden_trabajo::find($clase->id_ot);
- //Busco la OT ingresada
-        $clasesName = ['Bombillo', 'Molde', 'Fondo', 'Obturador', 'Corona', 'Plato', 'Embudo'];
-        $clasesRegistradas = Clase::where('id_ot', $ot->id)->get();
- //Busco la clase ingresada         foreach($clasesRegistradas as $cls){
-            if($cls->nombre == "Bombillo"){
-                 unset($clasesName[0]);;            }else if(array_search($cls->nombre, $clasesName)){
+
+        $clases = Clase::where('id', $clase->id)->get(); //Unica clase que aparecera editando en la vista
+        $clasesName = ['Bombillo', 'Molde', 'Fondo', 'Obturador', 'Corona', 'Plato', 'Embudo']; //Clases que apareceran para seleccionar
+        $clasesRegistradas = Clase::where('id_ot', $ot->id)->get(); //Clases ya registradas
+        //Clases que ya estan registradas y no se deben mostrar
+        foreach ($clasesRegistradas as $cls) {
+            if ($cls->nombre == "Bombillo") {
+                unset($clasesName[0]);
+            } else if (array_search($cls->nombre, $clasesName)) {
                 unset($clasesName[array_search($cls->nombre, $clasesName)]);
             }
         }
 
-        $moldura = Moldura::find($ot->id_moldura); //Busco la moldura de la OT
-        $proceso = Procesos::where('id_clase', $clase->id)->first(); //Busco la clase.
+        $moldura = Moldura::find($ot->id_moldura);
+        $proceso = Procesos::where('id_clase', $clase->id)->first();
+
+        //Obtener el numero de piezas que se han registrado en esa clase
+        $piezas = Pieza::where('id_clase', $clase->id)->get();
+        $metas = Metas::where('id_clase', $clase->id)->get();
+
         if ($proceso) {
             // Obtener los campos donde el valor es igual a 1
             $camposConValor = [];
-            $maquinas = []; //Guardo las máquinas que se utilizaron en el proceso            $contador = 0;
+            $maquinas = []; //Guardo las máquinas que se utilizaron en el proceso
+            $contador = 0;
             foreach ($proceso->getAttributes() as $campo => $valor) { //Recorro los campos.
                 if ($campo != "id" && $campo != "id_clase") {
                     if ($valor != 0) { //Si el valor es diferente de 0
                         $camposConValor[$contador] = $campo; //Guardo los campos.
                         $maquinas[$contador] = $valor;
-                         $contador++;
+                        $contador++;
                     }
                 }
             }
-            return view('processesAdmin.RegistrarOT.infoOT', ['ot' => $ot->id, 'moldura' => $moldura, 'clase' => $clase, 'proceso' => $camposConValor, 'clases' => $clases, 'maquinas' => $maquinas, 'clasesName' => $clasesName, 'edit' => true])->with('success', '¡Orden de trabajo registrada con éxito!'); //Redirecciono a la vista de editar de OT.
+            return view('processesAdmin.RegistrarOT.infoOT', ['ot' => $ot->id, 'moldura' => $moldura, 'clase' => $clase, 'proceso' => $camposConValor, 'clases' => $clases, 'maquinas' => $maquinas, 'clasesName' => $clasesName, 'edit' => true, 'piezas' => $piezas, 'metas' => $metas])->with('success', '¡Orden de trabajo registrada con éxito!'); //Redirecciono a la vista de editar de OT.
         }
-        return view('processesAdmin.RegistrarOT.infoOT', ['ot' => $ot->id, 'moldura' => $moldura, 'clase' => $clase, 'clases' => $clases, 'edit' => true, 'clasesName' => $clasesName]); //Redirecciono a la vista de registro de OT.
+        return view('processesAdmin.RegistrarOT.infoOT', ['ot' => $ot->id, 'moldura' => $moldura, 'clase' => $clase, 'clases' => $clases, 'edit' => true, 'clasesName' => $clasesName, 'piezas' => $piezas, 'metas' => $metas]); //Redirecciono a la vista de registro de OT.
     }
     public function mostrarClases($ot)
     {
@@ -212,7 +226,7 @@ class OTController extends Controller
     }
     public function saveProcess(Request $request) //Función para registrar una OT.
     {
-        if(isset($request->pedido)){
+        if (isset($request->pedido)) {
             $clase = Clase::find($request->id_clase); //Busco la clase ingresada.
             $clase->nombre = $request->clase;
             $clase->piezas = $request->piezas;
@@ -227,6 +241,15 @@ class OTController extends Controller
                 $clase->tamanio = null;
             }
             $clase->save(); //Guardo los cambios.
+
+            $metas = Metas::where('id_clase', $clase->id)->get();
+            if (count($metas) > 0) {
+                foreach($metas as $meta){
+                    $hrsTrabajadas = $this->calcularHrs($meta->h_inicio, $meta->h_termino);
+                    $ot = Orden_trabajo::find($clase->id_ot);
+                    $clase = $this->AsignarDatos_Meta($meta, $hrsTrabajadas, $ot, $clase->nombre, $meta->proceso); //Asigno los datos de la meta.
+                }
+            }
         }
         $clase = Clase::find($request->id_clase); //Busco la clase ingresada.
         $moldura = Moldura::find($request->id_moldura); //Busco la moldura de la OT.
@@ -234,7 +257,7 @@ class OTController extends Controller
         if ($clase) {
             $proceso = Procesos::where('id_clase', $clase->id)->first(); //Busco el proceso.
             if (!$proceso || isset($request->pedido)) { //Si la clase no existe entonces...
-                if(!$proceso){
+                if (!$proceso) {
                     $proceso = new Procesos();
                 }
                 $this->verificarCasillas($clase, $request->procesos, $request->maquinas, $proceso); //Verifico las casillas.
@@ -331,13 +354,13 @@ class OTController extends Controller
             $metaExistente = Metas::where('id_usuario', $request->id_usuario)->where('id_ot', $request->ot)->where('h_inicio', $request->h_inicio)->where('h_termino', $request->h_termino)->where('fecha', $request->fecha)->where('maquina', $request->maquina)->first();
         }
         $ot = Orden_trabajo::find($request->ot); //Busco la OT ingresada.
-        $moldura = Moldura::find($ot->id_moldura); 
+        $moldura = Moldura::find($ot->id_moldura);
 
         if (isset($metaExistente)) { //Si la meta existe.
             $moldura = Moldura::find($ot->id_moldura);
-            if (isset($metaExistente->id_clase) && !isset($request->clases)) {//Si la meta existe pero aun no se selecciona la clase
+            if (isset($metaExistente->id_clase) && !isset($request->clases)) { //Si la meta existe pero aun no se selecciona la clase
                 $clase = Clase::find($metaExistente->id_clase);
-            } else {//Si se ingresa una meta ya existente
+            } else { //Si se ingresa una meta ya existente
                 $clase = Clase::where('id_ot', $ot->id)->where('nombre', $request->clase)->first(); //Busco la clase.
             }
             //Calculo de las horas trabajadas.
@@ -367,7 +390,7 @@ class OTController extends Controller
                 }
                 //Si se ingreso una contraseña incorrecta se retornan a las vistas correspondientes con los campos deshabilitados.
                 switch ($request->proceso) {
-                    case "cepillado":
+                    case "Cepillado":
                         return redirect()->route('cepilladoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
                     case "desbaste":
                         return redirect()->route('desbasteHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
@@ -380,7 +403,7 @@ class OTController extends Controller
                     case "pysOpeSoldadura":
                         return redirect()->route('1y2OpeSoldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase, 'operacion' => $request->operacion]);
                 }
-            //Si aun no se ha calculado la meta o se ingresan los datos editados o se ingresa la clase elegida
+                //Si aun no se ha calculado la meta o se ingresan los datos editados o se ingresa la clase elegida
             } elseif ($metaExistente->meta === null || isset($request->band) || isset($request->clases)) {
                 //Si se ingresan los datos de la primera parte de la meta editados y no se ha ingresado la clase.
                 if (isset($request->band) || !isset($request->clases)) {
@@ -393,8 +416,8 @@ class OTController extends Controller
                     //Se retornan a sus correspondientes vistas con los campos habilitados para editar la segunda parte de la meta.
                     switch ($request->proceso) {
                         case "cepillado":
-                            $clases = $this->ClaseEncontradas($ot->id, "cepillado");//Se obtienen las clases disponibles en cepillado
-                            return view('processes.cepillado', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]); 
+                            $clases = $this->ClaseEncontradas($ot->id, "cepillado"); //Se obtienen las clases disponibles en cepillado
+                            return view('processes.cepillado', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]);
                         case "desbaste":
                             $clases = $this->ClaseEncontradas($ot->id, "desbaste_exterior"); //Se obtienen las clases disponibles en desbaste exterior
                             return view('processes.desbaste', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]);
@@ -402,13 +425,13 @@ class OTController extends Controller
                             $clases = $this->ClaseEncontradas($ot->id, "revision_laterales"); //Se obtienen las clases disponibles en revision laterales
                             return view('processes.rev-laterales', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]);
                         case "primeraOpeSoldadura":
-                            $clases = $this->ClaseEncontradas($ot->id, "pOperacion");//Se obtienen las clases disponibles en primera operacion
+                            $clases = $this->ClaseEncontradas($ot->id, "pOperacion"); //Se obtienen las clases disponibles en primera operacion
                             return view('processes.primeraOpeSoldadura', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]);
                         case "segundaOpeSoldadura":
-                            $clases = $this->ClaseEncontradas($ot->id, "sOperacion");//Se obtienen las clases disponibles en segunda operacion
+                            $clases = $this->ClaseEncontradas($ot->id, "sOperacion"); //Se obtienen las clases disponibles en segunda operacion
                             return view('processes.segundaOpeSoldadura', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]);
                         case "pysOpeSoldadura": //Se obtienen las clases disponibles en 1ra y 2da operación de soldadura.
-                            $clases = $this->ClaseEncontradas($ot->id, "operacionEquipo");//Se obtienen las clases disponibles en 1 y 2 operacion equipo
+                            $clases = $this->ClaseEncontradas($ot->id, "operacionEquipo"); //Se obtienen las clases disponibles en 1 y 2 operacion equipo
                             return view('processes.pysOpeSoldadura', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]);
                     }
                 }
@@ -534,10 +557,10 @@ class OTController extends Controller
             $meta->h_inicio = $request->h_inicio;
             $meta->h_termino = $request->h_termino;
             $meta->maquina = $request->maquina;
+            $meta->proceso = $request->proceso;
             $meta->save();
 
             $moldura = Moldura::find($ot->id_moldura);
-
             switch ($request->proceso) {
                 case "cepillado":
                     $clases = $this->ClaseEncontradas($meta->id_ot, "cepillado"); //Obtengo las clases que no son nulas.
@@ -560,7 +583,7 @@ class OTController extends Controller
             }
         }
     }
-    public function ClaseEncontradas($ot, $proceso) 
+    public function ClaseEncontradas($ot, $proceso)
     {
         $string = $proceso; //Asigno el nombre del proceso
         $clases = Clase::where('id_ot', $ot)->get(); //Obtengo las clases de la OT.

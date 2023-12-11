@@ -24,6 +24,7 @@ return new class extends Migration
             $table->integer('maquina')->nullable();
             $table->unsignedBigInteger('id_clase')->nullable();
             $table->unsignedBigInteger('id_proceso')->nullable();
+            $table->string('proceso');
             $table->timestamps();
             $table->foreign('id_usuario')->references('matricula')->on('users');
             $table->foreign('id_ot')->references('id')->on('orden_trabajo');

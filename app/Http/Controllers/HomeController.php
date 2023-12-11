@@ -16,8 +16,10 @@ class HomeController extends Controller
         if($perfil !== null){
             if(auth()->user()->perfil == 1){
                 return view ('home.indexAdmin');
-            }else{
+            }else if(auth()->user()->perfil == 2){
                 return view ('home.index');
+            }else{
+                return view ('home.indexMaster');
             }
         }else{
             return view ('auth.login');

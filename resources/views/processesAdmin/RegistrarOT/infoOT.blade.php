@@ -5,7 +5,6 @@
     <title>Registrar Orden de trabajo</title>
     <link rel="stylesheet" href="{{asset('bootstrap/css/bootstrap.min.css')}}">
     @vite('resources/css/RegistrarOT/agregarClass.css')
-    @vite('resources/js/registrarOT.js')
 </head>
 
 <body background="{{ asset('images/fondoLogin.jpg') }}">
@@ -321,15 +320,21 @@
                 <div class="row">
                     <div class="col-md-6 mb-2">
                         <div class="form-outline">
-                            <label style="color: green; font-weight: bold;">Seleccione el tipo:</label><br>
-                            <select id="clases" name="clase" class="form-control">
-                                <option value="{{$clase->nombre}}">{{$clase->nombre}}</option>
-                                @foreach ($clasesName as $cl)
-                                    @if ($cl != $clase->nombre)
-                                        <option value="{{$cl}}">{{$cl}}</option>
-                                    @endif
-                                @endforeach
-                            </select>
+                            @if (count($piezas) == 0 && count($metas) == 0)
+                                <label style="color: green; font-weight: bold;">Seleccione el tipo:</label><br>
+                                <select id="clases" name="clase" class="form-control">
+                                    <option value="{{$clase->nombre}}">{{$clase->nombre}}</option>
+                                    @foreach ($clasesName as $cl)
+                                        @if ($cl != $clase->nombre)
+                                            <option value="{{$cl}}">{{$cl}}</option>
+                                        @endif
+                                    @endforeach
+                                </select>
+                            @else
+                                <label style="color: green; font-weight: bold;">Tipo:</label><br>
+                                <input type="text" value="{{$clase->nombre}}" class="form-control" disabled />
+                                <input type="hidden" name="clase" value="{{$clase->nombre}}" />
+                            @endif
                         </div>
                     </div>
                     <div class="col-md-6 mb-2">
@@ -346,6 +351,7 @@
                                     @endfor
                                 </select>
                             @else
+                                <!-- pto marco  -->
                                 <label id="titulo-select" style="color: green; font-weight: bold;">Seleccione el tamaño:</label>
                                 <select id="tamaños" name="tamanio" class="selects form-control">
                                     <option value="{{$clase->tamanio}}">{{$clase->tamanio}}</option>

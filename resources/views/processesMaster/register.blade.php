@@ -1,6 +1,5 @@
-<!doctype html>
-<html lang="en">
-
+@extends('layouts.appMaster')
+@section('content')
 <head>
     <title>Registrarse</title>
     <!-- Required meta tags -->
@@ -66,6 +65,7 @@
                                     <select class="form-select" id="floatingSelect" name="perfil">
                                         <option value="1">Administrador</option>
                                         <option value="2">Operador</option>
+                                        <option value="3">Maestro</option>
                                     </select>
                                     <label for="floatingSelect">Tipo de usuario</label>
                                 </div>
@@ -74,9 +74,6 @@
                                 <button type="submit" class="custom-btn">
                                     Registrarse
                                 </button>
-                                <a href="{{route('login')}}" class="text-decoration-none" style="color: green;">
-                                    <p class="mt-3">¿Ya tienes una cuenta? ¡Inicia sesión!</p>
-                                </a>
                             </form>
                         </div>
                     </div>
@@ -98,5 +95,4 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.min.js" integrity="sha384-7VPbUDkoPSGFnVtYi0QogXtr74QeVeeIs99Qfg5YCF+TidwNdjvaKZX19NZ/e6oz" crossorigin="anonymous">
     </script>
 </body>
-
-</html>
+@endsection

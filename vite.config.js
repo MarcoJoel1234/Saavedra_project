@@ -12,7 +12,6 @@ export default defineConfig({
                 "resources/css/cepillado.css",
                 "resources/css/recoverPassword.css",
                 "resources/css/RegistrarOT/agregarOT.css",
-                "resources/js/registrarOT.js",
                 "resources/js/editarInterfaz.js",
                 "resources/js/editarTabla.js",
                 "resources/css/editarClase.css",
@@ -20,11 +19,14 @@ export default defineConfig({
                 "resources/css/viewpiezas.css",
                 "resources/css/verProcesos.css",
                 "resources/css/adminPzas.css",
+                "resources/css/RegistrarOT/agregarClass.css",
+                'resources/css/maquinas.css',
+                'resources/css/maquinas2.css',
             ],
             refresh: true,
         }),
     ],
-    build: {
-        base: 'http://192.168.1.106:80/',
-    },
+    // build: {
+    //     b1ase: 'http://192.168.1.106:80/',
+    // },
 });

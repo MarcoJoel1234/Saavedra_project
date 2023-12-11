@@ -43,6 +43,7 @@
             <!--Div para el header del proceso-->
             <div class="container-header">
                 <!--Div para los datos ingresados por el usuario-->
+                @if (isset($ot) || isset($meta))
                 <div class="datos">
                     <!--Si no existen piezas registradas en esa meta y el usuario ya ha completado los campos requeridos de la meta -->  
                     @if ((isset($band) && $band == 2) && (!isset($nPiezas) || $nPiezas == "[]"))
@@ -76,7 +77,7 @@
                         </div>
                         <div class="input-datos">
                             <label for="fecha" style="padding-right: 60px; margin-left:50px;">Fecha:</label>
-                            <label for="fecha">Maquina:</label><br>
+                            <label for="fecha">Máquina:</label><br>
                             <input type="date" name="fecha" value="{{$meta->fecha}}" style="cursor:auto;" readonly>
                             <input type="text" name="maquina" value="{{$meta->maquina}}" style="cursor:auto; width:20%;" readonly>
                         </div>
@@ -115,7 +116,7 @@
                             <input type="date" id="fecha" name="fecha" required>
                             <select name="maquina">
                             @for ($i=1; $i<=7; $i++)
-                                <option value="{{$i}}">Maquina {{$i}}</option>
+                                <option value="{{$i}}">Máquina {{$i}}</option>
                             @endfor
                             </select>
                         </div>
@@ -124,7 +125,6 @@
                         <div class="input-datos" id="div-btn-accept">
                             <button id="btn-accept" style="margin-left:70px;">Aceptar</button><br>
                         </div>
-
                         <!--Div para seleccionar la clase-->
                         <div class="disabled">
                             <div class="input-datos" id="div-clases">
@@ -150,6 +150,11 @@
                             <button class="btn" id="btn-class">Siguiente</button>
                         </div>
                 </div>
+                @else
+                    <div class="datos" style="text-align: center;">
+                        <h3 style="color: red;">Sin ordenes de trabajo </h3>
+                    </div>
+                @endif
                 <div class="div-tabla2">
                     <table border="1" id="tabla2">
                         <tr>

@@ -10,11 +10,10 @@ class RegisterController extends Controller
 {
     //
     public function show(){
-        return view('auth.register');
+        return view('processesMaster.register');
     }
     public function register(RegisterRequest $request){
         $user = User::create($request->validated());
-        return redirect()->to('login')->with('success', 'Usuario registrado correctamente');
+        return redirect()->to('register')->with('success', 'Usuario registrado correctamente');
     }
 }
-

@@ -11,6 +11,7 @@ use App\Models\Metas;
 use App\Models\Moldura;
 use App\Models\Orden_trabajo;
 use App\Models\Pieza;
+use App\Models\Procesos;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -20,7 +21,33 @@ class DesbasteExteriorController extends Controller
     public function show()
     {
         $ot = Orden_trabajo::all(); //Obtención de todas las ordenes de trabajo.
-        return view('processes.desbaste', ['ot' => $ot]);
+        if (count($ot) != 0) {
+            $oTrabajo = array(); //Declara arreglo para guardar las ordenes de trabajo disponibles en Desbaste exterior.
+            //Recorre todas las ordenes de trabajo.
+            foreach ($ot as $ot) {
+                $contador = 0; //Contador para verificar que existan clases que pasaran por Desbaste exterior
+                $clases = Clase::where('id_ot', $ot->id)->get();
+                //Recorre todas las clases registradas en la orden de trabajo.
+                foreach ($clases as $clase) {
+                    $proceso = Procesos::where('id_clase', $clase->id)->first(); //Obtención del proceso de la clase.
+                    if ($proceso) {
+                        if ($proceso->desbaste_exterior) { //Si existen maquinas en cepillado de esa clase, se almacena en el arreglo que se pasara a la vista
+                            $contador++;
+                        }
+                    }
+                }
+                //Si hay clases que pasaran por Cepillado, se almacena la orden de trabajo en el arreglo.
+                if ($contador != 0) {
+                    array_push($oTrabajo, $ot);
+                }
+            }
+            if(count($oTrabajo) != 0){
+                return view('processes.desbaste', ['ot' => $oTrabajo]); //Retorno a vista de Desbaste exterior
+            }
+            //Se retorna a la vista de Cepillado con las ordenes de trabajo que tienen clases que pasaran por Desbaste exterior
+            return view('processes.desbaste', ['ot']); //Retorno a vista de Desbaste exterior
+        }
+        return view('processes.desbaste');
     }
     public function storeheaderTable(Request $request)
     {
@@ -32,14 +59,14 @@ class DesbasteExteriorController extends Controller
         }
         $ot = Orden_trabajo::where('id', $meta->id_ot)->first(); //Busco la OT que se quiere editar.
         $clase = Clase::find($meta->id_clase); //Busco la clase de la OT.
-        $id = "desbaste_" . $clase->nombre . "_" . $ot->id; //Creación de id para tabla Cepillado.
+        $id = "desbaste_" . $clase->nombre . "_" . $ot->id; //Creación de id para tabla Desbaste exterior
         $cNominal = Desbaste_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $tolerancia = Desbaste_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $moldura = Moldura::find($ot->id_moldura); //Busco la moldura de la OT.
         $id_proceso = DesbasteExterior::where('id_proceso', $id)->first();
 
-        if (isset($request->n_pieza)) {  //Si se obtienen los datos de las piezas, se guardan en la tabla Cepillado_cnominal.
-            $id_pieza = $request->n_pieza . $id_proceso->id; //Creación de id para tabla Cepillado_cnominal.
+        if (isset($request->n_pieza)) {  //Si se obtienen los datos de las piezas, se guardan en la tabla Desbaste exterior_cnominal.
+            $id_pieza = $request->n_pieza . $id_proceso->id; //Creación de id para tabla Desbaste exterior_cnominal.
             $piezaExistente = Desbaste_pza::where('id_pza', $id_pieza)->first();
             if ($piezaExistente) {
                 $piezaExistente->diametro_mordaza = $request->diametro_mordaza;
@@ -88,12 +115,12 @@ class DesbasteExteriorController extends Controller
 
                 //  //Retornar la pieza siguiente
                 $pzaUtilizar = Desbaste_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first();
-                if (isset($pzaUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Cepillado.
+                if (isset($pzaUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de desbaste.
                     $pzasCreadas = Desbaste_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get();
                     return view('processes.desbaste', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'juegos' => count($this->piezaUtilizar($ot->id, $clase))]); //Retorno a vista de Cepillado.
                 } else {
-                    //Actualizar solo dos registros de las piezas que se van a ocupar en la tabla desbaste
-                    $this->piezaUtilizar($ot->id, $clase);
+                    //Actualizar solo dos registros de las piezas que se van a ocupar en la tabla desbaste exteriorts
+                   $this->piezaUtilizar($ot->id, $clase);
                 }
             }
         } else if (isset($request->n_juegoElegido)) {
