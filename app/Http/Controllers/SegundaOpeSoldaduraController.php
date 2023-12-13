@@ -7,6 +7,7 @@ use App\Models\Metas;
 use App\Models\Moldura;
 use App\Models\Orden_trabajo;
 use App\Models\Pieza;
+use App\Models\Procesos;
 use App\Models\SegundaOpeSoldadura;
 use App\Models\SegundaOpeSoldadura_cnominal;
 use App\Models\SegundaOpeSoldadura_pza;
@@ -20,7 +21,33 @@ class SegundaOpeSoldaduraController extends Controller
     public function show()
     {
         $ot = Orden_trabajo::all(); //Obtención de todas las ordenes de trabajo.
-        return view('processes.segundaOpeSoldadura', ['ot' => $ot]);
+        if (count($ot) != 0) {
+            $oTrabajo = array(); //Declara arreglo para guardar las ordenes de trabajo disponibles en Barreno maniobra.
+            //Recorre todas las ordenes de trabajo.
+            foreach ($ot as $ot) {
+                $contador = 0; //Contador para verificar que existan clases que pasaran por Barreno maniobra
+                $clases = Clase::where('id_ot', $ot->id)->get();
+                //Recorre todas las clases registradas en la orden de trabajo.
+                foreach ($clases as $clase) {
+                    $proceso = Procesos::where('id_clase', $clase->id)->first(); //Obtención del proceso de la clase.
+                    if ($proceso) {
+                        if ($proceso->sOperacion) { //Si existen maquinas en cepillado de esa clase, se almacena en el arreglo que se pasara a la vista
+                            $contador++;
+                        }
+                    }
+                }
+                //Si hay clases que pasaran por Barreno maniobra, se almacena la orden de trabajo en el arreglo.
+                if ($contador != 0) {
+                    array_push($oTrabajo, $ot);
+                }
+            }
+            if (count($oTrabajo) != 0) {
+                return view('processes.segundaOpeSoldadura', ['ot' => $oTrabajo]); //Retorno a vista de Barreno maniobra
+            }
+            //Se retorna a la vista de Cepillado con las ordenes de trabajo que tienen clases que pasaran por Barreno maniobra
+            return view('processes.segundaOpeSoldadura', ['ot']); //Retorno a vista de Barreno maniobra
+        }
+        return view('processes.segundaOpeSoldadura');
     }
     public function storeheaderTable(Request $request)
     {
@@ -382,69 +409,84 @@ class SegundaOpeSoldaduraController extends Controller
 
     public function piezaUtilizar($ot, $clase) //Función para obtener la pieza a utilizar.
     {
-        //Obtener las piezas que esten terminadas y correctas en la tabla cepillado para despues comparar cada una con su consecuente y asi armar los juegos
         $pzasUtilizar = array();
-        $pzasGuardadas = array(); //Creación de array para guardar los números de pieza.
-        $numero = ""; //Creación de variable para guardar el número de pieza.
-        $pzasEncontradas = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Primera Operacion Soldadura')->where('error', 'Ninguno')->get(); //Obtención de todas las piezas creadas.
+        $pzasGuardadas = array();
+        $procesos = Procesos::where('id_clase', $clase->id)->first();
 
-
-        $id_proceso = "2OpeSoldadura_" . $clase->nombre . "_" . $ot; //Creación de id para la tabla cepillado
-        $proceso = SegundaOpeSoldadura::where('id_proceso', $id_proceso)->first(); //Busco el proceso de la OT.
-
+        //Obtener las piezas que esten terminadas y correctas en la tabla Barreno maniobra para despues comparar cada una con su consecuente y asi armar los juegos
+        $id_proceso = "2opeSoldadura_" . $clase->nombre . "_" . $ot;
+        $proceso = SegundaOpeSoldadura::where('id_proceso', $id_proceso)->first();
         $pzasOcupadas = SegundaOpeSoldadura_pza::where('id_proceso', $proceso->id)->where('estado', 1)->get(); //Obtención de todas las piezas creadas.
-
         if ($proceso) {
-            $pzasUsadas = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Segunda Operacion Soldadura')->get(); //Obtención de todas las piezas creadas.
+            $pzasUsadas = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Segunda Operacion Soldadura')->get(); //Obtención de todas las piezas creadas en Barreno Maniobra.
         }
-        for ($i = 0; $i < count($pzasEncontradas); $i++) { //Recorro las piezas encontradas.
-            if (array_search($pzasEncontradas[$i]->n_pieza, $pzasGuardadas) == false) {
-                $numerosUsados = array();
-                if (isset($pzasUsadas)) {
-                    $numeroUsado = "";
-                    for ($x = 0; $x < count($pzasUsadas); $x++) {
-                        $pzaDividida_Usada = str_split($pzasUsadas[$x]->n_pieza); //División del número de pieza usada.
-                        for ($h = 0; $h < count($pzaDividida_Usada) - 1; $h++) { //Recorro el número de pieza usada.
-                            $numeroUsado .= $pzaDividida_Usada[$h]; //Obtención del número de pieza usada.
-                        }
-                        array_push($numerosUsados, $numeroUsado); //Guardo el número de ppieza usada.
-                        $numeroUsado = ""; //Reinicio la variable.
-                    }
-                }
-                if (isset($pzasOcupadas)) {
-                    $numeroUsado = ""; //Reinicio la variable.
-                    for ($x = 0; $x < count($pzasOcupadas); $x++) {
-                        $n_piezaUsada = $pzasOcupadas[$x]->n_pieza; //Obtención del número de pieza ocupada
-                        $pzaDividida_Usada = str_split($n_piezaUsada);
-                        for ($h = 0; $h < count($pzaDividida_Usada) - 1; $h++) {
-                            $numeroUsado .= $pzaDividida_Usada[$h];
-                        }
-                        array_push($numerosUsados, $numeroUsado);
-                        $numeroUsado = "";
-                    }
-                }
-                $n_pieza = $pzasEncontradas[$i]->n_pieza; //Obtención del número de pieza.
-                $piezaDividida = str_split($n_pieza); //División del número de pieza.
-                for ($j = 0; $j < count($piezaDividida) - 1; $j++) { //Recorro el número de pieza.
-                    $numero .= $piezaDividida[$j]; //Obtención del número de pieza.
-                }
-                //Se hace la condicion para saber si el numero de la pieza se encuentra ya usada.
-                if (array_search($numero, $numerosUsados) === false) {
-                    if (mb_substr($n_pieza, -1, null, 'UTF-8') == "M") { //Si la pieza es macho, se busca la pieza hembra.
-                        $pieza = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Primera Operacion Soldadura')->where('n_pieza', $numero . "H")->where('error', 'Ninguno')->first(); //Busco la pieza hembra.
-                    } else {
-                        $pieza = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Primera Operacion Soldadura')->where('n_pieza', $numero . "M")->where('error', 'Ninguno')->first(); //Busco la pieza macho.
-                    }
 
-                    if (isset($pieza)) {
-                        array_push($pzasUtilizar, $numero . "J"); //Guardo el número de pieza.
-                        array_push($pzasGuardadas, $pzasEncontradas[$i]->n_pieza); //Guardo el número de pieza.
-                        array_push($pzasGuardadas, $pieza->n_pieza); //Guardo el número de pieza.
-                    }
-                }
-                $numero = "";
-            }
+        if ($procesos->barreno_maniobra != 0) {
+            //Obtener las piezas solamente en el proceso de Primera Operacion
+            $pzasEncontradas = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Barreno Maniobra')->get();
+            $this->piezasEncontradas($ot, $clase, $pzasEncontradas, $pzasUtilizar, $pzasGuardadas, 'Barreno Maniobra', $pzasUsadas, $pzasOcupadas);
         }
         return $pzasUtilizar;
+    }
+    public function piezasEncontradas($ot, $clase, $pzasEncontradas, &$pzasUtilizar, &$pzasGuardadas, $nameProceso, $pzasUsadas, $pzasOcupadas)
+    {
+        $numero = "";
+        for ($i = 0; $i < count($pzasEncontradas); $i++) { //Recorro las piezas encontradas de Desbaste.
+            if (array_search($pzasEncontradas[$i]->n_pieza, $pzasGuardadas) == false) {
+                if ($pzasEncontradas[$i]->error == "Ninguno") {
+                    $numerosUsados = array();
+                    if (count($pzasUsadas) > 0) {
+                        $numeroUsado = "";
+                        for ($x = 0; $x < count($pzasUsadas); $x++) {
+                            $pzaDividida_Usada = str_split($pzasUsadas[$x]->n_pieza); //División del número de pieza usada.
+                            for ($h = 0; $h < count($pzaDividida_Usada) - 1; $h++) { //Recorro el número de pieza usada.
+                                $numeroUsado .= $pzaDividida_Usada[$h]; //Obtención del número de pieza usada.
+                            }
+                            array_push($numerosUsados, $numeroUsado); //Guardo el número de pieza usada.
+                            $numeroUsado = ""; //Reinicio la variable.
+                        } //Recorro las piezas ocupadas en Desbaste
+                    }
+                    if (count($pzasOcupadas) > 0) {
+                        $numeroUsado = ""; //Reinicio la variable.
+                        for ($x = 0; $x < count($pzasOcupadas); $x++) {
+                            $n_piezaUsada = $pzasOcupadas[$x]->n_pieza; //Obtención del número de pieza ocupada
+                            $pzaDividida_Usada = str_split($n_piezaUsada);
+                            for ($h = 0; $h < count($pzaDividida_Usada) - 1; $h++) {
+                                $numeroUsado .= $pzaDividida_Usada[$h];
+                            }
+                            array_push($numerosUsados, $numeroUsado);
+                            $numeroUsado = "";
+                        }
+                    }
+                    $n_pieza = $pzasEncontradas[$i]->n_pieza; //Obtención del número de pieza.
+                    $piezaDividida = str_split($n_pieza); //División del número de pieza.
+                    for ($j = 0; $j < count($piezaDividida) - 1; $j++) { //Recorro el número de pieza.
+                        $numero .= $piezaDividida[$j]; //Obtención del número de pieza.
+                    }
+                    //Se hace la condicion para saber si el numero de la pieza se encuentra ya usada.
+                    if (array_search($numero, $numerosUsados) === false) {
+                        if (mb_substr($n_pieza, -1, null, 'UTF-8') == "M") { //Si la pieza es macho, se busca la pieza hembra.
+                            $pieza = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', $nameProceso)->where('n_pieza', $numero . "H")->where('error', 'Ninguno')->first(); //Busco la pieza hembra.
+                        } else {
+                            $pieza = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', $nameProceso)->where('n_pieza', $numero . "M")->where('error', 'Ninguno')->first(); //Busco la pieza macho.
+                        }
+                        if (isset($pieza)) {
+                            array_push($pzasUtilizar, $numero . "J"); //Guardo el número de pieza.
+                            array_push($pzasGuardadas, $pzasEncontradas[$i]->n_pieza); //Guardo el número de pieza.
+                            array_push($pzasGuardadas, $pieza->n_pieza); //Guardo el número de pieza.
+                        }
+                    }
+                    $numero = "";
+                } else {
+                    $numeroDiv = str_split($pzasEncontradas[$i]->n_pieza);
+                    for ($l = 0; $l < count($numeroDiv) - 1; $l++) {
+                        $numero .= $numeroDiv[$l];
+                    }
+                    array_push($pzasGuardadas, $numero . "H");
+                    array_push($pzasGuardadas, $numero . "M");
+                    $numero = "";
+                }
+            }
+        }
     }
 }

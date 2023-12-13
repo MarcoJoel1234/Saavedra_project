@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BarrenoManiobraController;
 use App\Http\Controllers\CepilladoController;
 use App\Http\Controllers\ClaseController;
 use App\Http\Controllers\DesbasteExteriorController;
@@ -19,6 +20,8 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\RestorePasswordController;
 use App\Http\Controllers\RevLateralesController;
 use App\Http\Controllers\SegundaOpeSoldaduraController;
+use App\Http\Controllers\SoldaduraController;
+use App\Http\Controllers\SoldaduraPTAController;
 use App\Models\RevLaterales;
 use Illuminate\Support\Facades\Route;
 
@@ -141,7 +144,16 @@ Route::get('/primeraOpeSoldaduraHeader', [PrimeraOpeSoldaduraController::class, 
 //Guardar encabezado de la tabla Primera Operacion Soldadura
 Route::post('/primeraOpeSoldaduraHeader', [PrimeraOpeSoldaduraController::class, 'storeheaderTable'])->name('primeraOpeSoldaduraHeader');
 //Ruta para editar datos de la tabla Primera Operacion Soldaduraedit
-Route::post('/editPrimeraOpeSoldadura', [PrimeraOpeSoldaduraController::class, 'edit'])->name('editPrimeraOpeSoldadura');
+Route::post('/editPrimeraOpeSoldadura', [PrimeraOpeSoldaduraController::class, 'edit'])->name('editPrimeraOpeSoldadura');  
+
+//Vista de Barreno Maniobra
+Route::get('/barrenoManiobra', [BarrenoManiobraController::class, 'show'])->name('barrenoManiobra');
+//Guardar encabezado de la tabla Barreno Maniobra
+Route::get('/barrenoManiobraHeader', [BarrenoManiobraController::class, 'storeheaderTable'])->name('barrenoManiobraHeaderGet');
+//Guardar encabezado de la tabla Barreno Maniobra
+Route::post('/barrenoManiobraHeader', [BarrenoManiobraController::class, 'storeheaderTable'])->name('barrenoManiobraHeader');
+//Ruta para editar datos de la tabla Barreno Maniobra
+Route::post('/editBarrenoManiobra', [BarrenoManiobraController::class, 'edit'])->name('editBarrenoManiobra');
 
 //Vista de Segunda Operacion Soldadura
 Route::get('/segundaOpeSoldadura', [SegundaOpeSoldaduraController::class, 'show'])->name('segundaOpeSoldadura');
@@ -152,11 +164,29 @@ Route::post('/segundaOpeSoldaduraHeader', [SegundaOpeSoldaduraController::class,
 //Ruta para editar datos de la tabla Segunda Operacion Soldadura
 Route::post('/editSegundaOpeSoldadura', [SegundaOpeSoldaduraController::class, 'edit'])->name('editSegundaOpeSoldadura');
 
-//Vista de Primera y Segunda Operacion Soldadura Equipo
-Route::get('/1y2OpeSoldadura', [PySOpeSoldaduraController::class, 'show'])->name('1y2OpeSoldadura');
-//Guardar encabezado de la tabla Primera y Segunda Operacion Soldadura
-Route::get('/1y2OpeSoldaduraHeader', [PySOpeSoldaduraController::class, 'storeheaderTable'])->name('1y2OpeSoldaduraHeaderGet');
-//Guardar encabezado de la tabla Primera y Segunda Operacion Soldadura
-Route::post('/1y2OpeSoldaduraHeader', [PySOpeSoldaduraController::class, 'storeheaderTable'])->name('1y2OpeSoldaduraHeader');
-//Ruta para editar datos de la tabla Primera y Segunda Operacion Soldaduraedit
-Route::post('/edit1y2OpeSoldadura', [PySOpeSoldaduraController::class, 'edit'])->name('edit1y2OpeSoldadura');
+//Vista de Soldadura
+Route::get('/soldadura', [SoldaduraController::class, 'show'])->name('soldadura');
+//Guardar encabezado de la tabla Soldadura
+Route::get('/soldaduraHeader', [SoldaduraController::class, 'storeheaderTable'])->name('soldaduraHeaderGet');
+//Guardar encabezado de la tabla Soldadura
+Route::post('/soldaduraHeader', [SoldaduraController::class, 'storeheaderTable'])->name('soldaduraHeader');
+//Ruta para editar datos de la tabla Soldadura
+Route::post('/editSoldadura', [SoldaduraController::class, 'edit'])->name('editSoldadura');
+
+//Vista soldadura PTA
+Route::get('/soldaduraPTA', [SoldaduraPTAController::class, 'show'])->name('soldaduraPTA');
+//Guardar encabezado de la tabla Soldadura PTA
+Route::get('/soldaduraPTAHeader', [SoldaduraPTAController::class, 'storeheaderTable'])->name('soldaduraPTAHeaderGet');
+//Guardar encabezado de la tabla Soldadura PTA
+Route::post('/soldaduraPTAHeader', [SoldaduraPTAController::class, 'storeheaderTable'])->name('soldaduraPTAHeader');
+//Ruta para editar datos de la tabla Soldadura PTA
+Route::post('/editSoldaduraPTA', [SoldaduraPTAController::class, 'edit'])->name('editSoldaduraPTA');
+
+// //Vista de Primera y Segunda Operacion Soldadura Equipo
+// Route::get('/1y2OpeSoldadura', [PySOpeSoldaduraController::class, 'show'])->name('1y2OpeSoldadura');
+// //Guardar encabezado de la tabla Primera y Segunda Operacion Soldadura
+// Route::get('/1y2OpeSoldaduraHeader', [PySOpeSoldaduraController::class, 'storeheaderTable'])->name('1y2OpeSoldaduraHeaderGet');
+// //Guardar encabezado de la tabla Primera y Segunda Operacion Soldadura
+// Route::post('/1y2OpeSoldaduraHeader', [PySOpeSoldaduraController::class, 'storeheaderTable'])->name('1y2OpeSoldaduraHeader');
+// //Ruta para editar datos de la tabla Primera y Segunda Operacion Soldaduraedit
+// Route::post('/edit1y2OpeSoldadura', [PySOpeSoldaduraController::class, 'edit'])->name('edit1y2OpeSoldadura');

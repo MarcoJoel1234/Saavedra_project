@@ -2,17 +2,17 @@
 @section('content')
 
 <head>
-    <title>Revisión laterales</title>
-    @vite('resources/css/cepillado.css')
+    <title>Barreno Maniobra</title>
+    @vite('resources/css/barreno.css')
     @vite('resources/js/editarInterfaz.js')
     @vite('resources/js/editarTabla.js')
 </head>
+<!--Si ya se ha registrado la primera parte de la meta-->
 @if (isset($band) && $band == 1 || isset($band) && $band == 2 || isset($band) && $band == 4)
     <style>
         .disabled {
             display: block;
         }
-
         #div-btn-accept {
             display: none;
         }
@@ -35,10 +35,10 @@
 
 <body background="{{ asset('images/hola.jpg') }}">
     <div class="container">
-        <!--Formulario en donde se guardara la meta de desbaste-->
+        <!--Formulario en donde se guardara la meta de barreno maniobra-->
         <form action="{{route('saveHeader')}}" method="post">
             @csrf
-            <input type="hidden" name="proceso" value="revLaterales">
+            <input type="hidden" name="proceso" value="barrenoManiobra">
             <!--Div para el header del proceso-->
             <div class="container-header">
                 <!--Div para los datos ingresados por el usuario-->
@@ -197,27 +197,23 @@
         <!--Formulario para los datos de la tabla-->
         @if (isset($band) && $band == 2)
             <div class="disabled-tabla">
-                <form action="{{ route('revLateralesHeader')}}" method="post">
+                <form action="{{ route('barrenoManiobraHeader')}}" method="post">
                     @csrf
                     <input type="hidden" name="metaData" value="{{$meta->id}}">
                     <div class="scrollabe-table">
                         <table border="1" class="tabla3">
                             <tr>
                                 <th class="t-title" style="width:150px">#PZ</th>
-                                <th class="t-title">Desfasamiento entrada</th>
-                                <th class="t-title">Desfasamiento salida</th>
-                                <th class="t-title">Ancho de simetria entrada</th>
-                                <th class="t-title">Ancho de simetria salida</th>
-                                <th class="t-title">Angulo de corte</th>
-                                <th class="t-title" style="width:200px">Error</th><br>
+                                <th class="t-title">Profundidad barreno</th>
+                                <th class="t-title">Diametro de machuelo</th>
+                                <th class="t-title">Acetato B/M</th>
+                                <th class="t-title" style="width:200px">Error</th>
                                 <th class="t-title" style="width:700px">Observaciones</th>
                             </tr>
 
                             @if(!isset($cNominal))
                                 <tr>
                                     <td>C.Nominal.</td>
-                                    <td><input type="number" class="input" disabled></td>
-                                    <td><input type="number" class="input" disabled></td>
                                     <td><input type="number" class="input" disabled></td>
                                     <td><input type="number" class="input" disabled></td>
                                     <td><input type="number" class="input" disabled></td>
@@ -230,67 +226,52 @@
                                     <td><input type="number" class="input-medio" disabled><input type="number" class="input-medio" disabled></td>
                                     <td><input type="number" class="input-medio" disabled><input type="number" class="input-medio" disabled></td>
                                     <td><input type="number" class="input-medio" disabled><input type="number" class="input-medio" disabled></td>
-                                    <td><input type="number" class="input-medio" disabled><input type="number" class="input-medio" disabled></td>
-                                    <td><input type="number" class="input-medio" disabled><input type="number" class="input-medio" disabled></td>
                                     <td></td>
                                     <td></td>
                                 </tr>
                             @else 
                                 <tr> 
                                     <td>C.Nominal.</td>
-                                    <td><input type="number" value="{{$cNominal->desfasamiento_entrada}}" class="input" step="any" inputmode="decimal" readonly></td>
-                                    <td><input type="number" value="{{$cNominal->desfasamiento_salida}}" class="input" step="any" inputmode="decimal" readonly></td>
-                                    <td><input type="number" value="{{$cNominal->ancho_simetriaEntrada}}" class="input" step="any" inputmode="decimal" readonly></td>
-                                    <td><input type="number" value="{{$cNominal->ancho_simetriaSalida}}" class="input" step="any" inputmode="decimal" readonly></td>
-                                    <td><input type="number" value="{{$cNominal->angulo_corte}}" class="input" step="any" inputmode="decimal" readonly></td>
+                                    <td><input type="number" value="{{$cNominal->profundidad_barreno}}" class="input" step="any" inputmode="decimal" readonly></td>
+                                    <td><input type="number" value="{{$cNominal->diametro_machuelo}}" class="input" step="any" inputmode="decimal" readonly></td>
+                                    <td></td>
                                     <td></td>
                                     <td></td>
                                 </tr>
                                 <tr>
                                     <td> Tolerancias. </td>
                                     <td>
-                                        <input type="number" value="{{$tolerancia->desfasamiento_entrada1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->desfasamiento_entrada2}}" class="input-medio" step="any" inputmode="decimal" readonly>
+                                        <input type="number" value="{{$tolerancia-> profundidad_barreno1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->profundidad_barreno2}}" class="input-medio" step="any" inputmode="decimal" readonly>
                                     </td>
                                     <td>
-                                        <input type="number" value="{{$tolerancia->desfasamiento_salida1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->desfasamiento_salida2}}" class="input-medio" step="any" inputmode="decimal" readonly>
+                                        <input type="number" value="{{$tolerancia->diametro_machuelo1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->diametro_machuelo2}}" class="input-medio" step="any" inputmode="decimal" readonly>
                                     </td>
-                                    <td>
-                                        <input type="number" value="{{$tolerancia->ancho_simetriaEntrada1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->ancho_simetriaEntrada2}}" class="input-medio" step="any" inputmode="decimal" readonly>
-                                    </td>
-                                    <td>
-                                        <input type="number" value="{{$tolerancia->ancho_simetriaSalida1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->ancho_simetriaSalida2}}" class="input-medio" step="any" inputmode="decimal" readonly>
-                                    </td>
-                                    <td>
-                                        <input type="number" value="{{$tolerancia->angulo_corte1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->angulo_corte2}}" class="input-medio" step="any" inputmode="decimal" readonly>
-                                    </td>
+                                    <td></td>
                                     <td></td>
                                     <td></td>
                                 </tr>
                             @endif
                             <!--Llenado de piezas-->
+                            
                             @if (isset($nPiezas))
                                 @if ($nPiezas->count() != 0)
                                     @foreach ($nPiezas as $nPiezas)
                                         @if ($nPiezas->correcto == 0)
                                             <tr>
                                                 <td><input type="text" class="input" style="background-color:#F36456" value="{{$nPiezas->n_pieza}}" step="any" inputmode="decimal" readonly></td>
-                                                <td><input type="number" class="input" style="background-color:#F36456" value="{{$nPiezas->desfasamiento_entrada}}" step="any" inputmode="decimal" readonly></td>
-                                                <td><input type="number" class="input" style="background-color:#F36456" value="{{$nPiezas->desfasamiento_salida}}" step="any" inputmode="decimal" readonly></td>
-                                                <td><input type="number" class="input" style="background-color:#F36456" value="{{$nPiezas->ancho_simetriaEntrada}}" step="any" inputmode="decimal" readonly></td>
-                                                <td><input type="number" class="input" style="background-color:#F36456" value="{{$nPiezas->ancho_simetriaSalida}}" step="any" inputmode="decimal" readonly></td>
-                                                <td><input type="number" class="input" style="background-color:#F36456" value="{{$nPiezas->angulo_corte}}" step="any" inputmode="decimal" readonly></td>
-                                                <td><input type="text" class="input" style="background-color:#F36456" value="{{$nPiezas->error}}" readonly></td>
+                                                <td><input type="number" class="input" style="background-color:#F36456" value="{{$nPiezas->profundidad_barreno}}" step="any" inputmode="decimal" readonly></td>
+                                                <td><input type="number" class="input" style="background-color:#F36456" value="{{$nPiezas->diametro_machuelo}}" step="any" inputmode="decimal" readonly></td>
+                                                <td><input type="text" class="input" style="background-color:#F36456" value="{{$nPiezas->acetatoBM}}" readonly></td>
+                                                <td> <input type="text" class="input" style="background-color:#F36456" value="{{$nPiezas->error}}" readonly></td>
                                                 <td><textarea class="input" style="background-color:#F36456" readonly>{{$nPiezas->observaciones}}</textarea></td>
                                             </tr>
                                         @else
-                                        <tr>
+                                            <tr>
                                                 <td><input type="text" class="input" style="background-color:#90F77E" value="{{$nPiezas->n_pieza}}" step="any" inputmode="decimal" readonly></td>
-                                                <td><input type="number" class="input" style="background-color:#90F77E" value="{{$nPiezas->desfasamiento_entrada}}" step="any" inputmode="decimal" readonly></td>
-                                                <td><input type="number" class="input" style="background-color:#90F77E" value="{{$nPiezas->desfasamiento_salida}}" step="any" inputmode="decimal" readonly></td>
-                                                <td><input type="number" class="input" style="background-color:#90F77E" value="{{$nPiezas->ancho_simetriaEntrada}}" step="any" inputmode="decimal" readonly></td>
-                                                <td><input type="number" class="input" style="background-color:#90F77E" value="{{$nPiezas->ancho_simetriaSalida}}" step="any" inputmode="decimal" readonly></td>
-                                                <td><input type="number" class="input" style="background-color:#90F77E" value="{{$nPiezas->angulo_corte}}" step="any" inputmode="decimal" readonly></td>
-                                                <td><input type="text" class="input" style="background-color:#90F77E" value="{{$nPiezas->error}}" readonly></td>
+                                                <td><input type="number" class="input" style="background-color:#90F77E" value="{{$nPiezas->profundidad_barreno}}" step="any" inputmode="decimal" readonly></td>
+                                                <td><input type="number" class="input" style="background-color:#90F77E" value="{{$nPiezas->diametro_machuelo}}" step="any" inputmode="decimal" readonly></td>
+                                                <td><input type="text" class="input" style="background-color:#90F77E" value="{{$nPiezas->acetatoBM}}" readonly></td>
+                                                <td> <input type="text" class="input" style="background-color:#90F77E" value="{{$nPiezas->error}}" readonly></td>
                                                 <td><textarea class="input" style="background-color:#90F77E" readonly>{{$nPiezas->observaciones}}</textarea></td>
                                             </tr>
                                         @endif
@@ -310,8 +291,6 @@
                                         <td> </td>
                                         <td> </td>
                                         <td> </td>
-                                        <td> </td>
-                                        <td> </td>
                                     </tr>
                                 @else
                                     @include('layouts.partials.messages')
@@ -319,11 +298,14 @@
                                 @if (isset($piezaElegida))
                                     <tr>
                                         <td> <input type="text" name="n_pieza" class="input" value="{{$piezaElegida->n_pieza}}" readonly></td>
-                                        <td> <input type="number" name="desfasamiento_entrada" class="input" step="any" inputmode="decimal" required></td>
-                                        <td> <input type="number" name="desfasamiento_salida" class="input" step="any" inputmode="decimal" required></td>
-                                        <td> <input type="number" name="ancho_simetriaEntrada" class="input" step="any" inputmode="decimal" required></td>
-                                        <td> <input type= "number" name="ancho_simetriaSalida" class="input" step="any" inputmode="decimal" required></td>
-                                        <td> <input type= "number" name="angulo_corte" class="input" step="any" inputmode="decimal" required></td>
+                                        <td> <input type="number" name="profundidad_barreno" class="input" step="any" inputmode="decimal" required></td>
+                                        <td> <input type="number" name="diametro_machuelo" class="input" step="any" inputmode="decimal" required></td>
+                                        <td> 
+                                            <select name="acetatoBM" class="input">
+                                                <option value="Bien">Bien</option>
+                                                <option value="Mal">Mal</option>
+                                            </select>
+                                        </td>   
                                         <td> 
                                             <select name="error" class="input">
                                                 <option value="0"></option>
@@ -344,7 +326,7 @@
                     @endif
                 </form>
                 @if (isset($nPiezas) && $nPiezas != "[]")
-                    <form action="{{ route('editRevLaterales')}}" method="post">
+                    <form action="{{ route('editBarrenoManiobra')}}" method="post">
                         @csrf
                         <div class="editar-table" id="editar-table">
                                 <img src="{{ asset('images/editar.png')}}" alt="Desbloquear" id="edit-table" class="boton-editar-table">
@@ -358,49 +340,37 @@
         @endif
         @if (isset($band) && $band == 4)
             <div class="disabled-tabla">
-                <form action="{{ route('editRevLaterales')}}" method="post">
+                <form action="{{ route('editBarrenoManiobra')}}" method="post">
                     @csrf
                     <input type="hidden" name="metaData" value="{{$meta->id}}">
                     <div class="scrollabe-table">
                         <table border="1" class="tabla3">
-                            <!--Encabezado de la tabla Cepillado--> 
+                            <!--Encabezado de la tabla Barreno Maniobra--> 
                             <tr>
                                 <th class="t-title" style="width:150px">#PZ</th>
-                                <th class="t-title">Desfasamiento entrada</th>
-                                <th class="t-title">Desfasamiento salida</th>
-                                <th class="t-title">Ancho de simetria entrada</th>
-                                <th class="t-title">Ancho de simetria salida</th>
-                                <th class="t-title">Angulo de corte</th>
-                                <th class="t-title" style="width:200px">Error</th><br>
+                                <th class="t-title">Profundidad barreno</th>
+                                <th class="t-title">Diametro de machuelo</th>
+                                <th class="t-title">Acetato B/M</th>
+                                <th class="t-title" style="width:200px">Error</th>
                                 <th class="t-title" style="width:700px">Observaciones</th>
                             </tr>
                             <tr> 
                                 <td>C.Nominal.</td>
-                                <td><input type="number" value="{{$cNominal->desfasamiento_entrada}}" class="input" step="any" inputmode="decimal" readonly></td>
-                                <td><input type="number" value="{{$cNominal->desfasamiento_salida}}" class="input" step="any" inputmode="decimal" readonly></td>
-                                <td><input type="number" value="{{$cNominal->ancho_simetriaEntrada}}" class="input" step="any" inputmode="decimal" readonly></td>
-                                <td><input type="number" value="{{$cNominal->ancho_simetriaSalida}}" class="input" step="any" inputmode="decimal" readonly></td>
-                                <td><input type="number" value="{{$cNominal->angulo_corte}}" class="input" step="any" inputmode="decimal" readonly></td>
+                                <td><input type="number" value="{{$cNominal->profundidad_barreno}}" class="input" step="any" inputmode="decimal" readonly></td>
+                                <td><input type="number" value="{{$cNominal->diametro_machuelo}}" class="input" step="any" inputmode="decimal" readonly></td>
+                                <td></td>
                                 <td></td>
                                 <td></td>
                             </tr>
                             <tr>
                                 <td> Tolerancias. </td>
                                 <td>
-                                    <input type="number" value="{{$tolerancia->desfasamiento_entrada1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->desfasamiento_entrada2}}" class="input-medio" step="any" inputmode="decimal" readonly>
+                                    <input type="number" value="{{$tolerancia->profundidad_barreno1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->profundidad_barreno2}}" class="input-medio" step="any" inputmode="decimal" readonly>
                                 </td>
                                 <td>
-                                    <input type="number" value="{{$tolerancia->desfasamiento_salida1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->desfasamiento_salida2}}" class="input-medio" step="any" inputmode="decimal" readonly>
+                                    <input type="number" value="{{$tolerancia->diametro_machuelo1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->diametro_machuelo2}}" class="input-medio" step="any" inputmode="decimal" readonly>
                                 </td>
-                                <td>
-                                    <input type="number" value="{{$tolerancia->ancho_simetriaEntrada1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->ancho_simetriaEntrada2}}" class="input-medio" step="any" inputmode="decimal" readonly>
-                                </td>
-                                <td>
-                                    <input type="number" value="{{$tolerancia->ancho_simetriaSalida1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->ancho_simetriaSalida2}}" class="input-medio" step="any" inputmode="decimal" readonly>
-                                </td>
-                                <td>
-                                    <input type="number" value="{{$tolerancia->angulo_corte1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->angulo_corte2}}" class="input-medio" step="any" inputmode="decimal" readonly>
-                                </td>
+                                <td></td>
                                 <td></td>
                                 <td></td>
                             </tr>
@@ -409,24 +379,34 @@
                                 @foreach ($nPiezas as $nPiezas)
                                     <tr>
                                         <td><input type="text" class="input" value="{{$nPiezas->n_pieza}}" name="n_pieza[]" step="any" inputmode="decimal" readonly></td>
-                                        <td><input type="number" class="input" value="{{$nPiezas->desfasamiento_entrada}}" name="desfasamiento_entrada[]" step="any" inputmode="decimal" required></td>
-                                        <td><input type="number" class="input" value="{{$nPiezas->desfasamiento_salida}}" name="desfasamiento_salida[]" step="any" inputmode="decimal" required></td>
-                                        <td><input type="number" class="input" value="{{$nPiezas->ancho_simetriaEntrada}}" name="ancho_simetriaEntrada[]" step="any" inputmode="decimal" required></td>
-                                        <td><input type="number" class="input" value="{{$nPiezas->ancho_simetriaSalida}}" name="ancho_simetriaSalida[]" step="any" inputmode="decimal" required></td>
-                                        <td><input type="number" class="input" value="{{$nPiezas->angulo_corte}}" name="angulo_corte[]" step="any" inputmode="decimal" required></td>
+                                        <td><input type="number" class="input" value="{{$nPiezas->profundidad_barreno}}" name="profundidad_barreno[]" step="any" inputmode="decimal" required></td>
+                                        <td><input type="number" class="input" value="{{$nPiezas->diametro_machuelo}}" name="diametro_machuelo[]" step="any" inputmode="decimal" required></td>
+                                        <td> 
+                                            <select name="acetatoBM[]" class="input">
+                                                <option value="{{$nPiezas->acetatoBM}}">{{$nPiezas->acetatoBM}}</option>
+                                                @switch($nPiezas->acetatoBM)
+                                                        @case('Bien')
+                                                            <option value="Mal">Mal.</option>
+                                                        @break
+                                                        @case('Mal')
+                                                            <option value="Bien">Bien.</option>
+                                                        @break
+                                                @endswitch
+                                            </select>
+                                        </td>
                                         <td> 
                                             <select name="error[]" class="input">
                                                 <option value='{{$nPiezas->error}}'>{{$nPiezas->error}}</option>
                                                 @switch($nPiezas->error)
                                                     @case('Ninguno')
-                                                        <option value="Fundicion">Fundición</option>
+                                                        <option value="Fundicion">Fundición.</option>
                                                     @break
                                                     @case('Fundicion')
-                                                        <option value="Ninguno">Ninguno</option>
+                                                        <option value="Ninguno">Ninguno.</option>
                                                     @break
                                                     @case('Maquinado')
-                                                        <option value="Ninguno">Ninguno</option>
-                                                        <option value="Fundicion">Fundición</option>
+                                                        <option value="Ninguno">Ninguno.</option>
+                                                        <option value="Fundicion">Fundición.</option>
                                                     @break
                                                     @default
                                                 @endswitch

@@ -26,6 +26,7 @@
                         select_clases.name = 'clase';
                         select_clases.id = 'clases';
 
+                        console.log(arregloOT);
                         //Creacion de las opciones para el select de clases
                         arregloOT[i][1].forEach((clase) => {
                             let option = document.createElement('option');

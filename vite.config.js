@@ -10,6 +10,7 @@ export default defineConfig({
                 "resources/css/login.css",
                 "resources/css/index.css",
                 "resources/css/cepillado.css",
+                "resources/css/barreno.css",
                 "resources/css/recoverPassword.css",
                 "resources/css/RegistrarOT/agregarOT.css",
                 "resources/js/editarInterfaz.js",

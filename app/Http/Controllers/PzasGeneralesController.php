@@ -2,7 +2,8 @@
 
     namespace App\Http\Controllers;
 
-    use App\Models\Cepillado;
+use App\Models\BarrenoManiobra_pza;
+use App\Models\Cepillado;
     use App\Models\Clase;
     use App\Models\Desbaste_pza;
     use App\Models\Metas;
@@ -12,6 +13,9 @@ use App\Models\PrimeraOpeSoldadura_pza;
 use App\Models\Procesos;
     use App\Models\Pza_cepillado;
 use App\Models\RevLaterales_pza;
+use App\Models\SegundaOpeSoldadura_pza;
+use App\Models\Soldadura_pza;
+use App\Models\SoldaduraPTA_pza;
 use App\Models\User;
     use Barryvdh\DomPDF\Facade\Pdf;
     use Illuminate\Http\Request;
@@ -142,7 +146,6 @@ use App\Models\User;
                         $indiceClass = 0;
                         foreach ($clases as $clase) {
                             //Insertar la clase en el arreglo
-                            $arregloOT[$indiceOT][1] = array();
                             $arregloOT[$indiceOT][1][$indiceClass] = array();
                             $arregloOT[$indiceOT][1][$indiceClass][0] = $clase->id;
                             $arregloOT[$indiceOT][1][$indiceClass][1] = $clase->nombre . " " . $clase->tamanio;
@@ -283,16 +286,112 @@ use App\Models\User;
                             }
                             break;
                         case "barreno_maniobra":
-                            $procesos[$indice][1][0] = array("---", "---", "---", "---");
+                            $metas = Metas::where('id_clase', $clase->id)->get();
+                            if (count($metas) > 0) {
+                                $pzasNoCero = 0;
+                                foreach ($metas as $meta) {
+                                    $piezas = BarrenoManiobra_pza::where('id_meta', $meta->id)->get();
+                                    if (count($piezas) > 0) {
+                                        foreach ($piezas as $pieza) {
+                                            if ($pieza->estado != 0) {
+                                                $user = User::where('matricula', $meta->id_usuario)->first();
+                                                if ($pieza->estado == 1) {
+                                                    $procesos[$indice][1][$pzasNoCero] = array($pieza->n_pieza, $user->nombre, "---", $meta->maquina);
+                                                } else {
+                                                    $procesos[$indice][1][$pzasNoCero] = array($pieza->n_pieza, $user->nombre, "Terminada", $meta->maquina);
+                                                }
+                                                $pzasNoCero++;
+                                            }
+                                        }
+                                    }
+                                }
+                                if ($pzasNoCero == 0) {
+                                    $procesos[$indice][1][$pzasNoCero] = array("---", "---", "---", "---");
+                                }
+                            } else {
+                                $procesos[$indice][1][0] = array("---", "---", "---", "---");
+                            }
                             break;
                         case "sOperacion":
-                            $procesos[$indice][1][0] = array("---", "---", "---", "---");
+                            $metas = Metas::where('id_clase', $clase->id)->get();
+                            if (count($metas) > 0) {
+                                $pzasNoCero = 0;
+                                foreach ($metas as $meta) {
+                                    $piezas = SegundaOpeSoldadura_pza::where('id_meta', $meta->id)->get();
+                                    if (count($piezas) > 0) {
+                                        foreach ($piezas as $pieza) {
+                                            if ($pieza->estado != 0) {
+                                                $user = User::where('matricula', $meta->id_usuario)->first();
+                                                if ($pieza->estado == 1) {
+                                                    $procesos[$indice][1][$pzasNoCero] = array($pieza->n_pieza, $user->nombre, "---", $meta->maquina);
+                                                } else {
+                                                    $procesos[$indice][1][$pzasNoCero] = array($pieza->n_pieza, $user->nombre, "Terminada", $meta->maquina);
+                                                }
+                                                $pzasNoCero++;
+                                            }
+                                        }
+                                    }
+                                }
+                                if ($pzasNoCero == 0) {
+                                    $procesos[$indice][1][$pzasNoCero] = array("---", "---", "---", "---");
+                                }
+                            } else {
+                                $procesos[$indice][1][0] = array("---", "---", "---", "---");
+                            }
                             break;
                         case "soldadura":
-                            $procesos[$indice][1][0] = array("---", "---", "---", "---");
+                            $metas = Metas::where('id_clase', $clase->id)->get();
+                            if (count($metas) > 0) {
+                                $pzasNoCero = 0;
+                                foreach ($metas as $meta) {
+                                    $piezas = Soldadura_pza::where('id_meta', $meta->id)->get();
+                                    if (count($piezas) > 0) {
+                                        foreach ($piezas as $pieza) {
+                                            if ($pieza->estado != 0) {
+                                                $user = User::where('matricula', $meta->id_usuario)->first();
+                                                if ($pieza->estado == 1) {
+                                                    $procesos[$indice][1][$pzasNoCero] = array($pieza->n_juego, $user->nombre, "---", $meta->maquina);
+                                                } else {
+                                                    $procesos[$indice][1][$pzasNoCero] = array($pieza->n_juego, $user->nombre, "Terminada", $meta->maquina);
+                                                }
+                                                $pzasNoCero++;
+                                            }
+                                        }
+                                    }
+                                }
+                                if ($pzasNoCero == 0) {
+                                    $procesos[$indice][1][$pzasNoCero] = array("---", "---", "---", "---");
+                                }
+                            } else {
+                                $procesos[$indice][1][0] = array("---", "---", "---", "---");
+                            }
                             break;
                         case "soldaduraPTA":
-                            $procesos[$indice][1][0] = array("---", "---", "---", "---");
+                            $metas = Metas::where('id_clase', $clase->id)->get();
+                            if (count($metas) > 0) {
+                                $pzasNoCero = 0;
+                                foreach ($metas as $meta) {
+                                    $piezas = SoldaduraPTA_pza::where('id_meta', $meta->id)->get();
+                                    if (count($piezas) > 0) {
+                                        foreach ($piezas as $pieza) {
+                                            if ($pieza->estado != 0) {
+                                                $user = User::where('matricula', $meta->id_usuario)->first();
+                                                if ($pieza->estado == 1) {
+                                                    $procesos[$indice][1][$pzasNoCero] = array($pieza->n_juego, $user->nombre, "---", $meta->maquina);
+                                                } else {
+                                                    $procesos[$indice][1][$pzasNoCero] = array($pieza->n_juego, $user->nombre, "Terminada", $meta->maquina);
+                                                }
+                                                $pzasNoCero++;
+                                            }
+                                        }
+                                    }
+                                }
+                                if ($pzasNoCero == 0) {
+                                    $procesos[$indice][1][$pzasNoCero] = array("---", "---", "---", "---");
+                                }
+                            } else {
+                                $procesos[$indice][1][0] = array("---", "---", "---", "---");
+                            }
                             break;
                         case "rectificado":
                             $procesos[$indice][1][0] = array("---", "---", "---", "---");

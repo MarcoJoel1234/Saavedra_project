@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\OTRequest;
+use App\Models\BarrenoManiobra;
 use App\Models\Cepillado;
 use App\Models\Clase;
 use App\Models\DesbasteExterior;
@@ -15,6 +16,8 @@ use App\Models\Procesos;
 use App\Models\PySOpeSoldadura;
 use App\Models\RevLaterales;
 use App\Models\SegundaOpeSoldadura;
+use App\Models\Soldadura;
+use App\Models\SoldaduraPTA;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -381,8 +384,14 @@ class OTController extends Controller
                                 return view('processes.rev-laterales', ['band' => 3, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clase' => $clase]);
                             case "primeraOpeSoldadura":
                                 return view('processes.primeraOpeSoldadura', ['band' => 3, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clase' => $clase]);
+                            case "barrenoManiobra":
+                                return view('processes.barrenoManiobra', ['band' => 3, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clase' => $clase]);
                             case "segundaOpeSoldadura":
                                 return view('processes.segundaOpeSoldadura', ['band' => 3, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clase' => $clase]);
+                            case "soldadura":
+                                return view('processes.soldadura', ['band' => 3, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clase' => $clase]);
+                            case "soldaduraPTA":
+                                return view('processes.soldaduraPTA', ['band' => 3, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clase' => $clase]);
                             case "pysOpeSoldadura":
                                 return view('processes.pysOpeSoldadura', ['band' => 3, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clase' => $clase]);
                         }
@@ -398,8 +407,14 @@ class OTController extends Controller
                         return redirect()->route('revLateralesHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
                     case "primeraOpeSoldadura":
                         return redirect()->route('primeraOpeSoldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
+                    case "barrenoManiobra":
+                        return redirect()->route('barrenoManiobraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
                     case "segundaOpeSoldadura":
                         return redirect()->route('segundaOpeSoldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
+                    case "soldadura":
+                        return redirect()->route('soldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
+                    case "soldaduraPTA":
+                        return redirect()->route('soldaduraPTAHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
                     case "pysOpeSoldadura":
                         return redirect()->route('1y2OpeSoldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase, 'operacion' => $request->operacion]);
                 }
@@ -427,9 +442,18 @@ class OTController extends Controller
                         case "primeraOpeSoldadura":
                             $clases = $this->ClaseEncontradas($ot->id, "pOperacion"); //Se obtienen las clases disponibles en primera operacion
                             return view('processes.primeraOpeSoldadura', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]);
+                        case "barrenoManiobra":
+                            $clases = $this->ClaseEncontradas($ot->id, "barreno_maniobra"); //Se obtienen las clases disponibles en barreno maniobra
+                            return view('processes.barrenoManiobra', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]);
                         case "segundaOpeSoldadura":
                             $clases = $this->ClaseEncontradas($ot->id, "sOperacion"); //Se obtienen las clases disponibles en segunda operacion
                             return view('processes.segundaOpeSoldadura', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]);
+                        case "soldadura":
+                            $clases = $this->ClaseEncontradas($ot->id, "soldadura"); //Se obtienen las clases disponibles en soldadura
+                            return view('processes.soldadura', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]);
+                        case "soldaduraPTA":
+                            $clases = $this->ClaseEncontradas($ot->id, "soldaduraPTA"); //Se obtienen las clases disponibles en soldadura PTA
+                            return view('processes.soldaduraPTA', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]);
                         case "pysOpeSoldadura": //Se obtienen las clases disponibles en 1ra y 2da operación de soldadura.
                             $clases = $this->ClaseEncontradas($ot->id, "operacionEquipo"); //Se obtienen las clases disponibles en 1 y 2 operacion equipo
                             return view('processes.pysOpeSoldadura', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]);
@@ -483,6 +507,14 @@ class OTController extends Controller
                         //Retorno la vista de desbaste.
                         return redirect()->route('primeraOpeSoldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
 
+                    case "barrenoManiobra":
+                        $id = "barrenoManiobra_" . $request->clases . "_" . $ot->id;
+                        $barrenoManiobra = BarrenoManiobra::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
+                        if (isset($barrenoManiobra)) {
+                            return redirect()->route('barrenoManiobraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
+                        }
+                        //Retorno la vista de desbaste.
+                        return redirect()->route('barrenoManiobraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case "segundaOpeSoldadura":
                         $id = "2opeSoldadura_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Desbaste.
                         $segundaOpeSoldadura = SegundaOpeSoldadura::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
@@ -492,6 +524,22 @@ class OTController extends Controller
                         //Retorno la vista de desbaste.
                         return redirect()->route('segundaOpeSoldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
 
+                    case "soldadura":
+                        $id = "soldadura_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Desbaste.
+                        $soldadura = Soldadura::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
+                        if (isset($soldadura)) {
+                            return redirect()->route('soldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
+                        }
+                        //Retorno la vista de desbaste.
+                        return redirect()->route('soldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
+                    case "soldaduraPTA":
+                        $id = "soldaduraPTA_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Desbaste.
+                        $soldaduraPTA = SoldaduraPTA::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
+                        if (isset($soldaduraPTA)) {
+                            return redirect()->route('soldaduraPTAHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
+                        }
+                        //Retorno la vista de desbaste.
+                        return redirect()->route('soldaduraPTAHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case "pysOpeSoldadura":
                         $pysOpeSoldadura = PySOpeSoldadura::where('id_clase', $request->clases)->where('id_ot', $ot->id)->where('operacion', $request->operacion)->first(); //Busco la OT que se quiere editar.
                         if (isset($pysOpeSoldadura)) {
@@ -533,6 +581,14 @@ class OTController extends Controller
                         }
                         //Retorno la vista de desbaste.
                         return redirect()->route('primeraOpeSoldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
+                    case "barrenoManiobra":
+                        $id = "barrenoManiobra_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Desbaste.
+                        $barrenoManiobra = BarrenoManiobra::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
+                        if (isset($barrenoManiobra)) { //Si existe la OT.
+                            return redirect()->route('barrenoManiobraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
+                        }
+                        //Retorno la vista de desbaste.
+                        return redirect()->route('barrenoManiobraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case "segundaOpeSoldadura":
                         $id = "2opeSoldadura_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Desbaste.
                         $segundaOpeSoldadura = SegundaOpeSoldadura::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
@@ -541,6 +597,22 @@ class OTController extends Controller
                         }
                         //Retorno la vista de desbaste.
                         return redirect()->route('segundaOpeSoldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
+                    case "soldadura":
+                        $id = "soldadura_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Desbaste.
+                        $soldadura = Soldadura::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
+                        if (isset($soldadura)) { //Si existe la OT.
+                            return redirect()->route('soldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de cepillado
+                        }
+                        //Retorno la vista de desbaste.
+                        return redirect()->route('soldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
+                    case "soldaduraPTA":
+                        $id = "soldaduraPTA_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Desbaste.
+                        $soldaduraPTA = SoldaduraPTA::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
+                        if (isset($soldaduraPTA)) { //Si existe la OT.
+                            return redirect()->route('soldaduraPTAHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de cepillado
+                        }
+                        //Retorno la vista de desbaste.
+                        return redirect()->route('soldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case "pysOpeSoldadura": //Creación de id para la tabla de primera y segunda o
                         echo $proceso = PySOpeSoldadura::find($metaExistente->id_proceso); //Busco la OT que se requiere editar
                         if (isset($proceso)) {
@@ -574,9 +646,18 @@ class OTController extends Controller
                 case "primeraOpeSoldadura":
                     $clases = $this->ClaseEncontradas($meta->id_ot, "pOperacion"); //Obtengo las clases que no son nulas.
                     return view('processes.primeraOpeSoldadura', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de desbaste.
+                case "barrenoManiobra":
+                    $clases = $this->ClaseEncontradas($meta->id_ot, "barreno_maniobra"); //Obtengo las clases que no son nulas.
+                    return view('processes.barrenoManiobra', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de desbaste.
                 case "segundaOpeSoldadura":
                     $clases = $this->ClaseEncontradas($meta->id_ot, "sOperacion"); //Obtengo las clases que no son nulas.
                     return view('processes.segundaOpeSoldadura', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de desbaste.
+                case "soldadura":
+                    $clases = $this->ClaseEncontradas($meta->id_ot, "soldadura"); //Obtengo las clases que no son nulas.
+                    return view('processes.soldadura', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de desbaste.
+                case "soldaduraPTA":
+                    $clases = $this->ClaseEncontradas($meta->id_ot, "soldaduraPTA"); //Obtengo las clases que no son nulas.
+                    return view('processes.soldaduraPTA', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de desbaste.
                 case "pysOpeSoldadura":
                     $clases = $this->ClaseEncontradas($meta->id_ot, "operacionEquipo"); //Obtengo las clases que no son nulas.
                     return view('processes.pysOpeSoldadura', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de desbaste.
@@ -634,14 +715,28 @@ class OTController extends Controller
             case "primeraOpeSoldadura":
                 $meta->t_estandar = $this->asignarMetas($clase, 24, 28, 30, 20, 24, 26,  0, 0, 0); //Asigno el tiempo estandar.
                 break;
+            case "barrenoManiobra":
+                $meta->t_estandar = $this->asignarMetas($clase, 15, 15, 15, 15, 15, 15,  0, 0, 0); //Asigno el tiempo estandar.
+                break;
             case "segundaOpeSoldadura":
                 $meta->t_estandar = $this->asignarMetas($clase, 24, 28, 28, 24, 28, 30,  0, 0, 0); //Asigno el tiempo estandar.
+                break;
+            case "soldadura":
+                $meta->t_estandar = $this->asignarMetas($clase, 24, 30, 34,  24, 30, 70,  0, 0, 0); //Asigno el tiempo estandar.
+                break;
+            case "soldaduraPTA":
+                $meta->t_estandar = $this->asignarMetas($clase, 24, 30, 34,  24, 30, 70,  0, 0, 0); //Asigno el tiempo estandar.
                 break;
             case "pysOpeSoldadura":
                 $meta->t_estandar = $this->asignarMetas($clase, 20, 20, 20,  24, 24, 24,  0, 0, 0); //Asigno el tiempo estandar.
                 break;
         }
-        $meta->meta = $this->calcularMeta($meta->t_estandar, $hrsTrabajadas); //Calculo la meta.
+        if($meta->t_estandar != 0){
+            $meta->meta = $this->calcularMeta($meta->t_estandar, $hrsTrabajadas); //Calculo la meta.
+        }else{
+            $meta->meta = 0;
+        }
+        
         $meta->save(); //Guardo los cambios.
         return $clase; //Retorno la clase.
     }

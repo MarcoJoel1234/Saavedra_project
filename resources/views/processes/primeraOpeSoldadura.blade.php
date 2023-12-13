@@ -2,7 +2,7 @@
 @section('content')
 
 <head>
-    <title>Primera Operacion Soldadura</title>
+    <title>Primera Operación Soldadura</title>
     @vite('resources/css/cepillado.css')
     @vite('resources/js/editarInterfaz.js')
     @vite('resources/js/editarTabla.js')

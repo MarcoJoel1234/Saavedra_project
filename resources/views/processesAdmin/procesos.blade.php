@@ -81,6 +81,22 @@ class Proceso {
                 }   
                 return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined); // Crear tabla
 
+            case "Barreno Maniobra": //Proceso de barreno maniobra
+                titulos = ['', 'Profundidad de Barreno', 'Diametro de machuelo'];
+
+                cNominal = ['C.nominal', 'cNomi_profundidadBarreno', 'cNomi_diametro_machuelo'];
+                cNomiPosiciones = [null]; // Posiciones de los inputs de c.nominal
+
+                tolerancias = ['Tolerancias', 'tole_profundidadBarreno1', 'tole_profundidadBarreno2', 'tole_diametro_machuelo1', 'tole_diametro_machuelo2']; 
+                tolePosiciones = [1, 3]; // Posiciones de los inputs de tolerancias
+                if(this.valoresCnomi != undefined && this.valoresTole != undefined){
+                    let valoresCnomi = [this.valoresCnomi['id'], this.valoresCnomi['profundidad_barreno'] , this.valoresCnomi['diametro_machuelo']];
+                
+                    let valoresTole = [this.valoresTole['id'], this.valoresTole['profundidad_barreno1'], this.valoresTole['profundidad_barreno2'], this.valoresTole['diametro_machuelo1'], this.valoresTole['diametro_machuelo2']];
+                    return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, valoresCnomi, valoresTole); // Crear tabla
+                }   
+                return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined); // Crear tabla
+
             case "Segunda Operacion": //Proceso de cepillado
                 titulos = ['', 'Diametro 1', 'Profundidad 1 ', 'Diametro 2', 'Profundidad 2', 'Diametro 3', 'Profunfidad 3','Diametro de soldadura', 'Profundidad de soldadura', 'Altura total', 'Simetría a 90°', 'Simetria línea de partida'];
 

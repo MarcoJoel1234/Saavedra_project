@@ -35,54 +35,64 @@
 
 <body background="{{ asset('images/hola.jpg') }}">
     <div class="container">
-        <form action="{{route('saveHeader')}}" method="post">
+                <!--Formulario en donde se guardara la meta de desbaste-->
+                <form action="{{route('saveHeader')}}" method="post">
             @csrf
             <input type="hidden" name="proceso" value="segundaOpeSoldadura">
+            <!--Div para el header del proceso-->
             <div class="container-header">
+                <!--Div para los datos ingresados por el usuario-->
+                @if (isset($ot) || isset($meta))
                 <div class="datos">
-                    @include('layouts.partials.messages')
+                    <!--Si no existen piezas registradas en esa meta y el usuario ya ha completado los campos requeridos de la meta -->  
                     @if ((isset($band) && $band == 2) && (!isset($nPiezas) || $nPiezas == "[]"))
+                        <!--Boton de editar Meta-->
                         <div id="editarHeader">
                             <button type="submit" class="boton-editar" id="edit-header">
                                 <img src="{{ asset('images/editar.png')}}" id="desbloquear" alt="Desbloquear">
                             </button>
                         </div>
                     @endif
-                    
+                    <!--Matricula del operador que ha iniciado sesion-->
                     <div class="input-datos">
                         <label>Matricula del operador:</label>
                         <input type="text" value="{{auth()->user()->matricula}}" name="id_usuario" style="cursor:auto;" readonly>
                     </div>
-                    <!--Si la bandera tiene un valor1-->
+                    <!--Si ya se ha registrado la primera parte de la meta-->
                     @if (isset($band) && $band == 1 || isset($band) && $band == 2 || isset($band) && $band == 4)
                         <div class="input-datos">
                             <label>Orden de trabajo:</label>
-                            <input type="text" name="ot" value="{{$meta->id_ot}}" style="cursor:auto;" readonly>
+                            <input type="text" name="ot" value="{{$meta->id_ot}}" style="cursor:auto; width:20%" readonly>
+                        </div>
+                        <div class="input-datos">
+                            <label>Nombre de la moldura:</label>
+                            <input type="text" value="{{$moldura}}" style="width: 100%; cursor:auto;" readonly>
                         </div>
                         <div class="input-datos">
                             <label for="hora" style="padding-right: 10px;">Hora de inicio:</label>
                             <label for="hora">Hora de termino:</label><br>
                             <input type="time" id="hora" name="h_inicio" value="{{$meta->h_inicio}}" style="cursor:auto;" readonly>
-                            <input type="time" id="hora" name="h_termino" value="{{$meta->h_termino}}" style="cursor:auto;"readonly>
+                            <input type="time" id="hora" name="h_termino" value="{{$meta->h_termino}}" style="cursor:auto; margin-left:5%;"readonly>
                         </div>
                         <div class="input-datos">
-                            <label for="fecha">Fecha:</label>
-                            <input type="date" id="fecha" name="fecha" value="{{$meta->fecha}}" style="cursor:auto;" readonly>
+                            <label for="fecha" style="padding-right: 60px; margin-left:50px;">Fecha:</label>
+                            <label for="fecha">Máquina:</label><br>
+                            <input type="date" name="fecha" value="{{$meta->fecha}}" style="cursor:auto;" readonly>
+                            <input type="text" name="maquina" value="{{$meta->maquina}}" style="cursor:auto; width:20%;" readonly>
                         </div>
-                        <div class="input-datos">
-                            <label for="maquina">Máquina:</label>
-                            <input type="text" id="maquina" value="Maquina {{$meta->maquina}}" style="cursor:auto;" readonly>
-                        </div>
-                        <!--Si la bandera no tiene un valor1-->
                     @else
+                    <!--Si se requiere editar la meta-->
                         @if (isset($band) && $band == 3)
+                            <!--Orden de trabajo deshabilitada-->
                             <div class="input-datos">
                                 <label>Orden de trabajo:</label>
                                 <input type="text" name="ot" value="{{$meta->id_ot}}" style="cursor:auto;" readonly>
                                 <input type="hidden" name="band" value="3">
                                 <input type="hidden" name="meta" value="{{$meta->id}}">
                             </div>
+                            <!--Si aun no se ha registrado la primera parte de la meta-->
                         @else
+                            <!--Orden de trabajo habilitada-->
                             <div class="input-datos">
                                 <label>Orden de trabajo:</label>
                                 <select id="datos" name="ot">
@@ -92,6 +102,7 @@
                                 </select>
                             </div>
                         @endif
+                        <!-- Primera parte de la meta habilitada -->
                         <div class="input-datos">
                                 <label for="hora" style="padding-right: 10px;">Hora de inicio:</label>
                                 <label for="hora">Hora de termino:</label><br>
@@ -99,71 +110,55 @@
                                 <input type="time" id="hora" name="h_termino" required>
                         </div>
                         <div class="input-datos">
-                            <label for="fecha">Fecha:</label>
+                            <label for="fecha" style="padding-right: 70px; margin-left:50px;">Fecha:</label>
+                            <label for="fecha">Máquina:</label><br>
                             <input type="date" id="fecha" name="fecha" required>
-                        </div>
-                        <div class="input-datos">
-                            <label for="maquina" style="padding-right: 10px;">Selecciona tu máquina:</label>
-                            <select name="maquina" class="input">
-                                <option value="1">Máquina 1</option>
-                                <option value="2">Máquina 2</option>
-                                <option value="3">Máquina 3</option>
-                                <option value="4">Máquina 4</option>
-                                <option value="5">Máquina 5</option>
-                                <option value="6">Máquina 6</option>
-                                <option value="7">Máquina 7</option>
-                            </select>       
+                            <select name="maquina">
+                            @for ($i=1; $i<=7; $i++)
+                                <option value="{{$i}}">Máquina {{$i}}</option>
+                            @endfor
+                            </select>
                         </div>
                     @endif 
                     <!-- Botón aceptar -->
                         <div class="input-datos" id="div-btn-accept">
                             <button id="btn-accept" style="margin-left:70px;">Aceptar</button><br>
                         </div>
-
-                        <!-- Campos deshabilitados -->
+                        <!--Div para seleccionar la clase-->
                         <div class="disabled">
-                            <div class="input-datos">
-                                @if (isset($band) && $band == 1 || isset($band) && $band == 2 || isset($band) && $band == 4)
-                                    <label>Nombre de la moldura:</label>
-                                    <input type="text" value="{{$moldura}}" style="width: 100%; cursor:auto;" readonly>
-                                @else
-                                    <label>Nombre de la moldura: No se ha encontrado el nombre de la moldura</label><br>
-                                @endif
-                            </div>
                             <div class="input-datos" id="div-clases">
                                 <p>
                                     Clases:<br>
                                     @if (isset($clases) && isset($band) && $band == 1)
-                                        @foreach($clases as $clases)
-                                            @if ($clases == "Bombillo")
-                                                <input type="radio" name="clases" id="bombillo" value="{{$clases}}">
-                                                <label>{{$clases}}</label>
-                                            @elseif ($clases == "Molde")
-                                                <input type="radio" name="clases" id="molde" value="{{$clases}}">
-                                                <label>{{$clases}}</label>
-                                            @else
-                                                <input type="radio" name="clases" class="sn-tamaños" value="{{$clases}}">
-                                                <label>{{$clases}}</label>
-                                            @endif
-                                        @endforeach
+                                        @for ($i = 0; $i < count($clases); $i++)
+                                            <input type="radio" id="" name="clases" class="clases" value="{{$clases[$i][0]->nombre}}">
+                                            <label>{{$clases[$i][0]->nombre}}</label>
+                                            <input type="hidden" name="tamaño" value="{{$clases[$i][0]->tamanio}}">
+                                            <input type="hidden" name="piezas" value="{{$clases[$i][0]->piezas}}">
+                                        @endfor
                                     @endif
                                     @if (isset($meta) && isset($band) && $band == 2 || isset($band) && $band == 4)
                                         <label class="clases">{{$clase->nombre}} {{$clase->tamanio}}</label>
                                         <input type="hidden" name="clases" value="{{$meta->clase}}">
                                         <input type="hidden" name="tamaño" value="{{$meta->tamaño}}">
                                         <input type="hidden" name="vista" value='true'>
-                                        <label class="clases">{{$juegos}} juegos</label>
+                                        <label class="clases">{{$clase->piezas}} piezas</label>
                                     @endif
                                 </p>
                             </div> 
                             <button class="btn" id="btn-class">Siguiente</button>
                         </div>
                 </div>
+                @else
+                    <div class="datos" style="text-align: center;">
+                        <h3 style="color: red;">Sin ordenes de trabajo </h3>
+                    </div>
+                @endif
                 <div class="div-tabla2">
                     <table border="1" id="tabla2">
                         <tr>
                             <th id="col1">Tiempo estandar.</th>
-                            <th id="col2">Meta de juegos.</th>
+                            <th id="col2">Meta piezas/juegos.</th>
                             <th id="col3">Resultado.</th>
                         </tr>
                         @if (isset($meta->meta))
@@ -189,7 +184,7 @@
                         </tr>
                         <tr>
                             <th>Versión</th>
-                            <th> 5 </th>
+                            <th> 2</th>
                         </tr>
                         <tr>
                             <th>Fecha de revisión: </th>
