@@ -66,18 +66,18 @@ class SoldaduraController extends Controller
             $piezaExistente = Soldadura_pza::where('id_pza', $id_pieza)->first();
             if ($piezaExistente) {
                 $piezaExistente->pesoxpieza = $request->pesoxpieza;
-                $piezaExistente->tiempo_precalentado = $request->tiempo_precalentado;
                 $piezaExistente->temperatura_precalentado = $request->temperatura_precalentado;
                 $piezaExistente->tiempo_aplicacion = $request->tiempo_aplicacion;
                 $piezaExistente->tipo_soldadura = $request->tipo_soldadura;
                 $piezaExistente->lote = $request->lote;
+                $piezaExistente->error = $request->error;
                 $piezaExistente->observaciones = $request->observaciones;
                 $piezaExistente->estado = 2;
                 $piezaExistente->save();
 
-                $pieza = Pieza::where('n_pieza', $piezaExistente->n_pieza)->where('proceso', 'Soldadura')->where('id_ot', $ot->id)->where('id_clase', $clase->id)->first();
+                $pieza = Pieza::where('n_pieza', $piezaExistente->n_juego)->where('proceso', 'Soldadura')->where('id_ot', $ot->id)->where('id_clase', $clase->id)->first();
                 //Guardar los datos de las pieza en la tabla pieza (En donde se almacenan todas las piezas)
-                if (!isset($pieza)) {
+                if (!$pieza) {
                     $pieza = new Pieza();
                 }
                 $pieza->id_clase = $clase->id;
@@ -86,11 +86,11 @@ class SoldaduraController extends Controller
                 $pieza->id_operador = $meta->id_usuario;
                 $pieza->maquina = $meta->maquina;
                 $pieza->proceso = "Soldadura";
-                $pieza->error = "---";
+                $pieza->error = $piezaExistente->error;
                 $pieza->save();
 
                 //Actualizar resultado de la meta
-                $pzasMeta = Soldadura_pza::where('id_meta', $meta->id)->where('estado', 2)->get(); //Obtención de todas las piezas correctas.
+                $pzasMeta = Soldadura_pza::where('id_meta', $meta->id)->where('estado', 2)->where('error', "Ninguno")->get(); //Obtención de todas las piezas correctas.
                 Metas::where('id', $meta->id)->update([ //Actualización de datos en tabla Metas.
                     'resultado' => $pzasMeta->count(),
                 ]);
@@ -132,7 +132,7 @@ class SoldaduraController extends Controller
             $pzasCreadas = Soldadura_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas.
 
             //Actualizar resultado de la meta
-            $pzasMeta = Soldadura_pza::where('id_meta', $meta->id)->where('estado', 2)->get(); //Obtención de todas las piezas correctas.
+            $pzasMeta = Soldadura_pza::where('id_meta', $meta->id)->where('estado', 2)->where('error', 'Ninguno')->get(); //Obtención de todas las piezas correctas.
             Metas::where('id', $meta->id)->update([ //Actualización de datos en tabla Metas.
                 'resultado' => $pzasMeta->count(),
             ]);
@@ -187,16 +187,16 @@ class SoldaduraController extends Controller
                 $piezaExistente = Soldadura_pza::where('id_pza', $id_pieza)->first();
                 if ($piezaExistente) {
                     $piezaExistente->pesoxpieza = $request->pesoxpieza[$i];
-                    $piezaExistente->tiempo_precalentado = $request->tiempo_precalentado[$i];
                     $piezaExistente->temperatura_precalentado = $request->temperatura_precalentado[$i];
                     $piezaExistente->tiempo_aplicacion = $request->tiempo_aplicacion[$i];
                     $piezaExistente->tipo_soldadura = $request->tipo_soldadura[$i];
                     $piezaExistente->lote = $request->lote[$i];
+                    $piezaExistente->error = $request->error[$i];
                     if (isset($request->observaciones[$i])) { //Si se obtienen los datos de las piezas, se guardan en la tabla Soldadura_cnominal.
                         $piezaExistente->observaciones = $request->observaciones[$i];  //Llenado de observaciones para tabla Soldadura_cnominal.
                     }
-                    $piezaExistente->save(); //Gua
-                    $pieza = Pieza::where('n_pieza', $piezaExistente->n_pieza)->where('proceso', 'Soldadura')->where('id_ot', $ot->id)->where('id_clase', $clase->id)->first();
+                    $piezaExistente->save();
+                    $pieza = Pieza::where('n_pieza', $piezaExistente->n_juego)->where('proceso', 'Soldadura')->where('id_ot', $ot->id)->where('id_clase', $clase->id)->first();
                     //Guardar los datos de las pieza en la tabla pieza (En donde se almacenan todas las piezas)
                     if (!isset($pieza)) {
                         $pieza = new Pieza(); //Creación del obejeto para llenar la tabla pieza.
@@ -207,12 +207,12 @@ class SoldaduraController extends Controller
                     $pieza->id_operador = $meta->id_usuario;
                     $pieza->maquina = $meta->maquina;
                     $pieza->proceso = "Soldadura";
-                    $pieza->error = "---";
+                    $pieza->error = $piezaExistente->error;
                     $pieza->save();
                 }
             }
             //Actualizar resultado de la meta
-            $pzasMeta = Soldadura_pza::where('id_meta', $meta->id)->get(); //Obtención de todas las piezas correctas.
+            $pzasMeta = Soldadura_pza::where('id_meta', $meta->id)->where('error', 'Ninguno')->get(); //Obtención de todas las piezas correctas.
             Metas::where('id', $meta->id)->update([ //Actualización de datos en tabla Metas.
                 'resultado' => $pzasMeta->count(),
             ]);
@@ -220,7 +220,7 @@ class SoldaduraController extends Controller
 
             //Retornar la pieza siguiente
             $pzaUtilizar = Soldadura_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
-            if ($pzaUtilizar == null) { //Si no existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
+            if ($pzaUtilizar == null) { //Si no existe una pieza para utilizar, se retorna a la vista de Soldadura
                 $piezasVacias = Soldadura_pza::where('pesoxpieza', null)->where('estado', 1)->where('id_proceso', $id_proceso->id)->get();
                 if (isset($piezasVacias) && $piezasVacias->count() > 0) { //Si existen piezas vacias, se busca una pieza para utilizar.
                     for ($i = 0; $i < count($piezasVacias); $i++) { //Recorro las piezas creadas.

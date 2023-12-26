@@ -57,7 +57,7 @@ class SoldaduraPTAController extends Controller
         }
         $ot = Orden_trabajo::where('id', $meta->id_ot)->first(); //Busco la OT que se quiere editar.
         $clase = Clase::find($meta->id_clase); //Busco la clase de la OT.
-        $id = "soldaduraPTA_" . $clase->nombre . "_" . $ot->id; //Creación de id para tabla Soldadura
+        $id = "soldaduraPTA_" . $clase->nombre . "_" . $ot->id; //Creación de id para tabla SoldaduraPTA
         $moldura = Moldura::find($ot->id_moldura); //Busco la moldura de la OT.
         $id_proceso = SoldaduraPTA::where('id_proceso', $id)->first();
 
@@ -68,13 +68,14 @@ class SoldaduraPTAController extends Controller
                 $piezaExistente->temp_calentado = $request->temp_calentado;
                 $piezaExistente->temp_dispositivo = $request->temp_dispositivo;
                 $piezaExistente->limpieza = $request->limpieza;
+                $piezaExistente->error = $request->error;
                 $piezaExistente->observaciones = $request->observaciones;
                 $piezaExistente->estado = 2;
                 $piezaExistente->save();
 
-                $pieza = Pieza::where('n_pieza', $piezaExistente->n_pieza)->where('proceso', 'Soldadura PTA')->where('id_ot', $ot->id)->where('id_clase', $clase->id)->first();
+                $pieza = Pieza::where('n_pieza', $piezaExistente->n_juego)->where('proceso', 'Soldadura PTA')->where('id_ot', $ot->id)->where('id_clase', $clase->id)->first();
                 //Guardar los datos de las pieza en la tabla pieza (En donde se almacenan todas las piezas)
-                if (!isset($pieza)) {
+                if (!$pieza) {
                     $pieza = new Pieza();
                 }
                 $pieza->id_clase = $clase->id;
@@ -83,11 +84,11 @@ class SoldaduraPTAController extends Controller
                 $pieza->id_operador = $meta->id_usuario;
                 $pieza->maquina = $meta->maquina;
                 $pieza->proceso = "Soldadura PTA";
-                $pieza->error = "---";
+                $pieza->error = $piezaExistente->error;
                 $pieza->save();
 
                 //Actualizar resultado de la meta
-                $pzasMeta = SoldaduraPTA_pza::where('id_meta', $meta->id)->where('estado', 2)->get(); //Obtención de todas las piezas correctas.
+                $pzasMeta = SoldaduraPTA_pza::where('id_meta', $meta->id)->where('estado', 2)->where('error', "Ninguno")->get(); //Obtención de todas las piezas correctas.
                 Metas::where('id', $meta->id)->update([ //Actualización de datos en tabla Metas.
                     'resultado' => $pzasMeta->count(),
                 ]);
@@ -97,7 +98,7 @@ class SoldaduraPTAController extends Controller
                 $pzaUtilizar = SoldaduraPTA_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first();
                 if (isset($pzaUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Soldadura
                     $pzasCreadas = SoldaduraPTA_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get();
-                    return view('processes.soldaduraPTA', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'juegos' => count($this->piezaUtilizar($ot->id, $clase))]); //Retorno a vista de Cepillado.
+                    return view('processes.soldaduraPTA', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'juegos' => count($this->piezaUtilizar($ot->id, $clase))]); //Retorno a vista de SoldaduraPTA
                 } else {
                     //Actualizar solo dos registros de las piezas que se van a ocupar en la tabla  SoldaduraPTA
                     $this->piezaUtilizar($ot->id, $clase);
@@ -129,7 +130,7 @@ class SoldaduraPTAController extends Controller
             $pzasCreadas = SoldaduraPTA_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas.
 
             //Actualizar resultado de la meta
-            $pzasMeta = SoldaduraPTA_pza::where('id_meta', $meta->id)->where('estado', 2)->get(); //Obtención de todas las piezas correctas.
+            $pzasMeta = SoldaduraPTA_pza::where('id_meta', $meta->id)->where('estado', 2)->where('error', "Ninguno")->get(); //Obtención de todas las piezas correctas.
             Metas::where('id', $meta->id)->update([ //Actualización de datos en tabla Metas.
                 'resultado' => $pzasMeta->count(),
             ]);
@@ -159,12 +160,12 @@ class SoldaduraPTAController extends Controller
                     $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
                 }
                 if (isset($pzasUtilizar)) { //Si no se encontro una pieza para utilizar, se crea una nueva pieza.
-                    return view('processes.soldaduraPTA', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'juegos' => count($pzasUtilizar)]); //Retorno a vista de Cepillado.
+                    return view('processes.soldaduraPTA', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'juegos' => count($pzasUtilizar)]); //Retorno a vista de SoldaduraPTA
                 } else {
-                    return view('processes.soldaduraPTA', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'juegos' => count($this->piezaUtilizar($ot->id, $clase))])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
+                    return view('processes.soldaduraPTA', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'juegos' => count($this->piezaUtilizar($ot->id, $clase))])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de SoldaduraPTA
                 }
             } else {
-                return view('processes.soldaduraPTA', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
+                return view('processes.soldaduraPTA', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de SoldaduraPTA
             }
         }
     }
@@ -174,25 +175,26 @@ class SoldaduraPTAController extends Controller
         $ot = Orden_trabajo::find($meta->id_ot); //Obtención de la OT.
         $moldura = Moldura::find($ot->id_moldura); //Busco la moldura de la OT.
         $clase = Clase::find($meta->id_clase); //Busco la clase de la OT.
-        $id = "soldaduraPTA_" . $clase->nombre . "_" . $ot->id; //Creación de id para tabla Soldadura
+        $id = "soldaduraPTA_" . $clase->nombre . "_" . $ot->id; //Creación de id para tabla SoldaduraPTA
         $id_proceso = SoldaduraPTA::where('id_proceso', $id)->first();
         $pzasCreadas = SoldaduraPTA_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas.
         $pzaUtilizar = SoldaduraPTA_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
-        if (isset($request->n_pieza)) { //Si se obtienen los datos de las piezas, se guardan en la tabla Soldadura_cnominal.
+        if (isset($request->n_pieza)) { //Si se obtienen los datos de las piezas, se guardan en la tabla SoldaduraPTA_cnominal.
             for ($i = 0; $i < count($request->n_pieza); $i++) {
-                $id_pieza = $request->n_pieza[$i] . $id_proceso->id; //Creación de id para tabla Soldadura_cnominal.
+                $id_pieza = $request->n_pieza[$i] . $id_proceso->id; //Creación de id para tabla SoldaduraPTA_cnominal.
                 $piezaExistente = SoldaduraPTA_pza::where('id_pza', $id_pieza)->first();
                 if ($piezaExistente) {
                     $piezaExistente->temp_calentado = $request->temp_calentado[$i];
                     $piezaExistente->temp_dispositivo = $request->temp_dispositivo[$i];
                     $piezaExistente->limpieza = $request->limpieza[$i];
-                    if (isset($request->observaciones[$i])) { //Si se obtienen los datos de las piezas, se guardan en la tabla Soldadura_cnominal.
-                        $piezaExistente->observaciones = $request->observaciones[$i];  //Llenado de observaciones para tabla Soldadura_cnominal.
+                    $piezaExistente->error = $request->error[$i];
+                    if (isset($request->observaciones[$i])) { //Si se obtienen los datos de las piezas, se guardan en la tabla SoldaduraPTA_cnominal.
+                        $piezaExistente->observaciones = $request->observaciones[$i];  //Llenado de observaciones para tabla SoldaduraPTA_cnominal.
                     }
-                    $piezaExistente->save(); //Gua
-                    $pieza = Pieza::where('n_pieza', $piezaExistente->n_pieza)->where('proceso', 'Soldadura PTA')->where('id_ot', $ot->id)->where('id_clase', $clase->id)->first();
+                    $piezaExistente->save();
+                    $pieza = Pieza::where('n_pieza', $piezaExistente->n_juego)->where('proceso', 'Soldadura PTA')->where('id_ot', $ot->id)->where('id_clase', $clase->id)->first();
                     //Guardar los datos de las pieza en la tabla pieza (En donde se almacenan todas las piezas)
-                    if (!isset($pieza)) {
+                    if (!$pieza) {
                         $pieza = new Pieza(); //Creación del obejeto para llenar la tabla pieza.
                     }
                     $pieza->id_clase = $clase->id; //Lenado de id_clase para la tabla pieza.
@@ -201,12 +203,12 @@ class SoldaduraPTAController extends Controller
                     $pieza->id_operador = $meta->id_usuario;
                     $pieza->maquina = $meta->maquina;
                     $pieza->proceso = "Soldadura PTA";
-                    $pieza->error = "---";
+                    $pieza->error = $piezaExistente->error;
                     $pieza->save();
                 }
             }
             //Actualizar resultado de la meta
-            $pzasMeta = SoldaduraPTA_pza::where('id_meta', $meta->id)->get(); //Obtención de todas las piezas correctas.
+            $pzasMeta = SoldaduraPTA_pza::where('id_meta', $meta->id)->where('error', 'Ninguno')->get(); //Obtención de todas las piezas correctas.
             Metas::where('id', $meta->id)->update([ //Actualización de datos en tabla Metas.
                 'resultado' => $pzasMeta->count(),
             ]);

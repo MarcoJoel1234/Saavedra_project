@@ -2,7 +2,7 @@
 @section('content')
 
 <head>
-    <title>Soldadura</title>
+    <title>Reporte diario de Asentado</title>
     @vite('resources/css/barreno.css')
     @vite('resources/js/editarInterfaz.js')
     @vite('resources/js/editarTabla.js')
@@ -35,10 +35,10 @@
 
 <body background="{{ asset('images/hola.jpg') }}">
     <div class="container">
-                <!--Formulario en donde se guardara la meta de Soldadura-->
+                <!--Formulario en donde se guardara la meta de SoldaduraPTA-->
                 <form action="{{route('saveHeader')}}" method="post">
             @csrf
-            <input type="hidden" name="proceso" value="soldadura">
+            <input type="hidden" name="proceso" value="asentado">
             <!--Div para el header del proceso-->
             <div class="container-header">
                 <!--Div para los datos ingresados por el usuario-->
@@ -180,15 +180,15 @@
                     <table border="4" id="tabla1">
                         <tr>
                             <th>Código</th>
-                            <th> F- PRO - CTP</th>
+                            <th> F- PRO - CPT</th>
                         </tr>
                         <tr>
                             <th>Versión</th>
-                            <th> 01</th>
+                            <th> 05 </th>
                         </tr>
                         <tr>
                             <th>Fecha de revisión: </th>
-                            <th> 01 - Agosto - 19</th>
+                            <th> 23 - Agosto - 23</th>
                         </tr>
                     </table>
                 </div>
@@ -197,49 +197,41 @@
         <!--Formulario para los datos de la tabla-->
         @if (isset($band) && $band == 2)
             <div class="disabled-tabla">
-                <form action="{{ route('soldaduraHeader')}}" method="post">
+                <form action="{{ route('asentadoHeader')}}" method="post">
                     @csrf
                     <input type="hidden" name="metaData" value="{{$meta->id}}">
                     <div class="scrollabe-table">
                         <table border="1" class="tabla3">
                             <tr>
                                 <th class="t-title" style="width:150px">#PZ</th>
-                                <th class="t-title">Peso por pieza </th>
-                                <th class="t-title">Temperatura de precalentado °</th>
-                                <th class="t-title">Tiempo de aplicación</th>
-                                <th class="t-title">Tipo de soldadura</th>
-                                <th class="t-title">Lote</th>
+                                <th class="t-title">Sin juego</th>
+                                <th class="t-title">Sin luz</th>
                                 <th class="t-title">Error</th>
                                 <th class="t-title" style="width:700px">Observaciones</th>
                             </tr>
+
                             <!--Llenado de piezas-->
                             @if (isset($nPiezas))
                                 @if ($nPiezas->count() != 0)
                                     @foreach ($nPiezas as $nPiezas)
-                                        @if ($nPiezas->error == 'Ninguno')
-                                            <tr>
-                                                <td><input type="text" class="input" value="{{$nPiezas->n_juego}}" step="any" inputmode="decimal" style="background-color:#90F77E" readonly></td>
-                                                <td><input type="number" class="input" value="{{$nPiezas->pesoxpieza}}" step="any" inputmode="decimal" style="background-color:#90F77E" readonly></td>
-                                                <td><input type="number" class="input" value="{{$nPiezas->temperatura_precalentado}}" step="any" inputmode="decimal" style="background-color:#90F77E" readonly></td>
-                                                <td><input type="number" class="input" value="{{$nPiezas->tiempo_aplicacion}}" step="any" inputmode="decimal" style="background-color:#90F77E" readonly></td>
-                                                <td><input type="text" class="input" value="{{$nPiezas->tipo_soldadura}}" style="background-color:#90F77E" readonly></td>
-                                                <td><input type="text" class="input" value="{{$nPiezas->lote}}" style="background-color:#90F77E" readonly></td>
-                                                <td><input type="text" class="input" value="{{$nPiezas->error}}" style="background-color:#90F77E" readonly></td>
-                                                <td><textarea class="input" style="background-color:#90F77E" readonly>{{$nPiezas->observaciones}}</textarea></td>
-                                            </tr>
-                                        @else
-                                            <tr>
-                                                <td><input type="text" class="input" value="{{$nPiezas->n_juego}}" step="any" inputmode="decimal" style="background-color:#F36456" readonly></td>
-                                                <td><input type="number" class="input" value="{{$nPiezas->pesoxpieza}}" step="any" inputmode="decimal" style="background-color:#F36456" readonly></td>
-                                                <td><input type="number" class="input" value="{{$nPiezas->temperatura_precalentado}}" step="any" inputmode="decimal" style="background-color:#F36456" readonly></td>
-                                                <td><input type="number" class="input" value="{{$nPiezas->tiempo_aplicacion}}" step="any" inputmode="decimal" style="background-color:#F36456" readonly></td>
-                                                <td><input type="text" class="input" value="{{$nPiezas->tipo_soldadura}}" style="background-color:#F36456" readonly></td>
-                                                <td><input type="text" class="input" value="{{$nPiezas->lote}}"  style="background-color:#F36456" readonly></td>
-                                                <td><input type="text" class="input" value="{{$nPiezas->error}}" style="background-color:#F36456" readonly></td>
-                                                <td><textarea class="input" style="background-color:#F36456" readonly>{{$nPiezas->observaciones}}</textarea></td>
-                                            </tr>
-                                        @endif
-                                    @endforeach
+                                    @if ($nPiezas->sin_juego == "X" || $nPiezas->sin_luz == "X")
+                                        <tr>
+                                            <td><input type="text" class="input" style="background-color:#F36456" value="{{$nPiezas->n_juego}}" readonly></td>
+                                            <td><input type="text" class="input" style="background-color:#F36456" value="{{$nPiezas->sin_juego}}" readonly></td>
+                                            <td><input type="text" class="input" style="background-color:#F36456" value="{{$nPiezas->sin_luz}}" readonly></td>
+                                            <td><input type="text" class="input" style="background-color:#F36456" value="{{$nPiezas->error}}"></td>
+                                            <td><textarea class="input" style="background-color:#F36456" readonly>{{$nPiezas->observaciones}}</textarea></td>
+                                        </tr>
+                                    @else
+                                        <tr>
+                                            <td><input type="text" class="input" style="background-color:#90F77E" value="{{$nPiezas->n_juego}}" readonly></td>
+                                            <td><input type="text" class="input" style="background-color:#90F77E" value="{{$nPiezas->sin_juego}}" readonly></td>
+                                            <td><input type="text" class="input" style="background-color:#90F77E" value="{{$nPiezas->sin_luz}}" readonly></td>
+                                            <td><input type="text" class="input" style="background-color:#90F77E" value="{{$nPiezas->error}}"></td>
+                                            <td><textarea class="input" style="background-color:#90F77E" readonly>{{$nPiezas->observaciones}}</textarea></td>
+                                        </tr>
+                                    @endif
+                                @endforeach
                                 @endif
                                 @if ((isset($piezasUtilizar) && count($piezasUtilizar) != 0) && !isset($piezaElegida))
                                     <tr>
@@ -253,10 +245,7 @@
                                         <td> </td>
                                         <td> </td>
                                         <td> </td>
-                                        <td> </td>
-                                        <td> </td>
-                                        <td> </td>
-                                        <td> </td>
+                                        <td></td>
                                     </tr>
                                 @else
                                     @include('layouts.partials.messages')
@@ -264,17 +253,18 @@
                                 @if (isset($piezaElegida))
                                     <tr>
                                         <td> <input type="text" name="n_pieza" class="input" value="{{$piezaElegida->n_juego}}" readonly></td>
-                                        <td> <input type="number" name="pesoxpieza" class="input" step="any" inputmode="decimal" required></td>
-                                        <td> <input type="number" name="temperatura_precalentado" class="input" step="any" inputmode="decimal" required></td>
-                                        <td> <input type= "number" name="tiempo_aplicacion" class="input" step="any" inputmode="decimal" required></td>
-                                        <td> <input type= "text" name="tipo_soldadura" class="input" required></td>
-                                        <td> <input type="text" name="lote" class="input" required></td>
-                                        <td> 
-                                            <select name="error" class="input">
-                                                <option value="Ninguno">Ninguno</option>
-                                                <option value="Soldadura">Soldadura</option>
+                                        <td><select name="sin_juego" style="width: 100%">
+                                            <option value="✓">✓</option>
+                                            <option value="X">X</option>
                                             </select>
                                         </td>
+                                        <td>
+                                        <select name="sin_luz" style="width: 100%;">
+                                            <option value="✓">✓</option>
+                                            <option value="X">X</option>
+                                            </select>
+                                        </td>
+                                        <td></td>
                                         <td> <textarea class="input" name="observaciones"></textarea></td>
                                     </tr>
                                 @endif
@@ -289,7 +279,7 @@
                     @endif
                 </form>
                 @if (isset($nPiezas) && $nPiezas != "[]")
-                    <form action="{{ route('editSoldadura')}}" method="post">
+                    <form action="{{ route('editAsentado')}}" method="post">
                         @csrf
                         <div class="editar-table" id="editar-table">
                                 <img src="{{ asset('images/editar.png')}}" alt="Desbloquear" id="edit-table" class="boton-editar-table">
@@ -303,19 +293,16 @@
         @endif
         @if (isset($band) && $band == 4)
             <div class="disabled-tabla">
-                <form action="{{ route('editSoldadura')}}" method="post">
+                <form action="{{ route('editAsentado')}}" method="post">
                     @csrf
                     <input type="hidden" name="metaData" value="{{$meta->id}}">
                     <div class="scrollabe-table">
                         <table border="1" class="tabla3">
-                            <!--Encabezado de la tabla Cepillado--> 
+                            <!--Encabezado de la tabla  SoldaduraPTA--> 
                             <tr>
                                 <th class="t-title" style="width:150px">#PZ</th>
-                                <th class="t-title">Peso por pieza </th>
-                                <th class="t-title">Temperatura de precalentado °</th>
-                                <th class="t-title">Tiempo de aplicación</th>
-                                <th class="t-title">Tipo de soldadura</th>
-                                <th class="t-title">Lote</th>
+                                <th class="t-title">Sin juego</th>
+                                <th class="t-title">Sin luz</th>
                                 <th class="t-title">Error</th>
                                 <th class="t-title" style="width:700px">Observaciones</th>
                             </tr>
@@ -325,21 +312,27 @@
                                 @foreach ($nPiezas as $nPiezas)
                                     <tr>
                                         <td><input type="text" class="input" value="{{$nPiezas->n_juego}}" name="n_pieza[]" step="any" inputmode="decimal" readonly></td>
-                                        <td><input type="number" class="input" value="{{$nPiezas->pesoxpieza}}" name="pesoxpieza[]" step="any" inputmode="decimal" required></td>
-                                        <td><input type="number" class="input" value="{{$nPiezas->temperatura_precalentado}}" name="temperatura_precalentado[]" step="any" inputmode="decimal" required></td>
-                                        <td><input type="number" class="input" value="{{$nPiezas->tiempo_aplicacion}}" name="tiempo_aplicacion[]" step="any" inputmode="decimal" required></td>
-                                        <td><input type="text" class="input" value="{{$nPiezas->tipo_soldadura}}" name="tipo_soldadura[]" required></td>
-                                        <td><input type="text" class="input" value="{{$nPiezas->lote}}" name="lote[]" required></td>
                                         <td>
-                                            <select name="error[]" class="input">
-                                                <option value="{{$nPiezas->error}}">{{$nPiezas->error}}</option>
-                                                @if ($nPiezas->error == 'Ninguno')
-                                                    <option value="Soldadura">Soldadura</option>
+                                            <select name="sin_juego[]" class="input">
+                                                <option value="{{$nPiezas->sin_juego}}">{{$nPiezas->sin_juego}}</option>
+                                                @if ($nPiezas->sin_juego == "✓")
+                                                    <option value="X">X</option>
                                                 @else
-                                                    <option value="Ninguno">Ninguno</option>
+                                                    <option value="✓">✓</option>
                                                 @endif
                                             </select>
                                         </td>
+                                        <td>
+                                            <select name="sin_luz[]" class="input">
+                                                <option value="{{$nPiezas->sin_luz}}">{{$nPiezas->sin_luz}}</option>
+                                                @if ($nPiezas->sin_luz == "✓")
+                                                    <option value="X">X</option>
+                                                @else
+                                                    <option value="✓">✓</option>
+                                                @endif
+                                            </select>
+                                        </td>
+                                        <td><input type="text" class="input" value="{{$nPiezas->error}}" readonly></td>
                                          <td><textarea name="observaciones[]" class="input">{{$nPiezas->observaciones}}</textarea></td>
                                     </tr>
                                 @endforeach

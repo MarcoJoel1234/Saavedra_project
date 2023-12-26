@@ -13,7 +13,6 @@
         <button class="abrir-menu" id="abrir"><img class="icono" src="{{asset('images/icono.png')}}"></button>
         <nav class="nav" id="nav">
             <button class="cerrar-menu" id="cerrar"><img class="icono" src="{{asset('images/icono.png')}}"></button>
-            <h2 class="label-menu">Menú.</h2>
             <ul class="nav-list">
                 <li><a href="home">Inicio</a></li>
                 <li><a href="{{route ('cepillado')}}">Cepillado</a></li>
@@ -24,24 +23,12 @@
                 <li><a href="{{route ('segundaOpeSoldadura')}}">2da Operación soldadura</a></li>
                 <li><a href="{{route ('soldadura')}}">Soldadura</a></li>
                 <li><a href="{{route ('soldaduraPTA')}}">Soldadura PTA</a></li>
-                <li><a href="#">Reporte diario de rectificado</a></li>
-                <li><a href="#">Reporte diario de asentado</a></li>
-                <li><a href="#">Revisión calificado</a></li>
-                <li><a href="#">Reporte diario de soldaduras</a></li>
-                <li><a href="#">Revisión calificado</a></li>
-                <li><a href="#">Revisión acabados bombillo</a></li>
-                <li><a href="#">Revisión acabados molde</a></li>
-                <li><a href="#">Barreno para platos</a></li>
-                <li><a href="#">Reporte diario de cavidades</a>></li>
-                <li><a href="#">Reporte de copiado</a></li>
-                <li><a href="#">OffSet</a></li>
-                <li><a href="#">Palomas</a></li>
-                <li><a href="#">Rebajes</a></li>
-                <li><a href="#">Grabado</a></li>
-                <li><a href="#">Máquinado embudo</a></li>
-                <li><a href="#">Barreno de profundidad</a></li>  
-                <li><a href="#">Embudo CM></li>
-                <li><a href="#">1ra y 2da operación soldadura</a></li>
+                <li><a href="{{route ('rectificado')}}">Reporte diario de rectificado</a></li>
+                <li><a href="{{route ('asentado')}}">Reporte diario de asentado</a></li>
+                <li><a href="{{route ('calificado')}}">Revisión calificado</a></li>
+                <li><a href="{{route ('acabadoBombillo')}}">Revisión acabados bombillo</a></li>
+                <li><a href="{{route ('acabadoMolde')}}">Revisión acabados molde</a></li>
+                <li><a href="{{route ('cavidades')}}">Reporte diario de Cavidades</a></li>
                 <ul>
                     <a class="btn1" href="{{ route('logout') }}">Cerrar sesión</a>
                 </ul>

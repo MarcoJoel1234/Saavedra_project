@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('estado')->default(0);
             $table->string('n_juego');
             $table->char('cumple')->nullable();
+            $table->string('error')->nullable();
             $table->string('observaciones')->nullable();
             $table->timestamps();
             $table->foreign('id_meta')->references('id')->on('metas');

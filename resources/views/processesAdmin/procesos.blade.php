@@ -31,7 +31,7 @@ class Proceso {
                     console.log(this.valoresTole['pin2']);
                     return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, valoresCnomi, valoresTole); // Crear tabla
                 }
-                return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined); // Crear tabla
+                return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined, 'cepillado'); // Crear tabla
                 
             case "Desbaste Exterior": //Proceso de cepillado
                 titulos = ['', 'Diametro de mordaza', 'Diametro de ceja', 'Diametro de sufridera/Extra', 'Simetría ceja', 'Simetría Mordaza', 'Altura de ceja', 'Altura sufridera'];
@@ -47,7 +47,7 @@ class Proceso {
                     let valoresTole = [this.valoresTole['id'], this.valoresTole['diametro_mordaza1'], this.valoresTole['diametro_mordaza2'], this.valoresTole['diametro_ceja1'], this.valoresTole['diametro_ceja2'], this.valoresTole['diametro_sufrideraExtra1'], this.valoresTole['diametro_sufrideraExtra2'], this.valoresTole['simetria_ceja1'], this.valoresTole['simetria_ceja2'], this.valoresTole['simetria_mordaza1'], this.valoresTole['simetria_mordaza2'], this.valoresTole['altura_ceja1'], this.valoresTole['altura_ceja2'], this.valoresTole['altura_sufridera1'], this.valoresTole['altura_sufridera2']];
                     return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, valoresCnomi, valoresTole); // Crear tabla
                 }
-                return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined); // Crear tabla
+                return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined, 'desbaste exterior'); // Crear tabla
             
             case "Revision Laterales": //Proceso de cepillado
                 titulos = ['', 'Desfasamiento Entrada', 'Desfasamiento Salida', 'Ancho de simetria Entrada', 'Ancho de simetria Salida', 'Angulo de corte'];
@@ -63,7 +63,7 @@ class Proceso {
                     let valoresTole = [this.valoresTole['id'], this.valoresTole['desfasamiento_entrada1'], this.valoresTole['desfasamiento_entrada2'], this.valoresTole['desfasamiento_salida1'], this.valoresTole['desfasamiento_salida2'], this.valoresTole['ancho_simetriaEntrada1'], this.valoresTole['ancho_simetriaEntrada2'], this.valoresTole['ancho_simetriaSalida1'], this.valoresTole['ancho_simetriaSalida2'], this.valoresTole['angulo_corte1'], this.valoresTole['angulo_corte2']];
                     return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, valoresCnomi, valoresTole); // Crear tabla
                 }   
-                return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined); // Crear tabla
+                return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined, 'revision laterales'); // Crear tabla
 
             case "Primera Operacion": //Proceso de cepillado
                 titulos = ['', 'Diametro 1', 'Profundidad 1 ', 'Diametro 2', 'Profundidad 2', 'Diametro 3', 'Profunfidad 3','Diametro de soldadura', 'Profundidad de soldadura', 'Diametro de barreno', 'Simetria línea de partida', 'Perno de alineación', 'Simetría a 90°'];
@@ -79,7 +79,7 @@ class Proceso {
                     let valoresTole = [this.valoresTole['id'], this.valoresTole['diametro1'], this.valoresTole['profundidad1'], this.valoresTole['diametro2'], this.valoresTole['profundidad2'], this.valoresTole['diametro3'], this.valoresTole['profundidad3'], this.valoresTole['diametroSoldadura'], this.valoresTole['profundidadSoldadura'], this.valoresTole['diametroBarreno1'], this.valoresTole['diametroBarreno2'], this.valoresTole['simetriaLinea_partida1'], this.valoresTole['simetriaLinea_partida2'], this.valoresTole['pernoAlineacion'], this.valoresTole['Simetria90G']];
                     return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, valoresCnomi, valoresTole); // Crear tabla
                 }   
-                return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined); // Crear tabla
+                return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined, 'primera operacion'); // Crear tabla
 
             case "Barreno Maniobra": //Proceso de barreno maniobra
                 titulos = ['', 'Profundidad de Barreno', 'Diametro de machuelo'];
@@ -95,7 +95,7 @@ class Proceso {
                     let valoresTole = [this.valoresTole['id'], this.valoresTole['profundidad_barreno1'], this.valoresTole['profundidad_barreno2'], this.valoresTole['diametro_machuelo1'], this.valoresTole['diametro_machuelo2']];
                     return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, valoresCnomi, valoresTole); // Crear tabla
                 }   
-                return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined); // Crear tabla
+                return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined, 'barreno maniobra'); // Crear tabla
 
             case "Segunda Operacion": //Proceso de cepillado
                 titulos = ['', 'Diametro 1', 'Profundidad 1 ', 'Diametro 2', 'Profundidad 2', 'Diametro 3', 'Profunfidad 3','Diametro de soldadura', 'Profundidad de soldadura', 'Altura total', 'Simetría a 90°', 'Simetria línea de partida'];
@@ -111,7 +111,7 @@ class Proceso {
                     let valoresTole = [this.valoresTole['id'], this.valoresTole['diametro1'], this.valoresTole['profundidad1'], this.valoresTole['diametro2'], this.valoresTole['profundidad2'], this.valoresTole['diametro3'], this.valoresTole['profundidad3'], this.valoresTole['diametroSoldadura'], this.valoresTole['profundidadSoldadura'], this.valoresTole['alturaTotal1'], this.valoresTole['alturaTotal2'], this.valoresTole['Simetria90G1'], this.valoresTole['Simetria90G2'], this.valoresTole['simetriaLinea_partida']];
                     return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, valoresCnomi, valoresTole); // Crear tabla
                 }   
-                return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined); // Crear tabla
+                return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined, 'segunda operacion'); // Crear tabla
                 
             case "Operacion Equipo": //Proceso de cepillado
                 titulos = ['', 'Altura', 'ø Altura de candado', 'Altura asiento obturador', 'ø Profundidad de soldadura', 'ø de PushUp'];
@@ -128,14 +128,64 @@ class Proceso {
                     let valoresTole = [this.valoresTole['id'], this.valoresTole['altura'], this.valoresTole['alturaCandado1'], this.valoresTole['alturaCandado2'], this.valoresTole['alturaAsientoObturador1'], this.valoresTole['alturaAsientoObturador2'], this.valoresTole['profundidadSoldadura1'], this.valoresTole['profundidadSoldadura2'], this.valoresTole['pushUp']];
                     return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, valoresCnomi, valoresTole); // Crear tabla
                 }   
-                return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined); // Crear tabla
+                return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined, 'operacion equipo'); // Crear tabla
 
+            case "Calificado": //Proceso de cepillado
+                titulos = ['', 'Diametro de ceja', 'Diametro de sufridera', 'Altura de sufridera', 'Diametro de conexion', 'Altura de conexion', 'Diametro de caja', 'Altura de caja', 'Altura total', 'Simetria'];
+
+                cNominal = ['C.nominal', 'cNomi_diametro_ceja', 'cNomi_diametro_sufridera', 'cNomi_altura_sufridera', 'cNomi_diametro_conexion', 'cNomi_altura_conexion', 'cNomi_diametro_caja', 'cNomi_altura_caja', 'cNomi_altura_total', 'cNomi_simetria'];
+                cNomiPosiciones = [null]; // Posiciones de los inputs de c.nominal
+
+                tolerancias = ['Tolerancias', 'tole_diametro_ceja1', 'tole_diametro_ceja2', 'tole_diametro_sufridera1', 'tole_diametro_sufridera2', 'tole_altura_sufridera1', 'tole_altura_sufridera2', 'tole_diametro_conexion1', 'tole_diametro_conexion2', 'tole_altura_conexion1', 'tole_altura_conexion2', 'tole_diametro_caja1', 'tole_diametro_caja2', 'tole_altura_caja1', 'tole_altura_caja2', 'tole_altura_total1', 'tole_altura_total2', 'tole_simetria1', 'tole_simetria2']; 
+                tolePosiciones = [1, 3, 5, 7, 9, 11, 13, 15, 17]; // Posiciones de los inputs de tolerancias
+
+                if(this.valoresCnomi != undefined && this.valoresTole != undefined){
+                    let valoresCnomi = [this.valoresCnomi['id'], this.valoresCnomi['diametro_ceja'] , this.valoresCnomi['diametro_sufridera'], this.valoresCnomi['altura_sufridera'], this.valoresCnomi['diametro_conexion'], this.valoresCnomi['altura_conexion'], this.valoresCnomi['diametro_caja'], this.valoresCnomi['altura_caja'], this.valoresCnomi['altura_total'], this.valoresCnomi['simetria']];
+                
+                    let valoresTole = [this.valoresTole['id'], this.valoresTole['diametro_ceja1'], this.valoresTole['diametro_ceja2'], this.valoresTole['diametro_sufridera1'], this.valoresTole['diametro_sufridera2'], this.valoresTole['altura_sufridera1'], this.valoresTole['altura_sufridera2'], this.valoresTole['diametro_conexion1'], this.valoresTole['diametro_conexion2'], this.valoresTole['altura_conexion1'], this.valoresTole['altura_conexion2'], this.valoresTole['diametro_caja1'], this.valoresTole['diametro_caja2'], this.valoresTole['altura_caja1'], this.valoresTole['altura_caja2'], this.valoresTole['altura_total1'], this.valoresTole['altura_total2'], this.valoresTole['simetria1'], this.valoresTole['simetria2']];
+                    return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, valoresCnomi, valoresTole); // Crear tabla
+                }   
+                return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined, 'calificado'); // Crear tabla
+
+            case "Acabado Bombillo": //Proceso de cepillado
+                titulos = ['', 'Diametro de mordaza', 'Diametro de ceja', 'Diametro de sufridera', 'Altura de mordaza', 'Altura de ceja', 'Altura de sufridera', 'Diametro Boca', 'Diametro Asiento Corona', 'Diametro llanta', 'Diametro caja corona', 'Profundidad corona', 'Angulo de 30', 'Profundidad caja corona', 'Simetria'];
+
+                cNominal = ['C.nominal', 'cNomi_diametro_mordaza', 'cNomi_diametro_ceja', 'cNomi_diametro_sufridera', 'cNomi_altura_mordaza', 'cNomi_altura_ceja', 'cNomi_altura_sufridera', 'cNomi_diametro_boca', 'cNomi_diametro_asiento_corona', 'cNomi_diametro_llanta', 'cNomi_diametro_caja_corona', 'cNomi_profundidad_corona', 'cNomi_angulo_30', 'cNomi_profundidad_caja_corona', 'cNomi_simetria'];
+                cNomiPosiciones = [null]; // Posiciones de los inputs de c.nominal
+
+                tolerancias = ['Tolerancias', 'tole_diametro_mordaza1', 'tole_diametro_mordaza2', 'tole_diametro_ceja1', 'tole_diametro_ceja2', 'tole_diametro_sufridera1', 'tole_diametro_sufridera2', 'tole_altura_mordaza1', 'tole_altura_mordaza2', 'tole_altura_ceja1', 'tole_altura_ceja2', 'tole_altura_sufridera1', 'tole_altura_sufridera2', 'tole_diametro_boca1', 'tole_diametro_boca2', 'tole_diametro_asiento_corona1', 'tole_diametro_asiento_corona2', 'tole_diametro_llanta1', 'tole_diametro_llanta2', 'tole_diametro_caja_corona1', 'tole_diametro_caja_corona2', 'tole_profundidad_corona1', 'tole_profundidad_corona2', 'tole_angulo_301', 'tole_angulo_302', 'tole_profundidad_caja_corona1', 'tole_profundidad_caja_corona2', 'tole_simetria1', 'tole_simetria2']; 
+                tolePosiciones = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27]; // Posiciones de los inputs de tolerancias
+
+                if(this.valoresCnomi != undefined && this.valoresTole != undefined){
+                    let valoresCnomi = [this.valoresCnomi['id'], this.valoresCnomi['diametro_mordaza'], this.valoresCnomi['diametro_ceja'] , this.valoresCnomi['diametro_sufridera'], this.valoresCnomi['altura_mordaza'], this.valoresCnomi['altura_ceja'], this.valoresCnomi['altura_sufridera'], this.valoresCnomi['diametro_boca'], this.valoresCnomi['diametro_asiento_corona'], this.valoresCnomi['diametro_llanta'], this.valoresCnomi['diametro_caja_corona'], this.valoresCnomi['profundidad_corona'], this.valoresCnomi['angulo_30'], this.valoresCnomi['profundidad_caja_corona'], this.valoresCnomi['simetria']];
+                
+                    let valoresTole = [this.valoresTole['id'], this.valoresTole['diametro_mordaza1'], this.valoresTole['diametro_mordaza2'], this.valoresTole['diametro_ceja1'], this.valoresTole['diametro_ceja2'], this.valoresTole['diametro_sufridera1'], this.valoresTole['diametro_sufridera2'], this.valoresTole['altura_mordaza1'], this.valoresTole['altura_mordaza2'], this.valoresTole['altura_ceja1'], this.valoresTole['altura_ceja2'], this.valoresTole['altura_sufridera1'], this.valoresTole['altura_sufridera2'], this.valoresTole['diametro_boca1'], this.valoresTole['diametro_boca2'], this.valoresTole['diametro_asiento_corona1'], this.valoresTole['diametro_asiento_corona2'], this.valoresTole['diametro_llanta1'], this.valoresTole['diametro_llanta2'], this.valoresTole['diametro_caja_corona1'], this.valoresTole['diametro_caja_corona2'], this.valoresTole['profundidad_corona1'], this.valoresTole['profundidad_corona2'], this.valoresTole['angulo_301'], this.valoresTole['angulo_302'], this.valoresTole['profundidad_caja_corona1'], this.valoresTole['profundidad_caja_corona2'], this.valoresTole['simetria1'], this.valoresTole['simetria2']];
+                    return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, valoresCnomi, valoresTole); // Crear tabla
+                }   
+                return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined, 'acabado bombillo'); // Crear tabla
+
+            case "Acabado Molde": //Proceso de cepillado
+                titulos = ['', 'Diametro de mordaza', 'Diametro de ceja', 'Diametro de sufridera', 'Altura de mordaza', 'Altura de ceja', 'Altura de sufridera', 'Diametro Conexion Fondo', 'Diametro llanta', 'Diametro Caja Fondo', 'Altura Conexion Fondo', 'Profundidad Llanta', 'Profundidad Caja Fondo', 'Simetria'];
+
+                cNominal = ['C.nominal', 'cNomi_diametro_mordaza', 'cNomi_diametro_ceja', 'cNomi_diametro_sufridera', 'cNomi_altura_mordaza', 'cNomi_altura_ceja', 'cNomi_altura_sufridera', 'cNomi_diametro_conexion_fondo', 'cNomi_diametro_llanta', 'cNomi_diametro_caja_fondo', 'cNomi_altura_conexion_fondo', 'cNomi_profundidad_llanta', 'cNomi_profundidad_caja_fondo', 'cNomi_simetria'];
+                cNomiPosiciones = [null]; // Posiciones de los inputs de c.nominal
+
+                tolerancias = ['Tolerancias', 'tole_diametro_mordaza1', 'tole_diametro_mordaza2', 'tole_diametro_ceja1', 'tole_diametro_ceja2', 'tole_diametro_sufridera1', 'tole_diametro_sufridera2', 'tole_altura_mordaza1', 'tole_altura_mordaza2', 'tole_altura_ceja1', 'tole_altura_ceja2', 'tole_altura_sufridera1', 'tole_altura_sufridera2', 'tole_diametro_conexion_fondo1', 'tole_diametro_conexion_fondo2', 'tole_diametro_llanta1', 'tole_diametro_llanta2', 'tole_diametro_caja_fondo1', 'tole_diametro_caja_fondo2', 'tole_altura_conexion_fondo1', 'tole_altura_conexion_fondo2', 'tole_profundidad_llanta1', 'tole_profundidad_llanta2', 'tole_profundidad_caja_fondo1', 'tole_profundidad_caja_fondo2', 'tole_simetria1', 'tole_simetria2']; 
+                tolePosiciones = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25]; // Posiciones de los inputs de tolerancias
+
+                if(this.valoresCnomi != undefined && this.valoresTole != undefined){
+                    let valoresCnomi = [this.valoresCnomi['id'], this.valoresCnomi['diametro_mordaza'], this.valoresCnomi['diametro_ceja'] , this.valoresCnomi['diametro_sufridera'], this.valoresCnomi['altura_mordaza'], this.valoresCnomi['altura_ceja'], this.valoresCnomi['altura_sufridera'], this.valoresCnomi['diametro_conexion_fondo'], this.valoresCnomi['diametro_llanta'], this.valoresCnomi['diametro_caja_fondo'], this.valoresCnomi['altura_conexion_fondo'], this.valoresCnomi['profundidad_llanta'], this.valoresCnomi['profundidad_caja_fondo'], this.valoresCnomi['simetria']];
+                
+                    let valoresTole = [this.valoresTole['id'], this.valoresTole['diametro_mordaza1'], this.valoresTole['diametro_mordaza2'], this.valoresTole['diametro_ceja1'], this.valoresTole['diametro_ceja2'], this.valoresTole['diametro_sufridera1'], this.valoresTole['diametro_sufridera2'], this.valoresTole['altura_mordaza1'], this.valoresTole['altura_mordaza2'], this.valoresTole['altura_ceja1'], this.valoresTole['altura_ceja2'], this.valoresTole['altura_sufridera1'], this.valoresTole['altura_sufridera2'], this.valoresTole['diametro_conexion_fondo1'], this.valoresTole['diametro_conexion_fondo2'], this.valoresTole['diametro_llanta1'], this.valoresTole['diametro_llanta2'], this.valoresTole['diametro_caja_fondo1'], this.valoresTole['diametro_caja_fondo2'], this.valoresTole['altura_conexion_fondo1'], this.valoresTole['altura_conexion_fondo2'], this.valoresTole['profundidad_llanta1'], this.valoresTole['profundidad_llanta2'], this.valoresTole['profundidad_caja_fondo1'], this.valoresTole['profundidad_caja_fondo2'], this.valoresTole['simetria1'], this.valoresTole['simetria2']];
+                    return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, valoresCnomi, valoresTole); // Crear tabla
+                }   
+                return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined, 'acabado molde'); // Crear tabla
             default:
                 return 'No se encontro el proceso'; //Retorna el mensaje de que el proceso no existe
         }
     }
 
-    crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, valoresCNomi, valoresTole) { // Crear tabla
+    crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, valoresCNomi, valoresTole, proceso) { // Crear tabla
         const table = document.createElement('table'); // Crear tabla
         table.className = 'tabla3'; // Agregar clase a la tabla
 
@@ -194,14 +244,17 @@ class Proceso {
                         if (j != 0) { //Si no es la primera columna 
                             if (tolePosiciones.includes(j)) { // Si la posicion esta en el array de posiciones
                                 for (let k = 0; k < 2; k++) { // Crear inputs
-                                    if (j >= 15 && j <= 22) { //Si es H o M
-                                        let input = this.crearInputs('input-medio', tolerancias[j]); // Crear inputs
-                                        input.type = 'text'; // Agregar tipo al input
-                                        input.value = tolerancias[j] ; // Agregar valor al input
-                                        input.readOnly = true; // Agregar readonly al input
-                                        td.appendChild(input); // Agregar input a la columna
+                                    if (proceso == 'cepillado') { 
+                                        if(j >= 15 && j <= 22){//Si es H o M
+                                            let input = this.crearInputs('input-medio', tolerancias[j]); // Crear inputs
+                                            input.type = 'text'; // Agregar tipo al input
+                                            input.value = tolerancias[j]; // Agregar valor al input
+                                            input.readOnly = true; // Agregar readonly al input
+                                            td.appendChild(input); // Agregar input a la columna
+                                        }
                                     } else {
                                         if(valoresTole != undefined){ //Valores de tolerancia
+                                            console.log(valoresTole[j]);
                                             td.appendChild(this.crearInputs('input-medio', tolerancias[j], valoresTole[j])); // Crear inputs
                                         }else{
                                             td.appendChild(this.crearInputs('input-medio', tolerancias[j], undefined)); // Crear inputs
@@ -388,28 +441,110 @@ class Proceso {
     <form action="{{ route('verificarProceso') }}" method="post" class="form-search">
     @csrf
         <div class="scrollabe-table" id="scrollabe-table" style="display: none;">
-            @if (isset($existe) && $existe == 0) 
+            @if (isset($existe) && $existe == 0)
                 <script>
                     alert('No se ha encontrado el proceso, es necesario crearlo.'); 
-                    const select = document.getElementById('select-proceso'); // Select de proceso.
-                    if (select.value != "") { // Si el select tiene un valor.
-                        let proceso = new Proceso(select.value, undefined, undefined); // Crear proceso
-                        let div = document.getElementById('scrollabe-table'); //Div de la tabla.
-                        div.innerHTML = ""; // Limpiar div
-                        div.style = "display:block;"; //No acepta a ningún otro elemento más en esa fila, es decir los demás elementos bajan 
-                        div.appendChild(proceso.crearProceso()); //Agregar tabla al div.
-                    }
+                    let div = document.getElementById('scrollabe-table'); //Div de la tabla.
+                    div.style = "display:block;"; // Limpiar div de la tabla
                 </script>
-            @elseif (isset($existe) && $existe == 1)
-            <script>
-                alert('Datos de cotas nominales Encontrados/Guardados');
-                let proceso = new Proceso(@json($proceso), @json($cNominal), @json($tolerancia)); // Crear el proceso
-                let div = document.getElementById('scrollabe-table'); //Div de la tabla.
-                div.style = "display:block;"; 
-                div.appendChild(proceso.crearProceso()); //Agregar tabla al div.
-            </script>
+                @if (isset($proceso) && $proceso == "Cavidades")
+                    <table class="tabla3">
+                        <tr> 
+                            <th class="t-title" style="width:150px; border:none;">#PZ</th>
+                            <th class="t-title" colspan="2">Altura 1</th>
+                            <th class="t-title" colspan="2">Altura 2</th>
+                            <th class="t-title" colspan="2">Altura 3</th>
+                        </tr>
+                        <tr>
+                            <th class="t-title" style="border:none;"></th>
+                            <th >Profundidad</th>
+                            <th>Diametro</th>
+                            <th>Profundidad</th>
+                            <th>Diametro</th>
+                            <th>Profundidad</th>
+                            <th>Diametro</th>
+                        </tr>
+                        <tr>
+                            <td>C.Nominal</td>
+                            <td><input type="number" name="cNomi_profundidad1" class="input" step="any" inputmode="decimal" required/></td>
+                            <td><input type="number" name="cNomi_diametro1" class="input" step="any" inputmode="decimal" required/></td>
+                            <td><input type="number" name="cNomi_profundidad2" class="input" step="any" inputmode="decimal" required/></td>
+                            <td><input type="number" name="cNomi_diametro2" class="input" step="any" inputmode="decimal" required/></td>
+                            <td><input type="number" name="cNomi_profundidad3" class="input" step="any" inputmode="decimal" required/></td>
+                            <td><input type="number" name="cNomi_diametro3" class="input" step="any" inputmode="decimal" required/></td>
+                        </tr>          
+                        <tr>
+                            <td> Tolerancias</td>
+                            <td><input type="number" name="tole_profundidad1_1" class="input-medio" step="any" inputmode="decimal" required/><input type="number" name="tole_profundidad2_1" class="input-medio" step="any" inputmode="decimal" required/></td>
+                            <td><input type="number" name="tole_diametro1_1" class="input-medio" step="any" inputmode="decimal" required/><input type="number" name="tole_diametro2_1" class="input-medio" step="any" inputmode="decimal" required/></td>
+                            <td><input type="number" name="tole_profundidad1_2" class="input-medio" step="any" inputmode="decimal" required/><input type="number" name="tole_profundidad2_2" class="input-medio" step="any" inputmode="decimal" required/></td>
+                            <td><input type="number" name="tole_diametro1_2" class="input-medio" step="any" inputmode="decimal" required/><input type="number" name="tole_diametro2_2" class="input-medio" step="any" inputmode="decimal" required/></td>
+                            <td><input type="number" name="tole_profundidad1_3" class="input-medio" step="any" inputmode="decimal" required/><input type="number" name="tole_profundidad2_3" class="input-medio" step="any" inputmode="decimal" required/></td>
+                            <td><input type="number" name="tole_diametro1_3" class="input-medio" step="any" inputmode="decimal" required/><input type="number" name="tole_diametro2_3" class="input-medio" step="any" inputmode="decimal" required/></td>
+                        </tr>
+                    </table>
+                @else
+                    <script>
+                        const select = document.getElementById('select-proceso'); // Select de proceso.
+                        if (select.value != "") { // Si el select tiene un valor.
+                            let proceso = new Proceso(select.value, undefined, undefined); // Crear proceso
+                            let div = document.getElementById('scrollabe-table'); //Div de la tabla.
+                            div.innerHTML = ""; // Limpiar div de la tabla 
+                            div.style = "display:block;"; //No acepta a ningún otro elemento más en esa fila, es decir los demás elementos bajan 
+                            div.appendChild(proceso.crearProceso()); //Agregar tabla al div de la tabla
+                        }
+                    </script>
+                @endif
+                @elseif (isset($existe) && $existe == 1)
+                <script>
+                    alert('Datos de cotas nominales Encontrados/Guardados');
+                    let div = document.getElementById('scrollabe-table'); //Div de la tabla.
+                    div.style = "display:block;"; 
+                </script>
+                    @if ($proceso == 'Cavidades')
+                    <table class="tabla3">
+                        <tr> 
+                            <th class="t-title" style="width:150px; border:none;">#PZ</th>
+                            <th class="t-title" colspan="2">Altura 1</th>
+                            <th class="t-title" colspan="2">Altura 2</th>
+                            <th class="t-title" colspan="2">Altura 3</th>
+                        </tr>
+                        <tr>
+                            <th class="t-title" style="border:none;"></th>
+                            <th>Profundidad</th>
+                            <th>Diametro</th>
+                            <th>Profundidad</th>
+                            <th>Diametro</th>
+                            <th>Profundidad</th>
+                            <th>Diametro</th>
+                        </tr>
+                        <tr> 
+                            <td>C.Nominal</td>
+                            <td><input type="number" name="cNomi_profundidad1" value="{{$cNominal->profundidad1}}" class="input" step="any" inputmode="decimal" required></td>
+                            <td><input type="number" name="cNomi_diametro1" value="{{$cNominal->diametro1}}" class="input" step="any" inputmode="decimal" required></td>
+                            <td><input type="number" name="cNomi_profundidad2" value="{{$cNominal->profundidad2}}" class="input" step="any" inputmode="decimal" required></td>
+                            <td><input type="number" name="cNomi_diametro2" value="{{$cNominal->diametro2}}" class="input" step="any" inputmode="decimal" required></td>
+                            <td><input type="number" name="cNomi_profundidad3" value="{{$cNominal->profundidad3}}" class="input" step="any" inputmode="decimal" required></td>
+                            <td><input type="number" name="cNomi_diametro3" value="{{$cNominal->diametro3}}" class="input" step="any" inputmode="decimal" required></td>
+                        </tr>
+                        <tr>
+                            <td> Tolerancias </td>
+                            <td><input type="number" value="{{$tolerancia->profundidad1_1}}" name="tole_profundidad1_1" class="input-medio" step="any" inputmode="decimal" required><input type="number" value="{{$tolerancia->profundidad2_1}}" name="tole_profundidad2_1" class="input-medio" step="any" inputmode="decimal" required></td>
+                            <td><input type="number" value="{{$tolerancia->diametro1_1}}" name="tole_diametro1_1" class="input-medio" step="any" inputmode="decimal" required><input type="number" value="{{$tolerancia->diametro2_1}}" name="tole_diametro2_1" class="input-medio" step="any" inputmode="decimal" required></td>
+                            <td><input type="number" value="{{$tolerancia->profundidad1_2}}" name="tole_profundidad1_2" class="input-medio" step="any" inputmode="decimal" required><input type="number" value="{{$tolerancia->profundidad2_2}}" name="tole_profundidad2_2" class="input-medio" step="any" inputmode="decimal" required></td> 
+                            <td><input type="number" value="{{$tolerancia->diametro1_2}}" name="tole_diametro1_2" class="input-medio" step="any" inputmode="decimal" required><input type="number" value="{{$tolerancia->diametro2_2}}" name="tole_diametro2_2" class="input-medio" step="any" inputmode="decimal" required></td>
+                            <td><input type="number" value="{{$tolerancia->profundidad1_3}}" name="tole_profundidad1_3" class="input-medio" step="any" inputmode="decimal" required><input type="number" value="{{$tolerancia->profundidad2_3}}" name="tole_profundidad2_3" class="input-medio" step="any" inputmode="decimal" required></td>
+                            <td><input type="number" value="{{$tolerancia->diametro1_3}}" name="tole_diametro1_3" class="input-medio" step="any" inputmode="decimal" required><input type="number" value="{{$tolerancia->diametro2_3}}" name="tole_diametro2_3" class="input-medio" step="any" inputmode="decimal" required></td>
+                        </tr>
+                    </table>
+                    @else
+                        <script>
+                            let proceso = new Proceso(@json($proceso), @json($cNominal), @json($tolerancia)); // Crear el proceso
+                            div.appendChild(proceso.crearProceso()); //Agregar tabla al div.
+                        </script>
+                    @endif
                 
-            @endif
+                @endif
             <!--Enviar valores de procesos-->
             @isset($proceso)
                 <input type="hidden" name="proceso" value="{{$proceso}}">

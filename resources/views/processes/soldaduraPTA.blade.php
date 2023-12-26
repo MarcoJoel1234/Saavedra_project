@@ -207,6 +207,7 @@
                                 <th class="t-title">Temperatura de calentado</th>
                                 <th class="t-title">Temperatura en dispositivo</th>
                                 <th class="t-title">Limpieza</th>
+                                <th class="t-title">Error</th>
                                 <th class="t-title" style="width:700px">Observaciones</th>
                             </tr>
 
@@ -214,13 +215,25 @@
                             @if (isset($nPiezas))
                                 @if ($nPiezas->count() != 0)
                                     @foreach ($nPiezas as $nPiezas)
-                                        <tr>
-                                            <td><input type="text" class="input" value="{{$nPiezas->n_juego}}" step="any" inputmode="decimal" readonly></td>
-                                            <td><input type="number" class="input" value="{{$nPiezas->temp_calentado}}" step="any" inputmode="decimal" readonly></td>
-                                            <td><input type="number" class="input" value="{{$nPiezas->temp_dispositivo}}" step="any" inputmode="decimal" readonly></td>
-                                            <td><input type="text" class="input" value="{{$nPiezas->limpieza}}" readonly></td>
-                                            <td><textarea class="input" readonly>{{$nPiezas->observaciones}}</textarea></td>
-                                        </tr>
+                                        @if($nPiezas->error == "Ninguno")
+                                            <tr>
+                                                <td><input type="text" class="input" value="{{$nPiezas->n_juego}}" step="any" inputmode="decimal" style="background-color:#90F77E" readonly></td>
+                                                <td><input type="number" class="input" value="{{$nPiezas->temp_calentado}}" step="any" inputmode="decimal" style="background-color:#90F77E" readonly></td>
+                                                <td><input type="number" class="input" value="{{$nPiezas->temp_dispositivo}}" step="any" inputmode="decimal" style="background-color:#90F77E" readonly></td>
+                                                <td><input type="text" class="input" value="{{$nPiezas->limpieza}}" style="background-color:#90F77E" readonly></td>
+                                                <td><input type="text" class="input" value="{{$nPiezas->error}}" style="background-color:#90F77E" readonly></td>
+                                                <td><textarea class="input" readonly>{{$nPiezas->observaciones}}</textarea></td>
+                                            </tr>
+                                        @else
+                                            <tr>
+                                                <td><input type="text" class="input" value="{{$nPiezas->n_juego}}" step="any" inputmode="decimal" style="background-color:#F36456" readonly></td>
+                                                <td><input type="number" class="input" value="{{$nPiezas->temp_calentado}}" step="any" inputmode="decimal" style="background-color:#F36456" readonly></td>
+                                                <td><input type="number" class="input" value="{{$nPiezas->temp_dispositivo}}" step="any" inputmode="decimal" style="background-color:#F36456" readonly></td>
+                                                <td><input type="text" class="input" value="{{$nPiezas->limpieza}}" style="background-color:#F36456" readonly></td>
+                                                <td><input type="text" class="input" value="{{$nPiezas->error}}" style="background-color:#F36456" readonly></td>
+                                                <td><textarea class="input" readonly>{{$nPiezas->observaciones}}</textarea></td>
+                                            </tr>
+                                        @endif
                                     @endforeach
                                 @endif
                                 @if ((isset($piezasUtilizar) && count($piezasUtilizar) != 0) && !isset($piezaElegida))
@@ -236,6 +249,7 @@
                                         <td> </td>
                                         <td> </td>
                                         <td> </td>
+                                        <td> </td>
                                     </tr>
                                 @else
                                     @include('layouts.partials.messages')
@@ -245,7 +259,18 @@
                                         <td> <input type="text" name="n_pieza" class="input" value="{{$piezaElegida->n_juego}}" readonly></td>
                                         <td> <input type="number" name="temp_calentado" class="input" step="any" inputmode="decimal" required></td>
                                         <td> <input type="number" name="temp_dispositivo" class="input" step="any" inputmode="decimal" required></td>
-                                        <td> <input type="text" name="limpieza" class="input" required></td>
+                                        <td> 
+                                            <select name="limpieza" class="input">
+                                                <option value="✓">✓</option>
+                                                <option value="X">X</option>
+                                            </select>
+                                        </td>
+                                        <td> 
+                                            <select name="error" class="input">
+                                                <option value="Ninguno">Ninguno</option>
+                                                <option value="Soldadura">Soldadura</option>
+                                            </select>
+                                        </td>
                                         <td> <textarea class="input" name="observaciones"></textarea></td>
                                     </tr>
                                 @endif
@@ -285,6 +310,7 @@
                                 <th class="t-title">Temperatura de calentado</th>
                                 <th class="t-title">Temperatura en dispositivo</th>
                                 <th class="t-title">Limpieza</th>
+                                <th class="t-title">Error</th>
                                 <th class="t-title" style="width:700px">Observaciones</th>
                             </tr>
                             
@@ -295,7 +321,26 @@
                                         <td><input type="text" class="input" value="{{$nPiezas->n_juego}}" name="n_pieza[]" step="any" inputmode="decimal" readonly></td>
                                         <td><input type="number" class="input" value="{{$nPiezas->temp_calentado}}" name="temp_calentado[]" step="any" inputmode="decimal" required></td>
                                         <td><input type="number" class="input" value="{{$nPiezas->temp_dispositivo}}" name="temp_dispositivo[]" required></td>
-                                        <td><input type="text" class="input" value="{{$nPiezas->limpieza}}" name="limpieza[]" required></td>
+                                        <td> 
+                                            <select name="limpieza[]" class="input">
+                                                <option value="{{$nPiezas->limpieza}}">{{$nPiezas->limpieza}}</option>
+                                                @if ($nPiezas->limpieza == "✓")
+                                                    <option value="X">X</option>
+                                                @else
+                                                    <option value="✓">✓</option>
+                                                @endif
+                                            </select>
+                                        </td>
+                                        <td> 
+                                            <select name="error[]" class="input">
+                                                <option value="{{$nPiezas->error}}">{{$nPiezas->error}}</option>
+                                                @if ($nPiezas->error == "Ninguno")
+                                                    <option value="Soldadura">Soldadura</option>
+                                                @else
+                                                    <option value="Ninguno">Ninguno</option>
+                                                @endif
+                                            </select>
+                                        </td>
                                          <td><textarea name="observaciones[]" class="input">{{$nPiezas->observaciones}}</textarea></td>
                                     </tr>
                                 @endforeach

@@ -19,11 +19,11 @@ return new class extends Migration
             $table->integer('estado')->default(0);
             $table->string('n_juego');
             $table->decimal('pesoxpieza', 8, 3)->nullable();
-            $table->decimal('tiempo_precalentado', 8, 3)->nullable();
             $table->decimal('temperatura_precalentado', 8, 3)->nullable();
             $table->decimal('tiempo_aplicacion', 8, 3)->nullable();
             $table->string('tipo_soldadura')->nullable();
             $table->string('lote')->nullable();
+            $table->string('error')->nullable();
             $table->string('observaciones')->nullable();
             $table->timestamps();
             $table->foreign('id_meta')->references('id')->on('metas');

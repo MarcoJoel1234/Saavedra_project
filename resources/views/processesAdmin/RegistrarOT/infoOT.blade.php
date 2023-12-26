@@ -43,35 +43,45 @@
             let procesosArray = [];
             switch (clase) {
                 case "Bombillo":
-                case "Molde":
                     procesos = ['Cepillado', 'Desbaste exterior', 'Revision Laterales', '1ra Operación',
                         'Barreno maniobra', '2da Operación', 'Soldadura', 'Soldadura PTA', 'Rectificado',
-                        'Asentado', 'Calificado', 'Acabado', 'Barreno profundidad', 'Cavidades', 'Copiado',
+                        'Asentado', 'Calificado', 'Acabado Bombillo', 'Barreno profundidad', 'Cavidades', 'Copiado',
                         'Offset', 'Palomas', 'Rebajes', 'Grabado'
                     ];
                     procesosArray = ["cepillado", "desbaste_exterior", "revision_laterales", "pOperacion",
                         "barreno_maniobra", "sOperacion", "soldadura", "soldaduraPTA", "rectificado", "asentado",
-                        "calificado", "acabado", "barreno_profundidad", "cavidades", "copiado", "offSet", "palomas",
+                        "calificado", "acabadoBombillo", "barreno_profundidad", "cavidades", "copiado", "offSet", "palomas",
                         "rebajes", "grabado"
                     ];
                     break;
-
+                case "Molde":
+                    procesos = ['Cepillado', 'Desbaste exterior', 'Revision Laterales', '1ra Operación',
+                        'Barreno maniobra', '2da Operación', 'Soldadura', 'Soldadura PTA', 'Rectificado',
+                        'Asentado', 'Calificado', "Acabado Molde", 'Barreno profundidad', 'Cavidades', 'Copiado',
+                        'Offset', 'Palomas', 'Rebajes', 'Grabado'
+                    ];
+                    procesosArray = ["cepillado", "desbaste_exterior", "revision_laterales", "pOperacion",
+                        "barreno_maniobra", "sOperacion", "soldadura", "soldaduraPTA", "rectificado", "asentado",
+                        "calificado", "acabadoMolde", "barreno_profundidad", "cavidades", "copiado", "offSet", "palomas",
+                        "rebajes", "grabado"
+                    ];
+                    break;
                 case "Obturador":
+                    procesos = ['1ra y 2da Operación Equipo', 'Soldadura', 'Soldadura PTA'];
+                    procesosArray = ["operacionEquipo", "soldadura", "soldaduraPTA"];
+                    break;
                 case "Fondo":
                     procesos = ['1ra y 2da Operación Equipo', 'Soldadura', 'Soldadura PTA'];
                     procesosArray = ["operacionEquipo", "soldadura", "soldaduraPTA"];
                     break;
-
                 case "Corona":
                     procesos = ['Cepillado', 'Desbaste exterior'];
                     procesosArray = ["cepillado", "desbaste_exterior"];
                     break;
-
                 case "Plato":
                     procesos = ['1ra y 2da Operación Equipo', 'Barreno de Profundidad'];
                     procesosArray = ["operacionEquipo", "barreno_profundidad"];
                     break;
-
                 case "Embudo":
                     procesos = ['1ra y 2da Operación Equipo', 'Embudo C.M.'];
                     procesosArray = ["operacionEquipo", "embudoCM"];

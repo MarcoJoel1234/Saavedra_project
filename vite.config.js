@@ -23,6 +23,7 @@ export default defineConfig({
                 "resources/css/RegistrarOT/agregarClass.css",
                 'resources/css/maquinas.css',
                 'resources/css/maquinas2.css',
+                'resources/css/rectificado.css',
             ],
             refresh: true,
         }),

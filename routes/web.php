@@ -1,6 +1,10 @@
 <?php
 
+use App\Http\Controllers\AcabadoBombilloController;
+use App\Http\Controllers\AcabadoMoldeController;
+use App\Http\Controllers\AsentadoController;
 use App\Http\Controllers\BarrenoManiobraController;
+use App\Http\Controllers\CavidadesController;
 use App\Http\Controllers\CepilladoController;
 use App\Http\Controllers\ClaseController;
 use App\Http\Controllers\DesbasteExteriorController;
@@ -16,8 +20,10 @@ use App\Http\Controllers\ProgresoProcesosController;
 use App\Http\Controllers\PySOpeSoldaduraController;
 use App\Http\Controllers\PzasGeneralesController;
 use App\Http\Controllers\RecoverPasswordController;
+use App\Http\Controllers\RectificadoController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\RestorePasswordController;
+use App\Http\Controllers\revCalificadoController;
 use App\Http\Controllers\RevLateralesController;
 use App\Http\Controllers\SegundaOpeSoldaduraController;
 use App\Http\Controllers\SoldaduraController;
@@ -167,7 +173,7 @@ Route::post('/editSegundaOpeSoldadura', [SegundaOpeSoldaduraController::class, '
 //Vista de Soldadura
 Route::get('/soldadura', [SoldaduraController::class, 'show'])->name('soldadura');
 //Guardar encabezado de la tabla Soldadura
-Route::get('/soldaduraHeader', [SoldaduraController::class, 'storeheaderTable'])->name('soldaduraHeaderGet');
+Route::get('/soldaduraHeaderGet', [SoldaduraController::class, 'storeheaderTable'])->name('soldaduraHeaderGet');
 //Guardar encabezado de la tabla Soldadura
 Route::post('/soldaduraHeader', [SoldaduraController::class, 'storeheaderTable'])->name('soldaduraHeader');
 //Ruta para editar datos de la tabla Soldadura
@@ -176,11 +182,65 @@ Route::post('/editSoldadura', [SoldaduraController::class, 'edit'])->name('editS
 //Vista soldadura PTA
 Route::get('/soldaduraPTA', [SoldaduraPTAController::class, 'show'])->name('soldaduraPTA');
 //Guardar encabezado de la tabla Soldadura PTA
-Route::get('/soldaduraPTAHeader', [SoldaduraPTAController::class, 'storeheaderTable'])->name('soldaduraPTAHeaderGet');
+Route::get('/soldaduraPTAHeaderGet', [SoldaduraPTAController::class, 'storeheaderTable'])->name('soldaduraPTAHeaderGet');
 //Guardar encabezado de la tabla Soldadura PTA
 Route::post('/soldaduraPTAHeader', [SoldaduraPTAController::class, 'storeheaderTable'])->name('soldaduraPTAHeader');
 //Ruta para editar datos de la tabla Soldadura PTA
 Route::post('/editSoldaduraPTA', [SoldaduraPTAController::class, 'edit'])->name('editSoldaduraPTA');
+
+//Vista Rectificado
+Route::get('/rectificado', [RectificadoController::class, 'show'])->name('rectificado');
+//Guardar encabezado de la tabla Rectificado
+Route::get('/rectificadoHeader', [RectificadoController::class, 'storeheaderTable'])->name('rectificadoHeaderGet');
+//Guardar encabezado de la tabla Rectificado
+Route::post('/rectificadoHeader', [RectificadoController::class, 'storeheaderTable'])->name('rectificadoHeader');
+//Ruta para editar datos de la tabla Rectificado
+Route::post('/editRectificado', [RectificadoController::class, 'edit'])->name('editRectificado');
+
+//Vista de Asentado
+Route::get('/asentado', [AsentadoController::class, 'show'])->name('asentado');
+//Guardar encabezado de la tabla Asentado
+Route::get('/asentadoHeader', [AsentadoController::class, 'storeheaderTable'])->name('asentadoHeaderGet');
+//Guardar encabezado de la tabla Asentado
+Route::post('/asentadoHeader', [AsentadoController::class, 'storeheaderTable'])->name('asentadoHeader');
+//Ruta para editar datos de la tabla Asentado
+Route::post('/editAsentado', [AsentadoController::class, 'edit'])->name('editAsentado');
+
+//Vista de Calificado
+Route::get('/calificado', [revCalificadoController::class, 'show'])->name('calificado');
+//Guardar encabezado de la tabla Calificado
+Route::get('/calificadoHeader', [revCalificadoController::class, 'storeheaderTable'])->name('calificadoHeaderGet');
+//Guardar encabezado de la tabla Calificado
+Route::post('/calificadoHeader', [revCalificadoController::class, 'storeheaderTable'])->name('calificadoHeader');
+//Ruta para editar datos de la tabla Calificado
+Route::post('/editCalificado', [revCalificadoController::class, 'edit'])->name('editCalificado');
+
+//Vista de acabado bombillo
+Route::get('/acabadoBombillo', [AcabadoBombilloController::class, 'show'])->name('acabadoBombillo');
+//Guardar encabezado de la tabla acabado bombillo
+Route::get('/acabadoBombilloHeader', [AcabadoBombilloController::class, 'storeheaderTable'])->name('acabadoBombilloHeaderGet');
+//Guardar encabezado de la tabla acabado bombillo
+Route::post('/acabadoBombilloHeader', [AcabadoBombilloController::class, 'storeheaderTable'])->name('acabadoBombilloHeader');
+//Ruta para editar datos de la tabla acabado bombillo
+Route::post('/editAcabadoBombillo', [AcabadoBombilloController::class, 'edit'])->name('editAcabadoBombillo');
+
+//Vista de acabado molde
+Route::get('/acabadoMolde', [AcabadoMoldeController::class, 'show'])->name('acabadoMolde');
+//Guardar encabezado de la tabla acabado molde
+Route::get('/acabadoMoldeHeader', [AcabadoMoldeController::class, 'storeheaderTable'])->name('acabadoMoldeHeaderGet');
+//Guardar encabezado de la tabla acabado molde
+Route::post('/acabadoMoldeHeader', [AcabadoMoldeController::class, 'storeheaderTable'])->name('acabadoMoldeHeader');
+//Ruta para editar datos de la tabla acabado molde
+Route::post('/editAcabadoMolde', [AcabadoMoldeController::class, 'edit'])->name('editAcabadoMolde');
+
+//Vista de Cavidades
+Route::get('/cavidades', [CavidadesController::class, 'show'])->name('cavidades');
+//Guardar encabezado de la tabla Cavidades
+Route::get('/cavidadesHeader', [CavidadesController::class, 'storeheaderTable'])->name('cavidadesHeaderGet');
+//Guardar encabezado de la tabla Cavidades
+Route::post('/cavidadesHeader', [CavidadesController::class, 'storeheaderTable'])->name('cavidadesHeader');
+//Ruta para editar datos de la tabla Cavidades
+Route::post('/editCavidades', [CavidadesController::class, 'edit'])->name('editCavidades');
 
 // //Vista de Primera y Segunda Operacion Soldadura Equipo
 // Route::get('/1y2OpeSoldadura', [PySOpeSoldaduraController::class, 'show'])->name('1y2OpeSoldadura');
