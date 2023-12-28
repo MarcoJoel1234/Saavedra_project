@@ -9,7 +9,7 @@
 <body>
 <script>
     class Carrusel {
-        constructor(otArray, molduras, clases, pedidos, procesos, infoPzMala, csrf) {
+        constructor(otArray, molduras, clases, pedidos, procesos, infoPzMala, csrf, procesosClase) {
             this.indiCarru = 0;
             this.otArray = otArray;
             this.molduras = molduras;
@@ -21,16 +21,16 @@
             this.proceso = 0;
             this.contador = 0;
             this.csrf = csrf;
+            this.procesosClase = procesosClase;
         }
         //Función para general carrusel
         generarCarrusel() {
-            console.log(this.procesos);
             //Carrusel por ordenes de trabajo
             for(let indice=0; indice<otArray.length; indice++){
+                console.log(this.procesos);
                 for(this.indiCarru; this.indiCarru<this.clases[indice].length; this.indiCarru++){
                     let main = document.querySelector('main');
                     //Nombres de los procesos insertados en un arreglo
-                    let procesos = ['Cepillado', 'Desbaste exterior', 'Revision de laterales', '1ra operación soldadura', '2da operación soldadura','1ra y 2da operación equipo', 'Barreno maniobra','Reporte diario de soldaduras', 'Soldadura PTA', 'Reporte diario de rectificado', 'Reporte diario de asentado', 'Revision calificado', 'Revision acabados bombillo', 'Revision acabados molde', 'Reporte diario de cavidades', 'Barreno para platos', 'Maquinado embudos', 'Barreno de profundidad', 'Reporte de copiado', 'Ranura offset', 'Grabado', 'Palomas', 'Rebajes al centro'];
                     let contador = 0;
 
                     let form = document.createElement('form');
@@ -63,7 +63,11 @@
                     carousel_item_container.className = "carousel-item-container";
 
                     carousel.appendChild(prevBtn);
-                    for (let i = 0; i < 8; i++) {
+                    let containers = this.procesosClase[this.indiCarru].length / 3;
+                    if(!Number.isInteger(containers)){
+                        containers = Math.trunc(containers) + 1;
+                    }
+                    for (let i = 0; i < containers; i++) {
                         let carousel_item_container = document.createElement('div');
                         carousel_item_container.className = "carousel-item-container";
 
@@ -71,12 +75,12 @@
                             let carousel_item = document.createElement('div');
                             carousel_item.className = "carousel-item item";
                     
-                            //Titulo del proceso
+                            //Titulo del proceso que se esta realizando
                             let h2 = document.createElement('h2');
                             h2.className = "title-proceso";
-                            h2.innerHTML = procesos[contador];
+                            h2.innerHTML = this.procesosClase[this.indiCarru][contador];
                             carousel_item.appendChild(h2);
-                            //Barra de progreso PIEZAS BUENAS
+                            //Barra de progreso de piezas buenas, malas y progreso de piezas
                             for(let x=0; x<3; x++){
                                 let label = document.createElement('label');
                                 label.className = "title-pieza";
@@ -118,8 +122,8 @@
                                 bProgreso.appendChild(progreso);
                                 carousel_item.appendChild(bProgreso);
                             }
+                            
                             this.proceso++;
-                    
                             carousel_item_container.appendChild(carousel_item);
                             contador++;
                             if (i == 7) {
@@ -226,7 +230,7 @@
                     var cellStyle = 'border: 1px solid #ccc; padding: 8px; text-align: left;';
                     var headerCellStyle = cellStyle + ' background-color: #f2f2f2;';
 
-                    // Aplicar estilos a las celdas
+                    // Aplicar estilos a las celdas de encabezado 
                     table.querySelectorAll('td').forEach(function(td) {
                         td.style.cssText = cellStyle;
                     });
@@ -318,7 +322,8 @@
                     let procesos = @json($procesos);
                     let infoPzMala = @json($infoPzMala);
                     let csrf = "{{ csrf_token() }}";
-                    let carrusel = new Carrusel(otArray, molduras, clases, pedidos, procesos, infoPzMala, csrf);
+                    let procesosClase = @json($procesosClase);
+                    let carrusel = new Carrusel(otArray, molduras, clases, pedidos, procesos, infoPzMala, csrf, procesosClase);
                     carrusel.generarCarrusel();
                     setTimeout(function() {             
                         location.reload();        

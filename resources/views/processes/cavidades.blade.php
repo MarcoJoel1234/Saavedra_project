@@ -197,7 +197,7 @@
         <!--Formulario para los datos de la tabla-->
         @if (isset($band) && $band == 2)
             <div class="disabled-tabla">
-                <form action="{{ route('desbasteHeader')}}" method="post">
+                <form action="{{ route('cavidadesHeader')}}" method="post">
                     @csrf
                     <input type="hidden" name="metaData" value="{{$meta->id}}">
                     <div class="scrollabe-table">
@@ -285,41 +285,27 @@
                                     @foreach ($nPiezas as $nPiezas)
                                         @if ($nPiezas->correcto == 0)
                                             <tr>
-                                                <td><input type="text" class="input" style="background-color:#F36456" value="{{$nPiezas->n_pieza}}" step="any" inputmode="decimal" readonly></td>
+                                                <td><input type="text" class="input" style="background-color:#F36456" value="{{$nPiezas->n_juego}}" step="any" inputmode="decimal" readonly></td>
                                                 <td><input type="number" class="input" style="background-color:#F36456" value="{{$nPiezas->profundidad1}}" step="any" inputmode="decimal" readonly></td>
                                                 <td><input type="number" class="input" style="background-color:#F36456" value="{{$nPiezas->diametro1}}" step="any" inputmode="decimal" readonly></td>
                                                 <td><input type="number" class="input" style="background-color:#F36456" value="{{$nPiezas->profundidad2}}" step="any" inputmode="decimal" readonly></td>
                                                 <td><input type="number" class="input" style="background-color:#F36456" value="{{$nPiezas->diametro2}}" step="any" inputmode="decimal" readonly></td>
                                                 <td><input type="number" class="input" style="background-color:#F36456" value="{{$nPiezas->profundidad3}}" step="any" inputmode="decimal" readonly></td>
                                                 <td><input type="number" class="input" style="background-color:#F36456" value="{{$nPiezas->diametro3}}" step="any" inputmode="decimal" readonly></td>
-                                                <td><input type="number" class="input" style="background-color:#F36456" value="{{$nPiezas->profundidad4}}" step="any" inputmode="decimal" readonly></td>
-                                                <td><input type="number" class="input" style="background-color:#F36456" value="{{$nPiezas->diametro4}}" step="any" inputmode="decimal" readonly></td>
-                                                <td> 
-                                                    <select name="acetatoBM" class="input">
-                                                        <option value="Bien">Bien</option>
-                                                        <option value="Mal">Mal</option>
-                                                    </select>
-                                                </td>  
+                                                <td><input type="text" class="input" style="background-color:#F36456" value="{{$nPiezas->acetatoBM}}" readonly></td>
                                                 <td><input type="text" class="input" style="background-color:#F36456" value="{{$nPiezas->error}}" readonly></td>
                                                 <td><textarea class="input" style="background-color:#F36456" readonly>{{$nPiezas->observaciones}}</textarea></td>
                                             </tr>
                                         @else
                                             <tr>
-                                                <td><input type="text" class="input" style="background-color:#90F77E" value="{{$nPiezas->n_pieza}}" step="any" inputmode="decimal" readonly></td>
+                                                <td><input type="text" class="input" style="background-color:#90F77E" value="{{$nPiezas->n_juego}}" step="any" inputmode="decimal" readonly></td>
                                                 <td><input type="number" class="input" style="background-color:#90F77E" value="{{$nPiezas->profundidad1}}" step="any" inputmode="decimal" readonly></td>
                                                 <td><input type="number" class="input" style="background-color:#90F77E" value="{{$nPiezas->diametro1}}" step="any" inputmode="decimal" readonly></td>
                                                 <td><input type="number" class="input" style="background-color:#90F77E" value="{{$nPiezas->profundidad2}}" step="any" inputmode="decimal" readonly></td>
                                                 <td><input type="number" class="input" style="background-color:#90F77E" value="{{$nPiezas->diametro2}}" step="any" inputmode="decimal" readonly></td>
                                                 <td><input type="number" class="input" style="background-color:#90F77E" value="{{$nPiezas->profundidad3}}" step="any" inputmode="decimal" readonly></td>
                                                 <td><input type="number" class="input" style="background-color:#90F77E" value="{{$nPiezas->diametro3}}" step="any" inputmode="decimal" readonly></td>
-                                                <td><input type="number" class="input" style="background-color:#90F77E" value="{{$nPiezas->profundidad4}}" step="any" inputmode="decimal" readonly></td>
-                                                <td><input type="number" class="input" style="background-color:#90F77E" value="{{$nPiezas->diametro4}}" step="any" inputmode="decimal" readonly></td>
-                                                <td> 
-                                                    <select name="acetatoBM" class="input">
-                                                        <option value="Bien">Bien</option>
-                                                        <option value="Mal">Mal</option>
-                                                    </select>
-                                                </td>  
+                                                <td><input type="text" class="input" style="background-color:#90F77E" value="{{$nPiezas->acetatoBM}}" readonly></td>
                                                 <td><input type="text" class="input" style="background-color:#90F77E" value="{{$nPiezas->error}}" readonly></td>
                                                 <td><textarea class="input" style="background-color:#90F77E" readonly>{{$nPiezas->observaciones}}</textarea></td>
                                             </tr>
@@ -355,15 +341,13 @@
                                 @endif
                                 @if (isset($piezaElegida))
                                     <tr>
-                                        <td><input type="number" value="{{$cNominal->profundidad1}}" class="input" step="any" inputmode="decimal" readonly></td>
-                                        <td><input type="number" value="{{$cNominal->diametro1}}" class="input" step="any" inputmode="decimal" readonly></td>
-                                        <td><input type="number" value="{{$cNominal->profundidad2}}" class="input" step="any" inputmode="decimal" readonly></td>
-                                        <td><input type="number" value="{{$cNominal->diametro2}}" class="input" step="any" inputmode="decimal" readonly></td>
-                                        <td><input type="number" value="{{$cNominal->profundidad3}}" class="input" step="any" inputmode="decimal" readonly></td>
-                                        <td><input type="number" value="{{$cNominal->diametro3}}" class="input" step="any" inputmode="decimal" readonly></td>
-                                        <td><input type="number" value="{{$cNominal->acetatoMB}}" class="input" step="any" inputmode="decimal" readonly></td>
-                                        <td></td>
-                                        <td></td>
+                                        <td><input type="text" class="input" name="n_pieza" value="{{$piezaElegida->n_juego}}" readonly></td>
+                                        <td><input type="number" class="input" name="profundidad1" step="any" inputmode="decimal" required></td>
+                                        <td><input type="number" class="input" name="diametro1" step="any" inputmode="decimal" required></td>
+                                        <td><input type="number" class="input" name="profundidad2" step="any" inputmode="decimal" required></td>
+                                        <td><input type="number" class="input" name="diametro2" step="any" inputmode="decimal" required></td>
+                                        <td><input type="number" class="input" name="profundidad3" step="any" inputmode="decimal" required></td>
+                                        <td><input type="number" class="input" name="diametro3" step="any" inputmode="decimal" required></td>
                                         <td> 
                                             <select name="acetatoBM" class="input">
                                                 <option value="Bien">Bien</option>
@@ -390,7 +374,7 @@
                     @endif
                 </form>
                 @if (isset($nPiezas) && $nPiezas != "[]")
-                    <form action="{{ route('editDesbaste')}}" method="post">
+                    <form action="{{ route('editCavidades')}}" method="post">
                         @csrf
                         <div class="editar-table" id="editar-table">
                                 <img src="{{ asset('images/editar.png')}}" alt="Desbloquear" id="edit-table" class="boton-editar-table">
@@ -405,7 +389,7 @@
         @if (isset($band) && $band == 4)
             <div class="disabled-tabla">
                 <!-- el marco es puto -->
-                <form action="{{ route('editDesbaste')}}" method="post">
+                <form action="{{ route('editCavidades')}}" method="post">
                     @csrf
                     <input type="hidden" name="metaData" value="{{$meta->id}}">
                     <div class="scrollabe-table">
@@ -431,15 +415,7 @@
                                     <td><input type="number" value="{{$cNominal->diametro2}}" class="input" step="any" inputmode="decimal" readonly></td>
                                     <td><input type="number" value="{{$cNominal->profundidad3}}" class="input" step="any" inputmode="decimal" readonly></td>
                                     <td><input type="number" value="{{$cNominal->diametro3}}" class="input" step="any" inputmode="decimal" readonly></td>
-                                    <td><input type="number" value="{{$cNominal->acetatoMB}}" class="input" step="any" inputmode="decimal" readonly></td>
                                     <td></td>
-                                    <td></td>
-                                    <td> 
-                                        <select name="acetatoBM" class="input">
-                                            <option value="Bien">Bien</option>
-                                            <option value="Mal">Mal</option>
-                                        </select>
-                                    </td>   
                                     <td></td>
                                     <td></td>
                             </tr>
@@ -451,15 +427,7 @@
                                     <td><input type="number" value="{{$tolerancia->diametro1_2}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->diametro2_2}}" class="input-medio" step="any" inputmode="decimal" readonly></td>
                                     <td><input type="number" value="{{$tolerancia->profundidad1_3}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->profundidad2_3}}" class="input-medio" step="any" inputmode="decimal" readonly></td>
                                     <td><input type="number" value="{{$tolerancia->diametro1_3}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->diametro2_3}}" class="input-medio" step="any" inputmode="decimal" readonly></td>
-                                    <td><input type="number" value={{acetatoMB}} class="input-medio" step="any" inputmode="decimal" readonly></td>
                                     <td></td>
-                                    <td></td>
-                                    <td> 
-                                        <select name="acetatoBM" class="input">
-                                            <option value="Bien">Bien</option>
-                                            <option value="Mal">Mal</option>
-                                        </select>
-                                    </td>  
                                     <td></td>
                                     <td></td>
                             </tr>
@@ -468,25 +436,23 @@
                                 @foreach ($nPiezas as $nPiezas)
                                     <tr>
                                         <td><input type="text" class="input" value="{{$nPiezas->n_juego}}" name="n_pieza[]" step="any" inputmode="decimal" readonly></td>
-                                        <td><input type="number" class="input" value="{{$nPiezas->diametro1}}" name="diametro1[]" step="any" inputmode="decimal" required></td>
                                         <td><input type="number" class="input" value="{{$nPiezas->profundidad1}}" name="profundidad1[]" step="any" inputmode="decimal" required></td>
-                                        <td><input type="number" class="input" value="{{$nPiezas->diametro_arrastre1}}" name="diametro_arrastre1[]" step="any" inputmode="decimal" required></td>
-                                        <td><input type="number" class="input" value="{{$nPiezas->diametro2}}" name="diametro2[]" step="any" inputmode="decimal" required></td>
+                                        <td><input type="number" class="input" value="{{$nPiezas->diametro1}}" name="diametro1[]" step="any" inputmode="decimal" required></td>
                                         <td><input type="number" class="input" value="{{$nPiezas->profundidad2}}" name="profundidad2[]" step="any" inputmode="decimal" required></td>
-                                        <td><input type="number" class="input" value="{{$nPiezas->diametro_arrastre2}}" name="diametro_arrastre2[]" step="any" inputmode="decimal" required></td>
-                                        <td><input type="number" class="input" value="{{$nPiezas->diametro3}}" name="diametro3[]" step="any" inputmode="decimal" required></td>
+                                        <td><input type="number" class="input" value="{{$nPiezas->diametro2}}" name="diametro2[]" step="any" inputmode="decimal" required></td>
                                         <td><input type="number" class="input" value="{{$nPiezas->profundidad3}}" name="profundidad3[]" step="any" inputmode="decimal" required></td>
-                                        <td><input type="number" class="input" value="{{$nPiezas->diametro_arrastre3}}" name="diametro_arrastre3[]" step="any" inputmode="decimal" required></td>
-                                        <td><input type="number" class="input" value="{{$nPiezas->diametro4}}" name="diametro4[]" step="any" inputmode="decimal" required></td>
-                                        <td><input type="number" class="input" value="{{$nPiezas->profundidad4}}" name="profundidad4[]" step="any" inputmode="decimal" required></td>
-                                        <td><input type="number" class="input" value="{{$nPiezas->diametro_arrastre4}}" name="diametro_arrastre4[]" step="any" inputmode="decimal" required></td>
+                                        <td><input type="number" class="input" value="{{$nPiezas->diametro3}}" name="diametro3[]" step="any" inputmode="decimal" required></td>
                                         <td> 
-                                            <select name="acetatoBM" class="input">
-                                                <option value="Bien">Bien</option>
-                                                <option value="Mal">Mal</option>
+                                            <select name="acetatoBM[]" class="input">
+                                                <option value="{{$nPiezas->acetatoBM}}">{{$nPiezas->acetatoBM}}</option>
+                                                @if ($nPiezas->acetatoBM == "Bien")
+                                                    <option value="Mal">Mal</option>
+                                                @else
+                                                    <option value="Bien">Bien</option>
+                                                @endif
                                             </select>
                                         </td>  
-                                        <td> 
+                                        <td>
                                             <select name="error[]" class="input">
                                                 <option value='{{$nPiezas->error}}'>{{$nPiezas->error}}</option>
                                                 @switch($nPiezas->error)
@@ -500,11 +466,10 @@
                                                         <option value="Ninguno">Ninguno</option>
                                                         <option value="Fundicion">Fundición</option>
                                                     @break
-                                                    @default
                                                 @endswitch
                                             </select>
                                         </td>
-                                         <td><textarea name="observaciones[]" class="input">{{$nPiezas->observaciones}}</textarea></td>
+                                        <td><textarea name="observaciones[]" class="input">{{$nPiezas->observaciones}}</textarea></td>
                                     </tr>
                                 @endforeach
                             @endif

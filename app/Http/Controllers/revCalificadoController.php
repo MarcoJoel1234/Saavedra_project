@@ -139,10 +139,10 @@ class revCalificadoController extends Controller
             $proceso = revCalificado::where('id_proceso', $id)->first(); //Busco el proceso de la OT.
             if (!$proceso) {
                 //Llenado de la tabla Rectificado
-                $soldadura = new revCalificado(); //Creación de objeto para llenar tabla Rectificado
-                $soldadura->id_proceso = $id; //Creación de id para tabla Rectificado
-                $soldadura->id_ot = $ot->id; //Llenado de id_proceso para tabla Rectificado
-                $soldadura->save(); //Guardado de datos en la tabla Rectificado
+                $calificado = new revCalificado(); //Creación de objeto para llenar tabla Rectificado
+                $calificado->id_proceso = $id; //Creación de id para tabla Rectificado
+                $calificado->id_ot = $ot->id; //Llenado de id_proceso para tabla Rectificado
+                $calificado->save(); //Guardado de datos en la tabla Rectificado
             }
         }
         $id_proceso = revCalificado::where('id_proceso', $id)->first();
