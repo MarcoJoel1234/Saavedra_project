@@ -441,7 +441,7 @@ class GestionOTController extends Controller
                                         $proceso = AcabadoBombilo::where('id_ot', $otArray[$i])->where('id_proceso', "acabadoBombillo_" . $clase->nombre . "_" . $otArray[$i])->first();
                                         if (isset($proceso)) { //Si existe el proceso
                                             $pzas = AcabadoBombilo_pza::where('estado', 2)->where('id_proceso', $proceso->id)->get();
-                                                $pzasBuenas12[$contador] = count(AcabadoBombilo_pza::where('estado', 2)->where('error', 'Ninguno')->get());
+                                            $pzasBuenas12[$contador] = count(AcabadoBombilo_pza::where('estado', 2)->where('error', 'Ninguno')->get());
                                             $pzasMalas12[$contador] = count(AcabadoBombilo_pza::where('estado', 2)->where('error', 'Fundicion')->orWhere('error', 'Maquinado')->get());
 
                                             if ($pzasMalas12[$contador] > 0) {
@@ -677,9 +677,6 @@ class GestionOTController extends Controller
                                         $procesos[$i][$j][0] = $pzasBuenas22;
                                         $procesos[$i][$j][1] = $pzasMalas22;
                                         $procesos[$i][$j][2] = $pzasTotales22;
-                                        break;
-                                    default:
-                                        echo $nombreCampo;
                                         break;
                                 }
                                 $procesosClases[$contador][$j] = $this->nombreProceso($procesosClases[$contador][$j]);

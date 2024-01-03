@@ -29,6 +29,7 @@
                 <li><a href="{{route ('acabadoBombillo')}}">Revisión acabados bombillo</a></li>
                 <li><a href="{{route ('acabadoMolde')}}">Revisión acabados molde</a></li>
                 <li><a href="{{route ('cavidades')}}">Reporte diario de Cavidades</a></li>
+                <li><a href="{{route ('copiado')}}">Reporte de Copiado</a></li>
                 <ul>
                     <a class="btn1" href="{{ route('logout') }}">Cerrar sesión</a>
                 </ul>

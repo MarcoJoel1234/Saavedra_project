@@ -13,6 +13,8 @@ use App\Models\Cavidades_tolerancia;
 use App\Models\Cepillado_cnominal;
 use App\Models\Cepillado_tolerancia;
 use App\Models\Clase;
+use App\Models\Copiado_cnominal;
+use App\Models\Copiado_tolerancia;
 use App\Models\Desbaste_cnominal;
 use App\Models\Desbaste_tolerancia;
 use App\Models\Orden_trabajo;
@@ -89,6 +91,7 @@ class ProcesosController extends Controller
                         $cNominal = $cNomi->toArray();
                         $tolerancia = $tole->toArray();
                     }
+                    $subproceso = 0;
                     break;
 
                 case 'Desbaste Exterior':
@@ -114,6 +117,7 @@ class ProcesosController extends Controller
                         $cNominal = $cNomi->toArray();
                         $tolerancia = $tole->toArray();
                     }
+                    $subproceso = 0;
                     break;
                 case 'Revision Laterales':
                     $id_proceso = 'revLaterales_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
@@ -138,6 +142,7 @@ class ProcesosController extends Controller
                         $cNominal = $cNomi->toArray();
                         $tolerancia = $tole->toArray();
                     }
+                    $subproceso = 0;
                     break;
                 case 'Primera Operacion':
                     $id_proceso = '1opeSoldadura_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
@@ -162,6 +167,7 @@ class ProcesosController extends Controller
                         $cNominal = $cNomi->toArray();
                         $tolerancia = $tole->toArray();
                     }
+                    $subproceso = 0;
                     break;
                 case 'Barreno Maniobra':
                     $id_proceso = 'barrenoManiobra_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
@@ -186,6 +192,7 @@ class ProcesosController extends Controller
                         $cNominal = $cNomi->toArray();
                         $tolerancia = $tole->toArray();
                     }
+                    $subproceso = 0;
                     break;
 
                 case 'Segunda Operacion':
@@ -211,6 +218,7 @@ class ProcesosController extends Controller
                         $cNominal = $cNomi->toArray();
                         $tolerancia = $tole->toArray();
                     }
+                    $subproceso = 0;
                     break;
                 case 'Calificado':
                     $id_proceso = 'revCalificado_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
@@ -235,6 +243,7 @@ class ProcesosController extends Controller
                         $cNominal = $cNomi->toArray();
                         $tolerancia = $tole->toArray();
                     }
+                    $subproceso = 0;
                     break;
                 case 'Acabado Bombillo':
                     $id_proceso = 'acabadoBombillo_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
@@ -259,6 +268,7 @@ class ProcesosController extends Controller
                         $cNominal = $cNomi->toArray();
                         $tolerancia = $tole->toArray();
                     }
+                    $subproceso = 0;
                     break;
                 case 'Acabado Molde':
                     $id_proceso = 'acabadoMolde_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
@@ -277,16 +287,17 @@ class ProcesosController extends Controller
                         }
                     }
                     if (isset($request->cNomi_diametro_mordaza)) { //Verificación de ela existencia de datos en la tabla AcabadoMolde_cnominal.
-                        $array = $this->acabadoMolde($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editTole2opeSoldadura.
+                        $array = $this->acabadoMolde($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleAcabadoMolde.
                         $cNomi = $array[0]; //Creación de objeto AcabadoMolde_cnominal
                         $tole = $array[1]; //Creación de objeto AcabadoMolde_tolerancia.
                         $cNominal = $cNomi->toArray();
                         $tolerancia = $tole->toArray();
                     }
+                    $subproceso = 0;
                     break;
                 case 'Cavidades':
                     $id_proceso = 'cavidades_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
-                    $cNominal = Cavidades_cnominal::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla cavidades_cnominal.
+                    $cNominal = Cavidades_cnominal::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla Cavidades_cnominal.
                     $tolerancia = Cavidades_tolerancia::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla Cavidades_tolerancia.
                     if (isset($cNominal) && isset($tolerancia)) { //Verificación de existencia de datos en tablas Cavidades_cnominal y Cavidades_tolerancia.
                         $existe = 1; //Variable para verificar existencia de datos en tablas Cavidades_cnominal y Cavidades_tolerancia.
@@ -303,6 +314,46 @@ class ProcesosController extends Controller
                     if (isset($request->cNomi_profundidad1)) { //Verificación de ela existencia de datos en la tabla Cavidades_cnominal.
                         $array = $this->cavidades($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleCavidades.
                     }
+                    $subproceso = 0;
+                    break;
+                case 'Copiado':
+                    $id_proceso = 'copiado_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
+                    $cNominal = Copiado_cnominal::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla copiado_cnominal.
+                    $tolerancia = Copiado_tolerancia::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla copiado_tolerancia.
+                    if ($request->subproceso == 'Cilindrado') {
+                        if (isset($cNominal) && isset($tolerancia)) { //Verificación de existencia de datos en tablas copiado_cnominal y copiado_tolerancia.
+                            $existe = 1; //Variable para verificar existencia de datos en tablas copiado_cnominal y copiado_tolerancia.
+                        } else {
+                            $existe = 0; //Variable para verificar existencia de datos en tablas copiado_cnominal y copiado_tolerancia.
+                            if (isset($request->cNomi_diametro1_cilindrado)) { //Verificación de existencia de datos en tabla copiado_cnominal.
+                                $cNominal = new Copiado_cnominal(); //Creación de objeto copiado_cnominal.
+                                $tolerancia = new Copiado_tolerancia(); //Creación de objeto copiado_tolerancia.
+                                $existe = 1; //Variable para verificar existencia de datos en tablas copiado_cnominal y copiado_tolerancia.
+                            } else {
+                                return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'subproceso' => $request->subproceso]); //Retorno a vista de procesos.
+                            }
+                        }
+                        if (isset($request->cNomi_diametro1_cilindrado)) { //Verificación de ela existencia de datos en la tabla copiado_cnominal.
+                            $array = $this->copiado($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleCopiado.
+                        }
+                    } else {
+                        if (isset($cNominal) && isset($tolerancia)) { //Verificación de existencia de datos en tablas copiado_cnominal y copiado_tolerancia.
+                            $existe = 1; //Variable para verificar existencia de datos en tablas copiado_cnominal y copiado_tolerancia.
+                        } else {
+                            $existe = 0; //Variable para verificar existencia de datos en tablas copiado_cnominal y copiado_tolerancia.
+                            if (isset($request->cNomi_diametro1_cavidades)) { //Verificación de existencia de datos en tabla copiado_cnominal.
+                                $cNominal = new Copiado_cnominal(); //Creación de objeto copiado_cnominal.
+                                $tolerancia = new Copiado_tolerancia(); //Creación de objeto copiado_tolerancia.
+                                $existe = 1; //Variable para verificar existencia de datos en tablas copiado_cnominal y copiado_tolerancia.
+                            } else {
+                                return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'subproceso' => $request->subproceso]); //Retorno a vista de procesos.
+                            }
+                        }
+                        if (isset($request->cNomi_diametro1_cavidades)) { //Verificación de ela existencia de datos en la tabla copiado_cnominal.
+                            $array = $this->copiado($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleCopiado
+                        }
+                    }
+                    $subproceso = $request->subproceso;
                     break;
                     // case 'pysOpeSoldadura':
                     //     $id_proceso = '1y2opeSoldadura_' . $clase->nombre . "_" . $clase->id_ot . "_" . $request->operacion; //Creación de id_proceso.
@@ -329,7 +380,7 @@ class ProcesosController extends Controller
                     //     }
                     //     break;
             }
-            return view('processesAdmin.procesos', ['cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot]); //Retorno a vista de procesos.
+            return view('processesAdmin.procesos', ['cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'subproceso' => $subproceso]); //Retorno a vista de procesos.
         }
     }
     public function convertirString($procesos)
@@ -467,14 +518,14 @@ class ProcesosController extends Controller
         $tolerancia->altura_sufridera1 = $request->tole_altura_sufridera1;
         $tolerancia->altura_sufridera2 = $request->tole_altura_sufridera2;
 
-        $cNominal->save(); //Guardado de datos en tabla Cepillado_cnominal.
-        $tolerancia->save(); //Guardado de datos en tabla Cepillado_tolerancia.
+        $cNominal->save(); //Guardado de datos en tabla Desbaste_cnominal.
+        $tolerancia->save(); //Guardado de datos en tabla Desbaste_tolerancia.
         return array($cNominal, $tolerancia);
     }
     public function revisionLaterales($id_proceso, $cNominal, $tolerancia, $request)
     {
         //Llenado de tabla revLaterales_cnominal
-        $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla Cepillado_cnominal.
+        $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla revLaterales_cnominal.
         $cNominal->desfasamiento_entrada = $request->cNomi_desfasamiento_entrada;
         $cNominal->desfasamiento_salida = $request->cNomi_desfasamiento_salida;
         $cNominal->ancho_simetriaEntrada = $request->cNomi_ancho_simetriaEntrada;
@@ -494,14 +545,14 @@ class ProcesosController extends Controller
         $tolerancia->angulo_corte1 = $request->tole_angulo_corte1;
         $tolerancia->angulo_corte2 = $request->tole_angulo_corte2;
 
-        $cNominal->save(); //Guardado de datos en tabla Cepillado_cnominal.
-        $tolerancia->save(); //Guardado de datos en tabla Cepillado_tolerancia.
+        $cNominal->save(); //Guardado de datos en tabla revLaterales_cnominal.
+        $tolerancia->save(); //Guardado de datos en tabla revLaterales_tolerancia.
         return array($cNominal, $tolerancia);
     }
     public function primeraOpeSoldadura($id_proceso, $cNominal, $tolerancia, $request)
     {
-        //Llenado de tabla revLaterales_cnominal
-        $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla Cepillado_cnominal.
+        //Llenado de tabla primeraOpeSoldadura
+        $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla primeraOpeSoldadura_cnominal.
         $cNominal->diametro1 = $request->cNomi_diametro1;
         $cNominal->profundidad1 = $request->cNomi_profundidad1;
         $cNominal->diametro2 = $request->cNomi_diametro2;
@@ -515,7 +566,7 @@ class ProcesosController extends Controller
         $cNominal->pernoAlineacion = $request->cNomi_pernoAlineacion;
         $cNominal->Simetria90G = $request->cNomi_Simetria90G;
 
-        //Llenado de tabla revLaterales_tolerancia
+        //Llenado de tabla primeraOpeSoldadura_tolerancia
         $tolerancia->id_proceso = $id_proceso;
         $tolerancia->diametro1 = $request->tole_diametro1;
         $tolerancia->profundidad1 = $request->tole_profundidad1;
@@ -532,8 +583,8 @@ class ProcesosController extends Controller
         $tolerancia->pernoAlineacion = $request->tole_pernoAlineacion;
         $tolerancia->Simetria90G = $request->tole_Simetria90G;
 
-        $cNominal->save(); //Guardado de datos en tabla Cepillado_cnominal.
-        $tolerancia->save(); //Guardado de datos en tabla Cepillado_tolerancia.
+        $cNominal->save(); //Guardado de datos en tabla primeraOpeSoldadura_cnominal.
+        $tolerancia->save(); //Guardado de datos en tabla primeraOpeSoldadura_tolerancia.
         return array($cNominal, $tolerancia);
     }
     public function barrenoManiobra($id_proceso, $cNominal, $tolerancia, $request)
@@ -550,14 +601,14 @@ class ProcesosController extends Controller
         $tolerancia->diametro_machuelo1 = $request->tole_diametro_machuelo1;
         $tolerancia->diametro_machuelo2 = $request->tole_diametro_machuelo2;
 
-        $cNominal->save(); //Guardado de datos en tabla Cepillado_cnominal.
-        $tolerancia->save(); //Guardado de datos en tabla Cepillado_tolerancia.
+        $cNominal->save(); //Guardado de datos en tabla barrenoManiobra_cnominal.
+        $tolerancia->save(); //Guardado de datos en tabla barrenoManiobra_tolerancia.
         return array($cNominal, $tolerancia);
     }
     public function segundaOpeSoldadura($id_proceso, $cNominal, $tolerancia, $request)
     {
-        //Llenado de tabla revLaterales_cnominal
-        $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla Cepillado_cnominal.
+        //Llenado de tabla segundaOpeSoldadura_cnominal.
+        $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla segundaOpeSoldadura_cnominal.
         $cNominal->diametro1 = $request->cNomi_diametro1;
         $cNominal->profundidad1 = $request->cNomi_profundidad1;
         $cNominal->diametro2 = $request->cNomi_diametro2;
@@ -570,7 +621,7 @@ class ProcesosController extends Controller
         $cNominal->Simetria90G = $request->cNomi_Simetria90G;
         $cNominal->simetriaLinea_partida = $request->cNomi_simetriaLinea_partida;
 
-        //Llenado de tabla revLaterales_tolerancia
+        //Llenado de tabla segundaOpeSoldadura_tolerancia
         $tolerancia->id_proceso = $id_proceso;
         $tolerancia->diametro1 = $request->tole_diametro1;
         $tolerancia->profundidad1 = $request->tole_profundidad1;
@@ -586,14 +637,14 @@ class ProcesosController extends Controller
         $tolerancia->Simetria90G2 = $request->tole_Simetria90G2;
         $tolerancia->simetriaLinea_partida = $request->tole_simetriaLinea_partida;
 
-        $cNominal->save(); //Guardado de datos en tabla Cepillado_cnominal.
-        $tolerancia->save(); //Guardado de datos en tabla Cepillado_tolerancia.
+        $cNominal->save(); //Guardado de datos en tabla segundaOpeSoldadura_cnominal.
+        $tolerancia->save(); //Guardado de datos en tabla segundaOpeSoldadura_tolerancia.
         return array($cNominal, $tolerancia);
     }
     public function calificado($id_proceso, $cNominal, $tolerancia, $request)
     {
-        //Llenado de tabla revLaterales_cnominal
-        $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla Cepillado_cnominal.
+        //Llenado de tabla calificado_cnominal
+        $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla calificado_cnominal.
         $cNominal->diametro_ceja = $request->cNomi_diametro_ceja;
         $cNominal->diametro_sufridera = $request->cNomi_diametro_sufridera;
         $cNominal->altura_sufridera = $request->cNomi_altura_sufridera;
@@ -604,7 +655,7 @@ class ProcesosController extends Controller
         $cNominal->altura_total = $request->cNomi_altura_total;
         $cNominal->simetria = $request->cNomi_simetria;
 
-        //Llenado de tabla revLaterales_tolerancia
+        //Llenado de tabla calificado_tolerancia
         $tolerancia->id_proceso = $id_proceso;
         $tolerancia->diametro_ceja1 = $request->tole_diametro_ceja1;
         $tolerancia->diametro_ceja2 = $request->tole_diametro_ceja2;
@@ -625,14 +676,14 @@ class ProcesosController extends Controller
         $tolerancia->simetria1 = $request->tole_simetria1;
         $tolerancia->simetria2 = $request->tole_simetria2;
 
-        $cNominal->save(); //Guardado de datos en tabla Cepillado_cnominal.
-        $tolerancia->save(); //Guardado de datos en tabla Cepillado_tolerancia.
+        $cNominal->save(); //Guardado de datos en tabla calificado_cnominal.
+        $tolerancia->save(); //Guardado de datos en tabla calificado_tolerancia.
         return array($cNominal, $tolerancia);
     }
     public function acabadoBombillo($id_proceso, $cNominal, $tolerancia, $request)
     {
-        //Llenado de tabla revLaterales_cnominal
-        $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla Cepillado_cnominal.
+        //Llenado de tabla acabadoBombillo_cnominal
+        $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla acabadoBombillo_cnominal.
         $cNominal->diametro_mordaza = $request->cNomi_diametro_mordaza;
         $cNominal->diametro_ceja = $request->cNomi_diametro_ceja;
         $cNominal->diametro_sufridera = $request->cNomi_diametro_sufridera;
@@ -648,7 +699,7 @@ class ProcesosController extends Controller
         $cNominal->profundidad_caja_corona = $request->cNomi_profundidad_caja_corona;
         $cNominal->simetria = $request->cNomi_simetria;
 
-        //Llenado de tabla revLaterales_tolerancia
+        //Llenado de tabla acabadoBombillo_tolerancia
         $tolerancia->id_proceso = $id_proceso;
         $tolerancia->diametro_mordaza1 = $request->tole_diametro_mordaza1;
         $tolerancia->diametro_mordaza2 = $request->tole_diametro_mordaza2;
@@ -679,14 +730,14 @@ class ProcesosController extends Controller
         $tolerancia->simetria1 = $request->tole_simetria1;
         $tolerancia->simetria2 = $request->tole_simetria2;
 
-        $cNominal->save(); //Guardado de datos en tabla Cepillado_cnominal.
-        $tolerancia->save(); //Guardado de datos en tabla Cepillado_tolerancia.
+        $cNominal->save(); //Guardado de datos en tabla acabadoBombillo_cnominal.
+        $tolerancia->save(); //Guardado de datos en tabla acabadoBombillo_tolerancia.
         return array($cNominal, $tolerancia);
     }
     public function acabadoMolde($id_proceso, $cNominal, $tolerancia, $request)
     {
-        //Llenado de tabla revLaterales_cnominal
-        $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla Cepillado_cnominal.
+        //Llenado de tabla acabadoMolde_cnominal
+        $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla acabadoMolde_cnominal.
         $cNominal->diametro_mordaza = $request->cNomi_diametro_mordaza;
         $cNominal->diametro_ceja = $request->cNomi_diametro_ceja;
         $cNominal->diametro_sufridera = $request->cNomi_diametro_sufridera;
@@ -701,7 +752,7 @@ class ProcesosController extends Controller
         $cNominal->profundidad_caja_fondo = $request->cNomi_profundidad_caja_fondo;
         $cNominal->simetria = $request->cNomi_simetria;
 
-        //Llenado de tabla revLaterales_tolerancia
+        //Llenado de tabla acabadoMolde_tolerancia
         $tolerancia->id_proceso = $id_proceso;
         $tolerancia->diametro_mordaza1 = $request->tole_diametro_mordaza1;
         $tolerancia->diametro_mordaza2 = $request->tole_diametro_mordaza2;
@@ -730,14 +781,14 @@ class ProcesosController extends Controller
         $tolerancia->simetria1 = $request->tole_simetria1;
         $tolerancia->simetria2 = $request->tole_simetria2;
 
-        $cNominal->save(); //Guardado de datos en tabla Cepillado_cnominal.
-        $tolerancia->save(); //Guardado de datos en tabla Cepillado_tolerancia.
+        $cNominal->save(); //Guardado de datos en tabla acabadoMolde_cnominal.
+        $tolerancia->save(); //Guardado de datos en tabla acabadoMolde_tolerancia.
         return array($cNominal, $tolerancia);
     }
     public function pysOpeSoldadura($id_proceso, $cNominal, $tolerancia, $request)
     {
-        //Llenado de tabla revLaterales_cnominal
-        $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla Cepillado_cnominal.
+        //Llenado de tabla pysOpeSoldadura_cnominal
+        $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla pysOpeSoldadura_cnominal.
         $cNominal->altura = $request->cNomi_altura;
         $cNominal->alturaCandado1 = $request->cNomi_alturaCandado1;
         $cNominal->alturaCandado2 = $request->cNomi_alturaCandado2;
@@ -748,7 +799,7 @@ class ProcesosController extends Controller
         $cNominal->pushUp = $request->cNomi_pushUp;
 
 
-        //Llenado de tabla revLaterales_tolerancia
+        //Llenado de tabla pysOpeSoldadura_tolerancia
         $tolerancia->id_proceso = $id_proceso;
         $tolerancia->altura = $request->tole_altura;
         $tolerancia->alturaCandado1 = $request->tole_alturaCandado1;
@@ -759,14 +810,14 @@ class ProcesosController extends Controller
         $tolerancia->profundidadSoldadura2 = $request->tole_profundidadSoldadura2;
         $tolerancia->pushUp = $request->tole_pushUp;
 
-        $cNominal->save(); //Guardado de datos en tabla Cepillado_cnominal.
-        $tolerancia->save(); //Guardado de datos en tabla Cepillado_tolerancia.
+        $cNominal->save(); //Guardado de datos en tabla pysOpeSoldadura_cnominal.
+        $tolerancia->save(); //Guardado de datos en tabla pysOpeSoldadura_tolerancia.
         return array($cNominal, $tolerancia);
     }
     public function cavidades($id_proceso, $cNominal, $tolerancia, $request)
     {
-        //Llenado de tabla revLaterales_cnominal
-        $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla Cepillado_cnominal.
+        //Llenado de tabla cavidades_cnominal
+        $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla cavidades_cnominal.
         $cNominal->profundidad1 = $request->cNomi_profundidad1;
         $cNominal->diametro1 = $request->cNomi_diametro1;
         $cNominal->profundidad2 = $request->cNomi_profundidad2;
@@ -775,7 +826,7 @@ class ProcesosController extends Controller
         $cNominal->diametro3 = $request->cNomi_diametro3;
 
 
-        //Llenado de tabla revLaterales_tolerancia
+        //Llenado de tabla cavidades_tolerancia
         $tolerancia->id_proceso = $id_proceso;
         $tolerancia->profundidad1_1 = $request->tole_profundidad1_1;
         $tolerancia->profundidad2_1 = $request->tole_profundidad2_1;
@@ -790,8 +841,64 @@ class ProcesosController extends Controller
         $tolerancia->diametro1_3 = $request->tole_diametro1_3;
         $tolerancia->diametro2_3 = $request->tole_diametro2_3;
 
-        $cNominal->save(); //Guardado de datos en tabla Cepillado_cnominal.
-        $tolerancia->save(); //Guardado de datos en tabla Cepillado_tolerancia.
+        $cNominal->save(); //Guardado de datos en tabla cavidades_cnominal.
+        $tolerancia->save(); //Guardado de datos en tabla cavidades_tolerancia.
+        return array($cNominal, $tolerancia);
+    }
+    public function copiado($id_proceso, $cNominal, $tolerancia, $request)
+    {
+        if ($request->subproceso == 'Cilindrado') {
+            //Llenado de tabla copiado_cnominal en el subproceso Cilindrado.
+            $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla copiado_cnominal en el subproceso Cilindrado.
+            $cNominal->diametro1_cilindrado = $request->cNomi_diametro1_cilindrado;
+            $cNominal->profundidad1_cilindrado = $request->cNomi_profundidad1_cilindrado;
+            $cNominal->diametro2_cilindrado = $request->cNomi_diametro2_cilindrado;
+            $cNominal->profundidad2_cilindrado = $request->cNomi_profundidad2_cilindrado;
+            $cNominal->diametro_sufridera = $request->cNomi_diametro_sufridera;
+            $cNominal->diametro_ranura = $request->cNomi_diametro_ranura;
+            $cNominal->profundidad_ranura = $request->cNomi_profundidad_ranura;
+            $cNominal->profundidad_sufridera = $request->cNomi_profundidad_sufridera;
+            $cNominal->altura_Total = $request->cNomi_altura_total;
+
+            //Llenado de tabla copiado_tolerancia en el subproceso Cilindrado.
+            $tolerancia->id_proceso = $id_proceso;
+            $tolerancia->diametro1_cilindrado = $request->tole_diametro1_cilindrado;
+            $tolerancia->profundidad1_cilindrado = $request->tole_profundidad1_cilindrado;
+            $tolerancia->diametro2_cilindrado = $request->tole_diametro2_cilindrado;
+            $tolerancia->profundidad2_cilindrado = $request->tole_profundidad2_cilindrado;
+            $tolerancia->diametro_sufridera = $request->tole_diametro_sufridera;
+            $tolerancia->diametro_ranura = $request->tole_diametro_ranura;
+            $tolerancia->profundidad_ranura = $request->tole_profundidad_ranura;
+            $tolerancia->profundidad_sufridera = $request->tole_profundidad_sufridera;
+            $tolerancia->altura_total = $request->tole_altura_total;
+        } else {
+            $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla copiado_cnominal en el subproceso Cavidades.
+            $cNominal->diametro1_cavidades= $request->cNomi_diametro1_cavidades;
+            $cNominal->profundidad1_cavidades = $request->cNomi_profundidad1_cavidades;
+            $cNominal->diametro2_cavidades = $request->cNomi_diametro2_cavidades;
+            $cNominal->profundidad2_cavidades = $request->cNomi_profundidad2_cavidades;
+            $cNominal->diametro3 = $request->cNomi_diametro3;
+            $cNominal->profundidad3 = $request->cNomi_profundidad3;
+            $cNominal->diametro4 = $request->cNomi_diametro4;
+            $cNominal->profundidad4 = $request->cNomi_profundidad4;
+            $cNominal->volumen = $request->cNomi_volumen;
+
+            //Llenado de tabla copiado_tolerancia en el subproceso Cavidades.
+            $tolerancia->id_proceso = $id_proceso;
+            $tolerancia->diametro1_cavidades = $request->tole_diametro1_cavidades;
+            $tolerancia->profundidad1_cavidades = $request->tole_profundidad1_cavidades;
+            $tolerancia->diametro2_cavidades = $request->tole_diametro2_cavidades;
+            $tolerancia->profundidad2_cavidades = $request->tole_profundidad2_cavidades;
+            $tolerancia->diametro3 = $request->tole_diametro3;
+            $tolerancia->profundidad3 = $request->tole_profundidad3;
+            $tolerancia->diametro4 = $request->tole_diametro4;
+            $tolerancia->profundidad4 = $request->tole_profundidad4;
+            $tolerancia->volumen = $request->tole_volumen;
+            
+            
+        }
+        $cNominal->save(); //Guardado de datos en tabla copiado_cnominal en el subproceso Cilindrado.
+        $tolerancia->save(); //Guardado de datos en tabla copiado_tolerancia en el subproceso Cilindrado.
         return array($cNominal, $tolerancia);
     }
 }

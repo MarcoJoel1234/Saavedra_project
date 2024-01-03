@@ -10,6 +10,7 @@ use App\Models\BarrenoManiobra;
 use App\Models\Cavidades;
 use App\Models\Cepillado;
 use App\Models\Clase;
+use App\Models\Copiado;
 use App\Models\DesbasteExterior;
 use App\Models\Metas;
 use App\Models\Moldura;
@@ -411,6 +412,8 @@ class OTController extends Controller
                                 return view('processes.revAcabadosMolde', ['band' => 3, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clase' => $clase]);
                             case "cavidades":
                                 return view('processes.cavidades', ['band' => 3, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clase' => $clase]);
+                            case "copiado":
+                                return view('processes.copiado', ['band' => 3, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clase' => $clase]);
                             case "pysOpeSoldadura":
                                 return view('processes.pysOpeSoldadura', ['band' => 3, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clase' => $clase]);
                         }
@@ -444,6 +447,8 @@ class OTController extends Controller
                         return redirect()->route('acabadoMoldeHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
                     case "cavidades":
                         return redirect()->route('cavidadesHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
+                    case "copiado":
+                        return redirect()->route('copiadoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
                     case "pysOpeSoldadura":
                         return redirect()->route('1y2OpeSoldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase, 'operacion' => $request->operacion]);
                 }
@@ -487,7 +492,7 @@ class OTController extends Controller
                             $clases = $this->ClaseEncontradas($ot->id, "rectificado"); //Se obtienen las clases disponibles en rectificado
                             return view('processes.rectificado', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]);
                         case "asentado":
-                            $clases = $this->ClaseEncontradas($ot->id, "asentado"); //Se obtienen las clases disponibles en rectificado
+                            $clases = $this->ClaseEncontradas($ot->id, "asentado"); //Se obtienen las clases disponibles en asentado
                             return view('processes.asentado', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]);
                         case 'revCalificado':
                             $clases = $this->ClaseEncontradas($ot->id, "calificado"); //Se obtienen las clases disponibles en calificado
@@ -499,8 +504,11 @@ class OTController extends Controller
                             $clases = $this->ClaseEncontradas($ot->id, "acabadoMolde"); //Se obtienen las clases disponibles en acabado molde
                             return view('processes.revAcabadosMolde', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]); //Retorno la vista de acabado molde
                         case 'cavidades':
-                            $clases = $this->ClaseEncontradas($ot->id, "cavidades"); //Se obtienen las clases disponibles en acabado molde
+                            $clases = $this->ClaseEncontradas($ot->id, "cavidades"); //Se obtienen las clases disponibles en cavidades
                             return view('processes.cavidades', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]); //Retorno la vista de acabado molde
+                        case 'copiado':
+                            $clases = $this->ClaseEncontradas($ot->id, "copiado"); //Se obtienen las clases disponibles en copiado
+                            return view('processes.copiado', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]); //Retorno la vista de acabado molde
                         case "pysOpeSoldadura": //Se obtienen las clases disponibles en 1ra y 2da operación de soldadura.
                             $clases = $this->ClaseEncontradas($ot->id, "operacionEquipo"); //Se obtienen las clases disponibles en 1 y 2 operacion equipo
                             return view('processes.pysOpeSoldadura', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]);
@@ -631,6 +639,13 @@ class OTController extends Controller
                             return redirect()->route('cavidadesHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de desbaste.
                         }
                         return redirect()->route('cavidadesHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
+                    case "copiado":
+                        $id = "copiado_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Copiado
+                        $copiado = Copiado::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
+                        if (isset($copiado)) {
+                            return redirect()->route('copiadoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de copiado
+                        }
+                        return redirect()->route('copiadoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case "pysOpeSoldadura":
                         $pysOpeSoldadura = PySOpeSoldadura::where('id_clase', $request->clases)->where('id_ot', $ot->id)->where('operacion', $request->operacion)->first(); //Busco la OT que se quiere editar.
                         if (isset($pysOpeSoldadura)) {
@@ -752,6 +767,14 @@ class OTController extends Controller
                         }
                         //Retorno la vista de desbaste.
                         return redirect()->route('cavidadesHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
+                    case 'copiado':
+                        $id = "copiado_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Rectificado
+                        $copiado = Copiado::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
+                        if (isset($copiado)) { //Si existe la OT.
+                            return redirect()->route('copiadoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de cepillado
+                        }
+                        //Retorno la vista de desbaste.
+                        return redirect()->route('copiadoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case "pysOpeSoldadura": //Creación de id para la tabla de Primera Operación y Segunda Operación de Soldadura.
                         echo $proceso = PySOpeSoldadura::find($metaExistente->id_proceso); //Busco la OT que se requiere editar
                         if (isset($proceso)) {
@@ -815,6 +838,9 @@ class OTController extends Controller
                 case 'cavidades':
                     $clases = $this->ClaseEncontradas($meta->id_ot, "cavidades"); //Obtengo las clases que no son nulas.
                     return view('processes.cavidades', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]);
+                case 'copiado':
+                    $clases = $this->ClaseEncontradas($meta->id_ot, "copiado"); //Obtengo las clases que no son nulas.
+                    return view('processes.copiado', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]);
                 case "pysOpeSoldadura":
                     $clases = $this->ClaseEncontradas($meta->id_ot, "operacionEquipo"); //Obtengo las clases que no son nulas.
                     return view('processes.pysOpeSoldadura', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de pysOpeSoldadura.
@@ -900,7 +926,10 @@ class OTController extends Controller
                 $meta->t_estandar = $this->asignarMetas($clase, 0, 0, 0,  24, 26, 30,  0, 0, 0); //Asigno el tiempo estandar.
                 break;
             case 'cavidades':
-                $meta->t_estandar = $this->asignarMetas($clase, 0, 0, 0,  24, 26, 30,  0, 0, 0); //Asigno el tiempo estandar.
+                $meta->t_estandar = $this->asignarMetas($clase, 0, 0, 0,  0, 0, 0,  0, 0, 0); //Asigno el tiempo estandar.
+                break;
+            case 'copiado':
+                $meta->t_estandar = $this->asignarMetas($clase, 27, 29, 0,  0, 0, 0,  0, 0, 0); //Asigno el tiempo estandar.
                 break;
             case "pysOpeSoldadura":
                 $meta->t_estandar = $this->asignarMetas($clase, 20, 20, 20,  24, 24, 24,  0, 0, 0); //Asigno el tiempo estandar.

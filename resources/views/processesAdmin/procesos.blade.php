@@ -9,7 +9,7 @@ class Proceso {
         this.valoresTole = valoresTole; // Valores de tolerancias
     }
 
-    crearProceso() { // Crear proceso
+    crearProceso(subproceso) { // Crear proceso
         let titulos = []; // Titulos de la tabla
         let cNominal = []; // C.nominal
         let cNomiPosiciones = []; // Posiciones de los inputs de c.nominal
@@ -28,7 +28,6 @@ class Proceso {
                     let valoresCnomi = [this.valoresCnomi['id'], this.valoresCnomi['radiof_mordaza'] , this.valoresCnomi['radiof_mayor'], this.valoresCnomi['radiof_sufridera'], this.valoresCnomi['profuFinal_CFC'], this.valoresCnomi['profuFinal_mitadMB'], this.valoresCnomi['profuFinal_PCO'], this.valoresCnomi['ensamble'], this.valoresCnomi['distancia_barrenoAli'], this.valoresCnomi['profu_barrenoAli'], this.valoresCnomi['altura_vena'], this.valoresCnomi['ancho_vena'], this.valoresCnomi['pin1'], this.valoresCnomi['pin2']];
                 
                     let valoresTole = [this.valoresTole['id'], this.valoresTole['radiof_mordaza1'], this.valoresTole['radiof_mordaza2'], this.valoresTole['radiof_mayor1'], this.valoresTole['radiof_mayor2'], this.valoresTole['radiof_sufridera1'], this.valoresTole['radiof_sufridera2'], this.valoresTole['profuFinal_CFC1'], this.valoresTole['profuFinal_CFC2'], this.valoresTole['profuFinal_mitadMB1'], this.valoresTole['profuFinal_mitadMB2'], this.valoresTole['profuFinal_PCO1'], this.valoresTole['profuFinal_PCO2'], this.valoresTole['ensamble1'], this.valoresTole['ensamble2'], 'H', 'M', 'H', 'M', 'H', 'M', 'H', 'M', this.valoresTole['pin1'], this.valoresTole['pin2']];
-                    console.log(this.valoresTole['pin2']);
                     return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, valoresCnomi, valoresTole); // Crear tabla
                 }
                 return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined, 'cepillado'); // Crear tabla
@@ -180,6 +179,41 @@ class Proceso {
                     return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, valoresCnomi, valoresTole); // Crear tabla
                 }   
                 return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined, 'acabado molde'); // Crear tabla
+            case "Copiado": //Proceso de copiado
+                    if(subproceso == 'Cilindrado'){
+                        titulos = ['', 'Diametro 1', 'Profundidad 1', 'Diametro 2', 'Profundidad 2', 'Diametro de sufridera', 'Diametro Ranura', 'Profundidad Ranura', 'Profundidad de sufridera', 'ALTURA TOTAL'];
+
+                        cNominal = ['C.nominal', 'cNomi_diametro1_cilindrado', 'cNomi_profundidad1_cilindrado', 'cNomi_diametro2_cilindrado', 'cNomi_profundidad2_cilindrado', 'cNomi_diametro_sufridera', 'cNomi_diametro_ranura', 'cNomi_profundidad_ranura', 'cNomi_profundidad_sufridera', 'cNomi_altura_total'];
+                        cNomiPosiciones = [null]; // Posiciones de los inputs de c.nominal
+
+                        tolerancias = ['Tolerancias', 'tole_diametro1_cilindrado', 'tole_profundidad1_cilindrado', 'tole_diametro2_cilindrado', 'tole_profundidad2_cilindrado', 'tole_diametro_sufridera', 'tole_diametro_ranura', 'tole_profundidad_ranura', 'tole_profundidad_sufridera', 'tole_altura_total']; 
+                        tolePosiciones = [null]; // Posiciones de los inputs de tolerancias
+                        
+                        if(this.valoresCnomi != undefined && this.valoresTole != undefined){
+                            let valoresCnomi = [this.valoresCnomi['id'], this.valoresCnomi['diametro1_cilindrado'], this.valoresCnomi['profundidad1_cilindrado'] , this.valoresCnomi['diametro2_cilindrado'], this.valoresCnomi['profundidad2_cilindrado'], this.valoresCnomi['diametro_sufridera'], this.valoresCnomi['diametro_ranura'], this.valoresCnomi['profundidad_ranura'], this.valoresCnomi['profundidad_sufridera'], this.valoresCnomi['altura_total']];
+
+                            let valoresTole = [this.valoresTole['id'], this.valoresTole['diametro1_cilindrado'], this.valoresTole['profundidad1_cilindrado'], this.valoresTole['diametro2_cilindrado'], this.valoresTole['profundidad2_cilindrado'], this.valoresTole['diametro_sufridera'], this.valoresTole['diametro_ranura'], this.valoresTole['profundidad_ranura'], this.valoresTole['profundidad_sufridera'], this.valoresTole['altura_total']];
+                            return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, valoresCnomi, valoresTole); // Crear tabla
+                        }   
+                        return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined, 'copiado'); // Crear tabla
+                    }else{
+                        titulos = ['', 'Diametro 1', 'Profundidad 1', 'Diametro 2', 'Profundidad 2', 'Diametro 3', 'Profundidad 3', 'Diametro 4', 'Profundidad 4', ' VOLUMEN '];
+
+                        cNominal = ['C.nominal', 'cNomi_diametro1_cavidades', 'cNomi_profundidad1_cavidades', 'cNomi_diametro2_cavidades', 'cNomi_profundidad2_cavidades', 'cNomi_diametro3', 'cNomi_profundidad3', 'cNomi_diametro4', 'cNomi_profundidad4', 'cNomi_volumen'];
+                        cNomiPosiciones = [null]; // Posiciones de los inputs de c.nominal
+
+                        tolerancias = ['Tolerancias', 'tole_diametro1_cavidades', 'tole_profundidad1_cavidades', 'tole_diametro2_cavidades', 'tole_profundidad2_cavidades', 'tole_diametro3', 'tole_profundidad3', 'tole_diametro4', 'tole_profundidad4', 'tole_volumen'];
+                        tolePosiciones = [null]; // Posiciones de los inputs de tolerancias
+
+                        if(this.valoresCnomi != undefined && this.valoresTole != undefined){
+                            let valoresCnomi = [this.valoresCnomi['id'], this.valoresCnomi['diametro1_cavidades'], this.valoresCnomi['profundidad1_cavidades'] , this.valoresCnomi['diametro2_cavidades'], this.valoresCnomi['profundidad2_cavidades'], this.valoresCnomi['diametro3'], this.valoresCnomi['profundidad3'], this.valoresCnomi['diametro4'], this.valoresCnomi['profundidad4'], this.valoresCnomi['volumen']];
+
+                            let valoresTole = [this.valoresTole['id'], this.valoresTole['diametro1_cavidades'], this.valoresTole['profundidad1_cavidades'], this.valoresTole['diametro2_cavidades'], this.valoresTole['profundidad2_cavidades'], this.valoresTole['diametro3'], this.valoresTole['profundidad3'], this.valoresTole['diametro4'], this.valoresTole['profundidad4'], this.valoresTole['volumen']];
+
+                            return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, valoresCnomi, valoresTole, 'copiado'); // Crear tabla
+                        }
+                        return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined, 'copiado'); // Crear tabla
+                    }
             default:
                 return 'No se encontro el proceso'; //Retorna el mensaje de que el proceso no existe
         }
@@ -206,12 +240,10 @@ class Proceso {
                     break;
 
                 case 1: // Crear columnas de cNominal
-                    console.log(cNomiPosiciones);
                     for (let j = 0; j < cNominal.length; j++) { // Crear columnas
                         const td = document.createElement('td'); // Crear columna
                         if (j != 0) { //Si no es la primera columna.
                             if (cNomiPosiciones.includes(j)) { //Si la posición esta en el array de posiciones.
-                                console.log(j);
                                 for (let k = 0; k < 2; k++) { // Crear inputs
                                     if(valoresCNomi != undefined){
                                         //Valores de c nominal
@@ -254,7 +286,6 @@ class Proceso {
                                         }
                                     } else {
                                         if(valoresTole != undefined){ //Valores de tolerancia
-                                            console.log(valoresTole[j]);
                                             td.appendChild(this.crearInputs('input-medio', tolerancias[j], valoresTole[j])); // Crear inputs
                                         }else{
                                             td.appendChild(this.crearInputs('input-medio', tolerancias[j], undefined)); // Crear inputs
@@ -301,8 +332,14 @@ class Proceso {
 }
 
     //Funciones individuales
-    function agregarSelect(){
+    function agregarSelect(selectOp){
         let div = document.getElementById("row"); //Div donde se agregara el select
+        //Limpiar
+        if(document.getElementById("select-subproceso") != null){
+            let labelExistente = document.getElementById("row-title");
+            labelExistente.removeChild(document.getElementsByTagName('label')[2]);
+            div.removeChild(document.getElementsByTagName('select')[2]);
+        }
         if(selectOp.value == "pysOpeSoldadura"){ //Si el proceso es pysOpeSoldadura
             let select = document.createElement('select'); // Crear select
             select.id = 'select-operacion'; // Agregar id al select
@@ -313,6 +350,27 @@ class Proceso {
                 option.innerHTML = i + ' operacion soldadura'; // Agregar texto al option
                 select.appendChild(option); // Agregar option al select
             }
+            div.appendChild(select); // Agregar select al div
+        }else if(selectOp.value == "Copiado"){
+            divTitle = document.getElementById("row-title");
+            let label = document.createElement('label'); // Crear label
+            label.className = "title"; // Agregar clase al label
+            label.innerHTML = 'Selecciona el subproceso'; // Agregar texto al label
+            divTitle.appendChild(label); // Agregar label al div
+
+            let select = document.createElement('select'); // Crear select
+            select.id = 'select-subproceso'; // Agregar id al select
+            select.name = 'subproceso'; // Agregar nombre al select
+
+            let option = document.createElement('option'); // Crear option
+            option.value = 'Cilindrado'; // Agregar valor al option 
+            option.innerHTML = 'Cilindrado'; // Agregar texto al option
+            select.appendChild(option); // Agregar option al select
+
+            let option1 = document.createElement('option'); // Crear option
+            option1.value = 'Cavidades'; // Agregar valor al option 
+            option1.innerHTML = 'Cavidades'; // Agregar texto al option
+            select.appendChild(option1); // Agregar option al select
             div.appendChild(select); // Agregar select al div
         }else{
             if(document.getElementById("select-operacion") != null){
@@ -350,7 +408,7 @@ class Proceso {
                     selectCreate.appendChild(option); //Agrega el option al select 
                 }
                 selectCreate.addEventListener("change", function(){
-                    agregarSelect();
+                    agregarSelect(selectCreate);
                 });
                 div.appendChild(selectCreate); //Agrega el select al div
                 break;
@@ -400,6 +458,9 @@ class Proceso {
                         <div class="row">
                             <label class="title" style="margin-left: 150px;">Clase:</label>
                             <label class="title" style="margin-left: 200px;">Proceso:</label>
+                            @if ($proceso == 'Copiado')
+                            <label class="title" style="margin-left: 200px;">Subproceso:</label>
+                            @endif
                         </div>
                         <div class="row" id="row">
                             <!--Valor de la clase elegida-->
@@ -407,6 +468,10 @@ class Proceso {
                             <input type="hidden" name="clase" class="ot" value="{{$clase->id}}">
                             <!--Valor del proceso elegido-->
                             <input type="text" name="proceso" id="select-proceso" class="ot" value="{{$proceso}}" readonly>
+                            @if ($proceso == 'Copiado')
+                            <!--Valor del subproceso elegido-->
+                                <input type="text" name="subproceso" id="select-proceso" class="ot" value="{{$subproceso}}" readonly>
+                            @endif
                         </div>
                     @else
                         <div class="row" id="row">
@@ -490,8 +555,8 @@ class Proceso {
                             let proceso = new Proceso(select.value, undefined, undefined); // Crear proceso
                             let div = document.getElementById('scrollabe-table'); //Div de la tabla.
                             div.innerHTML = ""; // Limpiar div de la tabla 
-                            div.style = "display:block;"; //No acepta a ningún otro elemento más en esa fila, es decir los demás elementos bajan 
-                            div.appendChild(proceso.crearProceso()); //Agregar tabla al div de la tabla
+                            div.style = "display:block;"; //No acepta a ningún otro elemento más en esa fila, es decir los demás elementos bajan
+                            div.appendChild(proceso.crearProceso(@json($subproceso))); //Agregar tabla al div de la tabla
                         }
                     </script>
                 @endif
@@ -540,7 +605,7 @@ class Proceso {
                     @else
                         <script>
                             let proceso = new Proceso(@json($proceso), @json($cNominal), @json($tolerancia)); // Crear el proceso
-                            div.appendChild(proceso.crearProceso()); //Agregar tabla al div.
+                            div.appendChild(proceso.crearProceso(@json($subproceso))); //Agregar tabla al div.
                         </script>
                     @endif
                 
@@ -549,6 +614,9 @@ class Proceso {
             @isset($proceso)
                 <input type="hidden" name="proceso" value="{{$proceso}}">
                 <input type="hidden" name="clase" class="ot" value="{{$clase->id}}">
+                @if ($proceso == 'Copiado')
+                    <input type="hidden" name="subproceso" value="{{$subproceso}}">
+                @endif
             @endisset
         </div>
         <!--Aparecer boton-->

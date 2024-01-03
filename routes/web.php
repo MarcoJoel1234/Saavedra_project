@@ -7,6 +7,7 @@ use App\Http\Controllers\BarrenoManiobraController;
 use App\Http\Controllers\CavidadesController;
 use App\Http\Controllers\CepilladoController;
 use App\Http\Controllers\ClaseController;
+use App\Http\Controllers\CopiadoController;
 use App\Http\Controllers\DesbasteExteriorController;
 use App\Http\Controllers\GestionOTController;
 use App\Http\Controllers\HomeController;
@@ -241,6 +242,15 @@ Route::get('/cavidadesHeader', [CavidadesController::class, 'storeheaderTable'])
 Route::post('/cavidadesHeader', [CavidadesController::class, 'storeheaderTable'])->name('cavidadesHeader');
 //Ruta para editar datos de la tabla Cavidades
 Route::post('/editCavidades', [CavidadesController::class, 'edit'])->name('editCavidades');
+
+//Vista de Copiado
+Route::get('/copiado', [CopiadoController::class, 'show'])->name('copiado');
+//Guardar encabezado de la tabla Copiado
+Route::get('/copiadoHeader', [CopiadoController::class, 'storeheaderTable'])->name('copiadoHeaderGet');
+//Guardar encabezado de la tabla Copiado
+Route::post('/copiadoHeader', [CopiadoController::class, 'storeheaderTable'])->name('copiadoHeader');
+//Ruta para editar datos de la tabla Copiado
+Route::post('/editCopiado', [CopiadoController::class, 'edit'])->name('editCopiado');
 
 // //Vista de Primera y Segunda Operacion Soldadura Equipo
 // Route::get('/1y2OpeSoldadura', [PySOpeSoldaduraController::class, 'show'])->name('1y2OpeSoldadura');
