@@ -38,7 +38,7 @@
         <!--Formulario en donde se guardara la meta de OffSet-->
         <form action="{{route('saveHeader')}}" method="post">
             @csrf
-            <input type="hidden" name="proceso" value="cavidades">
+            <input type="hidden" name="proceso" value="offSet">
             <!--Div para el header del proceso-->
             <div class="container-header">
                 <!--Div para los datos ingresados por el usuario-->
@@ -197,7 +197,7 @@
         <!--Formulario para los datos de la tabla-->
         @if (isset($band) && $band == 2)
             <div class="disabled-tabla">
-                <form action="{{ route('desbasteHeader')}}" method="post">
+                <form action="{{ route('offSetHeader')}}" method="post">
                     @csrf
                     <input type="hidden" name="metaData" value="{{$meta->id}}">
                     <div class="scrollabe-table">
@@ -235,13 +235,13 @@
                                 <tr>
                                     <td>C.Nominal.</td>
                                     <td><input type="text" class="input" disabled></td>
-                                    <td><input type="text" class="input-medio" disabled></td>
-                                    <td><input type="text" class="input-medio" disabled></td>
-                                    <td><input type="text" class="input-medio" disabled></td>
-                                    <td><input type="text" class="input-medio" disabled></td>
                                     <td><input type="text" class="input" disabled></td>
-                                    <td><input type="text" class="input-medio" disabled></td>
-                                    <td><input type="text" class="input-medio" disabled></td>
+                                    <td><input type="text" class="input" disabled></td>
+                                    <td><input type="text" class="input" disabled></td>
+                                    <td><input type="text" class="input" disabled></td>
+                                    <td><input type="text" class="input" disabled></td>
+                                    <td><input type="text" class="input" disabled></td>
+                                    <td><input type="text" class="input" disabled></td>
                                     <td><input type="text" class="input" disabled></td>
                                     <td><input type="text" class="input" disabled></td>
                                     <td><input type="text" class="input" disabled></td>
@@ -266,15 +266,16 @@
                                 <tr>
                                     <td>C.Nominal</td>
                                     <td><input type="number" value="{{$cNominal->anchoRanura}}" class="input" step="any" inputmode="decimal" required></td>
-                                    <td><input type="number" value="{{$cNominal->profuTaconHembra}}" class="input-medio" step="any" inputmode="decimal" required><td>
-                                    <td><input type="number" value="{{$cNominal->profuTaconMacho}}" class="input-medio" step="any" inputmode="decimal" required></td>
-                                    <td><input type="number" value="{{$cNominal->simetriaHembra}}" class="input-medio" step="any" inputmode="decimal" required></td>
-                                    <td><input type="number" value="{{$cNominal->simetriaMacho}}" class="input-medio" step="any" inputmode="decimal" required></td>
+                                    <td><input type="number" value="{{$cNominal->profuTaconHembra}}" class="input" step="any" inputmode="decimal" required></td>
+                                    <td><input type="number" value="{{$cNominal->profuTaconMacho}}" class="input" step="any" inputmode="decimal" required></td>
+                                    <td><input type="number" value="{{$cNominal->simetriaHembra}}" class="input" step="any" inputmode="decimal" required></td>
+                                    <td><input type="number" value="{{$cNominal->simetriaMacho}}" class="input" step="any" inputmode="decimal" required></td>
                                     <td><input type="number" value="{{$cNominal->anchoTacon}}" class="input" step="any" inputmode="decimal" required></td>
-                                    <td><input type="number" value="{{$cNominal->barrenoLateralHembra}}" class="input-medio" step="any" inputmode="decimal" required></td>
-                                    <td><input type="number" value="{{$cNominal->barrenoLateralMacho}}" class="input-medio" step="any" inputmode="decimal" required></td>
+                                    <td><input type="number" value="{{$cNominal->barrenoLateralHembra}}" class="input" step="any" inputmode="decimal" required></td>
+                                    <td><input type="number" value="{{$cNominal->barrenoLateralMacho}}" class="input" step="any" inputmode="decimal" required></td>
                                     <td><input type="number" value="{{$cNominal->alturaTaconInicial}}" class="input" step="any" inputmode="decimal" required></td>
                                     <td><input type="number" value="{{$cNominal->alturaTaconIntermedia}}" class="input" step="any" inputmode="decimal" required></td>
+                                    <td></td>
                                     <td></td>
                                 </tr>
                                 <tr>
@@ -297,9 +298,9 @@
                             @if (isset($nPiezas))
                                 @if ($nPiezas->count() != 0)
                                     @foreach ($nPiezas as $nPiezas)
-                                        @if ($nPiezas->correcto == 0)
+                                        @if ($nPiezas->error != "Ninguno")
                                             <tr>
-                                                <td><input type="text" class="input" style="background-color:#F36456" value="{{$nPiezas->n_pieza}}" step="any" inputmode="decimal" readonly></td>
+                                                <td><input type="text" class="input" style="background-color:#F36456" value="{{$nPiezas->n_juego}}" step="any" inputmode="decimal" readonly></td>
                                                 <td><input type="number" class="input" style="background-color:#F36456" value="{{$nPiezas->anchoRanura}}" step="any" inputmode="decimal" readonly></td>
                                                 <td><input type="number" class="input" style="background-color:#F36456" value="{{$nPiezas->profuTaconHembra}}" step="any" inputmode="decimal" readonly></td>
                                                 <td><input type="number" class="input" style="background-color:#F36456" value="{{$nPiezas->profuTaconMacho}}" step="any" inputmode="decimal" readonly></td>
@@ -315,7 +316,7 @@
                                             </tr>
                                         @else
                                             <tr>
-                                                <td><input type="text" class="input" style="background-color:#90F77E" value="{{$nPiezas->n_pieza}}" step="any" inputmode="decimal" readonly></td>
+                                                <td><input type="text" class="input" style="background-color:#90F77E" value="{{$nPiezas->n_juego}}" step="any" inputmode="decimal" readonly></td>
                                                 <td><input type="number" class="input" style="background-color:#90F77E" value="{{$nPiezas->anchoRanura}}" step="any" inputmode="decimal" readonly></td>
                                                 <td><input type="number" class="input" style="background-color:#90F77E" value="{{$nPiezas->profuTaconHembra}}" step="any" inputmode="decimal" readonly></td>
                                                 <td><input type="number" class="input" style="background-color:#90F77E" value="{{$nPiezas->profuTaconMacho}}" step="any" inputmode="decimal" readonly></td>
@@ -359,17 +360,17 @@
                                 @endif
                                 @if (isset($piezaElegida))
                                     <tr>
-                                        <td></td>
-                                        <td><input type="number" value="{{$cNominal->anchoRanura}}" class="input" step="any" inputmode="decimal" required></td>
-                                        <td><input type="number" value="{{$cNominal->profuTaconHembra}}" class="input" step="any" inputmode="decimal" required></td>
-                                        <td><input type="number" value="{{$cNominal->profuTaconMacho}}" class="input" step="any" inputmode="decimal" required></td>
-                                        <td><input type="number" value="{{$cNominal->simetriaHembra}}" class="input" step="any" inputmode="decimal" required></td>
-                                        <td><input type="number" value="{{$cNominal->simetriaMacho}}" class="input" step="any" inputmode="decimal" required></td>
-                                        <td><input type="number" value="{{$cNominal->anchoTacon}}" class="input" step="any" inputmode="decimal" required></td>
-                                        <td><input type="number" value="{{$cNominal->barrenoLateralHembra}}" class="input" step="any" inputmode="decimal" required></td>
-                                        <td><input type="number" value="{{$cNominal->barrenoLateralMacho}}" class="input" step="any" inputmode="decimal" required></td>
-                                        <td><input type="number" value="{{$cNominal->alturaTaconInicial}}" class="input" step="any" inputmode="decimal" required></td>
-                                        <td><input type="number" value="{{$cNominal->alturaTaconIntermedia}}" class="input" step="any" inputmode="decimal" required></td>
+                                        <td><input type="text" name="n_pieza" value="{{$piezaElegida->n_juego}}" class="input" readonly></td>
+                                        <td><input type="number" name="anchoRanura" class="input" step="any" inputmode="decimal" required></td>
+                                        <td><input type="number" name="profuTaconHembra" class="input" step="any" inputmode="decimal" required></td>
+                                        <td><input type="number" name="profuTaconMacho" class="input" step="any" inputmode="decimal" required></td>
+                                        <td><input type="number" name="simetriaHembra" class="input" step="any" inputmode="decimal" required></td>
+                                        <td><input type="number" name="simetriaMacho" class="input" step="any" inputmode="decimal" required></td>
+                                        <td><input type="number" name="anchoTacon" class="input" step="any" inputmode="decimal" required></td>
+                                        <td><input type="number" name="barrenoLateralHembra" class="input" step="any" inputmode="decimal" required></td>
+                                        <td><input type="number" name="barrenoLateralMacho" class="input" step="any" inputmode="decimal" required></td>
+                                        <td><input type="number" name="alturaTaconInicial" class="input" step="any" inputmode="decimal" required></td>
+                                        <td><input type="number" name="alturaTaconIntermedia" class="input" step="any" inputmode="decimal" required></td>
                                         <td>
                                             <select name="error" class="input">
                                                 <option value="0"></option>
@@ -390,7 +391,7 @@
                     @endif
                 </form>
                 @if (isset($nPiezas) && $nPiezas != "[]")
-                    <form action="{{ route('editDesbaste')}}" method="post">
+                    <form action="{{ route('editOffSet')}}" method="post">
                         @csrf
                         <div class="editar-table" id="editar-table">
                                 <img src="{{ asset('images/editar.png')}}" alt="Desbloquear" id="edit-table" class="boton-editar-table">
@@ -404,7 +405,7 @@
         @endif
         @if (isset($band) && $band == 4)
             <div class="disabled-tabla">
-                <form action="{{ route('editDesbaste')}}" method="post">
+                <form action="{{ route('editOffSet')}}" method="post">
                     @csrf
                     <input type="hidden" name="metaData" value="{{$meta->id}}">
                     <div class="scrollabe-table">
@@ -442,15 +443,16 @@
                             <tr>
                                 <td>C.Nominal</td>
                                 <td><input type="number" value="{{$cNominal->anchoRanura}}" class="input" step="any" inputmode="decimal" required></td>
-                                <td><input type="number" value="{{$cNominal->profuTaconHembra}}" class="input-medio" step="any" inputmode="decimal" required><td>
-                                <td><input type="number" value="{{$cNominal->profuTaconMacho}}" class="input-medio" step="any" inputmode="decimal" required></td>
-                                <td><input type="number" value="{{$cNominal->simetriaHembra}}" class="input-medio" step="any" inputmode="decimal" required></td>
-                                <td><input type="number" value="{{$cNominal->simetriaMacho}}" class="input-medio" step="any" inputmode="decimal" required></td>
+                                <td><input type="number" value="{{$cNominal->profuTaconHembra}}" class="input" step="any" inputmode="decimal" required></td>
+                                <td><input type="number" value="{{$cNominal->profuTaconMacho}}" class="input" step="any" inputmode="decimal" required></td>
+                                <td><input type="number" value="{{$cNominal->simetriaHembra}}" class="input" step="any" inputmode="decimal" required></td>
+                                <td><input type="number" value="{{$cNominal->simetriaMacho}}" class="input" step="any" inputmode="decimal" required></td>
                                 <td><input type="number" value="{{$cNominal->anchoTacon}}" class="input" step="any" inputmode="decimal" required></td>
-                                <td><input type="number" value="{{$cNominal->barrenoLateralHembra}}" class="input-medio" step="any" inputmode="decimal" required></td>
-                                <td><input type="number" value="{{$cNominal->barrenoLateralMacho}}" class="input-medio" step="any" inputmode="decimal" required></td>
+                                <td><input type="number" value="{{$cNominal->barrenoLateralHembra}}" class="input" step="any" inputmode="decimal" required></td>
+                                <td><input type="number" value="{{$cNominal->barrenoLateralMacho}}" class="input" step="any" inputmode="decimal" required></td>
                                 <td><input type="number" value="{{$cNominal->alturaTaconInicial}}" class="input" step="any" inputmode="decimal" required></td>
                                 <td><input type="number" value="{{$cNominal->alturaTaconIntermedia}}" class="input" step="any" inputmode="decimal" required></td>
+                                <td></td>
                                 <td></td>
                             </tr>
                             <tr>

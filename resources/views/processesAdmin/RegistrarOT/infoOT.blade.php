@@ -67,8 +67,8 @@
                     ];
                     break;
                 case "Obturador":
-                    procesos = ['1ra y 2da Operación Equipo', 'Soldadura', 'Soldadura PTA'];
-                    procesosArray = ["operacionEquipo", "soldadura", "soldaduraPTA"];
+                    procesos = ['Soldadura', 'Soldadura PTA', '1ra y 2da Operación Equipo', ];
+                    procesosArray = [ "soldadura", "soldaduraPTA","operacionEquipo"];
                     break;
                 case "Fondo":
                     procesos = ['1ra y 2da Operación Equipo', 'Soldadura', 'Soldadura PTA'];
@@ -99,6 +99,7 @@
             seccion2.className = "seccion2";
 
             let contadorMaquinas = 0;
+            console.log(maquinas);
             for (let i = 0; i < procesos.length; i++) {
                 let div = document.createElement('div'); //Crear un div para cada checkbox
                 div.className = "checkbox-container"; //Clase del div

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('correcto')->nullable();
             $table->integer('estado')->default(0);
             $table->string('n_pieza');
+            $table->string('n_juego');
             $table->decimal('radiof_mordaza', 8, 3)->nullable();
             $table->decimal('radiof_mayor', 8, 3)->nullable();
             $table->decimal('radiof_sufridera', 8, 3)->nullable();

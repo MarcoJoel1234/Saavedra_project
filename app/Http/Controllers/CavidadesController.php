@@ -278,7 +278,7 @@ class CavidadesController extends Controller
             //Retornar la pieza siguiente
             $pzaUtilizar = Cavidades_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
             if ($pzaUtilizar == null) { //Si no existe una pieza para utilizar, se retorna a la vista de Cavidades
-                $piezasVacias = Cavidades_pza::where('correcto', null)->where('estado', 1)->where('id_proceso', $id_proceso->id)->get();
+                $piezasVacias = Cavidades_pza::where('error', null)->where('estado', 1)->where('id_proceso', $id_proceso->id)->get();
                 if (isset($piezasVacias) && $piezasVacias->count() > 0) { //Si existen piezas vacias, se busca una pieza para utilizar.
                     for ($i = 0; $i < count($piezasVacias); $i++) { //Recorro las piezas creadas.
                         $metaAnterior = Metas::where('id', $piezasVacias[$i]->id_meta)->first(); //Obtención de la meta anterior.

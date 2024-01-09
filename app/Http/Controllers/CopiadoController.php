@@ -295,7 +295,7 @@ class CopiadoController extends Controller
                     $piezaExistente->save(); //Guardado de datos en la tabla Pza_Copiado
 
                     //Actualiza el estado correcto de la pieza en cilindrado.
-                    if ($this->compararDatosPieza($piezaExistente, $cNominal, $tolerancia)[0] == 0 && $request->error_cilindrado[$i] == 0) {
+                    if ($this->compararDatosPieza($piezaExistente, $cNominal, $tolerancia)[0] == 0 && $request->error_cilindrado[$i] == "Ninguno") {
                         $piezaExistente->error_cilindrado = 'Maquinado';
                     } else if (($this->compararDatosPieza($piezaExistente, $cNominal, $tolerancia)[0] == 0 && $request->error_cilindrado[$i] == 'Fundicion') || ($this->compararDatosPieza($piezaExistente, $cNominal, $tolerancia)[0] == 1 && $request->error_cilindrado[$i] == 'Fundicion')) {
                         $piezaExistente->error_cilindrado = $request->error_cilindrado[$i];
@@ -303,7 +303,7 @@ class CopiadoController extends Controller
                         $piezaExistente->error_cilindrado = 'Ninguno';
                     }
 
-                    if ($this->compararDatosPieza($piezaExistente, $cNominal, $tolerancia)[1] == 0 && $request->error_cavidades[$i] == 0) {
+                    if ($this->compararDatosPieza($piezaExistente, $cNominal, $tolerancia)[1] == 0 && $request->error_cavidades[$i] == "Ninguno") {
                         $piezaExistente->error_cavidades = 'Maquinado';
                     } else if (($this->compararDatosPieza($piezaExistente, $cNominal, $tolerancia)[1] == 0 && $request->error_cavidades[$i] == 'Fundicion') || ($this->compararDatosPieza($piezaExistente, $cNominal, $tolerancia)[1] == 1 && $request->error_cavidades[$i] == 'Fundicion')) {
                         $piezaExistente->error_cavidades = $request->error_cavidades[$i];
@@ -344,7 +344,7 @@ class CopiadoController extends Controller
             //Retornar la pieza siguiente
             $pzaUtilizar = Copiado_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
             if ($pzaUtilizar == null) { //Si no existe una pieza para utilizar, se retorna a la vista de Copiado
-                $piezasVacias = Copiado_pza::where('correcto', null)->where('estado', 1)->where('id_proceso', $id_proceso->id)->get();
+                $piezasVacias = Copiado_pza::where('error_cilindrado', null)->where('estado', 1)->where('id_proceso', $id_proceso->id)->get();
                 if (isset($piezasVacias) && $piezasVacias->count() > 0) { //Si existen piezas vacias, se busca una pieza para utilizar.
                     for ($i = 0; $i < count($piezasVacias); $i++) { //Recorro las piezas creadas.
                         $metaAnterior = Metas::where('id', $piezasVacias[$i]->id_meta)->first(); //Obtención de la meta anterior.

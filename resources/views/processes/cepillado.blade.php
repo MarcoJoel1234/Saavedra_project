@@ -33,7 +33,11 @@
         }
     </style>
 @endif
-
+@isset($error)
+    <script>
+        alert("La maquina elegida esta ocupada, por favor elige otra");
+    </script>
+@endisset
 <body background="{{ asset('images/hola.jpg') }}">
     <div class="container">
         <!--Formulario en donde se guardara la meta de cepillado-->

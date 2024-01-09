@@ -12,13 +12,17 @@ use App\Models\Cepillado;
 use App\Models\Clase;
 use App\Models\Copiado;
 use App\Models\DesbasteExterior;
+use App\Models\Maquinas;
 use App\Models\Metas;
 use App\Models\Moldura;
+use App\Models\OffSet;
 use App\Models\Orden_trabajo;
+use App\Models\Palomas;
 use App\Models\Pieza;
 use App\Models\PrimeraOpeSoldadura;
 use App\Models\Procesos;
 use App\Models\PySOpeSoldadura;
+use App\Models\Rebajes;
 use App\Models\Rectificado;
 use App\Models\revCalificado;
 use App\Models\RevLaterales;
@@ -30,6 +34,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
+use Mockery\Undefined;
 use Symfony\Component\Console\Input\Input;
 
 class OTController extends Controller
@@ -244,7 +249,7 @@ class OTController extends Controller
             $clase->fecha_inicio = $request->fecha_inicio;
             $clase->hora_inicio = $request->hora_inicio;
             if ($request->clase != "Obturador") { //Si la clase no es obturador.
-                $clase->tamanio = $request->tamanio; //Actualizo
+                $clase->tamanio = $request->tamanio;
                 $clase->seccion = null;
             } else { //Si la clase es obturador.
                 $clase->seccion = $request->seccion;
@@ -306,7 +311,7 @@ class OTController extends Controller
                 break;
             case "Fondo":
             case "Obturador":
-                $procesos = array("operacionEquipo", "soldadura", "soldaduraPTA"); //Asigno los procesos.
+                $procesos = array("soldadura", "soldaduraPTA", "operacionEquipo"); //Asigno los procesos.
                 break;
             case "Corona":
                 $procesos = array("cepillado", "desbaste_exterior");
@@ -374,6 +379,16 @@ class OTController extends Controller
             } else { //Si se ingresa una meta ya existente
                 $clase = Clase::where('id_ot', $ot->id)->where('nombre', $request->clase)->first(); //Busco la clase.
             }
+            //Actualizar la maquina
+            $maquina = Maquinas::where('id_meta', $metaExistente->id)->first();
+            if (!$maquina) {
+                $maquina = new Maquinas();
+                $maquina->maquina = $request->maquina;
+                $maquina->id_meta = $metaExistente->id;
+                $maquina->proceso = $request->proceso;
+                $maquina->save();
+            }
+
             //Calculo de las horas trabajadas.
             $hrsTrabajadas = $this->calcularHrs($request->h_inicio, $request->h_termino);
             //Si se solicita editar la meta existente y se ingreso una contraseña.
@@ -414,6 +429,12 @@ class OTController extends Controller
                                 return view('processes.cavidades', ['band' => 3, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clase' => $clase]);
                             case "copiado":
                                 return view('processes.copiado', ['band' => 3, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clase' => $clase]);
+                            case "offSet":
+                                return view('processes.offSet', ['band' => 3, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clase' => $clase]);
+                            case "palomas":
+                                return view('processes.palomas', ['band' => 3, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clase' => $clase]);
+                            case "rebajes":
+                                return view('processes.rebajes', ['band' => 3, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clase' => $clase]);
                             case "pysOpeSoldadura":
                                 return view('processes.pysOpeSoldadura', ['band' => 3, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clase' => $clase]);
                         }
@@ -421,7 +442,7 @@ class OTController extends Controller
                 }
                 //Si se ingreso una contraseña incorrecta se retornan a las vistas correspondientes con los campos deshabilitados.
                 switch ($request->proceso) {
-                    case "Cepillado":
+                    case "cepillado":
                         return redirect()->route('cepilladoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
                     case "desbaste":
                         return redirect()->route('desbasteHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
@@ -449,6 +470,12 @@ class OTController extends Controller
                         return redirect()->route('cavidadesHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
                     case "copiado":
                         return redirect()->route('copiadoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
+                    case "offSet":
+                        return redirect()->route('offSetHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
+                    case "palomas":
+                        return redirect()->route('palomasHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
+                    case "rebajes":
+                        return redirect()->route('rebajesHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
                     case "pysOpeSoldadura":
                         return redirect()->route('1y2OpeSoldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase, 'operacion' => $request->operacion]);
                 }
@@ -461,6 +488,10 @@ class OTController extends Controller
                     $metaExistente->h_termino = $request->h_termino;
                     $metaExistente->maquina = $request->maquina;
                     $metaExistente->save();
+
+                    $metaMaquina = Maquinas::where('id_meta', $metaExistente->id)->first();
+                    $metaMaquina->maquina = $request->maquina;
+                    $metaMaquina->save();
 
                     //Se retornan a sus correspondientes vistas con los campos habilitados para editar la segunda parte de la meta.
                     switch ($request->proceso) {
@@ -505,10 +536,19 @@ class OTController extends Controller
                             return view('processes.revAcabadosMolde', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]); //Retorno la vista de acabado molde
                         case 'cavidades':
                             $clases = $this->ClaseEncontradas($ot->id, "cavidades"); //Se obtienen las clases disponibles en cavidades
-                            return view('processes.cavidades', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]); //Retorno la vista de acabado molde
+                            return view('processes.cavidades', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]); //Retorno la vista de cavidades
                         case 'copiado':
                             $clases = $this->ClaseEncontradas($ot->id, "copiado"); //Se obtienen las clases disponibles en copiado
-                            return view('processes.copiado', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]); //Retorno la vista de acabado molde
+                            return view('processes.copiado', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]); //Retorno la vista de copiado
+                        case 'offSet':
+                            $clases = $this->ClaseEncontradas($ot->id, "offSet"); //Se obtienen las clases disponibles en OffSet
+                            return view('processes.offSet', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]); //Retorno la vista deOffSet
+                        case 'palomas':
+                            $clases = $this->ClaseEncontradas($ot->id, "palomas"); //Se obtienen las clases disponibles en Palomas
+                            return view('processes.palomas', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]); //Retorno la vista deOffSet
+                        case 'rebajes':
+                            $clases = $this->ClaseEncontradas($ot->id, "rebajes"); //Se obtienen las clases disponibles en Rebajes
+                            return view('processes.rebajes', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]); //Retorno la vista deOffSet
                         case "pysOpeSoldadura": //Se obtienen las clases disponibles en 1ra y 2da operación de soldadura.
                             $clases = $this->ClaseEncontradas($ot->id, "operacionEquipo"); //Se obtienen las clases disponibles en 1 y 2 operacion equipo
                             return view('processes.pysOpeSoldadura', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]);
@@ -568,7 +608,7 @@ class OTController extends Controller
                         if (isset($barrenoManiobra)) {
                             return redirect()->route('barrenoManiobraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
                         }
-                        //Retorno la vista de desbaste.
+                        //Retorno la vista de Barreno Maniobra.
                         return redirect()->route('barrenoManiobraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case "segundaOpeSoldadura":
                         $id = "2opeSoldadura_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Segunda Operación de Soldadura.
@@ -576,7 +616,7 @@ class OTController extends Controller
                         if (isset($segundaOpeSoldadura)) {
                             return redirect()->route('segundaOpeSoldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
                         }
-                        //Retorno la vista de desbaste.
+                        //Retorno la vista de Segunda Operación de Soldadura.
                         return redirect()->route('segundaOpeSoldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
 
                     case "soldadura":
@@ -585,7 +625,7 @@ class OTController extends Controller
                         if (isset($soldadura)) {
                             return redirect()->route('soldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
                         }
-                        //Retorno la vista de desbaste.
+                        //Retorno la vista de Soldadura.
                         return redirect()->route('soldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case "soldaduraPTA":
                         $id = "soldaduraPTA_" . $request->clases . "_" . $ot->id; //Creación de id para tabla SoldaduraPTA
@@ -593,7 +633,7 @@ class OTController extends Controller
                         if (isset($soldaduraPTA)) {
                             return redirect()->route('soldaduraPTAHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
                         }
-                        //Retorno la vista de desbaste.
+                        //Retorno la vista de SoldaduraPTA.
                         return redirect()->route('soldaduraPTAHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case "rectificado":
                         $id = "rectificado_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Rectificado
@@ -601,57 +641,86 @@ class OTController extends Controller
                         if (isset($rectificado)) {
                             return redirect()->route('rectificadoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
                         }
-                        //Retorno la vista de desbaste.
+                        //Retorno la vista de Rectificado.
                         return redirect()->route('rectificadoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case "asentado":
-                        $id = "asentado_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Rectificado
+                        $id = "asentado_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Asentado
                         $rectificado = Asentado::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
                         if (isset($rectificado)) {
                             return redirect()->route('asentadoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
                         }
-                        //Retorno la vista de desbaste.
+                        //Retorno la vista de Asentado.
                         return redirect()->route('asentadoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case "revCalificado":
-                        $id = "revCalificado_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Rectificado
+                        $id = "revCalificado_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Revisión Calificado
                         $calificado = revCalificado::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
                         if (isset($calificado)) {
-                            return redirect()->route('calificadoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de desbaste.
+                            return redirect()->route('calificadoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de Revisión Calificado.
                         }
+                        //Retorno la vista de Revisión Calificado.
                         return redirect()->route('calificadoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case "acabadoBombillo":
-                        $id = "acabadoBombillo_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Rectificado
+                        $id = "acabadoBombillo_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Acabado Bombillo
                         $acabadoBombillo = AcabadoBombilo::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
                         if (isset($acabadoBombillo)) {
-                            return redirect()->route('acabadoBombilloHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de desbaste.
+                            return redirect()->route('acabadoBombilloHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de Acabado Bombillo.
                         }
+                        //Retorno la vista de Acabado Bombillo.
                         return redirect()->route('acabadoBombilloHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case "acabadoMolde":
-                        $id = "acabadoMolde_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Rectificado
+                        $id = "acabadoMolde_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Acabado Molde
                         $acabadoMolde = AcabadoMolde::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
                         if (isset($acabadoMolde)) {
-                            return redirect()->route('acabadoMoldeHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de desbaste.
+                            return redirect()->route('acabadoMoldeHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de Acabado Molde.
                         }
+                        //Retorno la vista de Acabado Molde.
                         return redirect()->route('acabadoMoldeHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case "cavidades":
-                        $id = "cavidades_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Rectificado
+                        $id = "cavidades_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Cavidades
                         $cavidades = Cavidades::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
                         if (isset($cavidades)) {
-                            return redirect()->route('cavidadesHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de desbaste.
+                            return redirect()->route('cavidadesHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de Cavidades.
                         }
+                        //Retorno la vista de Cavidades.
                         return redirect()->route('cavidadesHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case "copiado":
                         $id = "copiado_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Copiado
                         $copiado = Copiado::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
                         if (isset($copiado)) {
-                            return redirect()->route('copiadoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de copiado
+                            return redirect()->route('copiadoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de Copiado.
                         }
+                        //Retorno la vista de Copiado.
                         return redirect()->route('copiadoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
+                    case "offSet":
+                        $id = "offSet_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Offset
+                        $offSet = OffSet::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
+                        if (isset($offSet)) {
+                            return redirect()->route('offSetHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de OffSet
+                        }
+                        //Retorno la vista de OffSet.
+                        return redirect()->route('offSetHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
+                    case "palomas":
+                        $id = "palomas_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Palomas
+                        $palomas = Palomas::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
+                        if (isset($palomas)) {
+                            return redirect()->route('palomasHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de Palomas
+                        }
+                        //Retorno la vista de Palomas 
+                        return redirect()->route('palomasHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
+                    case "rebajes":
+                        $id = "rebajes_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Rebajes
+                        $rebajes = Rebajes::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
+                        if (isset($rebajes)) {
+                            return redirect()->route('rebajesHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de Rebajes
+                        }
+                        //Retorno la vista de Rebajes
+                        return redirect()->route('rebajesHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case "pysOpeSoldadura":
                         $pysOpeSoldadura = PySOpeSoldadura::where('id_clase', $request->clases)->where('id_ot', $ot->id)->where('operacion', $request->operacion)->first(); //Busco la OT que se quiere editar.
                         if (isset($pysOpeSoldadura)) {
                             return redirect()->route('1y2OpeSoldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase, 'operacion' => $request->operacion]);
                         }
-                        // //Retorno la vista de desbaste.
+                        // //Retorno la vista de 1ra y 2da operación de soldadura
                         return redirect()->route('1y2OpeSoldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'operacion' => $request->operacion]);
                 }
             } else {
@@ -663,6 +732,7 @@ class OTController extends Controller
                         if (isset($cepillado)) {
                             return redirect()->route('cepilladoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]); //Retorno la vista de cepillado.
                         }
+                        //Retorno la vista de cepillado.
                         return view('processes.cepillado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $metaExistente, 'clase' => $clase]); //Retorno la vista de cepillado.
                     case "desbaste":
                         $id = "desbaste_" . $clase->nombre . "_" . $ot->id; //Creación de id para tabla Desbaste.
@@ -670,111 +740,136 @@ class OTController extends Controller
                         if (isset($desbaste)) {
                             return redirect()->route('desbasteHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                         }
-                        return view('desbaste.cepillado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $metaExistente, 'clase' => $clase]); //Retorno la vista de cepillado.
+                        //Retorno la vista de desbaste.
+                        return view('desbaste.cepillado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $metaExistente, 'clase' => $clase]); //Retorno la vista de desbaste.
                     case "revLaterales":
                         $id = "revLaterales_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Revision Laterales.
                         $revLaterales = RevLaterales::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
                         if (isset($revLaterales)) {
-                            return redirect()->route('revLateralesHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
+                            return redirect()->route('revLateralesHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de Revision Laterales.
                         }
-                        //Retorno la vista de desbaste.
+                        //Retorno la vista de Revision Laterales.
                         return redirect()->route('revLateralesHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case "primeraOpeSoldadura": //Creación de id para la tabla de primera operación de Primera Operación de Soldadura.
                         $id = "1opeSoldadura_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Primera Operación de Soldadura.
                         $primeraOpeSoldadura = PrimeraOpeSoldadura::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
                         if (isset($primeraOpeSoldadura)) { //Si existe la OT.
-                            return redirect()->route('primeraOpeSoldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
+                            return redirect()->route('primeraOpeSoldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); ////Retorno la vista de Primera Operación de Soldadura.
                         }
-                        //Retorno la vista de desbaste.
+                        //Retorno la vista de Primera Operación de Soldadura.
                         return redirect()->route('primeraOpeSoldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case "barrenoManiobra":
                         $id = "barrenoManiobra_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Barreno Maniobra.
                         $barrenoManiobra = BarrenoManiobra::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
                         if (isset($barrenoManiobra)) { //Si existe la OT.
-                            return redirect()->route('barrenoManiobraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
+                            return redirect()->route('barrenoManiobraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de Barreno Maniobra.
                         }
-                        //Retorno la vista de desbaste.
+                        //Retorno la vista de Barreno Maniobra.
                         return redirect()->route('barrenoManiobraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case "segundaOpeSoldadura":
                         $id = "2opeSoldadura_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Segunda Operación de Soldadura
                         $segundaOpeSoldadura = SegundaOpeSoldadura::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
                         if (isset($segundaOpeSoldadura)) { //Si existe la OT.
-                            return redirect()->route('segundaOpeSoldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de cepillado
+                            return redirect()->route('segundaOpeSoldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de Segunda Operación de Soldadura
                         }
-                        //Retorno la vista de desbaste.
+                        //Retorno la vista de Segunda Operación de Soldadura
                         return redirect()->route('segundaOpeSoldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case "soldadura":
                         $id = "soldadura_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Soldadura
                         $soldadura = Soldadura::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
                         if (isset($soldadura)) { //Si existe la OT.
-                            return redirect()->route('soldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de cepillado
+                            return redirect()->route('soldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de Soldadura
                         }
-                        //Retorno la vista de desbaste.
+                        //Retorno la vista de Soldadura
                         return redirect()->route('soldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case "soldaduraPTA":
                         $id = "soldaduraPTA_" . $request->clases . "_" . $ot->id; //Creación de id para tabla SoldaduraPTA
                         $soldaduraPTA = SoldaduraPTA::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
                         if (isset($soldaduraPTA)) { //Si existe la OT.
-                            return redirect()->route('soldaduraPTAHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de cepillado
+                            return redirect()->route('soldaduraPTAHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de SoldaduraPTA
                         }
-                        //Retorno la vista de desbaste.
+                        //Retorno la vista de SoldaduraPTA
                         return redirect()->route('soldaduraPTAHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case "rectificado":
                         $id = "rectificado_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Rectificado
                         $rectificado = Rectificado::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
                         if (isset($rectificado)) { //Si existe la OT.
-                            return redirect()->route('rectificadoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de cepillado
+                            return redirect()->route('rectificadoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de Rectificado
                         }
-                        //Retorno la vista de desbaste.
+                        //Retorno la vista de Rectificado
                         return redirect()->route('rectificadoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case "asentado":
-                        $id = "asentado_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Rectificado
+                        $id = "asentado_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Asentado
                         $asentado = Asentado::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
                         if (isset($asentado)) { //Si existe la OT.
-                            return redirect()->route('asentadoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de cepillado
+                            return redirect()->route('asentadoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de Asentado
                         }
-                        //Retorno la vista de desbaste.
+                        //Retorno la vista de Asentado
                         return redirect()->route('asentadoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case 'revCalificado':
-                        $id = "revCalificado_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Rectificado
+                        $id = "revCalificado_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Revisión Calificado
                         $calificado = revCalificado::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
                         if (isset($calificado)) { //Si existe la OT.
-                            return redirect()->route('calificadoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de cepillado
+                            return redirect()->route('calificadoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de Revisión Calificado
                         }
-                        //Retorno la vista de desbaste.
+                        //Retorno la vista de Revisión Calificado
                         return redirect()->route('calificadoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case 'acabadoBombillo':
-                        $id = "acabadoBombillo_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Rectificado
+                        $id = "acabadoBombillo_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Acabado Bombillo
                         $acabadoBombillo = AcabadoBombilo::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
                         if (isset($acabadoBombillo)) { //Si existe la OT.
-                            return redirect()->route('acabadoBombilloHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de cepillado
+                            return redirect()->route('acabadoBombilloHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de Acabado Bombillo
                         }
-                        //Retorno la vista de desbaste.
+                        //Retorno la vista de Acabado Bombillo
                         return redirect()->route('acabadoBombilloHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case 'acabadoMolde':
-                        $id = "acabadoMolde_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Rectificado
+                        $id = "acabadoMolde_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Acabado Molde
                         $acabadoMolde = AcabadoMolde::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
                         if (isset($acabadoMolde)) { //Si existe la OT.
-                            return redirect()->route('acabadoMoldeHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de cepillado
+                            return redirect()->route('acabadoMoldeHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de Acabado Molde
                         }
-                        //Retorno la vista de desbaste.
+                        //Retorno la vista de Acabado Molde
                         return redirect()->route('acabadoMoldeHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case 'cavidades':
-                        $id = "cavidades_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Rectificado
+                        $id = "cavidades_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Cavidades
                         $cavidades = Cavidades::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
                         if (isset($cavidades)) { //Si existe la OT.
-                            return redirect()->route('cavidadesHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de cepillado
+                            return redirect()->route('cavidadesHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de Cavidades
                         }
-                        //Retorno la vista de desbaste.
+                        //Retorno la vista de Cavidades
                         return redirect()->route('cavidadesHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case 'copiado':
-                        $id = "copiado_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Rectificado
+                        $id = "copiado_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Copiado
                         $copiado = Copiado::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
                         if (isset($copiado)) { //Si existe la OT.
-                            return redirect()->route('copiadoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de cepillado
+                            return redirect()->route('copiadoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de Copiado
                         }
-                        //Retorno la vista de desbaste.
+                        //Retorno la vista de Copiado
                         return redirect()->route('copiadoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
+                    case 'offSet':
+                        $id = "offSet_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Offset
+                        $offSet = OffSet::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
+                        if (isset($offSet)) { //Si existe la OT.
+                            return redirect()->route('offSetHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de OffSet
+                        }
+                        //Retorno la vista de OffSet
+                        return redirect()->route('offSetHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
+                    case 'palomas':
+                        $id = "palomas_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Palomas
+                        $palomas = Palomas::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
+                        if (isset($palomas)) { //Si existe la OT.
+                            return redirect()->route('palomasHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de Palomas
+                        }
+                        //Retorno la vista de Palomas
+                        return redirect()->route('palomasHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
+                    case 'rebajes':
+                        $id = "rebajes_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Rebajes
+                        $rebajes = Rebajes::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
+                        if (isset($rebajes)) { //Si existe la OT.
+                            return redirect()->route('rebajesHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de Rebajes
+                        }
+                        //Retorno la vista de Rebajes
+                        return redirect()->route('rebajesHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case "pysOpeSoldadura": //Creación de id para la tabla de Primera Operación y Segunda Operación de Soldadura.
                         echo $proceso = PySOpeSoldadura::find($metaExistente->id_proceso); //Busco la OT que se requiere editar
                         if (isset($proceso)) {
@@ -784,66 +879,134 @@ class OTController extends Controller
             }
         } else {
             //Si no existe la meta ingresada se crea una nueva.
-            $meta = new Metas();
-            $meta->id_ot = $request->ot;
-            $meta->id_usuario = $request->id_usuario;
-            $meta->fecha = $request->fecha;
-            $meta->h_inicio = $request->h_inicio;
-            $meta->h_termino = $request->h_termino;
-            $meta->maquina = $request->maquina;
-            $meta->proceso = $request->proceso;
-            $meta->save();
+            //Se verifica que la maquina no este ocupada
+            $maquinaOcupada = Maquinas::where('maquina', $request->maquina)->where('proceso', $request->proceso)->get();
+            $var = 0;
+            foreach ($maquinaOcupada as $maquina) {
+                $metaMaquina = Metas::find($maquina->id_meta);
+                if ($metaMaquina->id_ot == $request->ot && $maquina->proceso == $request->proceso) {
+                    $var = 1;
+                    break;
+                }
+            }
+            if ($var == 0) {
+                $meta = new Metas();
+                $meta->id_ot = $request->ot;
+                $meta->id_usuario = $request->id_usuario;
+                $meta->fecha = $request->fecha;
+                $meta->h_inicio = $request->h_inicio;
+                $meta->h_termino = $request->h_termino;
+                $meta->maquina = $request->maquina;
+                $meta->proceso = $request->proceso;
+                $meta->save();
 
-            $moldura = Moldura::find($ot->id_moldura);
-            switch ($request->proceso) {
-                case "cepillado":
-                    $clases = $this->ClaseEncontradas($meta->id_ot, "cepillado"); //Obtengo las clases que no son nulas.
-                    return view('processes.cepillado', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de cepillado.
-                case "desbaste":
-                    $clases = $this->ClaseEncontradas($meta->id_ot, "desbaste_exterior"); //Obtengo las clases que no son nulas.
-                    return view('processes.desbaste', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de desbaste.
-                case "revLaterales":
-                    $clases = $this->ClaseEncontradas($meta->id_ot, "revision_laterales"); //Obtengo las clases que no son nulas.
-                    return view('processes.rev-laterales', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de revLaterales.
-                case "primeraOpeSoldadura":
-                    $clases = $this->ClaseEncontradas($meta->id_ot, "pOperacion"); //Obtengo las clases que no son nulas.
-                    return view('processes.primeraOpeSoldadura', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de primeraOpeSoldadura.
-                case "barrenoManiobra":
-                    $clases = $this->ClaseEncontradas($meta->id_ot, "barreno_maniobra"); //Obtengo las clases que no son nulas.
-                    return view('processes.barrenoManiobra', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de barrenoManiobra.
-                case "segundaOpeSoldadura":
-                    $clases = $this->ClaseEncontradas($meta->id_ot, "sOperacion"); //Obtengo las clases que no son nulas.
-                    return view('processes.segundaOpeSoldadura', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de segundaOpeSoldadura.
-                case "soldadura":
-                    $clases = $this->ClaseEncontradas($meta->id_ot, "soldadura"); //Obtengo las clases que no son nulas.
-                    return view('processes.soldadura', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de soldadura.
-                case "soldaduraPTA":
-                    $clases = $this->ClaseEncontradas($meta->id_ot, "soldaduraPTA"); //Obtengo las clases que no son nulas.
-                    return view('processes.soldaduraPTA', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de soldaduraPTA.
-                case "rectificado":
-                    $clases = $this->ClaseEncontradas($meta->id_ot, "rectificado"); //Obtengo las clases que no son nulas.
-                    return view('processes.rectificado', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de rectificado.
-                case "asentado":
-                    $clases = $this->ClaseEncontradas($meta->id_ot, "rectificado"); //Obtengo las clases que no son nulas.
-                    return view('processes.asentado', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de asentado1
-                case 'revCalificado':
-                    $clases = $this->ClaseEncontradas($meta->id_ot, "calificado"); //Obtengo las clases que no son nulas.
-                    return view('processes.revCalificado', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]);
-                case 'acabadoBombillo':
-                    $clases = $this->ClaseEncontradas($meta->id_ot, "acabadoBombillo"); //Obtengo las clases que no son nulas.
-                    return view('processes.revAcabadosBombillo', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]);
-                case 'acabadoMolde':
-                    $clases = $this->ClaseEncontradas($meta->id_ot, "acabadoMolde"); //Obtengo las clases que no son nulas.
-                    return view('processes.revAcabadosMolde', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]);
-                case 'cavidades':
-                    $clases = $this->ClaseEncontradas($meta->id_ot, "cavidades"); //Obtengo las clases que no son nulas.
-                    return view('processes.cavidades', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]);
-                case 'copiado':
-                    $clases = $this->ClaseEncontradas($meta->id_ot, "copiado"); //Obtengo las clases que no son nulas.
-                    return view('processes.copiado', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]);
-                case "pysOpeSoldadura":
-                    $clases = $this->ClaseEncontradas($meta->id_ot, "operacionEquipo"); //Obtengo las clases que no son nulas.
-                    return view('processes.pysOpeSoldadura', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de pysOpeSoldadura.
+                $maquina = new Maquinas();
+                $maquina->id_meta = $meta->id;
+                $maquina->maquina = $request->maquina;
+                $maquina->proceso = $request->proceso;
+                $maquina->save();
+
+                $moldura = Moldura::find($ot->id_moldura);
+                switch ($request->proceso) {
+                    case "cepillado":
+                        $clases = $this->ClaseEncontradas($meta->id_ot, "cepillado"); //Obtengo las clases que no son nulas.
+                        return view('processes.cepillado', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de cepillado.
+                    case "desbaste":
+                        $clases = $this->ClaseEncontradas($meta->id_ot, "desbaste_exterior"); //Obtengo las clases que no son nulas.
+                        return view('processes.desbaste', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de desbaste.
+                    case "revLaterales":
+                        $clases = $this->ClaseEncontradas($meta->id_ot, "revision_laterales"); //Obtengo las clases que no son nulas.
+                        return view('processes.rev-laterales', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de revLaterales.
+                    case "primeraOpeSoldadura":
+                        $clases = $this->ClaseEncontradas($meta->id_ot, "pOperacion"); //Obtengo las clases que no son nulas.
+                        return view('processes.primeraOpeSoldadura', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de primeraOpeSoldadura.
+                    case "barrenoManiobra":
+                        $clases = $this->ClaseEncontradas($meta->id_ot, "barreno_maniobra"); //Obtengo las clases que no son nulas.
+                        return view('processes.barrenoManiobra', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de barrenoManiobra.
+                    case "segundaOpeSoldadura":
+                        $clases = $this->ClaseEncontradas($meta->id_ot, "sOperacion"); //Obtengo las clases que no son nulas.
+                        return view('processes.segundaOpeSoldadura', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de segundaOpeSoldadura.
+                    case "soldadura":
+                        $clases = $this->ClaseEncontradas($meta->id_ot, "soldadura"); //Obtengo las clases que no son nulas.
+                        return view('processes.soldadura', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de soldadura.
+                    case "soldaduraPTA":
+                        $clases = $this->ClaseEncontradas($meta->id_ot, "soldaduraPTA"); //Obtengo las clases que no son nulas.
+                        return view('processes.soldaduraPTA', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de soldaduraPTA.
+                    case "rectificado":
+                        $clases = $this->ClaseEncontradas($meta->id_ot, "rectificado"); //Obtengo las clases que no son nulas.
+                        return view('processes.rectificado', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de rectificado.
+                    case "asentado":
+                        $clases = $this->ClaseEncontradas($meta->id_ot, "rectificado"); //Obtengo las clases que no son nulas.
+                        return view('processes.asentado', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de asentado
+                    case 'revCalificado':
+                        $clases = $this->ClaseEncontradas($meta->id_ot, "calificado"); //Obtengo las clases que no son nulas.
+                        return view('processes.revCalificado', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de revCalificado.
+                    case 'acabadoBombillo':
+                        $clases = $this->ClaseEncontradas($meta->id_ot, "acabadoBombillo"); //Obtengo las clases que no son nulas.
+                        return view('processes.revAcabadosBombillo', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de acabadoBombillo.
+                    case 'acabadoMolde':
+                        $clases = $this->ClaseEncontradas($meta->id_ot, "acabadoMolde"); //Obtengo las clases que no son nulas.
+                        return view('processes.revAcabadosMolde', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista acabadoMolde.
+                    case 'cavidades':
+                        $clases = $this->ClaseEncontradas($meta->id_ot, "cavidades"); //Obtengo las clases que no son nulas.
+                        return view('processes.cavidades', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de cavidades.
+                    case 'copiado':
+                        $clases = $this->ClaseEncontradas($meta->id_ot, "copiado"); //Obtengo las clases que no son nulas.
+                        return view('processes.copiado', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de copiado.
+                    case 'offSet':
+                        $clases = $this->ClaseEncontradas($meta->id_ot, "offSet"); //Obtengo las clases que no son nulas.
+                        return view('processes.offSet', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de OffSet.
+                    case 'palomas':
+                        $clases = $this->ClaseEncontradas($meta->id_ot, "palomas"); //Obtengo las clases que no son nulas.
+                        return view('processes.palomas', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorn la vista de Palomas.
+                    case 'rebajes':
+                        $clases = $this->ClaseEncontradas($meta->id_ot, "rebajes"); //Obtengo las clases que no son nulas.
+                        return view('processes.rebajes', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de Rebajes
+                    case "pysOpeSoldadura":
+                        $clases = $this->ClaseEncontradas($meta->id_ot, "operacionEquipo"); //Obtengo las clases que no son nulas.
+                        return view('processes.pysOpeSoldadura', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de pysOpeSoldadura.
+                }
+            } else {
+                switch ($request->proceso) {
+                    case "cepillado":
+                        return redirect()->route('cepillado', ['error' => 1]);
+                    case 'desbaste':
+                        return view('processes.desbaste', ['error' => 1]);
+                    case 'revLaterales':
+                        return view('processes.rev-laterales', ['error' => 1]);
+                    case 'primeraOpeSoldadura':
+                        return view('processes.primeraOpeSoldadura', ['error' => 1]);
+                    case 'barrenoManiobra':
+                        return view('processes.barrenoManiobra', ['error' => 1]);
+                    case 'segundaOpeSoldadura':
+                        return view('processes.segundaOpeSoldadura', ['error' => 1]);
+                    case 'soldadura':
+                        return view('processes.soldadura', ['error' => 1]);
+                    case 'soldaduraPTA':
+                        return view('processes.soldaduraPTA', ['error' => 1]);
+                    case 'rectificado':
+                        return view('processes.rectificado', ['error' => 1]);
+                    case 'asentado':
+                        return view('processes.asentado', ['error' => 1]);
+                    case 'revCalificado':
+                        return view('processes.revCalificado', ['error' => 1]);
+                    case 'acabadoBombillo':
+                        return view('processes.revAcabadosBombillo', ['error' => 1]);
+                    case 'acabadoMolde':
+                        return view('processes.revAcabadosMolde', ['error' => 1]);
+                    case 'cavidades':
+                        return view('processes.cavidades', ['error' => 1]);
+                    case 'copiado':
+                        return view('processes.copiado', ['error' => 1]);
+                    case 'offSet':
+                        return view('processes.offSet', ['error' => 1]);
+                    case 'palomas':
+                        return view('processes.palomas', ['error' => 1]);
+                    case 'rebajes':
+                        return view('processes.rebajes', ['error' => 1]);
+                    case 'pysOpeSoldadura':
+                        return view('processes.pysOpeSoldadura', ['error' => 1]);
+                }
             }
         }
     }
@@ -886,63 +1049,73 @@ class OTController extends Controller
         $clase = Clase::where('id_ot', $ot->id)->where('nombre', $reqClase)->first(); //Busco la clase.
         $meta->id_clase = $clase->id; //Asigno los datos de la OT.
         switch ($proceso) {
+                //Asignacion de tiempos estandar.
             case "cepillado":
-                $meta->t_estandar = $this->asignarMetas($clase, 52, 60, 90, 53, 64, 120,  0, 0, 0); //Asigno el tiempo estandar.
+                $meta->t_estandar = $this->asignarMetas($clase, 52, 60, 90, 53, 64, 120,  0, 0, 0);
                 break;
             case "desbaste":
-                $meta->t_estandar = $this->asignarMetas($clase, 26, 30, 35, 26, 30, 35,  0, 0, 0); //Asigno el tiempo estandar.
+                $meta->t_estandar = $this->asignarMetas($clase, 26, 30, 35, 26, 30, 35,  0, 0, 0);
                 break;
             case "revLaterales":
-                $meta->t_estandar = $this->asignarMetas($clase, 20, 24, 26, 20, 24, 26,  0, 0, 0); //Asigno el tiempo estandar.
+                $meta->t_estandar = $this->asignarMetas($clase, 20, 24, 26, 20, 24, 26,  0, 0, 0);
                 break;
             case "primeraOpeSoldadura":
-                $meta->t_estandar = $this->asignarMetas($clase, 24, 28, 30, 20, 24, 26,  0, 0, 0); //Asigno el tiempo estandar.
+                $meta->t_estandar = $this->asignarMetas($clase, 24, 28, 30, 20, 24, 26,  0, 0, 0);
                 break;
             case "barrenoManiobra":
-                $meta->t_estandar = $this->asignarMetas($clase, 15, 15, 15, 15, 15, 15,  0, 0, 0); //Asigno el tiempo estandar.
+                $meta->t_estandar = $this->asignarMetas($clase, 15, 15, 15, 15, 15, 15,  0, 0, 0);
                 break;
             case "segundaOpeSoldadura":
-                $meta->t_estandar = $this->asignarMetas($clase, 24, 28, 28, 24, 28, 30,  0, 0, 0); //Asigno el tiempo estandar.
+                $meta->t_estandar = $this->asignarMetas($clase, 24, 28, 28, 24, 28, 30,  0, 0, 0);
                 break;
             case "soldadura":
-                $meta->t_estandar = $this->asignarMetas($clase, 24, 30, 34,  24, 30, 70,  0, 0, 0); //Asigno el tiempo estandar.
+                $meta->t_estandar = $this->asignarMetas($clase, 24, 30, 34,  24, 30, 70,  0, 0, 0);
                 break;
             case "soldaduraPTA":
-                $meta->t_estandar = $this->asignarMetas($clase, 24, 30, 34,  24, 30, 70,  0, 0, 0); //Asigno el tiempo estandar.
+                $meta->t_estandar = $this->asignarMetas($clase, 24, 30, 34,  24, 30, 70,  0, 0, 0);
                 break;
             case "rectificado":
-                $meta->t_estandar = $this->asignarMetas($clase, 12, 13, 14,  12, 13, 20,  0, 0, 0); //Asigno el tiempo estandar.
+                $meta->t_estandar = $this->asignarMetas($clase, 12, 13, 14,  12, 13, 20,  0, 0, 0);
                 break;
             case "asentado":
-                $meta->t_estandar = $this->asignarMetas($clase, 20, 24, 30,  20, 24, 30,  0, 0, 0); //Asigno el tiempo estandar.
+                $meta->t_estandar = $this->asignarMetas($clase, 20, 24, 30,  20, 24, 30,  0, 0, 0);
                 break;
             case 'revCalificado':
-                $meta->t_estandar = $this->asignarMetas($clase, 22, 24, 26,  22, 24, 26,  0, 0, 0); //Asigno el tiempo estandar.
+                $meta->t_estandar = $this->asignarMetas($clase, 22, 24, 26,  22, 24, 26,  0, 0, 0);
                 break;
             case 'acabadoBombillo':
-                $meta->t_estandar = $this->asignarMetas($clase, 25, 27, 28,  0, 0, 0,  0, 0, 0); //Asigno el tiempo estandar.
+                $meta->t_estandar = $this->asignarMetas($clase, 25, 27, 28,  0, 0, 0,  0, 0, 0);
                 break;
             case 'acabadoMolde':
-                $meta->t_estandar = $this->asignarMetas($clase, 0, 0, 0,  24, 26, 30,  0, 0, 0); //Asigno el tiempo estandar.
+                $meta->t_estandar = $this->asignarMetas($clase, 0, 0, 0,  24, 26, 30,  0, 0, 0);
                 break;
             case 'cavidades':
-                $meta->t_estandar = $this->asignarMetas($clase, 0, 0, 0,  0, 0, 0,  0, 0, 0); //Asigno el tiempo estandar.
+                $meta->t_estandar = $this->asignarMetas($clase, 0, 0, 0,  0, 0, 0,  0, 0, 0);
                 break;
             case 'copiado':
-                $meta->t_estandar = $this->asignarMetas($clase, 27, 29, 0,  0, 0, 0,  0, 0, 0); //Asigno el tiempo estandar.
+                $meta->t_estandar = $this->asignarMetas($clase, 27, 29, 0,  0, 0, 0,  0, 0, 0);
+                break;
+            case 'offSet':
+                $meta->t_estandar = $this->asignarMetas($clase, 16, 16, 0,  0, 0, 0,  0, 0, 0);
+                break;
+            case 'palomas':
+                $meta->t_estandar = $this->asignarMetas($clase, 12, 12, 0,  0, 0, 0,  0, 0, 0);
+                break;
+            case 'rebajes':
+                $meta->t_estandar = $this->asignarMetas($clase, 20, 20, 0,  0, 0, 0,  0, 0, 0);
                 break;
             case "pysOpeSoldadura":
-                $meta->t_estandar = $this->asignarMetas($clase, 20, 20, 20,  24, 24, 24,  0, 0, 0); //Asigno el tiempo estandar.
+                $meta->t_estandar = $this->asignarMetas($clase, 20, 20, 20,  24, 24, 24,  0, 0, 0);
                 break;
         }
         if ($meta->t_estandar != 0) {
-            $meta->meta = $this->calcularMeta($meta->t_estandar, $hrsTrabajadas); //Calculo la meta.
+            $meta->meta = $this->calcularMeta($meta->t_estandar, $hrsTrabajadas); //Se calcula la meta.
         } else {
             $meta->meta = 0;
         }
 
-        $meta->save(); //Guardo los cambios.
-        return $clase; //Retorno la clase.
+        $meta->save();
+        return $clase; //Se retorna la clase.
     }
     public function asignarMetas($clase, $b1, $b2, $b3,  $m1, $m2, $m3,  $c1, $c2, $c3) //Función para asignar los tiempos estándar.
     {

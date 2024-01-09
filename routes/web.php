@@ -14,12 +14,15 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\MolduraController;
+use App\Http\Controllers\OffSetController;
 use App\Http\Controllers\OTController;
+use App\Http\Controllers\PalomasController;
 use App\Http\Controllers\PrimeraOpeSoldaduraController;
 use App\Http\Controllers\ProcesosController;
 use App\Http\Controllers\ProgresoProcesosController;
 use App\Http\Controllers\PySOpeSoldaduraController;
 use App\Http\Controllers\PzasGeneralesController;
+use App\Http\Controllers\RebajesController;
 use App\Http\Controllers\RecoverPasswordController;
 use App\Http\Controllers\RectificadoController;
 use App\Http\Controllers\RegisterController;
@@ -93,18 +96,6 @@ Route::get('/clases/{ot}', [OTController::class, 'mostrarClases'])->name('mostra
 //Guardar datos de HeaderProcess
 Route::post('/saveHeader', [OTController::class, 'saveHeader'])->name('saveHeader');
 
-//Vista cepillado
-Route::get('/cepillado', [CepilladoController::class, 'show'])->name('cepillado');
-
-//Guardar encabezado de la tabla cepillado
-Route::post('/cepilladoHeader', [CepilladoController::class, 'storeheaderTable'])->name('cepilladoHeader');
-
-//Guardar encabezado de la tabla cepillado
-Route::get('/cepilladoHeader', [CepilladoController::class, 'storeheaderTable'])->name('cepilladoHeaderGet');
-
-//Ruta para editar datos de la tabla cepillado
-Route::post('/editCepillado', [CepilladoController::class, 'edit'])->name('editCepillado');
-
 //Ruta para la interfaz de los procesos para editar las cotas nominales y tolerancias
 Route::get('/procesos', [ProcesosController::class, 'show'])->name('procesos');
 //Ruta para la interfaz de los procesos para editar las cotas nominales y tolerancias
@@ -125,6 +116,15 @@ Route::post('/searchPiezas', [PzasGeneralesController::class, 'search'])->name('
 Route::get('/piezasMaquina', [PzasGeneralesController::class, 'showVistaMaquina'])->name('vistaPzasMaquina');
 //Ruta para ver los procesos de las maquinas
 Route::post('/piezasMaquina', [PzasGeneralesController::class, 'showMachinesProcess'])->name('showMachinesProcess');
+
+//Vista cepillado
+//Guardar encabezado de la tabla cepillado
+Route::get('/cepillado/{error}', [CepilladoController::class, 'show'])->name('cepillado');
+Route::post('/cepilladoHeader', [CepilladoController::class, 'storeheaderTable'])->name('cepilladoHeader');
+//Guardar encabezado de la tabla cepillado
+Route::get('/cepilladoHeader', [CepilladoController::class, 'storeheaderTable'])->name('cepilladoHeaderGet');
+//Ruta para editar datos de la tabla cepillado
+Route::post('/editCepillado', [CepilladoController::class, 'edit'])->name('editCepillado');
 
 //Vista de Desbaste exterior
 Route::get('/desbasteExterior', [DesbasteExteriorController::class, 'show'])->name('desbasteExterior');
@@ -251,6 +251,35 @@ Route::get('/copiadoHeader', [CopiadoController::class, 'storeheaderTable'])->na
 Route::post('/copiadoHeader', [CopiadoController::class, 'storeheaderTable'])->name('copiadoHeader');
 //Ruta para editar datos de la tabla Copiado
 Route::post('/editCopiado', [CopiadoController::class, 'edit'])->name('editCopiado');
+
+//Vista de OffSet
+Route::get('/offSet', [OffSetController::class, 'show'])->name('offSet');
+//Guardar encabezado de la tabla OffSet
+Route::get('/offSetHeader', [OffSetController::class, 'storeheaderTable'])->name('offSetHeaderGet');
+//Guardar encabezado de la tabla OffSet
+Route::post('/offSetHeader', [OffSetController::class, 'storeheaderTable'])->name('offSetHeader');
+//Ruta para editar datos de la tabla OffSet
+Route::post('/editOffSet', [OffSetController::class, 'edit'])->name('editOffSet');
+
+//Vista de Palomas
+Route::get('/palomas', [PalomasController::class, 'show'])->name('palomas');
+//Guardar encabezado de la tabla Palomas
+Route::get('/palomasHeader', [PalomasController::class, 'storeheaderTable'])->name('palomasHeaderGet');
+//Guardar encabezado de la tabla Palomas
+Route::post('/palomasHeader', [PalomasController::class, 'storeheaderTable'])->name('palomasHeader');
+//Ruta para editar datos de la tabla Palomas
+Route::post('/editPalomas', [PalomasController::class, 'edit'])->name('editPalomas');
+
+//Vista de Rebajes
+Route::get('/rebajes', [RebajesController::class, 'show'])->name('rebajes');
+//Guardar encabezado de la tabla Rebajes
+Route::get('/rebajesHeader', [RebajesController::class, 'storeheaderTable'])->name('rebajesHeaderGet');
+//Guardar encabezado de la tabla Rebajes
+Route::post('/rebajesHeader', [RebajesController::class, 'storeheaderTable'])->name('rebajesHeader');
+//Ruta para editar datos de la tabla Rebajes
+Route::post('/editRebajes', [RebajesController::class, 'edit'])->name('editRebajes');
+
+
 
 // //Vista de Primera y Segunda Operacion Soldadura Equipo
 // Route::get('/1y2OpeSoldadura', [PySOpeSoldaduraController::class, 'show'])->name('1y2OpeSoldadura');

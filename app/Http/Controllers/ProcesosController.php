@@ -17,12 +17,19 @@ use App\Models\Copiado_cnominal;
 use App\Models\Copiado_tolerancia;
 use App\Models\Desbaste_cnominal;
 use App\Models\Desbaste_tolerancia;
+use App\Models\OffSet_cnominal;
+use App\Models\OffSet_tolerancia;
 use App\Models\Orden_trabajo;
+use App\Models\Palomas_cnominal;
+use App\Models\Palomas_tolerancia;
 use App\Models\PrimeraOpeSoldadura_cnominal;
 use App\Models\PrimeraOpeSoldadura_tolerancia;
 use App\Models\Procesos;
 use App\Models\PySOpeSoldadura_cnominal;
 use App\Models\PySOpeSoldadura_tolerancia;
+use App\Models\Rebajes;
+use App\Models\Rebajes_cnominal;
+use App\Models\Rebajes_tolerancia;
 use App\Models\revCalificado_cnominal;
 use App\Models\revCalificado_tolerancia;
 use App\Models\RevLaterales_cnominal;
@@ -355,6 +362,69 @@ class ProcesosController extends Controller
                     }
                     $subproceso = $request->subproceso;
                     break;
+                case 'Off Set':
+                    $id_proceso = 'offSet_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
+                    $cNominal = OffSet_cnominal::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla OffSet_cnominal.
+                    $tolerancia = OffSet_tolerancia::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla OffSet_tolerancia.
+                    if (isset($cNominal) && isset($tolerancia)) { //Verificación de existencia de datos en tablas OffSet_cnominal y OffSet_tolerancia.
+                        $existe = 1; //Variable para verificar existencia de datos en tablas OffSet_cnominal y OffSet_tolerancia.
+                    } else {
+                        $existe = 0; //Variable para verificar existencia de datos en tablas OffSet_cnominal y OffSet_tolerancia.
+                        if (isset($request->cNomi_anchoRanura)) { //Verificación de existencia de datos en tabla OffSet_cnominal.
+                            $cNominal = new OffSet_cnominal(); //Creación de objeto OffSet_cnominal.
+                            $tolerancia = new OffSet_tolerancia(); //Creación de objeto OffSet_tolerancia.
+                            $existe = 1; //Variable para verificar existencia de datos en tablas OffSet_cnominal y OffSet_tolerancia.
+                        } else {
+                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot]); //Retorno a vista de procesos.
+                        }
+                    }
+                    if (isset($request->cNomi_anchoRanura)) { //Verificación de ela existencia de datos en la tabla OffSet_cnominal.
+                        $array = $this->offSet($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleOffSet.
+                    }
+                    $subproceso = 0;
+                    break;
+                case 'Palomas':
+                    $id_proceso = 'palomas_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
+                    $cNominal = Palomas_cnominal::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla Palomas_cnominal.
+                    $tolerancia = Palomas_tolerancia::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla Palomas_tolerancia.
+                    if (isset($cNominal) && isset($tolerancia)) { //Verificación de existencia de datos en tablas Palomas_cnominal y Palomas_tolerancia.
+                        $existe = 1; //Variable para verificar existencia de datos en tablas Palomas_cnominal y Palomas_tolerancia.
+                    } else {
+                        $existe = 0; //Variable para verificar existencia de datos en tablas Palomas_cnominal y Palomas_tolerancia.
+                        if (isset($request->cNomi_ancho_paloma)) { //Verificación de existencia de datos en tabla Palomas_cnominal.
+                            $cNominal = new Palomas_cnominal(); //Creación de objeto Palomas_cnominal.
+                            $tolerancia = new Palomas_tolerancia(); //Creación de objeto Palomas_tolerancia.
+                            $existe = 1; //Variable para verificar existencia de datos en tablas Palomas_cnominal y Palomas_tolerancia.
+                        } else {
+                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot]); //Retorno a vista de procesos.
+                        }
+                    }
+                    if (isset($request->cNomi_ancho_paloma)) { //Verificación de ela existencia de datos en la tabla Palomas_cnominal.
+                        $array = $this->palomas($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editTolePalomas.
+                    }
+                    $subproceso = 0;
+                    break;
+                case 'Rebajes':
+                    $id_proceso = 'rebajes_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
+                    $cNominal = Rebajes_cnominal::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla Rebajes_cnominal.
+                    $tolerancia = Rebajes_tolerancia::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla Rebajes_tolerancia.
+                    if (isset($cNominal) && isset($tolerancia)) { //Verificación de existencia de datos en tablas Rebajes_cnominal y Rebajes_tolerancia.
+                        $existe = 1; //Variable para verificar existencia de datos en tablas Rebajes_cnominal y Rebajes_tolerancia.
+                    } else {
+                        $existe = 0; //Variable para verificar existencia de datos en tablas Rebajes_cnominal y Rebajes_tolerancia.
+                        if (isset($request->cNomi_rebaje1)) { //Verificación de existencia de datos en tabla Rebajes_cnominal.
+                            $cNominal = new Rebajes_cnominal(); //Creación de objeto Rebajes_cnominal.
+                            $tolerancia = new Rebajes_tolerancia(); //Creación de objeto Rebajes_tolerancia.
+                            $existe = 1; //Variable para verificar existencia de datos en tablas Rebajes_cnominal y Palomas_tolerancia.
+                        } else {
+                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot]); //Retorno a vista de procesos.
+                        }
+                    }
+                    if (isset($request->cNomi_rebaje1)) { //Verificación de ela existencia de datos en la tabla Rebajes_cnominal.
+                        $array = $this->rebajes($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleRebajes.
+                    }
+                    $subproceso = 0;
+                    break;
                     // case 'pysOpeSoldadura':
                     //     $id_proceso = '1y2opeSoldadura_' . $clase->nombre . "_" . $clase->id_ot . "_" . $request->operacion; //Creación de id_proceso.
                     //     $cNominal = PySOpeSoldadura_cnominal::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla 1y2opeSoldadura_cnominal.
@@ -425,7 +495,7 @@ class ProcesosController extends Controller
                     array_push($stringProcesos, "Copiado");
                     break;
                 case "offSet":
-                    array_push($stringProcesos, "Off set");
+                    array_push($stringProcesos, "Off Set");
                     break;
                 case "palomas":
                     array_push($stringProcesos, "Palomas");
@@ -492,7 +562,7 @@ class ProcesosController extends Controller
     public function desbasteExterior($id_proceso, $cNominal, $tolerancia, $request)
     {
         //Llenado de tabla desbaste_cnominal
-        $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla Cepillado_cnominal.
+        $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla desbaste_cnominal.
         $cNominal->diametro_mordaza = $request->cNomi_diametro_mordaza;
         $cNominal->diametro_ceja = $request->cNomi_diametro_ceja;
         $cNominal->diametro_sufrideraExtra = $request->cNomi_diametro_sufrideraExtra;
@@ -798,7 +868,6 @@ class ProcesosController extends Controller
         $cNominal->profundidadSoldadura2 = $request->cNomi_profundidadSoldadura2;
         $cNominal->pushUp = $request->cNomi_pushUp;
 
-
         //Llenado de tabla pysOpeSoldadura_tolerancia
         $tolerancia->id_proceso = $id_proceso;
         $tolerancia->altura = $request->tole_altura;
@@ -873,7 +942,7 @@ class ProcesosController extends Controller
             $tolerancia->altura_total = $request->tole_altura_total;
         } else {
             $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla copiado_cnominal en el subproceso Cavidades.
-            $cNominal->diametro1_cavidades= $request->cNomi_diametro1_cavidades;
+            $cNominal->diametro1_cavidades = $request->cNomi_diametro1_cavidades;
             $cNominal->profundidad1_cavidades = $request->cNomi_profundidad1_cavidades;
             $cNominal->diametro2_cavidades = $request->cNomi_diametro2_cavidades;
             $cNominal->profundidad2_cavidades = $request->cNomi_profundidad2_cavidades;
@@ -894,11 +963,87 @@ class ProcesosController extends Controller
             $tolerancia->diametro4 = $request->tole_diametro4;
             $tolerancia->profundidad4 = $request->tole_profundidad4;
             $tolerancia->volumen = $request->tole_volumen;
-            
-            
         }
         $cNominal->save(); //Guardado de datos en tabla copiado_cnominal en el subproceso Cilindrado.
         $tolerancia->save(); //Guardado de datos en tabla copiado_tolerancia en el subproceso Cilindrado.
+        return array($cNominal, $tolerancia);
+    }
+    public function offSet($id_proceso, $cNominal, $tolerancia, $request)
+    {
+        //Llenado de tabla OffSet_cnominal
+        $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla OffSet_cnominal.
+        $cNominal->anchoRanura = $request->cNomi_anchoRanura;
+        $cNominal->profuTaconHembra = $request->cNomi_profuTaconHembra;
+        $cNominal->profuTaconMacho = $request->cNomi_profuTaconMacho;
+        $cNominal->simetriaHembra = $request->cNomi_simetriaHembra;
+        $cNominal->simetriaMacho = $request->cNomi_simetriaMacho;
+        $cNominal->anchoTacon = $request->cNomi_anchoTacon;
+        $cNominal->barrenoLateralHembra = $request->cNomi_barrenoLateralHembra;
+        $cNominal->barrenoLateralMacho = $request->cNomi_barrenoLateralMacho;
+        $cNominal->alturaTaconInicial = $request->cNomi_alturaTaconInicial;
+        $cNominal->alturaTaconIntermedia = $request->cNomi_alturaTaconIntermedia;
+
+        //Llenado de tabla OffSet_tolerancia
+        $tolerancia->id_proceso = $id_proceso;
+        $tolerancia->anchoRanura = $request->tole_anchoRanura;
+        $tolerancia->profuTaconHembra = $request->tole_profuTaconHembra;
+        $tolerancia->profuTaconMacho = $request->tole_profuTaconMacho;
+        $tolerancia->simetriaHembra = $request->tole_simetriaHembra;
+        $tolerancia->simetriaMacho = $request->tole_simetriaMacho;
+        $tolerancia->anchoTacon = $request->tole_anchoTacon;
+        $tolerancia->barrenoLateralHembra = $request->tole_barrenoLateralHembra;
+        $tolerancia->barrenoLateralMacho = $request->tole_barrenoLateralMacho;
+        $tolerancia->alturaTaconInicial = $request->tole_alturaTaconInicial;
+        $tolerancia->alturaTaconIntermedia = $request->tole_alturaTaconIntermedia;
+
+        $cNominal->save(); //Guardado de datos en tabla OffSet_cnominal.
+        $tolerancia->save(); //Guardado de datos en tabla OffSet_tolerancia.
+        return array($cNominal, $tolerancia);
+    }
+    public function palomas($id_proceso, $cNominal, $tolerancia, $request)
+    {
+        //Llenado de tabla Palomas_cnominal
+        $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla Palomas_cnominal.
+        $cNominal->anchoPaloma = $request->cNomi_ancho_paloma;
+        $cNominal->gruesoPaloma = $request->cNomi_grueso_paloma;
+        $cNominal->profundidadPaloma = $request->cNomi_profundidad_paloma;
+        $cNominal->rebajeLlanta = $request->cNomi_rebaje_llanta;
+
+        //Llenado de tabla Palomas_tolerancia
+        $tolerancia->id_proceso = $id_proceso;
+        $tolerancia->anchoPaloma = $request->tole_ancho_paloma;
+        $tolerancia->gruesoPaloma = $request->tole_grueso_paloma;
+        $tolerancia->profundidadPaloma = $request->tole_profundidad_paloma;
+        $tolerancia->rebajeLlanta = $request->tole_rebaje_llanta;;
+
+        $cNominal->save(); //Guardado de datos en tabla Palomas_cnominal.
+        $tolerancia->save(); //Guardado de datos en tabla Palomas_tolerancia.
+        return array($cNominal, $tolerancia);
+    }
+    public function rebajes($id_proceso, $cNominal, $tolerancia, $request)
+    {
+        //Llenado de tabla Rebajes_cnominal
+        $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla Rebajes_cnominal.
+        $cNominal->rebaje1 = $request->cNomi_rebaje1;
+        $cNominal->rebaje2 = $request->cNomi_rebaje2;
+        $cNominal->rebaje3 = $request->cNomi_rebaje3;
+        $cNominal->profundidad_bordonio = $request->cNomi_profundidad_bordonio;
+        $cNominal->vena1 = $request->cNomi_vena1;
+        $cNominal->vena2 = $request->cNomi_vena2;
+        $cNominal->simetria = $request->cNomi_simetria;
+
+        //Llenado de tabla Rebajes_tolerancia
+        $tolerancia->id_proceso = $id_proceso;
+        $tolerancia->rebaje1 = $request->tole_rebaje1;
+        $tolerancia->rebaje2 = $request->tole_rebaje2;
+        $tolerancia->rebaje3 = $request->tole_rebaje3;
+        $tolerancia->profundidad_bordonio = $request->tole_profundidad_bordonio;;
+        $tolerancia->vena1 = $request->tole_vena1;
+        $tolerancia->vena2 = $request->tole_vena2;
+        $tolerancia->simetria = $request->tole_simetria;
+
+        $cNominal->save(); //Guardado de datos en tabla Rebajes_cnominal.
+        $tolerancia->save(); //Guardado de datos en tabla Rebajes_tolerancia.
         return array($cNominal, $tolerancia);
     }
 }

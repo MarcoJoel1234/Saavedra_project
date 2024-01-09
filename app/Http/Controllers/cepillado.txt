@@ -1,33 +1,14 @@
-<?php
-
-namespace App\Http\Controllers;
-
-use App\Models\Cepillado;
-use App\Models\Cepillado_cnominal;
-use App\Models\Cepillado_tolerancia;
-use App\Models\Clase;
-use App\Models\Metas;
-use App\Models\Moldura;
-use App\Models\Orden_trabajo;
-use App\Models\Pieza;
-use App\Models\Procesos;
-use App\Models\Pza_cepillado;
-use App\Models\User;
-use Illuminate\Auth\Events\Validated;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\ServiceProvider;
-
-class CepilladoController extends Controller
-{
-    public function show($error)
+    
+    
+    
+    public function show()
     {
         $ot = Orden_trabajo::all(); //Obtención de todas las ordenes de trabajo.
         if (count($ot) != 0) {
-            $oTrabajo = array(); //Declara arreglo para guardar las ordenes de trabajo disponibles en Desbaste exterior.
+            $oTrabajo = array(); //Declara arreglo para guardar las ordenes de trabajo disponibles en Cepillado.
             //Recorre todas las ordenes de trabajo.
             foreach ($ot as $ot) {
-                $contador = 0; //Contador para verificar que existan clases que pasaran por Desbaste exterior
+                $contador = 0; //Contador para verificar que existan clases que pasaran por Cepillado
                 $clases = Clase::where('id_ot', $ot->id)->get();
                 //Recorre todas las clases registradas en la orden de trabajo.
                 foreach ($clases as $clase) {
@@ -43,20 +24,11 @@ class CepilladoController extends Controller
                     array_push($oTrabajo, $ot);
                 }
             }
-            if (count($oTrabajo) != 0) {
-                if ($error == 1) {
-                    return view('processes.cepillado', ['ot' => $oTrabajo, 'error' => $error]); //Retorno a vista de Desbaste exterior
-                }
-                return view('processes.cepillado', ['ot' => $oTrabajo]); //Retorno a vista de Desbaste exterior
+            if(count($oTrabajo) != 0){
+                return view('processes.cepillado', ['ot' => $oTrabajo]); //Retorno a vista de Cepillado.
             }
-            if ($error == 1) {
-                return view('processes.cepillado', ['ot' => $oTrabajo, 'error' => $error]); //Retorno a vista de Desbaste exterior
-            }
-            //Se retorna a la vista de Cepillado con las ordenes de trabajo que tienen clases que pasaran por Desbaste exterior
-            return view('processes.cepillado', ['ot']); //Retorno a vista de Desbaste exterior
-        }
-        if ($error == 1) {
-            return view('processes.cepillado', ['error' => $error]); //Retorno a vista de Desbaste exterior
+            //Se retorna a la vista de Cepillado con las ordenes de trabajo que tienen clases que pasaran por cepillado.
+            return view('processes.cepillado', ['ot']); //Retorno a vista de Cepillado.
         }
         return view('processes.cepillado');
     }
@@ -64,7 +36,7 @@ class CepilladoController extends Controller
     public function storeheaderTable(Request $request)
     {
         //Si se obtienen los datos de la OT y la meta, se guardan en variables de sesión.
-        if (session('controller')) {
+        if (session('controller')) { //
             $meta = Metas::find(session('meta')); //Busco la meta de la OT.
         } else {
             $meta = Metas::find($request->metaData); //Busco la meta de la OT.
@@ -79,7 +51,7 @@ class CepilladoController extends Controller
         if (isset($id_proceso)) {
             $pzasCreadas = Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas
             $nPiezasCreadas = Pza_cepillado::where('id_proceso', $id_proceso->id)->get();
-            if ((($nPiezasCreadas->count() / 2) < $clase->piezas && $nPiezasCreadas->count() > 0) || $nPiezasCreadas === 0) { //Si el número de piezas creadas es menor al número de piezas de la clase, se crearan las piezas.
+            if ((($nPiezasCreadas->count() / 2) < $clase->piezas && $nPiezasCreadas->count() > 0) || $nPiezasCreadas->count() === 0) { //Si el número de piezas creadas es menor al número de piezas de la clase, se crearan las piezas.
                 $this->createPiezas($id_proceso->id, $clase->piezas, ($nPiezasCreadas->count() / 2) + 1); //Creación de piezas en la tabla Pza_cepillado.
             }
         } else {
@@ -108,11 +80,13 @@ class CepilladoController extends Controller
                 $piezaExistente->estado = 2;
                 $piezaExistente->save();
 
-                if (!isset($piezaExistente->correcto)) {
+                //Descontar una pieza de la clase si esta es registrada por primera vez
+                if ($piezaExistente->correcto == null) {
                     //Restar el número de piezas en la orden de trabajo
-                    $clase->piezas -= .5; //Resto el número de piezas de la clase.
-                    $clase->save(); //Guardo los datos en la tabla Clase.
+                    $clase->piezas -= .5;
+                    $clase->save();
                 }
+                //Actualizar el estado de la pieza (correcto/incorrecto)
                 if ($this->compararDatosPieza($piezaExistente, $cNominal, $tolerancia) == 0 && $request->error == 0) {
                     $piezaExistente->error = 'Maquinado';
                     $piezaExistente->correcto = 0;
@@ -125,14 +99,15 @@ class CepilladoController extends Controller
                 }
                 $piezaExistente->save();
 
-                $pieza = Pieza::where('n_pieza', $piezaExistente->n_pieza)->first();
-                //Guardar los datos de las pieza en la tabla pieza (En donde se almacenan todas las piezas)
+                //Guardar los datos de la pieza en la tabla pieza
+                $pieza = Pieza::where('n_pieza', $piezaExistente->n_pieza)->where('proceso', "Cepillado")->where('id_ot', $ot->id)->where('id_clase', $clase->id)->first();
+                //Si aun no existe la pieza
                 if (!isset($pieza)) {
                     $pieza = new Pieza();
                 }
                 $pieza->id_clase = $clase->id;
                 $pieza->id_ot = $ot->id;
-                $pieza->n_pieza = $piezaExistente->n_pieza;
+                $pieza->n_pieza = $request->n_pieza;
                 $pieza->id_operador = $meta->id_usuario;
                 $pieza->maquina = $meta->maquina;
                 $pieza->proceso = "Cepillado";
@@ -140,31 +115,17 @@ class CepilladoController extends Controller
                 $pieza->save();
 
                 //Actualizar resultado de la meta
-                $contadorPzas = 0;
-                $juegosUsados = array();
                 $pzasCorrectas = Pza_cepillado::where('id_meta', $meta->id)->where('correcto', 1)->get(); //Obtención de todas las piezas correctas.
-                foreach ($pzasCorrectas as $pzaCorrecta) {
-                    $pzaCorrecta2 = Pza_cepillado::where('n_juego', $pzaCorrecta->n_juego)->where('id_meta', $meta->id)->where('correcto', 1)->get();
-                    if (count($pzaCorrecta2) == 2) {
-                        if (!in_array($pzaCorrecta->n_juego, $juegosUsados)) {
-                            array_push($juegosUsados, $pzaCorrecta->n_juego);
-                            $contadorPzas++;
-                        }
-                    }
-                }
                 Metas::where('id', $meta->id)->update([ //Actualización de datos en tabla Metas.
-                    'resultado' => $contadorPzas,
+                    'resultado' => $pzasCorrectas->count() / 2,
                 ]);
-                $meta = Metas::find($meta->id); //Busco la meta de la OT.
+                $meta = Metas::find($meta->id);
 
                 //Retornar la pieza siguiente
                 $pzaUtilizar = Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first();
-                if (isset($pzaUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Cepillado.
+                if ($pzaUtilizar) { //Si existe una pieza para utilizar, se retorna a la vista de Cepillado con las piezas ya registradas.
                     $pzasCreadas = Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get();
                     return view('processes.cepillado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaUtilizar' => $pzaUtilizar]); //Retorno a vista de Cepillado.
-                } else {
-                    //Actualizar solo dos registros de las piezas que se van a ocupar en la tabla cepillado
-                    $this->piezaUtilizar($id_proceso->id, $meta);
                 }
             }
         } else {
@@ -191,8 +152,8 @@ class CepilladoController extends Controller
             for ($i = 0; $i < count($pzasCreadas); $i++) { //Recorro las piezas creadas.
                 //Acrualiza el estado correcto de la pieza.
                 if ($this->compararDatosPieza($pzasCreadas[$i], $cNominal, $tolerancia) == 0 && ($pzasCreadas[$i]->error == 'Maquinado' || $pzasCreadas[$i]->error == 'Ninguno')) {
-                    $pzasCreadas[$i]->error = 'Maquinado';
-                    $pzasCreadas[$i]->correcto = 0;
+                    $pzasCreadas[$i]->error = 'Maquinado';  //Llenado de observaciones para tabla Cepillado_cnominal.
+                    $pzasCreadas[$i]->correcto = 0; //Llenado de observaciones para tabla Cepillado_cnominal.
                 } else if (($this->compararDatosPieza($pzasCreadas[$i], $cNominal, $tolerancia) == 0 && $pzasCreadas[$i]->error == 'Fundicion') || ($this->compararDatosPieza($pzasCreadas[$i], $cNominal, $tolerancia) == 1 && $pzasCreadas[$i]->error == 'Fundicion')) {
                     $pzasCreadas[$i]->error = 'Fundicion';
                     $pzasCreadas[$i]->correcto = 0;
@@ -202,43 +163,27 @@ class CepilladoController extends Controller
                 }
                 $pzasCreadas[$i]->save();
             }
-            //Actualizar resultado de la meta
-            $contadorPzas = 0;
-            $juegosUsados = array();
             $pzasCorrectas = Pza_cepillado::where('id_meta', $meta->id)->where('correcto', 1)->get(); //Obtención de todas las piezas correctas.
-            foreach ($pzasCorrectas as $pzaCorrecta) {
-                $pzaCorrecta2 = Pza_cepillado::where('n_juego', $pzaCorrecta->n_juego)->where('id_meta', $meta->id)->where('correcto', 1)->get();
-                if (count($pzaCorrecta2) == 2) {
-                    if (!in_array($pzaCorrecta->n_juego, $juegosUsados)) {
-                        array_push($juegosUsados, $pzaCorrecta->n_juego);
-                        $contadorPzas++;
-                    }
-                }
-            }
-            Metas::where('id', $meta->id)->update([ //Actualización de datos en tabla Metas.
-                'resultado' => $contadorPzas,
-            ]);
+            $meta->resultado = $pzasCorrectas->count() / 2; //Actualización de datos en tabla Metas.
+            $meta->save(); //Guardar las piezas correctas en la tabla Metas.
             if (isset($cNominal) && isset($tolerancia)) {
                 $pzaUtilizar = Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
                 if ($pzaUtilizar == null) { //Si no existe una pieza para utilizar, se retorna a la vista de Cepillado.
                     $piezasVacias = Pza_cepillado::where('correcto', null)->where('estado', 1)->where('id_proceso', $id_proceso->id)->get(); //Obtención de todas las piezas creadas.
-                    if (isset($piezasVacias) && $piezasVacias->count() > 0) { //Si existen piezas vacias, se busca una pieza para utilizar.
-                        for ($i = 0; $i < count($piezasVacias); $i++) { //Recorro las piezas creadas.
-                            $metaAnterior = Metas::where('id', $piezasVacias[$i]->id_meta)->first(); //Obtención de la meta anterior.
+                    $contador = 0; //Contador para verificar que existan piezas para utilizar.
+                    if ($piezasVacias->count() > 0) { //Si existen piezas vacias, se busca una pieza para utilizar.
+                        foreach($piezasVacias as $piezaVacia){
+                            $metaAnterior = Metas::find($piezaVacia->id_meta); //Obtención de la meta anterior.
                             if ($metaAnterior->maquina == $meta->maquina) { //Si la meta anterior es igual a la meta actual, se utiliza la pieza.
-                                $piezasVacias[$i]->id_meta = $meta->id; //Llenado de id_meta para tabla Pza_cepillado.
-                                $piezasVacias[$i]->save(); //Guardado de datos en tabla Pza_cepillado.
-                                $pzaUtilizar = $piezasVacias[$i]; //Obtención de la pieza a utilizar.
-                                $piezaEncontrada = true; //Se encontro una pieza para utilizar.
-                                break; //Se rompe el ciclo.
-                            } else {
-                                $piezaEncontrada = false; //No se encontro una pieza para utilizar.
+                                $piezaVacia->id_meta = $meta->id; //Llenado de id_meta para tabla Pza_cepillado.
+                                $piezaVacia->save(); //Guardado de datos en tabla Pza_cepillado.
+                                $pzaUtilizar = $piezaVacia; //Obtención de la pieza a utilizar.
+                                $contador++; //Aumento de contador.
+                                break;
                             }
                         }
-                    } else {
-                        $piezaEncontrada = false; //No se encontro una pieza para utilizar.
                     }
-                    if (!$piezaEncontrada) { //Si no se encontro una pieza para utilizar, se crea una nueva pieza.
+                    if ($contador == 0) { //Si no se encontro una pieza para utilizar, se crea una nueva pieza.
                         $this->piezaUtilizar($id_proceso->id, $meta); //Llamado a función para obtener la pieza a utilizar.
                         $pzaUtilizar = Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
                     }
@@ -293,8 +238,6 @@ class CepilladoController extends Controller
                     $piezaExistente->pin2 = $request->pin2[$i];
                     if (isset($request->observaciones[$i])) { //Si se obtienen los datos de las piezas, se guardan en la tabla Cepillado_cnominal.
                         $piezaExistente->observaciones = $request->observaciones[$i];  //Llenado de observaciones para tabla Cepillado_cnominal.
-                    }else{
-                        $piezaExistente->observaciones = "";  //Llenado de observaciones para tabla Cepillado_cnominal.
                     }
                     $piezaExistente->save(); //Guardado de datos en la tabla Pza_cepillado.
 
@@ -311,16 +254,14 @@ class CepilladoController extends Controller
                     }
                     $piezaExistente->save();
 
-
-
-                    $pieza = Pieza::where('n_pieza', $piezaExistente->n_pieza)->first();
+                    $pieza = Pieza::where('n_pieza', $piezaExistente->n_pieza)->where('proceso', "Cepillado")->where('id_ot', $ot->id)->where('id_clase', $clase->id)->first();
                     //Guardar los datos de las pieza en la tabla pieza (En donde se almacenan todas las piezas)
                     if (!isset($pieza)) {
                         $pieza = new Pieza();
                     }
                     $pieza->id_clase = $clase->id;
                     $pieza->id_ot = $ot->id;
-                    $pieza->n_pieza = $piezaExistente->n_pieza;
+                    $pieza->n_pieza = $request->n_pieza[$i];
                     $pieza->id_operador = $meta->id_usuario;
                     $pieza->maquina = $meta->maquina;
                     $pieza->proceso = "Cepillado";
@@ -328,23 +269,13 @@ class CepilladoController extends Controller
                     $pieza->save();
                 }
             }
-            //Actualizar resultado de la meta
-            $contadorPzas = 0;
-            $juegosUsados = array();
-            $pzasCorrectas = Pza_cepillado::where('id_meta', $meta->id)->where('correcto', 1)->get(); //Obtención de todas las piezas correctas.
-            foreach ($pzasCorrectas as $pzaCorrecta) {
-                $pzaCorrecta2 = Pza_cepillado::where('n_juego', $pzaCorrecta->n_juego)->where('id_meta', $meta->id)->where('correcto', 1)->get();
-                if (count($pzaCorrecta2) == 2) {
-                    if (!in_array($pzaCorrecta->n_juego, $juegosUsados)) {
-                        array_push($juegosUsados, $pzaCorrecta->n_juego);
-                        $contadorPzas++;
-                    }
-                }
+            $pzasCorrectas = Pza_cepillado::where('id_meta', $meta->id)->where('correcto', 1)->get();
+            if (isset($pzasCorrectas)) { //Si existen piezas correctas, se actualiza el resultado de la meta.
+                $meta->resultado = $pzasCorrectas->count() / 2; //Actualización de datos en tabla Metas.
+            } else {
+                $meta->resultado = 0; //Actualización de los datos en la tabla metas.
             }
-            $meta = Metas::find($meta->id); //Actualización de datos en tabla Metas.
-            $meta->resultado = $contadorPzas;
             $meta->save(); //Guardado de datos en la tabla Metas.
-
             //Retornar la pieza siguiente
             $pzaUtilizar = Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
             $pzasCreadas = Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas.
@@ -380,13 +311,13 @@ class CepilladoController extends Controller
                 } else {
                     $pzasLibres[1] = Pza_cepillado::where('id_proceso', $id)->where('estado', 0)->where('n_pieza', $numPieza[0] . "M")->first();
                 }
-            } else if (count($numPieza) == 3) { //Si la pieza es de mujer.
+            } else if (count($numPieza) == 3) { //Si la pieza es macho.
                 if ($numPieza[2] == "M") {
                     $pzasLibres[1] = Pza_cepillado::where('id_proceso', $id)->where('estado', 0)->where('n_pieza', $numPieza[0] . $numPieza[1] . "H")->first();
                 } else {
                     $pzasLibres[1] = Pza_cepillado::where('id_proceso', $id)->where('estado', 0)->where('n_pieza', $numPieza[0] . $numPieza[1] . "M")->first();
                 }
-            } else if (count($numPieza) == 4) { //Si la pieza es de mujer.
+            } else if (count($numPieza) == 4) { //Si la pieza es macho.
                 if ($numPieza[3] == "M") {
                     $pzasLibres[1] = Pza_cepillado::where('id_proceso', $id)->where('estado', 0)->where('n_pieza', $numPieza[0] . $numPieza[1] . $numPieza[2] . "H")->first();
                 } else {
@@ -411,7 +342,6 @@ class CepilladoController extends Controller
             for ($j = 0; $j < 2; $j++) { //Recorro las piezas creadas.
                 $pieza = new Pza_cepillado(); //Creación de objeto para llenar tabla Cepillado_cnominal.
                 $pieza->id_proceso = $id; //Llenado de id_proceso para tabla Cepillado_cnominal.
-                $pieza->n_juego = $i;
                 if ($j == 0) { //Si la pieza es de hombre.
                     $pieza->n_pieza = $i . 'H'; //Llenado de id_proceso para tabla Cepillado_cnominal.
                 } else {
@@ -422,4 +352,3 @@ class CepilladoController extends Controller
             }
         }
     }
-}

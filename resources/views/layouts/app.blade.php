@@ -15,7 +15,7 @@
             <button class="cerrar-menu" id="cerrar"><img class="icono" src="{{asset('images/icono.png')}}"></button>
             <ul class="nav-list">
                 <li><a href="home">Inicio</a></li>
-                <li><a href="{{route ('cepillado')}}">Cepillado</a></li>
+                <li><a href="{{route ('cepillado', ['error' => 0])}}">Cepillado</a></li>
                 <li><a href="{{route ('desbasteExterior')}}">Desbaste exterior</a></li>
                 <li><a href="{{route ('revisionLaterales')}}">Revisión de laterales</a></li>
                 <li><a href="{{route ('primeraOpeSoldadura')}}">1ra Operación soldadura</a></li>
@@ -30,7 +30,10 @@
                 <li><a href="{{route ('acabadoMolde')}}">Revisión acabados molde</a></li>
                 <li><a href="{{route ('cavidades')}}">Reporte diario de Cavidades</a></li>
                 <li><a href="{{route ('copiado')}}">Reporte de Copiado</a></li>
-                <ul>
+                <li><a href="{{route ('offSet')}}">Ranura Off-Set</a></li>
+                <li><a href="{{route ('palomas')}}">Reporte de Palomas</a></li>
+                <li><a href="{{route ('rebajes')}}">Rebajes</a></li>
+            <ul>
                     <a class="btn1" href="{{ route('logout') }}">Cerrar sesión</a>
                 </ul>
             </ul>

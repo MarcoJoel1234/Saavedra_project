@@ -437,99 +437,107 @@ class GestionOTController extends Controller
                                         $procesos[$i][$j][1] = $pzasMalas11;
                                         $procesos[$i][$j][2] = $pzasTotales11;
                                         break;
-                                    case 'acabadoBombillo':
-                                        $proceso = AcabadoBombilo::where('id_ot', $otArray[$i])->where('id_proceso', "acabadoBombillo_" . $clase->nombre . "_" . $otArray[$i])->first();
-                                        if (isset($proceso)) { //Si existe el proceso
-                                            $pzas = AcabadoBombilo_pza::where('estado', 2)->where('id_proceso', $proceso->id)->get();
-                                            $pzasBuenas12[$contador] = count(AcabadoBombilo_pza::where('estado', 2)->where('error', 'Ninguno')->get());
-                                            $pzasMalas12[$contador] = count(AcabadoBombilo_pza::where('estado', 2)->where('error', 'Fundicion')->orWhere('error', 'Maquinado')->get());
+                                    // case 'acabadoBombillo':
+                                    //     // $proceso = AcabadoBombilo::where('id_ot', $otArray[$i])->where('id_proceso', "acabadoBombillo_" . $clase->nombre . "_" . $otArray[$i])->first();
+                                    //     // if (isset($proceso)) { //Si existe el proceso
+                                    //     //     $pzas = AcabadoBombilo_pza::where('estado', 2)->where('id_proceso', $proceso->id)->get();
+                                    //     //     $pzasBuenas12[$contador] = count(AcabadoBombilo_pza::where('estado', 2)->where('error', 'Ninguno')->get());
+                                    //     //     $pzasMalas12[$contador] = count(AcabadoBombilo_pza::where('estado', 2)->where('error', 'Fundicion')->orWhere('error', 'Maquinado')->get());
 
-                                            if ($pzasMalas12[$contador] > 0) {
-                                                $pzaMala = AcabadoBombilo_pza::where('estado', 2)->where('error', 'Fundicion')->orWhere('error', 'Maquinado')->get();
-                                                $info = array();
-                                                for ($p = 0; $p < count($pzaMala); $p++) {
-                                                    $info[0] = $pzaMala[$p]->n_juego;
-                                                    $meta = Metas::where('id', $pzaMala[$p]->id_meta)->first();
-                                                    $operador = User::where('matricula', $meta->id_usuario)->first();
-                                                    $info[1] = $operador->nombre . " " . $operador->a_paterno . " "  . $operador->a_materno;
-                                                    $info[2] = "Acabado Bombillo"; //Nombre del proceso que se está realizando
-                                                    $info[3] = $pzaMala[$p]->error; //Error de la pieza
+                                    //     //     if ($pzasMalas12[$contador] > 0) {
+                                    //     //         $pzaMala = AcabadoBombilo_pza::where('estado', 2)->where('error', 'Fundicion')->orWhere('error', 'Maquinado')->get();
+                                    //     //         $info = array();
+                                    //     //         for ($p = 0; $p < count($pzaMala); $p++) {
+                                    //     //             $info[0] = $pzaMala[$p]->n_juego;
+                                    //     //             $meta = Metas::where('id', $pzaMala[$p]->id_meta)->first();
+                                    //     //             $operador = User::where('matricula', $meta->id_usuario)->first();
+                                    //     //             $info[1] = $operador->nombre . " " . $operador->a_paterno . " "  . $operador->a_materno;
+                                    //     //             $info[2] = "Acabado Bombillo"; //Nombre del proceso que se está realizando
+                                    //     //             $info[3] = $pzaMala[$p]->error; //Error de la pieza
 
-                                                    array_push($infoPzMala[$i][$contador], $info);
-                                                }
-                                            }
-                                            $pzasTotales12[$contador] = count(AcabadoBombilo_pza::where('estado', 2)->where('id_proceso', $proceso->id)->get());
-                                        } else {
-                                            $pzasBuenas12[$contador] = 0;
-                                            $pzasMalas12[$contador] = 0;
-                                            $pzasTotales12[$contador] = 0;
-                                        }
-                                        $procesos[$i][$j][0] = $pzasBuenas12;
-                                        $procesos[$i][$j][1] = $pzasMalas12;
-                                        $procesos[$i][$j][2] = $pzasTotales12;
-                                        break;
-                                    case 'acabadoMolde':
-                                        $proceso = AcabadoMolde::where('id_ot', $otArray[$i])->where('id_proceso', "acabadoMolde_" . $clase->nombre . "_" . $otArray[$i])->first();
-                                        if (isset($proceso)) { //Si existe el proceso
-                                            $pzas = AcabadoMolde_pza::where('estado', 2)->where('id_proceso', $proceso->id)->get();
-                                            $pzasBuenas13[$contador] = count(AcabadoMolde_pza::where('estado', 2)->where('error', 'Ninguno')->get());
-                                            $pzasMalas13[$contador] = count(AcabadoMolde_pza::where('estado', 2)->where('error', 'Fundicion')->orWhere('error', 'Maquinado')->get());
+                                    //     //             array_push($infoPzMala[$i][$contador], $info);
+                                    //     //         }
+                                    //     //     }
+                                    //     //     $pzasTotales12[$contador] = count(AcabadoBombilo_pza::where('estado', 2)->where('id_proceso', $proceso->id)->get());
+                                    //     // } else {
+                                    //     //     $pzasBuenas12[$contador] = 0;
+                                    //     //     $pzasMalas12[$contador] = 0;
+                                    //     //     $pzasTotales12[$contador] = 0;
+                                    //     // }
+                                    //     // $procesos[$i][$j][0] = $pzasBuenas12;
+                                    //     // $procesos[$i][$j][1] = $pzasMalas12;
+                                    //     // $procesos[$i][$j][2] = $pzasTotales12;
 
-                                            if ($pzasMalas13[$contador] > 0) {
-                                                $pzaMala = AcabadoMolde_pza::where('estado', 2)->where('error', 'Fundicion')->orWhere('error', 'Maquinado')->get();
-                                                $info = array();
-                                                for ($p = 0; $p < count($pzaMala); $p++) {
-                                                    $info[0] = $pzaMala[$p]->n_juego;
-                                                    $meta = Metas::where('id', $pzaMala[$p]->id_meta)->first();
-                                                    $operador = User::where('matricula', $meta->id_usuario)->first();
-                                                    $info[1] = $operador->nombre . " " . $operador->a_paterno . " "  . $operador->a_materno;
-                                                    $info[2] = "Acabado Molde"; //Nombre del proceso que se está realizando
-                                                    $info[3] = $pzaMala[$p]->error; //Error de la pieza
+                                    //     $procesos[$i][$j][0] = 0;
+                                    //     $procesos[$i][$j][1] = 0;
+                                    //     $procesos[$i][$j][2] = 0;
+                                    //     break;
+                                    // case 'acabadoMolde':
+                                    //     // $proceso = AcabadoMolde::where('id_ot', $otArray[$i])->where('id_proceso', "acabadoMolde_" . $clase->nombre . "_" . $otArray[$i])->first();
+                                    //     // if (isset($proceso)) { //Si existe el proceso
+                                    //     //     $pzas = AcabadoMolde_pza::where('estado', 2)->where('id_proceso', $proceso->id)->get();
+                                    //     //     $pzasBuenas13[$contador] = count(AcabadoMolde_pza::where('estado', 2)->where('error', 'Ninguno')->get());
+                                    //     //     $pzasMalas13[$contador] = count(AcabadoMolde_pza::where('estado', 2)->where('error', 'Fundicion')->orWhere('error', 'Maquinado')->get());
 
-                                                    array_push($infoPzMala[$i][$contador], $info);
-                                                }
-                                            }
-                                            $pzasTotales13[$contador] = count(AcabadoMolde_pza::where('estado', 2)->where('id_proceso', $proceso->id)->get());
-                                        } else {
-                                            $pzasBuenas13[$contador] = 0;
-                                            $pzasMalas13[$contador] = 0;
-                                            $pzasTotales13[$contador] = 0;
-                                        }
-                                        $procesos[$i][$j][0] = $pzasBuenas13;
-                                        $procesos[$i][$j][1] = $pzasMalas13;
-                                        $procesos[$i][$j][2] = $pzasTotales13;
-                                        break;
-                                    case 'cavidades':
-                                        $proceso = Cavidades::where('id_ot', $otArray[$i])->where('id_proceso', "cavidades_" . $clase->nombre . "_" . $otArray[$i])->first();
-                                        if (isset($proceso)) { //Si existe el proceso
-                                            $pzas = Cavidades_pza::where('estado', 2)->where('id_proceso', $proceso->id)->get();
-                                            $pzasBuenas14[$contador] = count(Cavidades_pza::where('estado', 2)->where('error', 'Ninguno')->get());
-                                            $pzasMalas14[$contador] = count(Cavidades_pza::where('estado', 2)->where('error', 'Fundicion')->orWhere('error', 'Maquinado')->get());
+                                    //     //     if ($pzasMalas13[$contador] > 0) {
+                                    //     //         $pzaMala = AcabadoMolde_pza::where('estado', 2)->where('error', 'Fundicion')->orWhere('error', 'Maquinado')->get();
+                                    //     //         $info = array();
+                                    //     //         for ($p = 0; $p < count($pzaMala); $p++) {
+                                    //     //             $info[0] = $pzaMala[$p]->n_juego;
+                                    //     //             $meta = Metas::where('id', $pzaMala[$p]->id_meta)->first();
+                                    //     //             $operador = User::where('matricula', $meta->id_usuario)->first();
+                                    //     //             $info[1] = $operador->nombre . " " . $operador->a_paterno . " "  . $operador->a_materno;
+                                    //     //             $info[2] = "Acabado Molde"; //Nombre del proceso que se está realizando
+                                    //     //             $info[3] = $pzaMala[$p]->error; //Error de la pieza
 
-                                            if ($pzasMalas14[$contador] > 0) {
-                                                $pzaMala = Cavidades_pza::where('estado', 2)->where('error', 'Fundicion')->orWhere('error', 'Maquinado')->get();
-                                                $info = array();
-                                                for ($p = 0; $p < count($pzaMala); $p++) {
-                                                    $info[0] = $pzaMala[$p]->n_juego;
-                                                    $meta = Metas::where('id', $pzaMala[$p]->id_meta)->first();
-                                                    $operador = User::where('matricula', $meta->id_usuario)->first();
-                                                    $info[1] = $operador->nombre . " " . $operador->a_paterno . " "  . $operador->a_materno;
-                                                    $info[2] = "Cavidades"; //Nombre del proceso que se está realizando
-                                                    $info[3] = $pzaMala[$p]->error; //Error de la pieza
+                                    //     //             array_push($infoPzMala[$i][$contador], $info);
+                                    //     //         }
+                                    //     //     }
+                                    //     //     $pzasTotales13[$contador] = count(AcabadoMolde_pza::where('estado', 2)->where('id_proceso', $proceso->id)->get());
+                                    //     // } else {
+                                    //     //     $pzasBuenas13[$contador] = 0;
+                                    //     //     $pzasMalas13[$contador] = 0;
+                                    //     //     $pzasTotales13[$contador] = 0;
+                                    //     // }
+                                    //     // $procesos[$i][$j][0] = $pzasBuenas13;
+                                    //     // $procesos[$i][$j][1] = $pzasMalas13;
+                                    //     // $procesos[$i][$j][2] = $pzasTotales13;
 
-                                                    array_push($infoPzMala[$i][$contador], $info);
-                                                }
-                                            }
-                                            $pzasTotales14[$contador] = count(Cavidades_pza::where('estado', 2)->where('id_proceso', $proceso->id)->get());
-                                        } else {
-                                            $pzasBuenas14[$contador] = 0;
-                                            $pzasMalas14[$contador] = 0;
-                                            $pzasTotales14[$contador] = 0;
-                                        }
-                                        $procesos[$i][$j][0] = $pzasBuenas14;
-                                        $procesos[$i][$j][1] = $pzasMalas14;
-                                        $procesos[$i][$j][2] = $pzasTotales14;
-                                        break;
+                                    //     $procesos[$i][$j][0] = 0;
+                                    //     $procesos[$i][$j][1] = 0;
+                                    //     $procesos[$i][$j][2] = 0;
+                                    //     break;
+                                    // case 'cavidades':
+                                    //     $proceso = Cavidades::where('id_ot', $otArray[$i])->where('id_proceso', "cavidades_" . $clase->nombre . "_" . $otArray[$i])->first();
+                                    //     if (isset($proceso)) { //Si existe el proceso
+                                    //         $pzas = Cavidades_pza::where('estado', 2)->where('id_proceso', $proceso->id)->get();
+                                    //         $pzasBuenas14[$contador] = count(Cavidades_pza::where('estado', 2)->where('error', 'Ninguno')->get());
+                                    //         $pzasMalas14[$contador] = count(Cavidades_pza::where('estado', 2)->where('error', 'Fundicion')->orWhere('error', 'Maquinado')->get());
+
+                                    //         if ($pzasMalas14[$contador] > 0) {
+                                    //             $pzaMala = Cavidades_pza::where('estado', 2)->where('error', 'Fundicion')->orWhere('error', 'Maquinado')->get();
+                                    //             $info = array();
+                                    //             for ($p = 0; $p < count($pzaMala); $p++) {
+                                    //                 $info[0] = $pzaMala[$p]->n_juego;
+                                    //                 $meta = Metas::where('id', $pzaMala[$p]->id_meta)->first();
+                                    //                 $operador = User::where('matricula', $meta->id_usuario)->first();
+                                    //                 $info[1] = $operador->nombre . " " . $operador->a_paterno . " "  . $operador->a_materno;
+                                    //                 $info[2] = "Cavidades"; //Nombre del proceso que se está realizando
+                                    //                 $info[3] = $pzaMala[$p]->error; //Error de la pieza
+
+                                    //                 array_push($infoPzMala[$i][$contador], $info);
+                                    //             }
+                                    //         }
+                                    //         $pzasTotales14[$contador] = count(Cavidades_pza::where('estado', 2)->where('id_proceso', $proceso->id)->get());
+                                    //     } else {
+                                    //         $pzasBuenas14[$contador] = 0;
+                                    //         $pzasMalas14[$contador] = 0;
+                                    //         $pzasTotales14[$contador] = 0;
+                                    //     }
+                                    //     $procesos[$i][$j][0] = $pzasBuenas14;
+                                    //     $procesos[$i][$j][1] = $pzasMalas14;
+                                    //     $procesos[$i][$j][2] = $pzasTotales14;
+                                    //     break;
                                     case 'barreno_profundidad':
                                         $pzasBuenas15[$contador] = 0;
                                         $pzasMalas15[$contador] = 0;
