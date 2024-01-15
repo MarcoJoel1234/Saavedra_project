@@ -28,6 +28,18 @@ return new class extends Migration
             $table->decimal('profuFinal_PCO2', 8, 3);
             $table->decimal('ensamble1', 8, 3);
             $table->decimal('ensamble2', 8, 3);
+            $table->decimal('distancia_barrenoAli1', 8, 3);
+            $table->decimal('distancia_barrenoAli2', 8, 3);
+            $table->decimal('profu_barrenoAliHembra1', 8, 3);
+            $table->decimal('profu_barrenoAliHembra2', 8, 3);
+            $table->decimal('profu_barrenoAliMacho1', 8, 3);
+            $table->decimal('profu_barrenoAliMacho2', 8, 3);
+            $table->decimal('altura_venaHembra1', 8, 3);
+            $table->decimal('altura_venaHembra2', 8, 3);
+            $table->decimal('altura_venaMacho1', 8, 3);
+            $table->decimal('altura_venaMacho2', 8, 3);
+            $table->decimal('ancho_vena1', 8, 3);
+            $table->decimal('ancho_vena2', 8, 3);
             $table->decimal('pin1', 8, 3);
             $table->decimal('pin2', 8, 3);
             $table->timestamps();

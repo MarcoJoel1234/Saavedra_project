@@ -10,6 +10,7 @@ use App\Models\BarrenoManiobra_cnominal;
 use App\Models\BarrenoManiobra_tolerancia;
 use App\Models\Cavidades_cnominal;
 use App\Models\Cavidades_tolerancia;
+use App\Models\Cepillado;
 use App\Models\Cepillado_cnominal;
 use App\Models\Cepillado_tolerancia;
 use App\Models\Clase;
@@ -17,16 +18,19 @@ use App\Models\Copiado_cnominal;
 use App\Models\Copiado_tolerancia;
 use App\Models\Desbaste_cnominal;
 use App\Models\Desbaste_tolerancia;
+use App\Models\Metas;
 use App\Models\OffSet_cnominal;
 use App\Models\OffSet_tolerancia;
 use App\Models\Orden_trabajo;
 use App\Models\Palomas_cnominal;
 use App\Models\Palomas_tolerancia;
+use App\Models\Pieza;
 use App\Models\PrimeraOpeSoldadura_cnominal;
 use App\Models\PrimeraOpeSoldadura_tolerancia;
 use App\Models\Procesos;
 use App\Models\PySOpeSoldadura_cnominal;
 use App\Models\PySOpeSoldadura_tolerancia;
+use App\Models\Pza_cepillado;
 use App\Models\Rebajes;
 use App\Models\Rebajes_cnominal;
 use App\Models\Rebajes_tolerancia;
@@ -36,6 +40,7 @@ use App\Models\RevLaterales_cnominal;
 use App\Models\RevLaterales_tolerancia;
 use App\Models\SegundaOpeSoldadura_cnominal;
 use App\Models\SegundaOpeSoldadura_tolerancia;
+use ArchTech\Enums\Meta\Meta;
 use Illuminate\Http\Request;
 
 class ProcesosController extends Controller
@@ -76,10 +81,11 @@ class ProcesosController extends Controller
             $clase = Clase::find($request->clase); //Busqueda de clase
             switch ($request->proceso) { //Verificación de proceso.
                 case 'Cepillado':
-                    $id_proceso = 'cepillado_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
+                    $id_proceso = 'Cepillado_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
                     $cNominal = Cepillado_cnominal::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla Cepillado_cnominal.
                     $tolerancia = Cepillado_tolerancia::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla Cepillado_tolerancia.
                     if (isset($cNominal) && isset($tolerancia)) { //Verificación de existencia de datos en tablas Cepillado_cnominal y Cepillado_tolerancia.
+                        $this->actualizarPiezas($id_proceso, $cNominal, $tolerancia, 'Cepillado'); //Llamando a la función actualizarPiezas.
                         $existe = 1; //Variable para verificar existencia de datos en tablas Cepillado_cnominal y Cepillado_tolerancia.
                     } else {
                         $existe = 0; //Variable para verificar existencia de datos en tablas Cepillado_cnominal y Cepillado_tolerancia.
@@ -93,6 +99,7 @@ class ProcesosController extends Controller
                     }
                     if (isset($request->cNomi_radiof_mordaza)) { //Verificación de ela existencia de datos en la tabla Cepillado_cnominal.
                         $array = $this->cepillado($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleCepillado.
+                        $this->actualizarPiezas($id_proceso, $cNominal, $tolerancia, 'Cepillado'); //Llamando a la función actualizarPiezas.
                         $cNomi = $array[0]; //Creación de objeto Cepillado_cnominal
                         $tole = $array[1]; //Creación de objeto Cepillado_tolerancia.
                         $cNominal = $cNomi->toArray();
@@ -516,6 +523,70 @@ class ProcesosController extends Controller
         }
         return $stringProcesos;
     }
+    //Se actualiza las piezas de cada proceso para verificar que este correcta
+    public function actualizarPiezas($id_proceso, $cNominal, $tolerancia, $proceso)
+    {
+        switch ($proceso) {
+            case 'Cepillado':
+                $idProceso = Cepillado::where('id_proceso', $id_proceso)->first();
+                $piezas = Pza_cepillado::where('id_proceso', $idProceso->id)->where('estado', 2)->get();
+
+                if ($piezas->count() > 0) {
+                    $controladorCepillado = new CepilladoController();
+                    foreach ($piezas as $pieza) {
+                        $this->actualizarError($controladorCepillado, $pieza, $cNominal, $tolerancia, $idProceso, $proceso);
+                        //Actualizar resultado de la meta
+                        $pzasCorrectas = Pza_cepillado::where('id_meta', $pieza->id_meta)->where('correcto', 1)->get(); //Obtención de todas las piezas correctas.
+                        $meta = Metas::find($pieza->id_meta);
+                        $this->actualizarMetas($pzasCorrectas, $meta);
+                    }
+                }
+                break;
+        }
+    }
+    public function actualizarError($controlador, $piezaControlador, $cNominal, $tolerancia, $proceso, $stringProceso)
+    {
+        if ($controlador->compararDatosPieza($piezaControlador, $cNominal, $tolerancia) == 0) {
+            $piezaControlador->error = 'Maquinado';
+            $piezaControlador->correcto = 0;
+        } else {
+            $piezaControlador->error = 'Ninguno';
+            $piezaControlador->correcto = 1;
+        }
+        $piezaControlador->save();
+
+        $clases = Clase::where('id_ot', $proceso->id_ot)->get();
+        foreach ($clases as $clase) {
+            $id_proceso = $stringProceso . '_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
+            if ($proceso->id_proceso == $id_proceso) {
+                $pieza = Pieza::where('n_pieza', $piezaControlador->n_pieza)->where('id_ot', $proceso->id_ot)->where('id_clase', $clase->id)->where('proceso', $stringProceso)->first();
+                //Guardar los datos de las pieza en la tabla pieza (En donde se almacenan todas las piezas)
+                if (!isset($pieza)) {
+                    $pieza = new Pieza();
+                }
+                $pieza->error = $piezaControlador->error;
+                $pieza->save();
+                break;
+            }
+        }
+    }
+    public function actualizarMetas($pzasCorrectas, $meta)
+    {
+        $contadorPzas = 0;
+        $juegosUsados = array();
+        foreach ($pzasCorrectas as $pzaCorrecta) {
+            $pzaCorrecta2 = Pza_cepillado::where('n_juego', $pzaCorrecta->n_juego)->where('id_meta', $meta->id)->where('correcto', 1)->get();
+            if (count($pzaCorrecta2) == 2) {
+                if (!in_array($pzaCorrecta->n_juego, $juegosUsados)) {
+                    array_push($juegosUsados, $pzaCorrecta->n_juego);
+                    $contadorPzas++;
+                }
+            }
+        }
+        Metas::where('id', $meta->id)->update([ //Actualización de datos en tabla Metas.
+            'resultado' => $contadorPzas,
+        ]);
+    }
     public function cepillado($id_proceso, $cNominal, $tolerancia, $request)
     {
         //Llenado de tabla Cepillado_cnominal
@@ -528,8 +599,10 @@ class ProcesosController extends Controller
         $cNominal->profuFinal_PCO = $request->cNomi_profuFinal_PCO;
         $cNominal->ensamble = $request->cNomi_ensamble;
         $cNominal->distancia_barrenoAli = $request->cNomi_distancia_barrenoAli;
-        $cNominal->profu_barrenoAli = $request->cNomi_profu_barrenoAli;
-        $cNominal->altura_vena = $request->cNomi_altura_vena;
+        $cNominal->profu_barrenoAliHembra = $request->cNomi_profu_barrenoAliHembra;
+        $cNominal->profu_barrenoAliMacho = $request->cNomi_profu_barrenoAliMacho;
+        $cNominal->altura_venaHembra = $request->cNomi_altura_venaHembra;
+        $cNominal->altura_venaMacho = $request->cNomi_altura_venaMacho;
         $cNominal->ancho_vena = $request->cNomi_ancho_vena;
         $cNominal->pin1 = $request->Hpin1[0];
         $cNominal->pin2 = $request->Hpin2[0];
@@ -550,6 +623,18 @@ class ProcesosController extends Controller
         $tolerancia->profuFinal_PCO2 = $request->tole_profuFinal_PCO2;
         $tolerancia->ensamble1 = $request->tole_ensamble1;
         $tolerancia->ensamble2 = $request->tole_ensamble2;
+        $tolerancia->distancia_barrenoAli1 = $request->tole_distancia_barrenoAli1;
+        $tolerancia->distancia_barrenoAli2 = $request->tole_distancia_barrenoAli2;
+        $tolerancia->profu_barrenoAliHembra1 = $request->tole_profu_barrenoAliHembra1;
+        $tolerancia->profu_barrenoAliHembra2 = $request->tole_profu_barrenoAliHembra2;
+        $tolerancia->profu_barrenoAliMacho1 = $request->tole_profu_barrenoAliMacho1;
+        $tolerancia->profu_barrenoAliMacho2 = $request->tole_profu_barrenoAliMacho2;
+        $tolerancia->altura_venaHembra1 = $request->tole_altura_venaHembra1;
+        $tolerancia->altura_venaHembra2 = $request->tole_altura_venaHembra2;
+        $tolerancia->altura_venaMacho1 = $request->tole_altura_venaMacho1;
+        $tolerancia->altura_venaMacho2 = $request->tole_altura_venaMacho2;
+        $tolerancia->ancho_vena1 = $request->tole_ancho_vena1;
+        $tolerancia->ancho_vena2 = $request->tole_ancho_vena2;
         $tolerancia->pin1 = $request->Hpin1[1];
         $tolerancia->pin2 = $request->Hpin2[1];
 

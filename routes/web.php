@@ -112,10 +112,14 @@ Route::get('/piezasGenerales', [PzasGeneralesController::class, 'show'])->name('
 //Ruta para el controlador de piezas generales
 Route::post('/searchPiezas', [PzasGeneralesController::class, 'search'])->name('searchPzasGenerales');
 
+//Vista de la pieza elegida
+Route::get('/admin/pieza/{pieza}/{proceso}', [PzasGeneralesController::class, 'showPieza'])->name('piezaElegida');
+
 //Ruta para la vista de piezas por maquina
 Route::get('/piezasMaquina', [PzasGeneralesController::class, 'showVistaMaquina'])->name('vistaPzasMaquina');
 //Ruta para ver los procesos de las maquinas
 Route::post('/piezasMaquina', [PzasGeneralesController::class, 'showMachinesProcess'])->name('showMachinesProcess');
+
 
 //Vista cepillado
 //Guardar encabezado de la tabla cepillado
@@ -278,7 +282,6 @@ Route::get('/rebajesHeader', [RebajesController::class, 'storeheaderTable'])->na
 Route::post('/rebajesHeader', [RebajesController::class, 'storeheaderTable'])->name('rebajesHeader');
 //Ruta para editar datos de la tabla Rebajes
 Route::post('/editRebajes', [RebajesController::class, 'edit'])->name('editRebajes');
-
 
 
 // //Vista de Primera y Segunda Operacion Soldadura Equipo

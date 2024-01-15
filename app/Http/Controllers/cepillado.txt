@@ -166,6 +166,7 @@
             $pzasCorrectas = Pza_cepillado::where('id_meta', $meta->id)->where('correcto', 1)->get(); //Obtención de todas las piezas correctas.
             $meta->resultado = $pzasCorrectas->count() / 2; //Actualización de datos en tabla Metas.
             $meta->save(); //Guardar las piezas correctas en la tabla Metas.
+            
             if (isset($cNominal) && isset($tolerancia)) {
                 $pzaUtilizar = Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
                 if ($pzaUtilizar == null) { //Si no existe una pieza para utilizar, se retorna a la vista de Cepillado.

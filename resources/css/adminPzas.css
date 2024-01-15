@@ -33,6 +33,13 @@ select {
     color: rgb(9, 9, 9);
     border-radius: 5px;
 }
+.btn-pza{
+    display: inline-block;
+    width: 60px;
+}
+.ver{
+    width: 100%;
+}
 .btns {
     padding: 17px 30px;
     background-color: #007bffe6;
@@ -59,6 +66,10 @@ select {
     font-family: monospace;
     font-weight: bold;
     font-size: 40px;
+}
+.date-label {
+    font-family: monospace;
+    font-size: 30px;
 }
 /* ESTILOS PARA LA TABLA */
 table {

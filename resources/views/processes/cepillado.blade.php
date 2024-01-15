@@ -38,6 +38,11 @@
         alert("La maquina elegida esta ocupada, por favor elige otra");
     </script>
 @endisset
+@if((isset($pzasRestantes) && $pzasRestantes == 0) && $band != 4)
+    <script>
+        alert("Se han registrado todas las piezas");
+    </script>
+@endif
 <body background="{{ asset('images/hola.jpg') }}">
     <div class="container">
         <!--Formulario en donde se guardara la meta de cepillado-->
@@ -132,9 +137,8 @@
                         <!--Div para seleccionar la clase-->
                         <div class="disabled">
                             <div class="input-datos" id="div-clases">
-                                <p>
-                                    Clases:<br>
                                     @if (isset($clases) && isset($band) && $band == 1)
+                                    <label for="clase">Clase:</label><br>
                                         @for ($i = 0; $i < count($clases); $i++)
                                             <input type="radio" id="" name="clases" class="clases" value="{{$clases[$i][0]->nombre}}">
                                             <label>{{$clases[$i][0]->nombre}}</label>
@@ -143,13 +147,22 @@
                                         @endfor
                                     @endif
                                     @if (isset($meta) && isset($band) && $band == 2 || isset($band) && $band == 4)
+                                        <label for="clase">Clase:</label>
+                                        <label for="pedido" style="margin-left: 95px;">Pedido:</label><br>
                                         <label class="clases">{{$clase->nombre}} {{$clase->tamanio}}</label>
                                         <input type="hidden" name="clases" value="{{$meta->clase}}">
                                         <input type="hidden" name="tamaño" value="{{$meta->tamaño}}">
                                         <input type="hidden" name="vista" value='true'>
-                                        <label class="clases">{{$clase->piezas}} piezas</label>
+                                        <label class="clases">{{$clase->pedido}} piezas</label>
                                     @endif
-                                </p>
+                            </div>
+                            <div class="input-datos" id="div-clases">
+                                @if (isset($meta) && isset($band) && $band == 2 || isset($band) && $band == 4)
+                                    <label for="pedido">Piezas ingresadas:</label>
+                                    <label for="pedido" style="margin-left: 20px;">Piezas restantes:</label><br>
+                                    <label class="clases" style="margin-left: 50px;">{{$clase->piezas}} piezas</label>
+                                    <label class="clases" style="margin-left: 120px;">{{$pzasRestantes}} piezas</label>
+                                @endif
                             </div> 
                             <button class="btn" id="btn-class">Siguiente</button>
                         </div>
@@ -218,8 +231,10 @@
                                 <th class="t-title">Acetato B/M</th><br>
                                 <th class="t-title">Ensamble</th>
                                 <th class="t-title">Distancia de barreno de alineación</th>
-                                <th class="t-title">Profundidad de barreno de alineación</th>
-                                <th class="t-title">Altura de vena</th>
+                                <th class="t-title">Profundidad de barreno de alineación Hembra</th>
+                                <th class="t-title">Profundidad de barreno de alineación Macho</th>
+                                <th class="t-title">Altura de vena Hembra</th>
+                                <th class="t-title">Altura de vena Macho</th>
                                 <th class="t-title">Ancho de vena</th>
                                 <th class="t-title">PIN</th>
                                 <th class="t-title" style="width:200px">Error</th>
@@ -236,6 +251,8 @@
                                     <td><input type="number" class="input" disabled></td>
                                     <td><input type="number" class="input" disabled></td>
                                     <td></td>
+                                    <td><input type="number" class="input" disabled></td>
+                                    <td><input type="number" class="input" disabled></td>
                                     <td><input type="number" class="input" disabled></td>
                                     <td><input type="number" class="input" disabled></td>
                                     <td><input type="number" class="input" disabled></td>
@@ -261,6 +278,8 @@
                                     <td><input type="text" class="input-medio" disabled><input type="text" class="input-medio" disabled></td>
                                     <td><input type="text" class="input-medio" disabled><input type="text" class="input-medio" disabled></td>
                                     <td><input type="number" class="input-medio" disabled><input type="number" class="input-medio" disabled></td>
+                                    <td><input type="text" class="input-medio" disabled><input type="text" class="input-medio" disabled></td>
+                                    <td><input type="number" class="input-medio" disabled><input type="number" class="input-medio" disabled></td>
                                     <td></td>
                                     <td></td>
                                 </tr>
@@ -276,8 +295,10 @@
                                     <td></td>
                                     <td><input type="number" value="{{$cNominal->ensamble}}" class="input" step="any" inputmode="decimal" readonly></td>
                                     <td><input type="number" value="{{$cNominal->distancia_barrenoAli}}" class="input" step="any" inputmode="decimal" readonly></td>
-                                    <td><input type="number" value="{{$cNominal->profu_barrenoAli}}" class="input" step="any" inputmode="decimal" readonly></td>
-                                    <td><input type="number" value="{{$cNominal->altura_vena}}" class="input" step="any" inputmode="decimal" readonly></td>
+                                    <td><input type="number" value="{{$cNominal->profu_barrenoAliHembra}}" class="input" step="any" inputmode="decimal" readonly></td>
+                                    <td><input type="number" value="{{$cNominal->profu_barrenoAliMacho}}" class="input" step="any" inputmode="decimal" readonly></td>
+                                    <td><input type="number" value="{{$cNominal->altura_venaHembra}}" class="input" step="any" inputmode="decimal" readonly></td>
+                                    <td><input type="number" value="{{$cNominal->altura_venaMacho}}" class="input" step="any" inputmode="decimal" readonly></td>
                                     <td><input type="number" value="{{$cNominal->ancho_vena}}" class="input" step="any" inputmode="decimal" readonly></td>
                                     <td>
                                         <input type="number" value="{{$cNominal->pin1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$cNominal->pin2}}" class="input-medio" step="any" inputmode="decimal" readonly>
@@ -310,16 +331,22 @@
                                         <input type="number" value="{{$tolerancia->ensamble1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->ensamble2}}" class="input-medio" step="any" inputmode="decimal" readonly>
                                     </td>
                                     <td>
-                                        <input type="text" value="H" class="input-medio" readonly><input type="text" value="M" class="input-medio" readonly>
+                                        <input type="text" value="{{$tolerancia->distancia_barrenoAli1}}" class="input-medio" readonly><input type="text" value="{{$tolerancia->distancia_barrenoAli2}}" class="input-medio" readonly>
                                     </td>
                                     <td>
-                                        <input type="text" value="H" class="input-medio" readonly><input type="text" value="M" class="input-medio" readonly>
+                                        <input type="text" value="{{$tolerancia->profu_barrenoAliHembra1}}" class="input-medio" readonly><input type="text" value="{{$tolerancia->profu_barrenoAliHembra2}}" class="input-medio" readonly>
                                     </td>
                                     <td>
-                                        <input type="text" value="H" class="input-medio" readonly><input type="text" value="M" class="input-medio" readonly>
+                                        <input type="text" value="{{$tolerancia->profu_barrenoAliMacho1}}" class="input-medio" readonly><input type="text" value="{{$tolerancia->profu_barrenoAliMacho2}}" class="input-medio" readonly>
                                     </td>
                                     <td>
-                                        <input type="text" value="H" class="input-medio" readonly><input type="text" value="M" class="input-medio" readonly>
+                                        <input type="text" value="{{$tolerancia->altura_venaHembra1}}" class="input-medio" readonly><input type="text" value="{{$tolerancia->altura_venaHembra2}}" class="input-medio" readonly>
+                                    </td>
+                                    <td>
+                                        <input type="text" value="{{$tolerancia->altura_venaMacho1}}" class="input-medio" readonly><input type="text" value="{{$tolerancia->altura_venaMacho2}}" class="input-medio" readonly>
+                                    </td>
+                                    <td>
+                                        <input type="text" value="{{$tolerancia->ancho_vena1}}" class="input-medio" readonly><input type="text" value="{{$tolerancia->ancho_vena2}}" class="input-medio" readonly> 
                                     </td>
                                     <td>
                                         <input type="number" value="{{$tolerancia->pin1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->pin2}}" class="input-medio" step="any" inputmode="decimal" readonly>
@@ -345,8 +372,10 @@
                                                 <td><input type="text" class="input" style="background-color:#F36456" value="{{$nPiezas->acetato_MB}}" readonly></td>
                                                 <td><input type="number" class="input" style="background-color:#F36456" value="{{$nPiezas->ensamble}}" step="any" inputmode="decimal" readonly></td>
                                                 <td><input type="number" class="input" style="background-color:#F36456" value="{{$nPiezas->distancia_barrenoAli}}" step="any" inputmode="decimal" readonly></td>
-                                                <td><input type="number" class="input" style="background-color:#F36456" value="{{$nPiezas->profu_barrenoAli}}" step="any" inputmode="decimal" readonly></td>
-                                                <td><input type="number" class="input" style="background-color:#F36456" value="{{$nPiezas->altura_vena}}" step="any" inputmode="decimal" readonly></td>
+                                                <td><input type="number" class="input" style="background-color:#F36456" value="{{$nPiezas->profu_barrenoAliHembra}}" step="any" inputmode="decimal" readonly></td>
+                                                <td><input type="number" class="input" style="background-color:#F36456" value="{{$nPiezas->profu_barrenoAliMacho}}" step="any" inputmode="decimal" readonly></td>
+                                                <td><input type="number" class="input" style="background-color:#F36456" value="{{$nPiezas->altura_venaHembra}}" step="any" inputmode="decimal" readonly></td>
+                                                <td><input type="number" class="input" style="background-color:#F36456" value="{{$nPiezas->altura_venaMacho}}" step="any" inputmode="decimal" readonly></td>
                                                 <td><input type="number" class="input" style="background-color:#F36456" value="{{$nPiezas->ancho_vena}}" step="any" inputmode="decimal" readonly></td>
                                                 <td><input type="number" class="input-medio" style="background-color:#F36456" value="{{$nPiezas->pin1}}" step="any" inputmode="decimal" readonly><input type="number" class="input-medio" style="background-color:#F36456" value="{{$nPiezas->pin2}}" step="any" inputmode="decimal" readonly></td>
                                                 <td> <input type="text" class="input" style="background-color:#F36456" value="{{$nPiezas->error}}" readonly></td>
@@ -364,8 +393,10 @@
                                                 <td><input type="text" class="input" style="background-color:#90F77E" value="{{$nPiezas->acetato_MB}}" readonly></td>
                                                 <td><input type="number" class="input" style="background-color:#90F77E" value="{{$nPiezas->ensamble}}" step="any" inputmode="decimal" readonly></td>
                                                 <td><input type="number" class="input" style="background-color:#90F77E" value="{{$nPiezas->distancia_barrenoAli}}" step="any" inputmode="decimal" readonly></td>
-                                                <td><input type="number" class="input" style="background-color:#90F77E" value="{{$nPiezas->profu_barrenoAli}}" step="any" inputmode="decimal" readonly></td>
-                                                <td><input type="number" class="input" style="background-color:#90F77E" value="{{$nPiezas->altura_vena}}" step="any" inputmode="decimal" readonly></td>
+                                                <td><input type="number" class="input" style="background-color:#90F77E" value="{{$nPiezas->profu_barrenoAliHembra}}" step="any" inputmode="decimal" readonly></td>
+                                                <td><input type="number" class="input" style="background-color:#90F77E" value="{{$nPiezas->profu_barrenoAliMacho}}" step="any" inputmode="decimal" readonly></td>
+                                                <td><input type="number" class="input" style="background-color:#90F77E" value="{{$nPiezas->altura_venaHembra}}" step="any" inputmode="decimal" readonly></td>
+                                                <td><input type="number" class="input" style="background-color:#90F77E" value="{{$nPiezas->altura_venaMacho}}" step="any" inputmode="decimal" readonly></td>
                                                 <td><input type="number" class="input" style="background-color:#90F77E" value="{{$nPiezas->ancho_vena}}" step="any" inputmode="decimal" readonly></td>
                                                 <td><input type="number" class="input-medio" style="background-color:#90F77E" value="{{$nPiezas->pin1}}" step="any" inputmode="decimal" readonly><input type="number" class="input-medio" style="background-color:#90F77E" value="{{$nPiezas->pin2}}" step="any" inputmode="decimal" readonly></td>
                                                 <td> <input type="text" class="input" style="background-color:#90F77E" value="{{$nPiezas->error}}" readonly></td>
@@ -391,8 +422,10 @@
                                         </td>
                                         <td><input type="number" name="ensamble" class="input" step="any" inputmode="decimal" required></td>
                                         <td> <input type="number" name="distancia_barrenoAli" class="input" step="any" inputmode="decimal" required></td>
-                                        <td> <input type="number" name="profu_barrenoAli" class="input" step="any" inputmode="decimal" required></td>
-                                        <td> <input type="number" name="altura_vena" class="input" step="any" inputmode="decimal" required></td>
+                                        <td> <input type="number" name="profu_barrenoAliHembra" class="input" step="any" inputmode="decimal" required></td>
+                                        <td> <input type="number" name="profu_barrenoAliMacho" class="input" step="any" inputmode="decimal" required></td>
+                                        <td> <input type="number" name="altura_venaHembra" class="input" step="any" inputmode="decimal" required></td>
+                                        <td> <input type="number" name="altura_venaMacho" class="input" step="any" inputmode="decimal" required></td>
                                         <td> <input type="number" name="ancho_vena" class="input" step="any" inputmode="decimal" required></td>
                                         <td> <input type="number" name="pin1" class="input-medio" step="any" inputmode="decimal" required><input type="number" name="pin2" class="input-medio" step="any" inputmode="decimal" required></td>
                                         <td> 
@@ -410,7 +443,9 @@
                         </table>
                     </div>
                     @if (isset($cNominal) && isset($tolerancia))
-                        <input class="btn" id="submit" type="submit" value="Siguiente Pieza">
+                        @if ($pzasRestantes != 0)
+                            <input class="btn" id="submit" type="submit" value="Siguiente Pieza">
+                        @endif
                     @endif
                 </form>
                 @if (isset($nPiezas) && $nPiezas != "[]")
@@ -445,15 +480,17 @@
                                 <th class="t-title">Acetato B/M</th><br>
                                 <th class="t-title">Ensamble</th>
                                 <th class="t-title">Distancia de barreno de alineación</th>
-                                <th class="t-title">Profundidad de barreno de alineación</th>
-                                <th class="t-title">Altura de vena</th>
+                                <th class="t-title">Profundidad de barreno de alineación Hembra</th>
+                                <th class="t-title">Profundidad de barreno de alineación Macho</th>
+                                <th class="t-title">Altura de vena Hembra</th>
+                                <th class="t-title">Altura de vena Macho</th>
                                 <th class="t-title">Ancho de vena</th>
                                 <th class="t-title">PIN</th>
                                 <th class="t-title" style="width:200px">Error</th>
                                 <th class="t-title" style="width:700px">Observaciones</th>
                             </tr>
-                            <tr>
-                                <td> C.Nominal. </td>
+                            <tr> 
+                                <td>C.Nominal.</td>
                                 <td><input type="number" value="{{$cNominal->radiof_mordaza}}" class="input" step="any" inputmode="decimal" readonly></td>
                                 <td><input type="number" value="{{$cNominal->radiof_mayor}}" class="input" step="any" inputmode="decimal" readonly></td>
                                 <td><input type="number" value="{{$cNominal->radiof_sufridera}}" class="input" step="any" inputmode="decimal" readonly></td>
@@ -463,8 +500,10 @@
                                 <td></td>
                                 <td><input type="number" value="{{$cNominal->ensamble}}" class="input" step="any" inputmode="decimal" readonly></td>
                                 <td><input type="number" value="{{$cNominal->distancia_barrenoAli}}" class="input" step="any" inputmode="decimal" readonly></td>
-                                <td><input type="number" value="{{$cNominal->profu_barrenoAli}}" class="input" step="any" inputmode="decimal" readonly></td>
-                                <td><input type="number" value="{{$cNominal->altura_vena}}" class="input" step="any" inputmode="decimal" readonly></td>
+                                <td><input type="number" value="{{$cNominal->profu_barrenoAliHembra}}" class="input" step="any" inputmode="decimal" readonly></td>
+                                <td><input type="number" value="{{$cNominal->profu_barrenoAliMacho}}" class="input" step="any" inputmode="decimal" readonly></td>
+                                <td><input type="number" value="{{$cNominal->altura_venaHembra}}" class="input" step="any" inputmode="decimal" readonly></td>
+                                <td><input type="number" value="{{$cNominal->altura_venaMacho}}" class="input" step="any" inputmode="decimal" readonly></td>
                                 <td><input type="number" value="{{$cNominal->ancho_vena}}" class="input" step="any" inputmode="decimal" readonly></td>
                                 <td>
                                 <input type="number" value="{{$cNominal->pin1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$cNominal->pin2}}" class="input-medio" step="any" inputmode="decimal" readonly>
@@ -475,46 +514,52 @@
                             <tr>
                                 <td> Tolerancias. </td>
                                 <td>
-                                    <input type="number" value="{{$tolerancia->radiof_mordaza1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->radiof_mordaza2}}" class="input-medio" step="any" inputmode="decimal" readonly>
+                                <input type="number" value="{{$tolerancia->radiof_mordaza1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->radiof_mordaza2}}" class="input-medio" step="any" inputmode="decimal" readonly>
                                 </td>
                                 <td>
-                                    <input type="number" value="{{$tolerancia->radiof_mayor1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->radiof_mayor2}}" class="input-medio" step="any" inputmode="decimal" readonly>
+                                <input type="number" value="{{$tolerancia->radiof_mayor1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->radiof_mayor2}}" class="input-medio" step="any" inputmode="decimal" readonly>
                                 </td>
                                 <td>
-                                    <input type="number" value="{{$tolerancia->radiof_sufridera1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->radiof_sufridera2}}" class="input-medio" step="any" inputmode="decimal" readonly>
-                                    </td>
-                                <td>
-                                    <input type="number" value="{{$tolerancia->profuFinal_CFC1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->profuFinal_CFC2}}" class="input-medio" step="any" inputmode="decimal" readonly>
+                                <input type="number" value="{{$tolerancia->radiof_sufridera1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->radiof_sufridera2}}" class="input-medio" step="any" inputmode="decimal" readonly>
                                 </td>
                                 <td>
-                                    <input type="number" value="{{$tolerancia->profuFinal_mitadMB1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->profuFinal_mitadMB2}}" class="input-medio" step="any" inputmode="decimal" readonly>
+                                <input type="number" value="{{$tolerancia->profuFinal_CFC1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->profuFinal_CFC2}}" class="input-medio" step="any" inputmode="decimal" readonly>
                                 </td>
                                 <td>
-                                    <input type="number" value="{{$tolerancia->profuFinal_PCO1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->profuFinal_PCO2}}" class="input-medio" step="any" inputmode="decimal" readonly>
+                                <input type="number" value="{{$tolerancia->profuFinal_mitadMB1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->profuFinal_mitadMB2}}" class="input-medio" step="any" inputmode="decimal" readonly>
+                                </td>
+                                <td>
+                                <input type="number" value="{{$tolerancia->profuFinal_PCO1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->profuFinal_PCO2}}" class="input-medio" step="any" inputmode="decimal" readonly>
                                 </td>
                                 <td></td>
                                 <td>
-                                    <input type="number" value="{{$tolerancia->ensamble1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->ensamble2}}" class="input-medio" step="any" inputmode="decimal" readonly>
+                                <input type="number" value="{{$tolerancia->ensamble1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->ensamble2}}" class="input-medio" step="any" inputmode="decimal" readonly>
                                 </td>
                                 <td>
-                                    <input type="text" value="H" class="input-medio" disabled><input type="text" value="M" class="input-medio" disabled>
+                                <input type="text" value="{{$tolerancia->distancia_barrenoAli}}" class="input-medio" readonly><input type="text" value="{{$tolerancia->distancia_barrenoAliHembra2}}" class="input-medio" readonly>
                                 </td>
                                 <td>
-                                    <input type="text" value="H" class="input-medio" disabled><input type="text" value="M" class="input-medio" disabled>
+                                <input type="text" value="{{$tolerancia->profu_barrenoAliHembra1}}" class="input-medio" readonly><input type="text" value="{{$tolerancia->profu_barrenoAliHembra2}}" class="input-medio" readonly>
                                 </td>
                                 <td>
-                                    <input type="text" value="H" class="input-medio" disabled><input type="text" value="M" class="input-medio" disabled>
+                                <input type="text" value="{{$tolerancia->profu_barrenoAliMacho1}}" class="input-medio" readonly><input type="text" value="{{$tolerancia->profu_barrenoAliMacho2}}" class="input-medio" readonly>
                                 </td>
                                 <td>
-                                    <input type="text" value="H" class="input-medio" disabled><input type="text" value="M" class="input-medio" disabled>
+                                <input type="text" value="{{$tolerancia->altura_venaHembra1}}" class="input-medio" readonly><input type="text" value="{{$tolerancia->altura_venaHembra2}}" class="input-medio" readonly>
                                 </td>
                                 <td>
-                                    <input type="number" value="{{$tolerancia->pin1}}" name="Hpin1[]" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->pin2}}" name="Hpin2[]" class="input-medio" step="any" inputmode="decimal" readonly>
+                                <input type="text" value="{{$tolerancia->altura_venaMacho1}}" class="input-medio" readonly><input type="text" value="{{$tolerancia->altura_venaMacho2}}" class="input-medio" readonly>
+                                </td>
+                                <td>
+                                <input type="text" value="{{$tolerancia->ancho_vena1}}" class="input-medio" readonly><input type="text" value="{{$tolerancia->ancho_vena2}}" class="input-medio" readonly> 
+                                </td>
+                                <td>
+                                    <input type="number" value="{{$tolerancia->pin1}}" class="input-medio" step="any" inputmode="decimal" readonly><input type="number" value="{{$tolerancia->pin2}}" class="input-medio" step="any" inputmode="decimal" readonly>
                                 </td>
                                 <td></td>
                                 <td></td>
                             </tr>
-                            <!--Llenado de piezas-->
+                            <!--Llenado d_b piezas-->
                             @if ($nPiezas->count() != 0)
                                 @foreach ($nPiezas as $nPiezas)
                                     <tr>
@@ -540,11 +585,13 @@
                                         </td>
                                         <td><input type="number" class="input" value="{{$nPiezas->ensamble}}" name="ensamble[]" step="any" inputmode="decimal" required></td>
                                         <td><input type="number" class="input" value="{{$nPiezas->distancia_barrenoAli}}" name="distancia_barrenoAli[]" step="any" inputmode="decimal" required></td>
-                                        <td><input type="number" class="input" value="{{$nPiezas->profu_barrenoAli}}" name="profu_barrenoAli[]" step="any" inputmode="decimal" required></td>
-                                        <td><input type="number" class="input" value="{{$nPiezas->altura_vena}}" name="altura_vena[]" step="any" inputmode="decimal" required></td>
+                                        <td><input type="number" class="input" value="{{$nPiezas->profu_barrenoAliHembra}}" name="profu_barrenoAliHembra[]" step="any" inputmode="decimal" required></td>
+                                        <td><input type="number" class="input" value="{{$nPiezas->profu_barrenoAliMacho}}" name="profu_barrenoAliMacho[]" step="any" inputmode="decimal" required></td>
+                                        <td><input type="number" class="input" value="{{$nPiezas->altura_venaHembra}}" name="altura_venaHembra[]" step="any" inputmode="decimal" required></td>
+                                        <td><input type="number" class="input" value="{{$nPiezas->altura_venaMacho}}" name="altura_venaMacho[]" step="any" inputmode="decimal" required></td>
                                         <td><input type="number" class="input" value="{{$nPiezas->ancho_vena}}" name="ancho_vena[]" step="any" inputmode="decimal" required></td>
                                         <td><input type="number" class="input-medio" value="{{$nPiezas->pin1}}" name="pin1[]" step="any" inputmode="decimal" required><input type="number" class="input-medio" value="{{$nPiezas->pin2}}" name="pin2[]" step="any" inputmode="decimal" required></td>
-                                        <td> 
+                                        <td>
                                             <select name="error[]" class="input">
                                                 <option value='{{$nPiezas->error}}'>{{$nPiezas->error}}</option>
                                                 @switch($nPiezas->error)
@@ -562,7 +609,7 @@
                                                 @endswitch
                                             </select>
                                         </td>
-                                         <td><textarea name="observaciones[]" class="input">{{$nPiezas->observaciones}}</textarea></td>
+                                        <td><textarea name="observaciones[]" class="input">{{$nPiezas->observaciones}}</textarea></td>
                                     </tr>
                                 @endforeach
                             @endif
@@ -570,7 +617,7 @@
                     </div>
                     <input class="btn" id="submit" type="submit" value="Guardar">
                 </form>
-            </div>
+                </div>
         @endif
     </div>
 </body>

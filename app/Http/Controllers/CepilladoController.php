@@ -76,6 +76,12 @@ class CepilladoController extends Controller
         $tolerancia = Cepillado_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $moldura = Moldura::find($ot->id_moldura); //Busco la moldura de la OT.
         $id_proceso = Cepillado::where('id_proceso', $id)->first();
+        if ($id_proceso) {;
+            $pzasRestantes = count(Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 2)->get()) / 2;
+            $pzasRestantes = $clase->piezas - $pzasRestantes;
+        } else {
+            $pzasRestantes = $clase->piezas;
+        }
         if (isset($id_proceso)) {
             $pzasCreadas = Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas
             $nPiezasCreadas = Pza_cepillado::where('id_proceso', $id_proceso->id)->get();
@@ -86,175 +92,192 @@ class CepilladoController extends Controller
             $pzasCreadas = 0;
             $nPiezasCreadas = 0;
         }
-        if (isset($request->n_pieza)) {  //Si se obtienen los datos de las piezas, se guardan en la tabla Cepillado_cnominal.
-            $id_pieza = $request->n_pieza . $id_proceso->id; //Creación de id para tabla Cepillado_cnominal.
-            $piezaExistente = Pza_cepillado::where('id_pza', $id_pieza)->first();
-            if ($piezaExistente) {
-                $piezaExistente->radiof_mordaza = $request->radiof_mordaza;
-                $piezaExistente->radiof_mayor = $request->radiof_mayor;
-                $piezaExistente->radiof_sufridera = $request->radiof_sufridera;
-                $piezaExistente->profuFinal_CFC = $request->profuFinal_CFC;
-                $piezaExistente->profuFinal_mitadMB = $request->profuFinal_mitadMB;
-                $piezaExistente->profuFinal_PCO = $request->profuFinal_PCO;
-                $piezaExistente->acetato_MB = $request->acetato_MB;
-                $piezaExistente->ensamble = $request->ensamble;
-                $piezaExistente->distancia_barrenoAli = $request->distancia_barrenoAli;
-                $piezaExistente->profu_barrenoAli = $request->profu_barrenoAli;
-                $piezaExistente->altura_vena = $request->altura_vena;
-                $piezaExistente->ancho_vena = $request->ancho_vena;
-                $piezaExistente->pin1 = $request->pin1;
-                $piezaExistente->pin2 = $request->pin2;
-                $piezaExistente->observaciones = $request->observaciones;
-                $piezaExistente->estado = 2;
-                $piezaExistente->save();
+        if ($pzasRestantes != 0) {
+            if (isset($request->n_pieza)) {  //Si se obtienen los datos de las piezas, se guardan en la tabla Cepillado_cnominal.
+                $id_pieza = $request->n_pieza . $id_proceso->id; //Creación de id para tabla Cepillado_cnominal.
+                $piezaExistente = Pza_cepillado::where('id_pza', $id_pieza)->first();
+                if ($piezaExistente) {
+                    $piezaExistente->radiof_mordaza = $request->radiof_mordaza;
+                    $piezaExistente->radiof_mayor = $request->radiof_mayor;
+                    $piezaExistente->radiof_sufridera = $request->radiof_sufridera;
+                    $piezaExistente->profuFinal_CFC = $request->profuFinal_CFC;
+                    $piezaExistente->profuFinal_mitadMB = $request->profuFinal_mitadMB;
+                    $piezaExistente->profuFinal_PCO = $request->profuFinal_PCO;
+                    $piezaExistente->acetato_MB = $request->acetato_MB;
+                    $piezaExistente->ensamble = $request->ensamble;
+                    $piezaExistente->distancia_barrenoAli = $request->distancia_barrenoAli;
+                    $piezaExistente->profu_barrenoAliHembra = $request->profu_barrenoAliHembra;
+                    $piezaExistente->profu_barrenoAliMacho = $request->profu_barrenoAliMacho;
+                    $piezaExistente->altura_venaHembra = $request->altura_venaHembra;
+                    $piezaExistente->altura_venaMacho = $request->altura_venaMacho;
+                    $piezaExistente->ancho_vena = $request->ancho_vena;
+                    $piezaExistente->pin1 = $request->pin1;
+                    $piezaExistente->pin2 = $request->pin2;
+                    $piezaExistente->observaciones = $request->observaciones;
+                    $piezaExistente->estado = 2;
+                    $piezaExistente->save();
 
-                if (!isset($piezaExistente->correcto)) {
-                    //Restar el número de piezas en la orden de trabajo
-                    $clase->piezas -= .5; //Resto el número de piezas de la clase.
-                    $clase->save(); //Guardo los datos en la tabla Clase.
-                }
-                if ($this->compararDatosPieza($piezaExistente, $cNominal, $tolerancia) == 0 && $request->error == 0) {
-                    $piezaExistente->error = 'Maquinado';
-                    $piezaExistente->correcto = 0;
-                } else if (($this->compararDatosPieza($piezaExistente, $cNominal, $tolerancia) == 0 && $request->error == 'Fundicion') || ($this->compararDatosPieza($piezaExistente, $cNominal, $tolerancia) == 1 && $request->error == 'Fundicion')) {
-                    $piezaExistente->error = $request->error;
-                    $piezaExistente->correcto = 0;
-                } else {
-                    $piezaExistente->error = 'Ninguno';
-                    $piezaExistente->correcto = 1;
-                }
-                $piezaExistente->save();
+                    if ($this->compararDatosPieza($piezaExistente, $cNominal, $tolerancia) == 0 && $request->error == 0) {
+                        $piezaExistente->error = 'Maquinado';
+                        $piezaExistente->correcto = 0;
+                    } else if (($this->compararDatosPieza($piezaExistente, $cNominal, $tolerancia) == 0 && $request->error == 'Fundicion') || ($this->compararDatosPieza($piezaExistente, $cNominal, $tolerancia) == 1 && $request->error == 'Fundicion')) {
+                        $piezaExistente->error = $request->error;
+                        $piezaExistente->correcto = 0;
+                    } else {
+                        $piezaExistente->error = 'Ninguno';
+                        $piezaExistente->correcto = 1;
+                    }
+                    $piezaExistente->save();
 
-                $pieza = Pieza::where('n_pieza', $piezaExistente->n_pieza)->first();
-                //Guardar los datos de las pieza en la tabla pieza (En donde se almacenan todas las piezas)
-                if (!isset($pieza)) {
-                    $pieza = new Pieza();
-                }
-                $pieza->id_clase = $clase->id;
-                $pieza->id_ot = $ot->id;
-                $pieza->n_pieza = $piezaExistente->n_pieza;
-                $pieza->id_operador = $meta->id_usuario;
-                $pieza->maquina = $meta->maquina;
-                $pieza->proceso = "Cepillado";
-                $pieza->error = $piezaExistente->error;
-                $pieza->save();
+                    $pieza = Pieza::where('n_pieza', $piezaExistente->n_pieza)->where('id_ot', $ot->id)->where('id_clase', $clase->id)->first();
+                    //Guardar los datos de las pieza en la tabla pieza (En donde se almacenan todas las piezas)
+                    if (!isset($pieza)) {
+                        $pieza = new Pieza();
+                    }
+                    $pieza->id_clase = $clase->id;
+                    $pieza->id_ot = $ot->id;
+                    $pieza->n_pieza = $piezaExistente->n_pieza;
+                    $pieza->id_operador = $meta->id_usuario;
+                    $pieza->maquina = $meta->maquina;
+                    $pieza->proceso = "Cepillado";
+                    $pieza->error = $piezaExistente->error;
+                    $pieza->save();
 
+                    //Actualizar resultado de la meta
+                    $contadorPzas = 0;
+                    $juegosUsados = array();
+                    $pzasCorrectas = Pza_cepillado::where('id_meta', $meta->id)->where('correcto', 1)->get(); //Obtención de todas las piezas correctas.
+                    foreach ($pzasCorrectas as $pzaCorrecta) {
+                        $pzaCorrecta2 = Pza_cepillado::where('n_juego', $pzaCorrecta->n_juego)->where('id_meta', $meta->id)->get();
+                        if (!in_array($pzaCorrecta->n_juego, $juegosUsados)) {
+                            array_push($juegosUsados, $pzaCorrecta->n_juego);
+                            $pzasMalas = 0;
+                            foreach ($pzaCorrecta2 as $pza) {
+                                if ($pza->correcto == 1) {
+                                    $contadorPzas += .5;
+                                } else if ($pza->correcto === 0) {
+                                    $pzasMalas++;
+                                }
+                            }
+                            if ($pzasMalas == 1) {
+                                $contadorPzas -= .5;
+                            }
+                        }
+                    }
+                    Metas::where('id', $meta->id)->update([ //Actualización de datos en tabla Metas.
+                        'resultado' => $contadorPzas,
+                    ]);
+                    $meta = Metas::find($meta->id); //Busco la meta de la OT.
+
+                    //Retornar la pieza siguiente
+                    $pzaUtilizar = Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first();
+
+                    if ($id_proceso) {;
+                        $pzasRestantes = count(Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 2)->get()) / 2;
+                        $pzasRestantes = $clase->piezas - $pzasRestantes;
+                    } else {
+                        $pzasRestantes = $clase->piezas;
+                    }
+                    if (isset($pzaUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Cepillado.
+                        $pzasCreadas = Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get();
+                        return view('processes.cepillado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'pzasRestantes' => $pzasRestantes, 'piezaUtilizar' => $pzaUtilizar]); //Retorno a vista de Cepillado.
+                    }
+                }
+            } else {
+                $proceso = Cepillado::where('id_proceso', $id)->first(); //Busco el proceso de la OT.
+                if (!$proceso) {
+                    //Llenado de la tabla Cepillado.
+                    $cepillado = new Cepillado(); //Creación de objeto para llenar tabla Cepillado.
+                    $cepillado->id_proceso = $id; //Creación de id para tabla Cepillado.
+                    $cepillado->id_ot = $ot->id; //Llenado de id_proceso para tabla Cepillado.
+                    $cepillado->save(); //Guardado de datos en la tabla Cepillado.
+
+                    if ($nPiezasCreadas == 0) { //Si no existen piexas creadas en la tabla Pza_cepillado.
+                        $this->createPiezas($cepillado->id, $clase->piezas, 1); //Creación de piezas en la tablaPza_cepillado.
+                    }
+                    if (isset($cNominal) && isset($tolerancia)) {
+                        //Actualizar solo dos registros de las piezas que se van a ocupar en la tabla cepillado
+                        $this->piezaUtilizar($cepillado->id, $meta);
+                    }
+                }
+            }
+            $id_proceso = Cepillado::where('id_proceso', $id)->first();
+            if ($id_proceso !== "[]") {
+                $pzasCreadas = Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas.
+                for ($i = 0; $i < count($pzasCreadas); $i++) { //Recorro las piezas creadas.
+                    //Acrualiza el estado correcto de la pieza.
+                    if ($this->compararDatosPieza($pzasCreadas[$i], $cNominal, $tolerancia) == 0 && ($pzasCreadas[$i]->error == 'Maquinado' || $pzasCreadas[$i]->error == 'Ninguno')) {
+                        $pzasCreadas[$i]->error = 'Maquinado';
+                        $pzasCreadas[$i]->correcto = 0;
+                    } else if (($this->compararDatosPieza($pzasCreadas[$i], $cNominal, $tolerancia) == 0 && $pzasCreadas[$i]->error == 'Fundicion') || ($this->compararDatosPieza($pzasCreadas[$i], $cNominal, $tolerancia) == 1 && $pzasCreadas[$i]->error == 'Fundicion')) {
+                        $pzasCreadas[$i]->error = 'Fundicion';
+                        $pzasCreadas[$i]->correcto = 0;
+                    } else {
+                        $pzasCreadas[$i]->error = 'Ninguno';
+                        $pzasCreadas[$i]->correcto = 1;
+                    }
+                    $pzasCreadas[$i]->save();
+                }
                 //Actualizar resultado de la meta
                 $contadorPzas = 0;
                 $juegosUsados = array();
                 $pzasCorrectas = Pza_cepillado::where('id_meta', $meta->id)->where('correcto', 1)->get(); //Obtención de todas las piezas correctas.
                 foreach ($pzasCorrectas as $pzaCorrecta) {
-                    $pzaCorrecta2 = Pza_cepillado::where('n_juego', $pzaCorrecta->n_juego)->where('id_meta', $meta->id)->where('correcto', 1)->get();
-                    if (count($pzaCorrecta2) == 2) {
-                        if (!in_array($pzaCorrecta->n_juego, $juegosUsados)) {
-                            array_push($juegosUsados, $pzaCorrecta->n_juego);
-                            $contadorPzas++;
+                    $pzaCorrecta2 = Pza_cepillado::where('n_juego', $pzaCorrecta->n_juego)->where('id_meta', $meta->id)->get();
+                    if (!in_array($pzaCorrecta->n_juego, $juegosUsados)) {
+                        array_push($juegosUsados, $pzaCorrecta->n_juego);
+                        $pzasMalas = 0;
+                        foreach ($pzaCorrecta2 as $pza) {
+                            if ($pza->correcto == 1) {
+                                $contadorPzas += .5;
+                            } else if ($pza->correcto != null) {
+                                $pzasMalas++;
+                            }
+                        }
+                        if ($pzasMalas > 0 && $pzasMalas < 2) {
+                            $contadorPzas -= .5;
                         }
                     }
                 }
                 Metas::where('id', $meta->id)->update([ //Actualización de datos en tabla Metas.
                     'resultado' => $contadorPzas,
                 ]);
-                $meta = Metas::find($meta->id); //Busco la meta de la OT.
-
-                //Retornar la pieza siguiente
-                $pzaUtilizar = Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first();
-                if (isset($pzaUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Cepillado.
-                    $pzasCreadas = Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get();
-                    return view('processes.cepillado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaUtilizar' => $pzaUtilizar]); //Retorno a vista de Cepillado.
-                } else {
-                    //Actualizar solo dos registros de las piezas que se van a ocupar en la tabla cepillado
-                    $this->piezaUtilizar($id_proceso->id, $meta);
-                }
-            }
-        } else {
-            $proceso = Cepillado::where('id_proceso', $id)->first(); //Busco el proceso de la OT.
-            if (!$proceso) {
-                //Llenado de la tabla Cepillado.
-                $cepillado = new Cepillado(); //Creación de objeto para llenar tabla Cepillado.
-                $cepillado->id_proceso = $id; //Creación de id para tabla Cepillado.
-                $cepillado->id_ot = $ot->id; //Llenado de id_proceso para tabla Cepillado.
-                $cepillado->save(); //Guardado de datos en la tabla Cepillado.
-
-                if ($nPiezasCreadas == 0) { //Si no existen piexas creadas en la tabla Pza_cepillado.
-                    $this->createPiezas($cepillado->id, $clase->piezas, 1); //Creación de piezas en la tablaPza_cepillado.
-                }
                 if (isset($cNominal) && isset($tolerancia)) {
-                    //Actualizar solo dos registros de las piezas que se van a ocupar en la tabla cepillado
-                    $this->piezaUtilizar($cepillado->id, $meta);
-                }
-            }
-        }
-        $id_proceso = Cepillado::where('id_proceso', $id)->first();
-        if ($id_proceso !== "[]") {
-            $pzasCreadas = Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas.
-            for ($i = 0; $i < count($pzasCreadas); $i++) { //Recorro las piezas creadas.
-                //Acrualiza el estado correcto de la pieza.
-                if ($this->compararDatosPieza($pzasCreadas[$i], $cNominal, $tolerancia) == 0 && ($pzasCreadas[$i]->error == 'Maquinado' || $pzasCreadas[$i]->error == 'Ninguno')) {
-                    $pzasCreadas[$i]->error = 'Maquinado';
-                    $pzasCreadas[$i]->correcto = 0;
-                } else if (($this->compararDatosPieza($pzasCreadas[$i], $cNominal, $tolerancia) == 0 && $pzasCreadas[$i]->error == 'Fundicion') || ($this->compararDatosPieza($pzasCreadas[$i], $cNominal, $tolerancia) == 1 && $pzasCreadas[$i]->error == 'Fundicion')) {
-                    $pzasCreadas[$i]->error = 'Fundicion';
-                    $pzasCreadas[$i]->correcto = 0;
-                } else {
-                    $pzasCreadas[$i]->error = 'Ninguno';
-                    $pzasCreadas[$i]->correcto = 1;
-                }
-                $pzasCreadas[$i]->save();
-            }
-            //Actualizar resultado de la meta
-            $contadorPzas = 0;
-            $juegosUsados = array();
-            $pzasCorrectas = Pza_cepillado::where('id_meta', $meta->id)->where('correcto', 1)->get(); //Obtención de todas las piezas correctas.
-            foreach ($pzasCorrectas as $pzaCorrecta) {
-                $pzaCorrecta2 = Pza_cepillado::where('n_juego', $pzaCorrecta->n_juego)->where('id_meta', $meta->id)->where('correcto', 1)->get();
-                if (count($pzaCorrecta2) == 2) {
-                    if (!in_array($pzaCorrecta->n_juego, $juegosUsados)) {
-                        array_push($juegosUsados, $pzaCorrecta->n_juego);
-                        $contadorPzas++;
-                    }
-                }
-            }
-            Metas::where('id', $meta->id)->update([ //Actualización de datos en tabla Metas.
-                'resultado' => $contadorPzas,
-            ]);
-            if (isset($cNominal) && isset($tolerancia)) {
-                $pzaUtilizar = Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
-                if ($pzaUtilizar == null) { //Si no existe una pieza para utilizar, se retorna a la vista de Cepillado.
-                    $piezasVacias = Pza_cepillado::where('correcto', null)->where('estado', 1)->where('id_proceso', $id_proceso->id)->get(); //Obtención de todas las piezas creadas.
-                    if (isset($piezasVacias) && $piezasVacias->count() > 0) { //Si existen piezas vacias, se busca una pieza para utilizar.
-                        for ($i = 0; $i < count($piezasVacias); $i++) { //Recorro las piezas creadas.
-                            $metaAnterior = Metas::where('id', $piezasVacias[$i]->id_meta)->first(); //Obtención de la meta anterior.
-                            if ($metaAnterior->maquina == $meta->maquina) { //Si la meta anterior es igual a la meta actual, se utiliza la pieza.
-                                $piezasVacias[$i]->id_meta = $meta->id; //Llenado de id_meta para tabla Pza_cepillado.
-                                $piezasVacias[$i]->save(); //Guardado de datos en tabla Pza_cepillado.
-                                $pzaUtilizar = $piezasVacias[$i]; //Obtención de la pieza a utilizar.
-                                $piezaEncontrada = true; //Se encontro una pieza para utilizar.
-                                break; //Se rompe el ciclo.
-                            } else {
-                                $piezaEncontrada = false; //No se encontro una pieza para utilizar.
+                    $pzaUtilizar = Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
+                    if ($pzaUtilizar == null) { //Si no existe una pieza para utilizar, se retorna a la vista de Cepillado.
+                        $piezasVacias = Pza_cepillado::where('correcto', null)->where('estado', 1)->where('id_proceso', $id_proceso->id)->get(); //Obtención de todas las piezas creadas.
+                        $contador = 0;
+                        if (isset($piezasVacias) && $piezasVacias->count() > 0) { //Si existen piezas vacias, se busca una pieza para utilizar.
+                            foreach ($piezasVacias as $piezaVacia) {
+                                $metaAnterior = Metas::find($piezaVacia->id_meta);
+                                if ($metaAnterior->maquina == $meta->maquina) {
+                                    $piezaVacia->id_meta = $meta->id;
+                                    $piezaVacia->save();
+                                    $pzaUtilizar = $piezaVacia;
+                                    $contador++;
+                                    break;
+                                }
                             }
                         }
-                    } else {
-                        $piezaEncontrada = false; //No se encontro una pieza para utilizar.
-                    }
-                    if (!$piezaEncontrada) { //Si no se encontro una pieza para utilizar, se crea una nueva pieza.
-                        $this->piezaUtilizar($id_proceso->id, $meta); //Llamado a función para obtener la pieza a utilizar.
-                        $pzaUtilizar = Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
+                        if ($contador == 0) { //Si no se encontro una pieza para utilizar, se crea una nueva pieza.
+                            $this->piezaUtilizar($id_proceso->id, $meta); //Llamado a función para obtener la pieza a utilizar.
+                            $pzaUtilizar = Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
+                        }
                     }
                 }
-            }
-            if (isset($pzaUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Cepillado.
-                return view('processes.cepillado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaUtilizar' => $pzaUtilizar]); //Retorno a vista de Cepillado.
-            } else { //Si no existe una pieza para utilizar, se retorna a la vista de Cepillado.
-                return view('processes.cepillado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
+                if (isset($pzaUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Cepillado.
+                    return view('processes.cepillado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'pzasRestantes' => $pzasRestantes, 'piezaUtilizar' => $pzaUtilizar]); //Retorno a vista de Cepillado.
+                } else { //Si no existe una pieza para utilizar, se retorna a la vista de Cepillado.
+                    return view('processes.cepillado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
+                }
             }
         }
+        return view('processes.cepillado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
     }
 
     public function compararDatosPieza($pieza, $cNominal, $tolerancia) //Función para comparar los datos de la pieza con los datos nominales y de tolerancia.
     {
-        if ($pieza->radiof_mordaza > ($cNominal->radiof_mordaza + $tolerancia->radiof_mordaza1) || $pieza->radiof_mordaza < ($cNominal->radiof_mordaza - $tolerancia->radiof_mordaza2) || $pieza->radiof_mayor > ($cNominal->radiof_mayor + $tolerancia->radiof_mayor1) || $pieza->radiof_mayor < ($cNominal->radiof_mayor - $tolerancia->radiof_mayor2) || $pieza->radiof_sufridera > ($cNominal->radiof_sufridera + $tolerancia->radiof_sufridera1) || $pieza->radiof_sufridera < ($cNominal->radiof_sufridera - $tolerancia->radiof_sufridera2) || $pieza->profuFinal_CFC > ($cNominal->profuFinal_CFC + $tolerancia->profuFinal_CFC1) || $pieza->profuFinal_CFC < ($cNominal->profuFinal_CFC - $tolerancia->profuFinal_CFC2) || $pieza->profuFinal_mitadMB  > ($cNominal->profuFinal_mitadMB  + $tolerancia->profuFinal_mitadMB1) || $pieza->profuFinal_mitadMB < ($cNominal->profuFinal_mitadMB - $tolerancia->profuFinal_mitadMB2) || $pieza->profuFinal_PCO  > ($cNominal->profuFinal_PCO  + $tolerancia->profuFinal_PCO1) || $pieza->profuFinal_PCO < ($cNominal->profuFinal_PCO - $tolerancia->profuFinal_PCO2) || $pieza->acetato_MB == "Mal" || $pieza->ensamble > ($cNominal->ensamble + $tolerancia->ensamble1) || $pieza->ensamble < ($cNominal->ensamble - $tolerancia->ensamble2) || $pieza->distancia_barrenoAli != $cNominal->distancia_barrenoAli || $pieza->profu_barrenoAli != $cNominal->profu_barrenoAli || $pieza->altura_vena != $cNominal->altura_vena || $pieza->ancho_vena != $cNominal->ancho_vena || $pieza->pin1 > ($cNominal->pin1 + $tolerancia->pin1) || $pieza->pin1 < ($cNominal->pin1 - $tolerancia->pin1) || $pieza->pin2 > ($cNominal->pin2 + $tolerancia->pin2) || $pieza->pin2 < ($cNominal->pin2 - $tolerancia->pin2)) {
+        if ($pieza->radiof_mordaza > ($cNominal->radiof_mordaza + $tolerancia->radiof_mordaza1) || $pieza->radiof_mordaza < ($cNominal->radiof_mordaza - $tolerancia->radiof_mordaza2) || $pieza->radiof_mayor > ($cNominal->radiof_mayor + $tolerancia->radiof_mayor1) || $pieza->radiof_mayor < ($cNominal->radiof_mayor - $tolerancia->radiof_mayor2) || $pieza->radiof_sufridera > ($cNominal->radiof_sufridera + $tolerancia->radiof_sufridera1) || $pieza->radiof_sufridera < ($cNominal->radiof_sufridera - $tolerancia->radiof_sufridera2) || $pieza->profuFinal_CFC > ($cNominal->profuFinal_CFC + $tolerancia->profuFinal_CFC1) || $pieza->profuFinal_CFC < ($cNominal->profuFinal_CFC - $tolerancia->profuFinal_CFC2) || $pieza->profuFinal_mitadMB  > ($cNominal->profuFinal_mitadMB  + $tolerancia->profuFinal_mitadMB1) || $pieza->profuFinal_mitadMB < ($cNominal->profuFinal_mitadMB - $tolerancia->profuFinal_mitadMB2) || $pieza->profuFinal_PCO  > ($cNominal->profuFinal_PCO  + $tolerancia->profuFinal_PCO1) || $pieza->profuFinal_PCO < ($cNominal->profuFinal_PCO - $tolerancia->profuFinal_PCO2) || $pieza->acetato_MB == "Mal" || $pieza->ensamble > ($cNominal->ensamble + $tolerancia->ensamble1) || $pieza->ensamble < ($cNominal->ensamble - $tolerancia->ensamble2) || $pieza->distancia_barrenoAli > ($cNominal->distancia_barrenoAli + $tolerancia->distancia_barrenoAli1) || $pieza->distancia_barrenoAli < ($cNominal->distancia_barrenoAli - $tolerancia->distancia_barrenoAli2) || $pieza->profu_barrenoAliHembra > ($cNominal->profu_barrenoAliHembra + $tolerancia->profu_barrenoAliHembra1) || $pieza->profu_barrenoAliHembra < ($cNominal->profu_barrenoAliHembra - $tolerancia->profu_barrenoAliHembra2) || $pieza->profu_barrenoAliMacho > ($cNominal->profu_barrenoAliMacho + $tolerancia->profu_barrenoAliMacho1) || $pieza->profu_barrenoAliMacho < ($cNominal->profu_barrenoAliMacho - $tolerancia->profu_barrenoAliMacho2) || $pieza->altura_venaHembra > ($cNominal->altura_venaHembra + $tolerancia->altura_venaHembra1) || $pieza->altura_venaHembra < ($cNominal->altura_venaHembra - $tolerancia->altura_venaHembra2) || $pieza->altura_venaMacho > ($cNominal->altura_venaMacho + $tolerancia->altura_venaMacho1) || $pieza->altura_venaMacho < ($cNominal->altura_venaMacho - $tolerancia->altura_venaMacho2) || $pieza->ancho_vena > ($cNominal->ancho_vena + $tolerancia->ancho_vena1) || $pieza->ancho_vena < ($cNominal->ancho_vena - $tolerancia->ancho_vena2) || $pieza->pin1 > ($cNominal->pin1 + $tolerancia->pin1) || $pieza->pin1 < ($cNominal->pin1 - $tolerancia->pin1) || $pieza->pin2 > ($cNominal->pin2 + $tolerancia->pin2) || $pieza->pin2 < ($cNominal->pin2 - $tolerancia->pin2)) {
             return 0; //Si los datos de la pieza son diferentes a los nominales y de tolerancia, se retorna 0.
         } else {
             return 1; //Si los datos de la pieza son iguales a los nominales y de tolerancia, se retorna 1.
@@ -271,7 +294,21 @@ class CepilladoController extends Controller
         $cNominal = Cepillado_cnominal::where('id_proceso', "Cepillado_" . $clase->nombre . "_" . $ot->id)->first(); //Busco la meta de la OT.
         $tolerancia = Cepillado_tolerancia::where('id_proceso', "Cepillado_" . $clase->nombre . "_" . $ot->id)->first(); //Busco la meta de la OT.
         $pzasCreadas = Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas.
-        $pzaUtilizar = Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
+        $pzasRestantes = count(Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 2)->get()) / 2;
+        $pzasRestantes = $clase->piezas - $pzasRestantes;
+        if ($pzasRestantes != 0) {
+            $pzaUtilizar = Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
+        }
+        if (isset($id_proceso)) {
+            $pzasCreadas = Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas
+            $nPiezasCreadas = Pza_cepillado::where('id_proceso', $id_proceso->id)->get();
+            if ((($nPiezasCreadas->count() / 2) < $clase->piezas && $nPiezasCreadas->count() > 0) || $nPiezasCreadas === 0) { //Si el número de piezas creadas es menor al número de piezas de la clase, se crearan las piezas.
+                $this->createPiezas($id_proceso->id, $clase->piezas, ($nPiezasCreadas->count() / 2) + 1); //Creación de piezas en la tabla Pza_cepillado.
+            }
+        } else {
+            $pzasCreadas = 0;
+            $nPiezasCreadas = 0;
+        }
         if (isset($request->n_pieza)) {
             for ($i = 0; $i < count($request->n_pieza); $i++) {
                 $id_pieza = $request->n_pieza[$i] . $id_proceso->id; //Creación de id para tabla Cepillado_cnominal.
@@ -286,14 +323,16 @@ class CepilladoController extends Controller
                     $piezaExistente->acetato_MB = $request->acetato_MB[$i];
                     $piezaExistente->ensamble = $request->ensamble[$i];
                     $piezaExistente->distancia_barrenoAli = $request->distancia_barrenoAli[$i];
-                    $piezaExistente->profu_barrenoAli = $request->profu_barrenoAli[$i];
-                    $piezaExistente->altura_vena = $request->altura_vena[$i];
+                    $piezaExistente->profu_barrenoAliHembra = $request->profu_barrenoAliHembra[$i];
+                    $piezaExistente->profu_barrenoAliMacho = $request->profu_barrenoAliMacho[$i];
+                    $piezaExistente->altura_venaHembra = $request->altura_venaHembra[$i];
+                    $piezaExistente->altura_venaMacho = $request->altura_venaMacho[$i];
                     $piezaExistente->ancho_vena = $request->ancho_vena[$i];
                     $piezaExistente->pin1 = $request->pin1[$i];
                     $piezaExistente->pin2 = $request->pin2[$i];
                     if (isset($request->observaciones[$i])) { //Si se obtienen los datos de las piezas, se guardan en la tabla Cepillado_cnominal.
                         $piezaExistente->observaciones = $request->observaciones[$i];  //Llenado de observaciones para tabla Cepillado_cnominal.
-                    }else{
+                    } else {
                         $piezaExistente->observaciones = "";  //Llenado de observaciones para tabla Cepillado_cnominal.
                     }
                     $piezaExistente->save(); //Guardado de datos en la tabla Pza_cepillado.
@@ -313,7 +352,7 @@ class CepilladoController extends Controller
 
 
 
-                    $pieza = Pieza::where('n_pieza', $piezaExistente->n_pieza)->first();
+                    $pieza = Pieza::where('n_pieza', $piezaExistente->n_pieza)->where('id_ot', $ot->id)->where('id_clase', $clase->id)->first();
                     //Guardar los datos de las pieza en la tabla pieza (En donde se almacenan todas las piezas)
                     if (!isset($pieza)) {
                         $pieza = new Pieza();
@@ -333,11 +372,19 @@ class CepilladoController extends Controller
             $juegosUsados = array();
             $pzasCorrectas = Pza_cepillado::where('id_meta', $meta->id)->where('correcto', 1)->get(); //Obtención de todas las piezas correctas.
             foreach ($pzasCorrectas as $pzaCorrecta) {
-                $pzaCorrecta2 = Pza_cepillado::where('n_juego', $pzaCorrecta->n_juego)->where('id_meta', $meta->id)->where('correcto', 1)->get();
-                if (count($pzaCorrecta2) == 2) {
-                    if (!in_array($pzaCorrecta->n_juego, $juegosUsados)) {
-                        array_push($juegosUsados, $pzaCorrecta->n_juego);
-                        $contadorPzas++;
+                $pzaCorrecta2 = Pza_cepillado::where('n_juego', $pzaCorrecta->n_juego)->where('id_meta', $meta->id)->get();
+                if (!in_array($pzaCorrecta->n_juego, $juegosUsados)) {
+                    array_push($juegosUsados, $pzaCorrecta->n_juego);
+                    $pzasMalas = 0;
+                    foreach ($pzaCorrecta2 as $pza) {
+                        if ($pza->correcto == 1) {
+                            $contadorPzas += .5;
+                        } else if ($pza->correcto === 0) {
+                            $pzasMalas++;
+                        }
+                    }
+                    if ($pzasMalas == 1) {
+                        $contadorPzas -= .5;
                     }
                 }
             }
@@ -346,25 +393,31 @@ class CepilladoController extends Controller
             $meta->save(); //Guardado de datos en la tabla Metas.
 
             //Retornar la pieza siguiente
-            $pzaUtilizar = Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
+            if ($pzasRestantes != 0) {
+                $pzaUtilizar = Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
+            }
             $pzasCreadas = Pza_cepillado::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas.
             $cNominal = Cepillado_cnominal::where('id_proceso', "Cepillado_" . $clase->nombre . "_" . $ot->id)->first(); //Busco la meta de la OT.
             $tolerancia = Cepillado_tolerancia::where('id_proceso', "Cepillado_" . $clase->nombre . "_" . $ot->id)->first(); //Busco la meta de la OT.
             if (isset($pzaUtilizar)) {
-                return view('processes.cepillado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaUtilizar' => $pzaUtilizar]); //Retorno a vista de Cepillado.
+                return view('processes.cepillado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'pzasRestantes' => $pzasRestantes, 'piezaUtilizar' => $pzaUtilizar]); //Retorno a vista de Cepillado.
             } else {
-                return view('processes.cepillado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase])->with('succes', 'Las piezas se han editado correctamente'); //Retorno a vista de Cepillado.
+                return view('processes.cepillado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'pzasRestantes' => $pzasRestantes])->with('succes', 'Las piezas se han editado correctamente'); //Retorno a vista de Cepillado.
             }
         } else {
             if (isset($request->password)) { //Si se ingreso una contraseña y la meta existe entonces...
                 $usersPasswords = User::all(); //Obtengo todas las contraseñas.
                 foreach ($usersPasswords as $userPassword) { //Recorro las contraseñas.
                     if (Hash::check($request->password, $userPassword->contrasena) && $userPassword->perfil == 1) {  //Si la contraseña es correcta.
-                        return view('processes.cepillado', ['band' => 4, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'clase' => $clase, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas]); //Retorno la vista de cepillado.
+                        return view('processes.cepillado', ['band' => 4, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'clase' => $clase,  'pzasRestantes' => $pzasRestantes, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas]); //Retorno la vista de cepillado.
                     }
                 }
             }
-            return view('processes.cepillado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaUtilizar' => $pzaUtilizar]); //Retorno a vista de Cepillado.
+        }
+        if (isset($pzaUtilizar)) {
+            return view('processes.cepillado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'pzasRestantes' => $pzasRestantes, 'piezaUtilizar' => $pzaUtilizar]); //Retorno a vista de Cepillado.
+        } else {
+            return view('processes.cepillado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Cepillado.
         }
     }
 

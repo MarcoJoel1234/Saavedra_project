@@ -57,6 +57,8 @@
             <label for="etiqueta2">Operador: {{$array[1]}}</label><br>
             <label for="etiqueta3">Máquina: {{$array[2]}}</label><br>
             <label for="etiqueta4">Proceso: {{$array[3]}}</label><br>
+            <label for="etiqueta5">Error: {{$array[4]}}</label><br>
+            <label for="etiqueta6">Fecha: {{$array[5]}}</label><br>
         </div>
         <table border="1">
             <thead>
@@ -67,6 +69,7 @@
                     <th>Máquina</th>
                     <th>Proceso</th>
                     <th>Error</th>
+                    <th>Fecha</th>
                 </tr>
             </thead>
             @for ($i=0; $i < count($piezas); $i++)
