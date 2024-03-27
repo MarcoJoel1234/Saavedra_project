@@ -32,7 +32,7 @@
                 // console.log(this.procesosClase);
                 console.log(this.procesos);
                 for (let indice = 0; indice < otArray.length; indice++) {
-                    for (this.indiCarru; this.indiCarru < this.clases[indice].length; this.indiCarru++) {
+                    for (this.indiCarru = 0; this.indiCarru < this.clases[indice].length; this.indiCarru++) {
                         let main = document.querySelector('main');
                         //Nombres de los procesos insertados en un arreglo
 
@@ -64,7 +64,6 @@
                         this.contador++;
                         let carousel_item_container = document.createElement('div');
                         carousel_item_container.className = "carousel-item-container";
-
                         carousel.appendChild(prevBtn);
                         let containers = this.procesosClase[indice][this.indiCarru].length / 3;//Numero de carruseles
                         let contadorElementos = [];
@@ -83,7 +82,7 @@
                         }else{
                             //Elementos por carrusel
                             for (let j = 0; j < containers; j++) {
-                                contadorElementos[$j] = 3;
+                                contadorElementos[j] = 3;
                             }
                         }
                         //Carrusel por clases
@@ -92,7 +91,7 @@
                             let carousel_item_container = document.createElement('div');
                             carousel_item_container.className = "carousel-item-container";
                             for (let j = 0; j < contadorElementos[i]; j++) {
-
+                                console.log(this.otArray[indice]);
                                 let carousel_item = document.createElement('div');
                                 carousel_item.className = "carousel-item item";
 
@@ -215,7 +214,7 @@
                         var headerRow = document.createElement('tr');
 
                         // Crear las celdas de encabezado en la cual va el nombre, no. de pieza, proceso, error de la pieza que esta mal creada
-                        var headers = ['No. de pieza', 'No. de juego', 'Nombre del operador', 'Proceso', 'Error'];
+                        var headers = ['No. de pieza', 'No. de juego', 'Operador', 'Proceso', 'Operación', 'Error'];
 
                         headers.forEach(function(headerText) {
                             var th = document.createElement('th');
@@ -275,7 +274,6 @@
                         main.appendChild(form);
                         this.proceso = 0;
                     }
-                    this.indiCarru = 0;
                 }
                 this.movimientoCarrusel();
             }

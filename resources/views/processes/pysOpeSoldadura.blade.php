@@ -2,7 +2,7 @@
 @section('content')
 
 <head>
-    <title>1ra y 2da Operación Soldadura</title>
+    <title>1ra y 2da Operación Equipo</title>
     @vite('resources/css/cepillado.css')
     @vite('resources/js/editarInterfaz.js')
     @vite('resources/js/editarTabla.js')
@@ -32,12 +32,23 @@
         }
     </style>
 @endif
+@isset($error)
+    <script>
+        alert("La máquina elegida esta ocupada, por favor elige otra");
+    </script>
+@endisset
+@if((isset($pzasRestantes) && $pzasRestantes == 0) && $band != 4)
+    <script>
+        alert("Se han registrado todas las piezas");
+    </script>
+@endif
 <body background="{{ asset('images/hola.jpg') }}">
     <div class="container">
         <form action="{{route('saveHeader')}}" method="post">
             @csrf
             <input type="hidden" name="proceso" value="pysOpeSoldadura">
             <div class="container-header">
+                @if (isset($ot) || isset($meta))
                 <div class="datos">
                     @include('layouts.partials.messages')    
                     @if ((isset($band) && $band == 2) && (!isset($nPiezas) || $nPiezas == "[]"))
@@ -56,24 +67,26 @@
                     @if (isset($band) && $band == 1 || isset($band) && $band == 2 || isset($band) && $band == 4)
                         <div class="input-datos">
                             <label>Orden de trabajo:</label>
-                            <input type="text" name="ot" value="{{$meta->id_ot}}" style="cursor:auto;" readonly>
+                            <input type="text" name="ot" value="{{$meta->id_ot}}" style="cursor:auto; width:20%" readonly>
+                        </div>
+                        <div class="input-datos">
+                            <label>Nombre de la moldura:</label>
+                            <input type="text" value="{{$moldura}}" style="width: 100%; cursor:auto;" readonly>
                         </div>
                         <div class="input-datos">
                             <label for="hora" style="padding-right: 10px;">Hora de inicio:</label>
                             <label for="hora">Hora de termino:</label><br>
                             <input type="time" id="hora" name="h_inicio" value="{{$meta->h_inicio}}" style="cursor:auto;" readonly>
-                            <input type="time" id="hora" name="h_termino" value="{{$meta->h_termino}}" style="cursor:auto;"readonly>
+                            <input type="time" id="hora" name="h_termino" value="{{$meta->h_termino}}" style="cursor:auto; margin-left:5%;"readonly>
                         </div>
                         <div class="input-datos">
-                            <label for="fecha">Fecha:</label>
-                            <input type="date" id="fecha" name="fecha" value="{{$meta->fecha}}" style="cursor:auto;" readonly>
+                            <label for="fecha" style="padding-right: 60px; margin-left:50px;">Fecha:</label>
+                            <label for="fecha">Máquina:</label><br>
+                            <input type="date" name="fecha" value="{{$meta->fecha}}" style="cursor:auto;" readonly>
+                            <input type="text" name="maquina" value="{{$meta->maquina}}" style="cursor:auto; width:20%;" readonly>
                         </div>
-                        <div class="input-datos">
-                            <label for="maquina">Máquina:</label>
-                            <input type="text" id="maquina" name="maquina" value="{{$meta->maquina}}" style="cursor:auto;" readonly>
-                        </div>
-                        <!--Si la bandera no tiene un valor1-->
                     @else
+                        <!--Si la bandera no tiene un valor1-->
                         @if (isset($band) && $band == 3)
                             <div class="input-datos">
                                 <label>Orden de trabajo:</label>
@@ -91,6 +104,7 @@
                                 </select>
                             </div>
                         @endif
+                        <!-- Primera parte de la meta habilitada -->
                         <div class="input-datos">
                                 <label for="hora" style="padding-right: 10px;">Hora de inicio:</label>
                                 <label for="hora">Hora de termino:</label><br>
@@ -98,20 +112,14 @@
                                 <input type="time" id="hora" name="h_termino" required>
                         </div>
                         <div class="input-datos">
-                            <label for="fecha">Fecha:</label>
+                            <label for="fecha" style="padding-right: 70px; margin-left:50px;">Fecha:</label>
+                            <label for="fecha">Máquina:</label><br>
                             <input type="date" id="fecha" name="fecha" required>
-                        </div>
-                        <div class="input-datos">
-                            <label for="maquina" style="padding-right: 10px;">Selecciona tu máquina:</label>
-                            <select name="maquina" class="input">
-                                <option value="1">Máquina 1</option>
-                                <option value="2">Máquina 2</option>
-                                <option value="3">Máquina 3</option>
-                                <option value="4">Máquina 4</option>
-                                <option value="5">Máquina 5</option>
-                                <option value="6">Máquina 6</option>
-                                <option value="7">Máquina 7</option>
-                            </select>       
+                            <select name="maquina">
+                            @for ($i=1; $i<=7; $i++)
+                                <option value="{{$i}}">Máquina {{$i}}</option>
+                            @endfor
+                            </select>
                         </div>
                     @endif 
                     <!-- Botón aceptar -->
@@ -121,59 +129,62 @@
 
                         <!-- Campos deshabilitados -->
                         <div class="disabled">
-                            <div class="input-datos">
-                                @if (isset($band) && $band == 1 || isset($band) && $band == 2 || isset($band) && $band == 4)
-                                    <label>Nombre de la moldura:</label>
-                                    <input type="text" value="{{$moldura}}" style="width: 100%; cursor:auto;" readonly>
-                                @else
-                                    <label>Nombre de la moldura: No se ha encontrado el nombre de la moldura</label><br>
-                                @endif
-                            </div>
                             <div class="input-datos" id="div-clases">
-                                <p>
-                                    Clases:<br>
                                     @if (isset($clases) && isset($band) && $band == 1)
-                                        @foreach($clases as $clases)
-                                            @if ($clases == "Bombillo")
-                                                <input type="radio" name="clases" id="bombillo" value="{{$clases}}">
-                                                <label>{{$clases}}</label>
-                                            @elseif ($clases == "Molde")
-                                                <input type="radio" name="clases" id="molde" value="{{$clases}}">
-                                                <label>{{$clases}}</label>
-                                            @else
-                                                <input type="radio" name="clases" class="sn-tamaños" value="{{$clases}}">
-                                                <label>{{$clases}}</label>
-                                            @endif
-                                        @endforeach
+                                    <label for="clase">Clase:</label><br>
+                                        @for ($i = 0; $i < count($clases); $i++)
+                                            <input type="radio" id="" name="clases" class="clases" value="{{$clases[$i][0]->nombre}}">
+                                            <label style="font-weight:normal">{{$clases[$i][0]->nombre}}</label>
+                                            <input type="hidden" name="tamaño" value="{{$clases[$i][0]->tamanio}}">
+                                            <input type="hidden" name="piezas" value="{{$clases[$i][0]->piezas}}">
+                                        @endfor
                                         <br>
-                                        <label>Selecciona un proceso: </label><br>
-                                        <div>
-                                            <input type="radio" name="operacion" value="1">
-                                            <label>1ra operacion</label>
-                                            <input type="radio" name="operacion" value="2">
-                                            <label>2da operacion</label>
-                                        </div>
+                                            <label>Selecciona un proceso:</label><br>
+                                            <div>
+                                                <input type="radio" id="" name="operacion" value="1">
+                                                <label style="font-weight:normal">1ra operacion</label>
+                                                <input type="radio" id="" name="operacion" value="2">
+                                                <label style="font-weight:normal">2da operacion</label>
+                                            </div>
                                     @endif
                                     @if (isset($meta) && isset($band) && $band == 2 || isset($band) && $band == 4)
-                                        <label class="clases">{{$clase->nombre}} {{$clase->tamanio}}</label>
+                                        <label for="clase">Clase:</label>
+                                        <label for="pedido" style="margin-left: 95px;">Pedido:</label><br>
+                                        @if ($clase->tamanio != null)
+                                            <label class="clases">{{$clase->nombre}} {{$clase->tamanio}}</label>    
+                                        @else
+                                            <label class="clases">{{$clase->nombre}} {{$clase->seccion}}</label>
+                                        @endif
+                                        <label class="clases" style="margin-left: 30px;">{{$clase->pedido}} piezas</label>
+                                        
                                         <input type="hidden" name="clases" value="{{$meta->clase}}">
                                         <input type="hidden" name="tamaño" value="{{$meta->tamaño}}">
                                         <input type="hidden" name="vista" value='true'>
-                                        <label class="clases">{{$juegos}} juegos</label>
-
-                                        <br><label>Proceso: </label><br>
-                                        <input type="hidden" name="operacion" value="{{$operacion}}">
-                                        @if($operacion == 1)
-                                            <label class="clases">1ra operacion</label>
-                                        @else
-                                            <label class="clases">2da operacion</label>
-                                        @endif
                                     @endif
-                                </p>
+                            </div>
+                            <div class="input-datos" id="div-clases">
+                                @if (isset($meta) && isset($band) && $band == 2 || isset($band) && $band == 4)
+                                    <label for="pedido">Piezas ingresadas:</label>
+                                    <label for="pedido" style="margin-left: 20px;">Juegos restantes:</label><br>
+                                    <label class="clases" style="margin-left: 50px;">{{$clase->piezas}} piezas</label>
+                                    <label class="clases" style="margin-left: 120px;">{{$pzasRestantes}} piezas</label><br>
+                                    <label>Proceso: </label><br>
+                                    <input type="hidden" name="operacion" value="{{$operacion}}">
+                                    @if($operacion == 1)
+                                        <label class="clases">1ra operacion</label>
+                                    @else
+                                        <label class="clases">2da operacion</label>
+                                    @endif
+                                @endif
                             </div> 
                             <button class="btn" id="btn-class">Siguiente</button>
                         </div>
                 </div>
+                @else
+                    <div class="datos" style="text-align: center;">
+                        <h3 style="color: red;">Sin ordenes de trabajo </h3>
+                    </div>
+                @endif
                 <div class="div-tabla2">
                     <table border="1" id="tabla2">
                         <tr>
@@ -296,7 +307,7 @@
                                     @foreach ($nPiezas as $nPiezas)
                                         @if ($nPiezas->correcto == 0)
                                             <tr>
-                                                <td><input type="text" class="input" style="background-color:#F36456" value="{{$nPiezas->n_juego}}" readonly></td>
+                                                <td><input type="text" class="input" style="background-color:#F36456" value="{{$nPiezas->n_pieza}}" readonly></td>
                                                 <td><input type="number" class="input" style="background-color:#F36456" value="{{$nPiezas->altura}}" step="any" inputmode="decimal" readonly></td>
                                                 <td>
                                                     <input type="number" class="input-medio" style="background-color:#F36456" value="{{$nPiezas->alturaCandado1}}" step="any" inputmode="decimal" readonly><input type="number" class="input-medio" style="background-color:#F36456" value="{{$nPiezas->alturaCandado2}}" step="any" inputmode="decimal" readonly>
@@ -313,10 +324,10 @@
                                             </tr>
                                         @else
                                         <tr>
-                                            <td><input type="text" class="input" style="background-color:#90F77E" value="{{$nPiezas->n_juego}}" readonly></td>
+                                            <td><input type="text" class="input" style="background-color:#90F77E" value="{{$nPiezas->n_pieza}}" readonly></td>
                                             <td><input type="number" class="input" style="background-color:#90F77E" value="{{$nPiezas->altura}}" step="any" inputmode="decimal" readonly></td>
                                             <td>
-                                                <input type="number" class="input-medio" style="background-color:#90F77E" value="{{$nPiezas->alturaCandado1}}" step="any" inputmode="decimal" readonly><input type="number" class="input-medio" style="background-color:#90F77E" value="{{$nPiezas->alturaCandado2}}" step="any" inputmode="decimal" readonlytd>
+                                                <input type="number" class="input-medio" style="background-color:#90F77E" value="{{$nPiezas->alturaCandado1}}" step="any" inputmode="decimal" readonly><input type="number" class="input-medio" style="background-color:#90F77E" value="{{$nPiezas->alturaCandado2}}" step="any" inputmode="decimal" readonly>
                                             </td>
                                             <td>
                                                 <input type="number" class="input-medio" style="background-color:#90F77E" value="{{$nPiezas->alturaAsientoObturador1}}" step="any" inputmode="decimal" readonly><input type="number" class="input-medio" style="background-color:#90F77E" value="{{$nPiezas->alturaAsientoObturador2}}" step="any" inputmode="decimal" readonly>
@@ -353,7 +364,7 @@
                                 @endif
                                 @if (isset($piezaElegida))
                                     <tr>
-                                        <td> <input type="text" name="n_pieza" class="input" value="{{$piezaElegida->n_juego}}" readonly></td>
+                                        <td> <input type="text" name="n_pieza" class="input" value="{{$piezaElegida->n_pieza}}" readonly></td>
                                         <td> <input type="number" name="altura" class="input" step="any" inputmode="decimal" required></td>
                                         <td> 
                                             <input type="number" name="alturaCandado1" class="input-medio" step="any" inputmode="decimal" required><input type="number" name="alturaCandado2" class="input-medio" step="any" inputmode="decimal" required>
@@ -376,7 +387,7 @@
                                 @endif
                             @endif
                         </table>
-                        @if (isset($piezasUtilizar) && $juegos != 0 && !isset($piezaElegida))
+                        @if (isset($piezasUtilizar) && $pzasRestantes != 0 && !isset($piezaElegida))
                             <input type="submit" value="Elegir pieza" class="btn">
                         @endif
                     </div>
@@ -453,7 +464,7 @@
                             @if ($nPiezas->count() != 0)
                                 @foreach ($nPiezas as $nPiezas)
                                     <tr>
-                                        <td><input type="text" class="input" value="{{$nPiezas->n_juego}}" name="n_pieza[]" step="any" inputmode="decimal" readonly></td>
+                                        <td><input type="text" class="input" value="{{$nPiezas->n_pieza}}" name="n_pieza[]" step="any" inputmode="decimal" readonly></td>
                                         <td><input type="number" class="input" value="{{$nPiezas->altura}}" name="altura[]" step="any" inputmode="decimal" required></td>
                                         <td>
                                             <input type="number" class="input-medio" value="{{$nPiezas->alturaCandado1}}" name="alturaCandado1[]" step="any" inputmode="decimal" required><input type="number" class="input-medio" value="{{$nPiezas->alturaCandado2}}" name="alturaCandado2[]" step="any" inputmode="decimal" required>

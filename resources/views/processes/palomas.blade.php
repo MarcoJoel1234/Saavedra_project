@@ -32,7 +32,16 @@
         }
     </style>
 @endif
-
+@isset($error)
+    <script>
+        alert("La máquina elegida esta ocupada, por favor elige otra");
+    </script>
+@endisset
+@if((isset($pzasRestantes) && $pzasRestantes == 0) && $band != 4)
+    <script>
+        alert("Se han registrado todas las piezas");
+    </script>
+@endif
 <body background="{{ asset('images/hola.jpg') }}">
     <div class="container">
         <!--Formulario en donde se guardara la meta de desbaste-->
@@ -127,9 +136,8 @@
                         <!--Div para seleccionar la clase-->
                         <div class="disabled">
                             <div class="input-datos" id="div-clases">
-                                <p>
-                                    Clases:<br>
                                     @if (isset($clases) && isset($band) && $band == 1)
+                                    <label for="clase">Clase:</label><br>
                                         @for ($i = 0; $i < count($clases); $i++)
                                             <input type="radio" id="" name="clases" class="clases" value="{{$clases[$i][0]->nombre}}">
                                             <label>{{$clases[$i][0]->nombre}}</label>
@@ -138,14 +146,23 @@
                                         @endfor
                                     @endif
                                     @if (isset($meta) && isset($band) && $band == 2 || isset($band) && $band == 4)
+                                        <label for="clase">Clase:</label>
+                                        <label for="pedido" style="margin-left: 95px;">Pedido:</label><br>
                                         <label class="clases">{{$clase->nombre}} {{$clase->tamanio}}</label>
                                         <input type="hidden" name="clases" value="{{$meta->clase}}">
                                         <input type="hidden" name="tamaño" value="{{$meta->tamaño}}">
                                         <input type="hidden" name="vista" value='true'>
-                                        <label class="clases">{{$clase->piezas}} piezas</label>
+                                        <label class="clases">{{$clase->pedido}} piezas</label>
                                     @endif
-                                </p>
                             </div>
+                            <div class="input-datos" id="div-clases">
+                                @if (isset($meta) && isset($band) && $band == 2 || isset($band) && $band == 4)
+                                    <label for="pedido">Piezas ingresadas:</label>
+                                    <label for="pedido" style="margin-left: 20px;">Juegos restantes:</label><br>
+                                    <label class="clases" style="margin-left: 50px;">{{$clase->piezas}} piezas</label>
+                                    <label class="clases" style="margin-left: 120px;">{{$pzasRestantes}} piezas</label>
+                                @endif
+                            </div> 
                             <button class="btn" id="btn-class">Siguiente</button>
                         </div>
                 </div>
@@ -318,7 +335,7 @@
                                 @endif
                             @endif
                         </table>
-                        @if (isset($piezasUtilizar) && $juegos != 0 && !isset($piezaElegida))
+                        @if (isset($piezasUtilizar) && $pzasRestantes != 0 && !isset($piezaElegida))
                             <input type="submit" value="Elegir pieza" class="btn">
                         @endif
                     </div>

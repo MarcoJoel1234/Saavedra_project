@@ -107,6 +107,9 @@ section{
     justify-content: center;
     align-items: center;
 }
+table td{
+    text-align: center;
+}
 .div1{
     width:25%;
     height: 70%;

@@ -35,7 +35,7 @@
 @endif
 @isset($error)
     <script>
-        alert("La maquina elegida esta ocupada, por favor elige otra");
+        alert("La máquina elegida esta ocupada, por favor elige otra");
     </script>
 @endisset
 @if((isset($pzasRestantes) && $pzasRestantes == 0) && $band != 4)

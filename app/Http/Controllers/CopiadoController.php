@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Hash;
 
 class CopiadoController extends Controller
 {
-    public function show()
+    public function show($error)
     {
         $ot = Orden_trabajo::all(); //Obtención de todas las ordenes de trabajo.
         if (count($ot) != 0) {
@@ -41,11 +41,21 @@ class CopiadoController extends Controller
                     array_push($oTrabajo, $ot);
                 }
             }
+            //Si hay clases que pasaran por Primera operación soldadura, se almacena la orden de trabajo en el arreglo.
             if (count($oTrabajo) != 0) {
-                return view('processes.copiado', ['ot' => $oTrabajo]); //Retorno a vista de Copiado
+                if ($error == 1) {
+                    return view('processes.copiado', ['ot' => $oTrabajo, 'error' => $error]); //Retorno a vista de Desbaste exterior
+                }
+                return view('processes.copiado', ['ot' => $oTrabajo]); //Retorno a vista de Desbaste exterior
             }
-            //Se retorna a la vista de Cepillado con las ordenes de trabajo que tienen clases que pasaran por Copiado
-            return view('processes.copiado', ['ot']); //Retorno a vista de Copiado
+            if ($error == 1) {
+                return view('processes.copiado', ['ot' => $oTrabajo, 'error' => $error]); //Retorno a vista de Desbaste exterior
+            }
+            //Se retorna a la vista de Primera operación soldadura con las ordenes de trabajo que tienen clases que pasaran por Desbaste exterior
+            return view('processes.copiado', ['ot']); //Retorno a vista de Desbaste exterior
+        }
+        if ($error == 1) {
+            return view('processes.copiado', ['error' => $error]); //Retorno a vista de Desbaste exterior
         }
         return view('processes.copiado');
     }
@@ -63,8 +73,18 @@ class CopiadoController extends Controller
         $cNominal = Copiado_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $tolerancia = Copiado_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $moldura = Moldura::find($ot->id_moldura); //Busco la moldura de la OT.
+        $proceso = Copiado::where('id_proceso', $id)->first(); //Busco el proceso de la OT.
+        if (!$proceso) {
+            //Llenado de la tabla Copiado
+            $copiado = new Copiado(); //Creación de objeto para llenar tabla Copiado
+            $copiado->id_proceso = $id; //Creación de id para tabla Copiado
+            $copiado->id_ot = $ot->id; //Llenado de id_proceso para tabla Copiado
+            $copiado->save(); //Guardado de datos en la tabla Copiado
+        }
         $id_proceso = Copiado::where('id_proceso', $id)->first();
-
+        $pzasCopiado = Copiado_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
+        $pzasCavidades = Pieza::where('id_ot', $ot->id)->where('id_clase', $clase->id)->where('proceso', 'Cavidades')->where('error', 'Ninguno')->get();
+        $pzasRestantes = $this->piezasRestantes($pzasCavidades, $pzasCopiado);
         if (isset($request->n_pieza)) {  //Si se obtienen los datos de las piezas, se guardan en la tabla Copiado_cnominal.
             $id_pieza = $request->n_pieza . $id_proceso->id; //Creación de id para tabla Copiado_cnominal.
             $piezaExistente = Copiado_pza::where('id_pza', $id_pieza)->first();
@@ -139,10 +159,13 @@ class CopiadoController extends Controller
                 ]);
                 $meta = Metas::find($meta->id); //Busco la meta de la OT.
                 //  //Retornar la pieza siguiente
+                $pzasCopiado = Copiado_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
+                $pzasCavidades = Pieza::where('id_ot', $ot->id)->where('id_clase', $clase->id)->where('proceso', 'Cavidades')->where('error', 'Ninguno')->get();
+                $pzasRestantes = $this->piezasRestantes($pzasCavidades, $pzasCopiado);
                 $pzaUtilizar = Copiado_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first();
                 if (isset($pzaUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Copiado
                     $pzasCreadas = Copiado_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get();
-                    return view('processes.copiado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'nPiezasCavi' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'juegos' => count($this->piezaUtilizar($ot->id, $clase))]); //Retorno a vista de Copiado
+                    return view('processes.copiado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'nPiezasCavi' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Copiado
                 } else {
                     //Actualizar solo dos registros de las piezas que se van a ocupar en la tabla Copiado
                     $this->piezaUtilizar($ot->id, $clase);
@@ -158,15 +181,6 @@ class CopiadoController extends Controller
                 $newPza->estado = 1; //Llenado de estado para tabla Copiado
                 $newPza->n_juego = $request->n_juegoElegido; //Llenado de estado para tabla Copiado
                 $newPza->save(); //Guardado de datos en la tabla Copiado
-            }
-        } else {
-            $proceso = Copiado::where('id_proceso', $id)->first(); //Busco el proceso de la OT.
-            if (!$proceso) {
-                //Llenado de la tabla Copiado
-                $copiado = new Copiado(); //Creación de objeto para llenar tabla Copiado
-                $copiado->id_proceso = $id; //Creación de id para tabla Copiado
-                $copiado->id_ot = $ot->id; //Llenado de id_proceso para tabla Copiado
-                $copiado->save(); //Guardado de datos en la tabla Copiado
             }
         }
         $id_proceso = Copiado::where('id_proceso', $id)->first();
@@ -225,13 +239,13 @@ class CopiadoController extends Controller
                     }
                 }
                 if (isset($pzasUtilizar)) { //Si no se encontro una pieza para utilizar, se crea una nueva pieza.
-                    return view('processes.copiado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'nPiezasCavi' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'juegos' => count($pzasUtilizar)]); //Retorno a vista de Copiado
+                    return view('processes.copiado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'nPiezasCavi' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Copiado
                 } else {
-                    return view('processes.copiado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'nPiezasCavi' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'juegos' => count($this->piezaUtilizar($ot->id, $clase))])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Copiado
+                    return view('processes.copiado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'nPiezasCavi' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Copiado
                 }
             } else {
                 $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
-                return view('processes.copiado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'nPiezasCavi' => $pzasCreadas, 'clase' => $clase, 'juegos' => count($pzasUtilizar)])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Copiado
+                return view('processes.copiado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'nPiezasCavi' => $pzasCreadas, 'clase' => $clase, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Copiado
             }
         }
     }
@@ -251,6 +265,11 @@ class CopiadoController extends Controller
         }
         return $subprocesos; //Retorno de datos.
     }
+    public function piezasRestantes($pzasProcesoA, $pzasProcesoB)
+    {
+        $pzasRestantes = count($pzasProcesoA) - count($pzasProcesoB);
+        return $pzasRestantes;
+    }
     public function edit(Request $request)
     {
         $meta = Metas::find($request->metaData); //Busco la meta de la OT.
@@ -263,6 +282,9 @@ class CopiadoController extends Controller
         $tolerancia = Copiado_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $pzasCreadas = Copiado_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas.
         $pzaUtilizar = Copiado_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
+        $pzasCopiado = Copiado_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
+        $pzasCavidades = Pieza::where('id_ot', $ot->id)->where('id_clase', $clase->id)->where('proceso', 'Cavidades')->where('error', 'Ninguno')->get();
+        $pzasRestantes = $this->piezasRestantes($pzasCavidades, $pzasCopiado);
         if (isset($request->n_piezaCavi)) { //Si se obtienen los datos de las piezas, se guardan en la tabla Copiado_cnominal.
             for ($i = 0; $i < count($request->n_piezaCavi); $i++) {
                 $id_pieza = $request->n_piezaCavi[$i] . $id_proceso->id; //Creación de id para tabla Copiado_cnominal.
@@ -369,17 +391,17 @@ class CopiadoController extends Controller
             $cNominal = Copiado_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
             $tolerancia = Copiado_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
             if (isset($pzasUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Copiado
-                return view('processes.copiado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'nPiezasCavi' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'juegos' => count($pzasUtilizar)]); //Retorno a vista de Copiado
+                return view('processes.copiado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'nPiezasCavi' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Copiado
             } else { //Si no existe una pieza para utilizar, se retorna a la vista de Copiado
                 $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
-                return view('processes.copiado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'nPiezasCavi' => $pzasCreadas,  'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'juegos' => count($pzasUtilizar)])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Copiado
+                return view('processes.copiado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'nPiezasCavi' => $pzasCreadas,  'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Copiado
             }
         } else {
             if (isset($request->password)) { //Si se ingreso una contraseña y la meta existe entonces...
                 $usersPasswords = User::all(); //Obtengo todas las contraseñas.
                 foreach ($usersPasswords as $userPassword) { //Recorro las contraseñas.
                     if (Hash::check($request->password, $userPassword->contrasena) && $userPassword->perfil == 1) {  //Si la contraseña es correcta.
-                        return view('processes.copiado', ['band' => 4, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'clase' => $clase, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'nPiezasCavi' => $pzasCreadas, 'juegos' => count($this->piezaUtilizar($ot->id, $clase))]); //Retorno la vista de Copiado
+                        return view('processes.copiado', ['band' => 4, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'clase' => $clase, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'nPiezasCavi' => $pzasCreadas, 'pzasRestantes' => $pzasRestantes]); //Retorno la vista de Copiado
                     }
                 }
             }
@@ -410,10 +432,10 @@ class CopiadoController extends Controller
             $cNominal = Copiado_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
             $tolerancia = Copiado_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
             if (isset($pzasUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Copiado
-                return view('processes.copiado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'nPiezasCavi' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'juegos' => count($pzasUtilizar)]); //Retorno a vista de Copiado
+                return view('processes.copiado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'nPiezasCavi' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Copiado
             } else { //Si no existe una pieza para utilizar, se retorna a la vista de Copiado
                 $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
-                return view('processes.copiado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'nPiezasCavi' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'juegos' => count($pzasUtilizar)])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Copiado
+                return view('processes.copiado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'nPiezasCavi' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Copiado
             }
         }
     }

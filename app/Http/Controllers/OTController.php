@@ -7,11 +7,13 @@ use App\Models\AcabadoBombilo;
 use App\Models\AcabadoMolde;
 use App\Models\Asentado;
 use App\Models\BarrenoManiobra;
+use App\Models\BarrenoProfundidad;
 use App\Models\Cavidades;
 use App\Models\Cepillado;
 use App\Models\Clase;
 use App\Models\Copiado;
 use App\Models\DesbasteExterior;
+use App\Models\EmbudoCM;
 use App\Models\Maquinas;
 use App\Models\Metas;
 use App\Models\Moldura;
@@ -377,7 +379,7 @@ class OTController extends Controller
             if (isset($metaExistente->id_clase) && !isset($request->clases)) { //Si la meta existe pero aun no se selecciona la clase
                 $clase = Clase::find($metaExistente->id_clase);
             } else { //Si se ingresa una meta ya existente
-                $clase = Clase::where('id_ot', $ot->id)->where('nombre', $request->clase)->first(); //Busco la clase.
+                $clase = Clase::where('id_ot', $ot->id)->where('nombre', $request->clases)->first(); //Busco la clase.
             }
             //Actualizar la maquina
             $maquina = Maquinas::where('id_meta', $metaExistente->id)->first();
@@ -425,6 +427,8 @@ class OTController extends Controller
                                 return view('processes.revAcabadosBombillo', ['band' => 3, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clase' => $clase]);
                             case "acabadoMolde":
                                 return view('processes.revAcabadosMolde', ['band' => 3, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clase' => $clase]);
+                            case 'barrenoProfundidad':
+                                return view('processes.barrenoProfundidad', ['band' => 3, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clase' => $clase]);
                             case "cavidades":
                                 return view('processes.cavidades', ['band' => 3, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clase' => $clase]);
                             case "copiado":
@@ -437,6 +441,8 @@ class OTController extends Controller
                                 return view('processes.rebajes', ['band' => 3, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clase' => $clase]);
                             case "pysOpeSoldadura":
                                 return view('processes.pysOpeSoldadura', ['band' => 3, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clase' => $clase]);
+                            case "embudoCM":
+                                return view('processes.embudoCM', ['band' => 3, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clase' => $clase]);
                         }
                     }
                 }
@@ -466,6 +472,8 @@ class OTController extends Controller
                         return redirect()->route('acabadoBombilloHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
                     case "acabadoMolde":
                         return redirect()->route('acabadoMoldeHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
+                    case 'barrenoProfundidad':
+                        return redirect()->route('barrenoProfundidadHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
                     case "cavidades":
                         return redirect()->route('cavidadesHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
                     case "copiado":
@@ -478,6 +486,8 @@ class OTController extends Controller
                         return redirect()->route('rebajesHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
                     case "pysOpeSoldadura":
                         return redirect()->route('1y2OpeSoldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase, 'operacion' => $request->operacion]);
+                    case "embudoCM":
+                        return redirect()->route('embudoCMHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
                 }
                 //Si aun no se ha calculado la meta o se ingresan los datos editados o se ingresa la clase elegida
             } elseif ($metaExistente->meta === null || isset($request->band) || isset($request->clases)) {
@@ -534,6 +544,9 @@ class OTController extends Controller
                         case 'acabadoMolde':
                             $clases = $this->ClaseEncontradas($ot->id, "acabadoMolde"); //Se obtienen las clases disponibles en acabado molde
                             return view('processes.revAcabadosMolde', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]); //Retorno la vista de acabado molde
+                        case 'barrenoProfundidad':
+                            $clases = $this->ClaseEncontradas($ot->id, "barreno_profundidad"); //Se obtienen las clases disponibles en acabado molde
+                            return view('processes.barrenoProfundidad', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]); //Retorno la vista de acabado molde
                         case 'cavidades':
                             $clases = $this->ClaseEncontradas($ot->id, "cavidades"); //Se obtienen las clases disponibles en cavidades
                             return view('processes.cavidades', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]); //Retorno la vista de cavidades
@@ -545,13 +558,16 @@ class OTController extends Controller
                             return view('processes.offSet', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]); //Retorno la vista deOffSet
                         case 'palomas':
                             $clases = $this->ClaseEncontradas($ot->id, "palomas"); //Se obtienen las clases disponibles en Palomas
-                            return view('processes.palomas', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]); //Retorno la vista deOffSet
+                            return view('processes.palomas', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]); //Retorno la vista Palomas
                         case 'rebajes':
                             $clases = $this->ClaseEncontradas($ot->id, "rebajes"); //Se obtienen las clases disponibles en Rebajes
-                            return view('processes.rebajes', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]); //Retorno la vista deOffSet
+                            return view('processes.rebajes', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]); //Retorno la vista Rebajes
                         case "pysOpeSoldadura": //Se obtienen las clases disponibles en 1ra y 2da operación de soldadura.
                             $clases = $this->ClaseEncontradas($ot->id, "operacionEquipo"); //Se obtienen las clases disponibles en 1 y 2 operacion equipo
                             return view('processes.pysOpeSoldadura', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]);
+                        case 'embudoCM':
+                            $clases = $this->ClaseEncontradas($ot->id, "embudoCM"); //Se obtienen las clases disponibles en Embudo CM
+                            return view('processes.embudoCM', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]); //Retorno la vista Embudo CM
                     }
                 }
                 if (isset($request->clases)) { //Si existe una clase ingresada.
@@ -559,7 +575,7 @@ class OTController extends Controller
                         if (isset($request->operacion)) { //Si la operación existe  
                             $clase = $this->AsignarDatos_Meta($metaExistente, $hrsTrabajadas, $ot, $request->clases, $request->proceso); //Asigno los datos de la meta.
                         } else {
-                            $clases = $this->ClaseEncontradas($ot->id, "cepillado"); //Obtengo las clases que no son nulas.
+                            $clases = $this->ClaseEncontradas($ot->id, "operacionEquipo"); //Obtengo las clases que no son nulas.
                             return view('processes.pysOpeSoldadura', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $metaExistente, 'clases' => $clases]); //Retorno la vista de primera y segunda operación de soldadura
                         }
                     } else {
@@ -675,6 +691,14 @@ class OTController extends Controller
                         }
                         //Retorno la vista de Acabado Molde.
                         return redirect()->route('acabadoMoldeHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
+                    case "barrenoProfundidad":
+                        $id = "barrenoProfundidad_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Acabado Molde
+                        $barrenoProfundidad = BarrenoProfundidad::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
+                        if (isset($barrenoProfundidad)) {
+                            return redirect()->route('barrenoProfundidadHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de Acabado Molde.
+                        }
+                        //Retorno la vista de Acabado Molde.
+                        return redirect()->route('barrenoProfundidadHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case "cavidades":
                         $id = "cavidades_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Cavidades
                         $cavidades = Cavidades::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
@@ -722,6 +746,14 @@ class OTController extends Controller
                         }
                         // //Retorno la vista de 1ra y 2da operación de soldadura
                         return redirect()->route('1y2OpeSoldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'operacion' => $request->operacion]);
+                    case "embudoCM":
+                        $id = "embudoCM_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Embudo CM
+                        $embudoCM = EmbudoCM::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
+                        if (isset($embudoCM)) {
+                            return redirect()->route('embudoCMHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de Embudo CM
+                        }
+                        //Retorno la vista de Embudo CM
+                        return redirect()->route('embudoCMHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                 }
             } else {
                 //Cuando ya se han registrado todos los datos de la meta.
@@ -730,18 +762,18 @@ class OTController extends Controller
                         $id = "cepillado_" . $clase->nombre . "_" . $ot->id; //Creación de id para tabla Cepillado.
                         $cepillado = Cepillado::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
                         if (isset($cepillado)) {
-                            return redirect()->route('cepilladoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]); //Retorno la vista de cepillado.
+                            return redirect()->route('cepilladoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de cepillado.
                         }
                         //Retorno la vista de cepillado.
-                        return view('processes.cepillado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $metaExistente, 'clase' => $clase]); //Retorno la vista de cepillado.
+                        return redirect()->route('cepilladoHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]); //Retorno la vista de cepillado.
                     case "desbaste":
                         $id = "desbaste_" . $clase->nombre . "_" . $ot->id; //Creación de id para tabla Desbaste.
                         $desbaste = DesbasteExterior::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
                         if (isset($desbaste)) {
-                            return redirect()->route('desbasteHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
+                            return redirect()->route('desbasteHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]);
                         }
                         //Retorno la vista de desbaste.
-                        return view('desbaste.cepillado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $metaExistente, 'clase' => $clase]); //Retorno la vista de desbaste.
+                        return redirect()->route('desbasteHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case "revLaterales":
                         $id = "revLaterales_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Revision Laterales.
                         $revLaterales = RevLaterales::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
@@ -830,6 +862,14 @@ class OTController extends Controller
                         }
                         //Retorno la vista de Acabado Molde
                         return redirect()->route('acabadoMoldeHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
+                    case "barrenoProfundidad":
+                        $id = "barrenoProfundidad_" . $request->clases . "_" . $ot->id; //Creación de id para tabla barrenoProfundidad
+                        $barrenoProfundidad = BarrenoProfundidad::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
+                        if (isset($barrenoProfundidad)) { //Si existe la OT.
+                            return redirect()->route('barrenoProfundidadHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de Acabado Molde
+                        }
+                        //Retorno la vista de Barrero Profundidad
+                        return redirect()->route('barrenoProfundidadHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                     case 'cavidades':
                         $id = "cavidades_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Cavidades
                         $cavidades = Cavidades::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
@@ -875,6 +915,15 @@ class OTController extends Controller
                         if (isset($proceso)) {
                             return redirect()->route('1y2OpeSoldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase, 'operacion' => $proceso->operacion]);
                         }
+                        return redirect()->route('1y2OpeSoldaduraHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
+                    case 'embudoCM':
+                        $id = "embudoCM_" . $request->clases . "_" . $ot->id; //Creación de id para tabla Embudo CM
+                        $embudoCM = EmbudoCM::where('id_proceso', $id)->first(); //Busco la OT que se quiere editar.
+                        if (isset($embudoCM)) { //Si existe la OT.
+                            return redirect()->route('embudoCMHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id, 'clase' => $clase]); //Retorno la vista de Rebajes
+                        }
+                        //Retorno la vista de Embudo CM
+                        return redirect()->route('embudoCMHeaderGet')->with(['controller' => 3, 'meta' => $metaExistente->id]);
                 }
             }
         } else {
@@ -947,6 +996,9 @@ class OTController extends Controller
                     case 'acabadoMolde':
                         $clases = $this->ClaseEncontradas($meta->id_ot, "acabadoMolde"); //Obtengo las clases que no son nulas.
                         return view('processes.revAcabadosMolde', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista acabadoMolde.
+                    case 'barrenoProfundidad':
+                        $clases = $this->ClaseEncontradas($meta->id_ot, "barreno_profundidad"); //Obtengo las clases que no son nulas.
+                        return view('processes.barrenoProfundidad', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista acabadoMolde.
                     case 'cavidades':
                         $clases = $this->ClaseEncontradas($meta->id_ot, "cavidades"); //Obtengo las clases que no son nulas.
                         return view('processes.cavidades', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de cavidades.
@@ -965,47 +1017,54 @@ class OTController extends Controller
                     case "pysOpeSoldadura":
                         $clases = $this->ClaseEncontradas($meta->id_ot, "operacionEquipo"); //Obtengo las clases que no son nulas.
                         return view('processes.pysOpeSoldadura', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de pysOpeSoldadura.
+                    case 'embudoCM':
+                        $clases = $this->ClaseEncontradas($meta->id_ot, "embudoCM"); //Obtengo las clases que no son nulas.
+                        return view('processes.embudoCM', ['band' => 1, 'moldura' => $moldura->nombre, 'meta' => $meta, 'clases' => $clases]); //Retorno la vista de Rebajes
                 }
             } else {
                 switch ($request->proceso) {
                     case "cepillado":
                         return redirect()->route('cepillado', ['error' => 1]);
                     case 'desbaste':
-                        return view('processes.desbaste', ['error' => 1]);
+                        return redirect()->route('desbasteExterior', ['error' => 1]);
                     case 'revLaterales':
-                        return view('processes.rev-laterales', ['error' => 1]);
+                        return redirect()->route('revisionLaterales', ['error' => 1]);
                     case 'primeraOpeSoldadura':
-                        return view('processes.primeraOpeSoldadura', ['error' => 1]);
+                        return redirect()->route('primeraOpeSoldadura', ['error' => 1]);
                     case 'barrenoManiobra':
-                        return view('processes.barrenoManiobra', ['error' => 1]);
+                        return redirect()->route('barrenoManiobra', ['error' => 1]);
                     case 'segundaOpeSoldadura':
-                        return view('processes.segundaOpeSoldadura', ['error' => 1]);
+                        return redirect()->route('segundaOpeSoldadura', ['error' => 1]);
                     case 'soldadura':
-                        return view('processes.soldadura', ['error' => 1]);
+                        return redirect()->route('soldadura', ['error' => 1]);
                     case 'soldaduraPTA':
-                        return view('processes.soldaduraPTA', ['error' => 1]);
+                        return redirect()->route('soldaduraPTA', ['error' => 1]);
                     case 'rectificado':
-                        return view('processes.rectificado', ['error' => 1]);
+                        return redirect()->route('rectificado', ['error' => 1]);
                     case 'asentado':
-                        return view('processes.asentado', ['error' => 1]);
+                        return redirect()->route('asentado', ['error' => 1]);
                     case 'revCalificado':
-                        return view('processes.revCalificado', ['error' => 1]);
+                        return redirect()->route('calificado', ['error' => 1]);
                     case 'acabadoBombillo':
-                        return view('processes.revAcabadosBombillo', ['error' => 1]);
+                        return redirect()->route('acabadoBombillo', ['error' => 1]);
                     case 'acabadoMolde':
-                        return view('processes.revAcabadosMolde', ['error' => 1]);
+                        return redirect()->route('acabadoMolde', ['error' => 1]);
+                    case 'barrenoProfundidad':
+                        return redirect()->route('barrenoProfundidad', ['error' => 1]);
                     case 'cavidades':
-                        return view('processes.cavidades', ['error' => 1]);
+                        return redirect()->route('cavidades', ['error' => 1]);
                     case 'copiado':
-                        return view('processes.copiado', ['error' => 1]);
+                        return redirect()->route('copiado', ['error' => 1]);
                     case 'offSet':
-                        return view('processes.offSet', ['error' => 1]);
+                        return redirect()->route('offSet', ['error' => 1]);
                     case 'palomas':
-                        return view('processes.palomas', ['error' => 1]);
+                        return redirect()->route('palomas', ['error' => 1]);
                     case 'rebajes':
-                        return view('processes.rebajes', ['error' => 1]);
+                        return redirect()->route('rebajes', ['error' => 1]);
                     case 'pysOpeSoldadura':
-                        return view('processes.pysOpeSoldadura', ['error' => 1]);
+                        return redirect()->route('1y2OpeSoldadura', ['error' => 1]);
+                    case 'embudoCM':
+                        return redirect()->route('1y2OpeSoldadura', ['error' => 1]);
                 }
             }
         }
@@ -1051,61 +1110,67 @@ class OTController extends Controller
         switch ($proceso) {
                 //Asignacion de tiempos estandar.
             case "cepillado":
-                $meta->t_estandar = $this->asignarMetas($clase, 52, 60, 90, 53, 64, 120,  0, 0, 0);
+                $meta->t_estandar = $this->asignarMetas($clase, 52, 60, 90, 53, 64, 120,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
                 break;
             case "desbaste":
-                $meta->t_estandar = $this->asignarMetas($clase, 26, 30, 35, 26, 30, 35,  0, 0, 0);
+                $meta->t_estandar = $this->asignarMetas($clase, 26, 30, 35, 26, 30, 35,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
                 break;
             case "revLaterales":
-                $meta->t_estandar = $this->asignarMetas($clase, 20, 24, 26, 20, 24, 26,  0, 0, 0);
+                $meta->t_estandar = $this->asignarMetas($clase, 20, 24, 26, 20, 24, 26,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
                 break;
             case "primeraOpeSoldadura":
-                $meta->t_estandar = $this->asignarMetas($clase, 24, 28, 30, 20, 24, 26,  0, 0, 0);
+                $meta->t_estandar = $this->asignarMetas($clase, 24, 28, 30, 20, 24, 26,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
                 break;
             case "barrenoManiobra":
-                $meta->t_estandar = $this->asignarMetas($clase, 15, 15, 15, 15, 15, 15,  0, 0, 0);
+                $meta->t_estandar = $this->asignarMetas($clase, 15, 15, 15, 15, 15, 15,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
                 break;
             case "segundaOpeSoldadura":
-                $meta->t_estandar = $this->asignarMetas($clase, 24, 28, 28, 24, 28, 30,  0, 0, 0);
+                $meta->t_estandar = $this->asignarMetas($clase, 24, 28, 28, 24, 28, 30,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
                 break;
             case "soldadura":
-                $meta->t_estandar = $this->asignarMetas($clase, 24, 30, 34,  24, 30, 70,  0, 0, 0);
+                $meta->t_estandar = $this->asignarMetas($clase, 24, 30, 34,  24, 30, 70,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
                 break;
             case "soldaduraPTA":
-                $meta->t_estandar = $this->asignarMetas($clase, 24, 30, 34,  24, 30, 70,  0, 0, 0);
+                $meta->t_estandar = $this->asignarMetas($clase, 24, 30, 34,  24, 30, 70,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
                 break;
             case "rectificado":
-                $meta->t_estandar = $this->asignarMetas($clase, 12, 13, 14,  12, 13, 20,  0, 0, 0);
+                $meta->t_estandar = $this->asignarMetas($clase, 12, 13, 14,  12, 13, 20,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
                 break;
             case "asentado":
-                $meta->t_estandar = $this->asignarMetas($clase, 20, 24, 30,  20, 24, 30,  0, 0, 0);
+                $meta->t_estandar = $this->asignarMetas($clase, 20, 24, 30,  20, 24, 30,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
                 break;
             case 'revCalificado':
-                $meta->t_estandar = $this->asignarMetas($clase, 22, 24, 26,  22, 24, 26,  0, 0, 0);
+                $meta->t_estandar = $this->asignarMetas($clase, 22, 24, 26,  22, 24, 26,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
                 break;
             case 'acabadoBombillo':
-                $meta->t_estandar = $this->asignarMetas($clase, 25, 27, 28,  0, 0, 0,  0, 0, 0);
+                $meta->t_estandar = $this->asignarMetas($clase, 25, 27, 28,  0, 0, 0,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
                 break;
             case 'acabadoMolde':
-                $meta->t_estandar = $this->asignarMetas($clase, 0, 0, 0,  24, 26, 30,  0, 0, 0);
+                $meta->t_estandar = $this->asignarMetas($clase, 0, 0, 0,  24, 26, 30,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
+                break;
+            case 'barrenoProfundidad':
+                $meta->t_estandar = $this->asignarMetas($clase, 0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
                 break;
             case 'cavidades':
-                $meta->t_estandar = $this->asignarMetas($clase, 0, 0, 0,  0, 0, 0,  0, 0, 0);
+                $meta->t_estandar = $this->asignarMetas($clase, 0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
                 break;
             case 'copiado':
-                $meta->t_estandar = $this->asignarMetas($clase, 27, 29, 0,  0, 0, 0,  0, 0, 0);
+                $meta->t_estandar = $this->asignarMetas($clase, 27, 29, 0,  0, 0, 0,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
                 break;
             case 'offSet':
-                $meta->t_estandar = $this->asignarMetas($clase, 16, 16, 0,  0, 0, 0,  0, 0, 0);
+                $meta->t_estandar = $this->asignarMetas($clase, 16, 16, 0,  0, 0, 0,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
                 break;
             case 'palomas':
-                $meta->t_estandar = $this->asignarMetas($clase, 12, 12, 0,  0, 0, 0,  0, 0, 0);
+                $meta->t_estandar = $this->asignarMetas($clase, 12, 12, 0,  0, 0, 0,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
                 break;
             case 'rebajes':
-                $meta->t_estandar = $this->asignarMetas($clase, 20, 20, 0,  0, 0, 0,  0, 0, 0);
+                $meta->t_estandar = $this->asignarMetas($clase, 20, 20, 0,  0, 0, 0,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
                 break;
             case "pysOpeSoldadura":
-                $meta->t_estandar = $this->asignarMetas($clase, 20, 20, 20,  24, 24, 24,  0, 0, 0);
+                $meta->t_estandar = $this->asignarMetas($clase, 20, 20, 20,  24, 24, 24,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
+                break;
+            case "embudoCM":
+                $meta->t_estandar = $this->asignarMetas($clase, 0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
                 break;
         }
         if ($meta->t_estandar != 0) {
@@ -1117,7 +1182,7 @@ class OTController extends Controller
         $meta->save();
         return $clase; //Se retorna la clase.
     }
-    public function asignarMetas($clase, $b1, $b2, $b3,  $m1, $m2, $m3,  $c1, $c2, $c3) //Función para asignar los tiempos estándar.
+    public function asignarMetas($clase, $b1, $b2, $b3,  $m1, $m2, $m3,  $c1, $c2, $c3, $s1, $s2, $e1, $e2, $e3, $p1, $p2, $p3, $f1, $f2, $f3) //Función para asignar los tiempos estándar.
     {
         switch ($clase->nombre) { //Switch para asignar el tiempo estandar.
             case "Bombillo":
@@ -1156,6 +1221,55 @@ class OTController extends Controller
                         break; //Asigno el tiempo estandar.
                     case "Grande":
                         $t_estantar = $c3; //Asigno el tiempo estandar.
+                        break; //Asigno el tiempo estandar.
+                }
+                break;
+            case "Obturador":
+                switch ($clase->seccion) { //Asigno el tiempo estandar.
+                    case 1:
+                        $t_estantar = $s1; //Asigno el tiempo estandar.
+                        break;
+                    case 2:
+                        $t_estantar = $s2; //Asigno el tiempo estandar.
+                        break; //Asigno el tiempo estandar.
+                }
+                break;
+            case "Plato":
+                switch ($clase->tamanio) { //Asigno el tiempo estandar.
+                    case "Chico":
+                        $t_estantar = $p1; //Asigno el tiempo estandar.
+                        break;
+                    case "Mediano":
+                        $t_estantar = $p2; //Asigno el tiempo estandar.
+                        break; //Asigno el tiempo estandar.
+                    case "Grande":
+                        $t_estantar = $p3; //Asigno el tiempo estandar.
+                        break; //Asigno el tiempo estandar.
+                }
+                break;
+            case "Embudo":
+                switch ($clase->tamanio) { //Asigno el tiempo estandar.
+                    case "Chico":
+                        $t_estantar = $e1; //Asigno el tiempo estandar.
+                        break;
+                    case "Mediano":
+                        $t_estantar = $e2; //Asigno el tiempo estandar.
+                        break; //Asigno el tiempo estandar.
+                    case "Grande":
+                        $t_estantar = $e3; //Asigno el tiempo estandar.
+                        break; //Asigno el tiempo estandar.
+                }
+                break;
+            case "Fondo":
+                switch ($clase->tamanio) { //Asigno el tiempo estandar.
+                    case "Chico":
+                        $t_estantar = $f1; //Asigno el tiempo estandar.
+                        break;
+                    case "Mediano":
+                        $t_estantar = $f2; //Asigno el tiempo estandar.
+                        break; //Asigno el tiempo estandar.
+                    case "Grande":
+                        $t_estantar = $f3; //Asigno el tiempo estandar.
                         break; //Asigno el tiempo estandar.
                 }
                 break;

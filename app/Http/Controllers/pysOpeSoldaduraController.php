@@ -7,6 +7,7 @@ use App\Models\Metas;
 use App\Models\Moldura;
 use App\Models\Orden_trabajo;
 use App\Models\Pieza;
+use App\Models\Procesos;
 use App\Models\PySOpeSoldadura;
 use App\Models\PySOpeSoldadura_cnominal;
 use App\Models\PySOpeSoldadura_pza;
@@ -17,34 +18,90 @@ use Illuminate\Support\Facades\Hash;
 
 class PySOpeSoldaduraController extends Controller
 {
-    public function show()
+    public function show($error)
     {
         $ot = Orden_trabajo::all(); //Obtención de todas las ordenes de trabajo.
-        return view('processes.pysOpeSoldadura', ['ot' => $ot]);
+        if (count($ot) != 0) {
+            $oTrabajo = array(); //Declara arreglo para guardar las ordenes de trabajo disponibles en pysOperacion
+            //Recorre todas las ordenes de trabajo.
+            foreach ($ot as $ot) {
+                $contador = 0; //Contador para verificar que existan clases que pasaran por pysOperacion
+                $clases = Clase::where('id_ot', $ot->id)->get();
+                //Recorre todas las clases registradas en la orden de trabajo.
+                foreach ($clases as $clase) {
+                    $proceso = Procesos::where('id_clase', $clase->id)->first(); //Obtención del proceso de la clase.
+                    if ($proceso) {
+                        if ($proceso->operacionEquipo) { //Si existen maquinas en Operacion equipo de esa clase, se almacena en el arreglo que se pasara a la vista
+                            $contador++;
+                        }
+                    }
+                }
+                //Si hay clases que pasaran por pysOperacion, se almacena la orden de trabajo en el arreglo.
+                if ($contador != 0) {
+                    array_push($oTrabajo, $ot);
+                }
+            }
+            //Si hay clases que pasaran por pysOperacion, se almacena la orden de trabajo en el arreglo.
+            if (count($oTrabajo) != 0) {
+                if ($error == 1) {
+                    return view('processes.pysOpeSoldadura', ['ot' => $oTrabajo, 'error' => $error]); //Retorno a vista de Operacion equipo
+                }
+                return view('processes.pysOpeSoldadura', ['ot' => $oTrabajo]);
+            }
+            if ($error == 1) {
+                return view('processes.pysOpeSoldadura', ['ot' => $oTrabajo, 'error' => $error]); //Retorno a vista de Operacion equipo
+            }
+            //Se retorna a la vista de Operacion equipo con las ordenes de trabajo que tienen clases que pasaran por Operacion equipo
+            return view('processes.pysOpeSoldadura', ['ot']);
+        }
+        if ($error == 1) {
+            return view('processes.pysOpeSoldadura', ['error' => $error]);
+        }
+        return view('processes.pysOpeSoldadura');
     }
     public function storeheaderTable(Request $request)
     {
         //Si se obtienen los datos de la OT y la meta, se guardan en variables de sesión.
         if (session('controller')) {
-            $meta = Metas::find(session('meta')); //Busco la meta de la OT.
+            $meta = Metas::find(session('meta'));
             $operacion = session('operacion');
         } else {
-            $meta = Metas::find($request->metaData); //Busco la meta de la OT.
+            $meta = Metas::find($request->metaData);
             $operacion = $request->operacion;
         }
         $ot = Orden_trabajo::where('id', $meta->id_ot)->first(); //Busco la OT que se quiere editar.
-        $clase = Clase::find($meta->id_clase); //Busco la clase de la OT.
-        $moldura = Moldura::find($ot->id_moldura); //Busco la moldura de la OT.
+        $clase = Clase::find($meta->id_clase);
+        $moldura = Moldura::find($ot->id_moldura);
 
-        $id = "1y2opeSoldadura_" . $clase->nombre . "_" . $ot->id . "_" . $operacion; //Creación de id para tabla Cepillado.
-
-        $cNominal = PySOpeSoldadura_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
-        $tolerancia = PySOpeSoldadura_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
+        $id = "1y2opeSoldadura_" . $clase->nombre . "_" . $ot->id . "_" . $operacion; //Creación de id para tabla 1y2opeSoldadura.
+        $cNominal = PySOpeSoldadura_cnominal::where('id_proceso', $id)->first();
+        $tolerancia = PySOpeSoldadura_tolerancia::where('id_proceso', $id)->first();
+        if ($meta->id_proceso == null && isset($operacion) || !session('clase') && isset($operacion)) {
+            $proceso = PySOpeSoldadura::where('id_proceso', $id)->first();
+            if (!$proceso) {
+                //Llenado de la tabla PySOpeSoldaduraEquipo 
+                $pysSoldadura = new PySOpeSoldadura(); //Creación de objeto para llenar tabla de 1ra y 2da operación equipo
+                $pysSoldadura->id_proceso = $id; 
+                $pysSoldadura->id_clase = $clase->id; 
+                $pysSoldadura->operacion = $operacion; 
+                $pysSoldadura->id_ot = $ot->id; 
+                $pysSoldadura->save();
+                $meta->id_proceso = $pysSoldadura->id;
+            } else {
+                $meta->id_proceso = $proceso->id;
+            }
+            $meta->save();
+        }
         $id_proceso = PySOpeSoldadura::where('id_proceso', $id)->first();
+        $pzasRestantes = count(PySOpeSoldadura_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get()) / 2;
+        $pzasRestantes = $clase->piezas - $pzasRestantes;
 
-        if (isset($request->n_pieza)) {  //Si se obtienen los datos de las piezas, se guardan en la tabla Cepillado_cnominal.
-            $id_pieza = $request->n_pieza . $id_proceso->id; //Creación de id para tabla Cepillado_cnominal.
+        
+        if (isset($request->n_pieza)) { //Si existe informacion de alguna pieza registrada
+            //Se verifica que la pieza exista para llenar los campos que sean null
+            $id_pieza = $request->n_pieza . $id_proceso->id;
             $piezaExistente = PySOpeSoldadura_pza::where('id_pza', $id_pieza)->first();
+            //Llenado de campos de la pieza existente
             if ($piezaExistente) {
                 $piezaExistente->altura = $request->altura;
                 $piezaExistente->alturaCandado1 = $request->alturaCandado1;
@@ -58,6 +115,7 @@ class PySOpeSoldaduraController extends Controller
                 $piezaExistente->estado = 2;
                 $piezaExistente->save();
 
+                //Actualizacion de error y estado de la pieza
                 if ($this->compararDatosPieza($piezaExistente, $cNominal, $tolerancia) == 0 && $request->error == 0) {
                     $piezaExistente->error = 'Maquinado';
                     $piezaExistente->correcto = 0;
@@ -70,64 +128,87 @@ class PySOpeSoldaduraController extends Controller
                 }
                 $piezaExistente->save();
 
-                $pieza = Pieza::where('n_pieza', $piezaExistente->n_juego)->where('proceso', 'Primera y Segunda Operacion Equipo')->where('id_ot', $ot->id)->where('id_clase', $clase->id)->first();
+                
                 //Guardar los datos de las pieza en la tabla pieza (En donde se almacenan todas las piezas)
-                if (!isset($pieza)) {
+                //Se verifica si la pieza ya existe en la tabla pieza
+                $pieza = Pieza::where('n_pieza', $request->n_pieza)->where('proceso', 'Operacion Equipo_' . $operacion)->where('id_ot', $ot->id)->where('id_clase', $clase->id)->first();
+                if (!isset($pieza)) {//Si no existe se crea un nuevo objeto
                     $pieza = new Pieza();
-                }
+                }//Si existe unicamente se actualiza
                 $pieza->id_clase = $clase->id;
-                $pieza->id_ot = $ot->id; //Llenado de id_proceso para tabla 1ra y 2da opración c_nominal.
+                $pieza->id_ot = $ot->id;
                 $pieza->n_pieza = $request->n_pieza; //
                 $pieza->id_operador = $meta->id_usuario;
-                $pieza->maquina = $meta->maquina; //Llenado de id_proceso para tabla 1ra y 2da opración c_nominal.
-                $pieza->proceso = "Primera y Segunda Operacion Equipo";
+                $pieza->maquina = $meta->maquina;
+                $pieza->proceso = "Operacion Equipo_" . $operacion;
                 $pieza->error = $piezaExistente->error;
                 $pieza->save();
 
                 //Actualizar resultado de la meta
-                $pzasCorrectas = PySOpeSoldadura_pza::where('id_meta', $meta->id)->where('correcto', 1)->get(); //Obtención de todas las piezas correctas.
-                Metas::where('id', $meta->id)->update([ //Actualización de datos en tabla Metas.
-                    'resultado' => $pzasCorrectas->count() / 2,
-                ]);
-                $meta = Metas::find($meta->id); //Busco la meta de la OT.
+                $contadorPzas = 0;
+                $juegosUsados = array();
+                $pzasCorrectas = PySOpeSoldadura_pza::where('id_meta', $meta->id)->where('correcto', 1)->get(); //Obtención de todas las piezas correctas del proceso.
+                foreach ($pzasCorrectas as $pzaCorrecta) {
+                    $pzaCorrecta2 = PySOpeSoldadura_pza::where('n_juego', $pzaCorrecta->n_juego)->where('id_meta', $meta->id)->get();
+                    
+                    if (!in_array($pzaCorrecta->n_juego, $juegosUsados)) {
+                        array_push($juegosUsados, $pzaCorrecta->n_juego);
+                        $pzasMalas = 0;
+                        foreach ($pzaCorrecta2 as $pza) {
+                            if ($pza->correcto == 1) {
+                                $contadorPzas += .5;
+                            } else if ($pza->correcto !== null) {
+                                $pzasMalas++;
+                            }
+                        }
+                        if ($pzasMalas > 0 && $pzasMalas < 2) {
+                            $contadorPzas -= .5;
+                        }
+                    }
+                }
+                $meta = Metas::find($meta->id); //Actualización de datos en tabla Metas.
+                $meta->resultado = $contadorPzas;
+                $meta->save(); //Guardado de datos en la tabla Metas.
+                $pzasRestantes = count(PySOpeSoldadura_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get()) / 2;
+                $pzasRestantes = $clase->piezas - $pzasRestantes;
 
-                //  //Retornar la pieza siguiente
+                //Retornar la pieza siguiente
                 $pzaUtilizar = PySOpeSoldadura_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first();
-                if (isset($pzaUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Cepillado.
+                if (isset($pzaUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Operacion equipo.
                     $pzasCreadas = PySOpeSoldadura_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get();
-                    return view('processes.primeraOpeSoldadura', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'juegos' => count($this->piezaUtilizar($ot->id, $clase, $id)), 'operacion' => $operacion]); //Retorno a vista de Cepillado.
+                    return view('processes.pysOpeSoldadura', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes, 'operacion' => $operacion]); //Retorno a vista de Operacion equipo.
                 } else {
-                    //Actualizar solo dos registros de las piezas que se van a ocupar en la tabla desbaste
-                    $this->piezaUtilizar($ot->id, $clase, $id);
+                    //Actualizar solo dos registros de las piezas que se van a ocupar en la tabla operacion equipo
+                    $this->piezaUtilizar($clase, $id);
                 }
             }
         } else if (isset($request->n_juegoElegido)) {
             $juegoExiste = PySOpeSoldadura_pza::where('n_juego', $request->n_juegoElegido)->where('id_proceso', $id_proceso->id)->first();
             if (!$juegoExiste) {
-                $newPza = new PySOpeSoldadura_pza(); //Creación de objeto para llenar tabla Desbaste.
-                $newPza->id_pza = $request->n_juegoElegido . $id_proceso->id;
-                $newPza->n_juego = $request->n_juegoElegido; //Llenado de estado para tabla Desbaste.
-                $newPza->id_meta = $meta->id; //Llenado de id_meta para tabla Desbaste.
-                $newPza->id_proceso = $id_proceso->id; //Llenado de id_proceso para tabla Desbaste.
-                $newPza->estado = 1; //Llenado de estado para tabla Desbaste.
-                $newPza->save(); //Guardado de datos en la tabla Desbaste.
-            }
-        } else {
-            if ($meta->id_proceso == null && isset($operacion) || !session('clase') && isset($operacion)) {
-                $proceso = PySOpeSoldadura::where('id_proceso', $id)->first(); //Busco el proceso de la OT.
-                if (!$proceso) {
-                    //Llenado de la tabla PySOpeSoldaduraEquipo 
-                    $pysSoldadura = new PySOpeSoldadura(); //Creación de objeto para llenar tabla de 1ra y 2da operación equipo
-                    $pysSoldadura->id_proceso = $id; //Creación de id para tabla de 1ra y 2da operación equipo.
-                    $pysSoldadura->id_clase = $clase->id; //Llenado de id_proceso para tabla de 1ra y 2da operación equipo.
-                    $pysSoldadura->operacion = $operacion; //Llenado de id_proceso para tabla de 1ra y 2da operación equipo.
-                    $pysSoldadura->id_ot = $ot->id; //Llenado de id_proceso para tabla de 1ra y 2da operación equipo.
-                    $pysSoldadura->save(); //Guardado de datos en la tabla de 1ra y 2da operación equipo.
-                    $meta->id_proceso = $pysSoldadura->id;
-                } else {
-                    $meta->id_proceso = $proceso->id;
+                //Separar string de juego elegido, el numero de juego y la letra
+                $n_pieza = str_split($request->n_juegoElegido);
+                $numero = "";
+                foreach ($n_pieza as $n) {
+                    if (is_numeric($n)) {
+                        $numero .= $n;
+                    } else {
+                        continue;
+                    }
                 }
-                $meta->save();
+                for ($i = 1; $i <= 2; $i++) {
+                    $newPza = new PySOpeSoldadura_pza();
+                    if ($i == 1) {
+                        $newPza->n_pieza = $numero . 'H';
+                    } else {
+                        $newPza->n_pieza = $numero . 'M';
+                    }
+                    $newPza->id_pza = $newPza->n_pieza . $id_proceso->id;
+                    $newPza->n_juego = $request->n_juegoElegido;
+                    $newPza->id_meta = $meta->id;
+                    $newPza->id_proceso = $id_proceso->id;
+                    $newPza->estado = 1;
+                    $newPza->save();
+                }
             }
         }
         $id_proceso = PySOpeSoldadura::where('id_proceso', $id)->first();
@@ -148,13 +229,30 @@ class PySOpeSoldaduraController extends Controller
                 $pzasCreadas[$i]->save();
             }
 
-            $pzasCorrectas = PySOpeSoldadura_pza::where('id_meta', $meta->id)->where('correcto', 1)->get();
-            if (isset($pzasCorrectas)) { //Si existen piezas correctas, se actualiza el resultado de la meta.
-                $meta->resultado = count($pzasCorrectas); //Actualización de datos en tabla Metas.
-            } else {
-                $meta->resultado = 0; //Actualización de los datos en la tabla metas.
+            //Actualizar el resultado de la meta
+            $contadorPzas = 0;
+            $juegosUsados = array();
+            $pzasCorrectas = PySOpeSoldadura_pza::where('id_meta', $meta->id)->where('correcto', 1)->get(); //Obtención de todas las piezas correctas.
+            foreach ($pzasCorrectas as $pzaCorrecta) {
+                $pzaCorrecta2 = PySOpeSoldadura_pza::where('n_juego', $pzaCorrecta->n_juego)->where('id_meta', $meta->id)->get();
+                if (!in_array($pzaCorrecta->n_juego, $juegosUsados)) {
+                    array_push($juegosUsados, $pzaCorrecta->n_juego);
+                    $pzasMalas = 0;
+                    foreach ($pzaCorrecta2 as $pza) {
+                        if ($pza->correcto == 1) {
+                            $contadorPzas += .5;
+                        } else if ($pza->correcto !== null) {
+                            $pzasMalas++;
+                        }
+                    }
+                    if ($pzasMalas > 0 && $pzasMalas < 2) {
+                        $contadorPzas -= .5;
+                    }
+                }
             }
-            $meta->save(); //Guardado de datos en la tabla Metas.
+            $meta = Metas::find($meta->id); 
+            $meta->resultado = $contadorPzas;
+            $meta->save();
             //
             if (isset($cNominal) && isset($tolerancia)) {
                 $pzaUtilizar = PySOpeSoldadura_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
@@ -164,8 +262,8 @@ class PySOpeSoldaduraController extends Controller
                         for ($i = 0; $i < count($piezasVacias); $i++) { //Recorro las piezas creadas.
                             $metaAnterior = Metas::where('id', $piezasVacias[$i]->id_meta)->first(); //Obtención de la meta anterior.
                             if ($metaAnterior->maquina == $meta->maquina) { //Si la meta anterior es igual a la meta actual, se utiliza la pieza.
-                                $piezasVacias[$i]->id_meta = $meta->id; //Llenado de id_meta para tabla Pza_cepillado.
-                                $piezasVacias[$i]->save(); //Guardado de datos en tabla Pza_cepillado.
+                                $piezasVacias[$i]->id_meta = $meta->id; //Llenado de id_meta para tabla Pza_Desbaste exterior.
+                                $piezasVacias[$i]->save(); //Guardado de datos en tabla Pza_Desbaste exterior.
                                 $pzaUtilizar = $piezasVacias[$i]; //Obtención de la pieza a utilizar.
                                 $piezaEncontrada = true; //Se encontro una pieza para utilizar.
                                 break; //Se rompe el ciclo.
@@ -176,19 +274,18 @@ class PySOpeSoldaduraController extends Controller
                     } else {
                         $piezaEncontrada = false; //No se encontro una pieza para utilizar.
                     }
-
                     if (!$piezaEncontrada) {
-                        $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase, $id); //Llamado a función para obtener las piezas disponibles.
+                        $pzasUtilizar = $this->piezaUtilizar($clase, $id); //Llamado a función para obtener las piezas disponibles.
                     }
                 }
                 if (isset($pzasUtilizar)) { //Si no se encontro una pieza para utilizar, se crea una nueva pieza.
-                    return view('processes.pysOpeSoldadura', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'juegos' => count($pzasUtilizar), 'operacion' => $operacion]); //Retorno a vista de Cepillado.
+                    return view('processes.pysOpeSoldadura', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes, 'operacion' => $operacion]); //Retorno a vista de Operacion equipo.
                 } else {
-                    return view('processes.pysOpeSoldadura', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'juegos' => count($this->piezaUtilizar($ot->id, $clase, $id)), 'operacion' => $operacion])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
+                    return view('processes.pysOpeSoldadura', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes, 'operacion' => $operacion])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Operacion equipo.
                 }
             } else {
-                $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase, $id); //Llamado a función para obtener las piezas disponibles.
-                return view('processes.pysOpeSoldadura', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'juegos' => count($pzasUtilizar), 'operacion' => $operacion])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
+                $pzasUtilizar = $this->piezaUtilizar($clase, $id); //Llamado a función para obtener las piezas disponibles.
+                return view('processes.pysOpeSoldadura', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'pzasRestantes' => $pzasRestantes, 'operacion' => $operacion])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Operacion equipo.
             }
         }
     }
@@ -202,19 +299,21 @@ class PySOpeSoldaduraController extends Controller
     }
     public function edit(Request $request)
     {
-        $meta = Metas::find($request->metaData); //Busco la meta de la OT.
-        $ot = Orden_trabajo::find($meta->id_ot); //Obtención de la OT.
-        $moldura = Moldura::find($ot->id_moldura); //Busco la moldura de la OT.
-        $clase = Clase::find($meta->id_clase); //Busco la clase de la OT.
-        $id = "1y2opeSoldadura_" . $clase->nombre . "_" . $ot->id . "_" . $request->operacion; //Creación de id para tabla Cepillado.
+        $meta = Metas::find($request->metaData);
+        $ot = Orden_trabajo::find($meta->id_ot); 
+        $moldura = Moldura::find($ot->id_moldura);
+        $clase = Clase::find($meta->id_clase);
+        $id = "1y2opeSoldadura_" . $clase->nombre . "_" . $ot->id . "_" . $request->operacion; 
         $id_proceso = PySOpeSoldadura::where('id_proceso', $id)->first();;
-        $cNominal = PySOpeSoldadura_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
-        $tolerancia = PySOpeSoldadura_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
+        $cNominal = PySOpeSoldadura_cnominal::where('id_proceso', $id)->first(); 
+        $tolerancia = PySOpeSoldadura_tolerancia::where('id_proceso', $id)->first(); 
         $pzasCreadas = PySOpeSoldadura_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas.
+        $pzasRestantes = count(PySOpeSoldadura_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get()) / 2;
+        $pzasRestantes = $clase->piezas - $pzasRestantes;
         $pzaUtilizar = PySOpeSoldadura_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
-        if (isset($request->n_pieza)) { 
+        if (isset($request->n_pieza)) {
             for ($i = 0; $i < count($request->n_pieza); $i++) {
-                $id_pieza = $request->n_pieza[$i] . $id_proceso->id; //Creación de id para tabla Desbaste_cnominal.
+                $id_pieza = $request->n_pieza[$i] . $id_proceso->id;
                 $piezaExistente = PySOpeSoldadura_pza::where('id_pza', $id_pieza)->first();
                 if ($piezaExistente) {
                     $piezaExistente->altura = $request->altura[$i];
@@ -245,27 +344,44 @@ class PySOpeSoldaduraController extends Controller
 
 
 
-                    $pieza = Pieza::where('n_pieza', $piezaExistente->n_juego)->where('proceso', 'Primera y Segunda Operacion Equipo')->where('id_ot', $ot->id)->where('id_clase', $clase->id)->first();
+                    $pieza = Pieza::where('n_pieza', $piezaExistente->n_pieza)->where('proceso', 'Operacion Equipo_' . $request->operacion)->where('id_ot', $ot->id)->where('id_clase', $clase->id)->first();
                     //Guardar los datos de las pieza en la tabla pieza (En donde se almacenan todas las piezas)
                     if (!isset($pieza)) {
                         $pieza = new Pieza(); //Creación del obejeto para llenar la tabla pieza.
                     }
                     $pieza->id_clase = $clase->id; //Lenado de id_clase para la tabla pieza.
                     $pieza->id_ot = $ot->id;
-                    $pieza->n_pieza = $piezaExistente->n_juego;
+                    $pieza->n_pieza = $piezaExistente->n_pieza;
                     $pieza->id_operador = $meta->id_usuario;
                     $pieza->maquina = $meta->maquina;
-                    $pieza->proceso = "Primera y Segunda Operacion Equipo";
+                    $pieza->proceso = "Operacion Equipo_" . $request->operacion;
                     $pieza->error = $piezaExistente->error;
                     $pieza->save();
                 }
             }
-            $pzasCorrectas = PySOpeSoldadura_pza::where('id_meta', $meta->id)->where('correcto', 1)->get();
-            if (isset($pzasCorrectas)) { //Si existen piezas correctas, se actualiza el resultado de la meta.
-                $meta->resultado = count($pzasCorrectas); //Actualización de datos en tabla Metas.
-            } else {
-                $meta->resultado = 0; //Actualización de los datos en la tabla metas.
+            //Actualizar resultado de la meta
+            $contadorPzas = 0;
+            $juegosUsados = array();
+            $pzasCorrectas = PySOpeSoldadura_pza::where('id_meta', $meta->id)->where('correcto', 1)->get(); //Obtención de todas las piezas correctas.
+            foreach ($pzasCorrectas as $pzaCorrecta) {
+                $pzaCorrecta2 = PySOpeSoldadura_pza::where('n_juego', $pzaCorrecta->n_juego)->where('id_meta', $meta->id)->get();
+                if (!in_array($pzaCorrecta->n_juego, $juegosUsados)) {
+                    array_push($juegosUsados, $pzaCorrecta->n_juego);
+                    $pzasMalas = 0;
+                    foreach ($pzaCorrecta2 as $pza) {
+                        if ($pza->correcto == 1) {
+                            $contadorPzas += .5;
+                        } else if ($pza->correcto !== null) {
+                            $pzasMalas++;
+                        }
+                    }
+                    if ($pzasMalas > 0 && $pzasMalas < 2) {
+                        $contadorPzas -= .5;
+                    }
+                }
             }
+            $meta = Metas::find($meta->id); //Actualización de datos en tabla Metas.
+            $meta->resultado = $contadorPzas;
             $meta->save(); //Guardado de datos en la tabla Metas.
             //Retornar la pieza siguiente
             $pzaUtilizar = PySOpeSoldadura_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
@@ -275,8 +391,8 @@ class PySOpeSoldaduraController extends Controller
                     for ($i = 0; $i < count($piezasVacias); $i++) { //Recorro las piezas creadas.
                         $metaAnterior = Metas::where('id', $piezasVacias[$i]->id_meta)->first(); //Obtención de la meta anterior.
                         if ($metaAnterior->maquina == $meta->maquina) { //Si la meta anterior es igual a la meta actual, se utiliza la pieza.
-                            $piezasVacias[$i]->id_meta = $meta->id; //Llenado de id_meta para tabla Pza_cepillado.
-                            $piezasVacias[$i]->save(); //Guardado de datos en tabla Pza_cepillado.
+                            $piezasVacias[$i]->id_meta = $meta->id; //Llenado de id_meta para tabla Pza_Desbaste exterior.
+                            $piezasVacias[$i]->save(); //Guardado de datos en tabla Pza_Desbaste exterior.
                             $pzaUtilizar = $piezasVacias[$i]; //Obtención de la pieza a utilizar.
                             $piezaEncontrada = true; //Se encontro una pieza para utilizar.
                             break; //Se rompe el ciclo.
@@ -287,25 +403,25 @@ class PySOpeSoldaduraController extends Controller
                 } else {
                     $piezaEncontrada = false; //No se encontro una pieza para utilizar.
                 }
-                if (!$piezaEncontrada) { //Si no se encontro una pieza para utilizar, se crea una nueva pieza.
-                    $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase, $id); //Llamado a función para obtener las piezas disponibles.
+                if (!$piezaEncontrada) {
+                    $pzasUtilizar = $this->piezaUtilizar($clase, $id); //Llamado a función para obtener las piezas disponibles.
                 }
             }
             $pzasCreadas = PySOpeSoldadura_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas.
             $cNominal = PySOpeSoldadura_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
             $tolerancia = PySOpeSoldadura_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
             if (isset($pzasUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
-                return view('processes.pysOpeSoldadura', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'juegos' => count($pzasUtilizar), 'operacion' => $request->operacion]); //Retorno a vista de Cepillado.
+                return view('processes.pysOpeSoldadura', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes, 'operacion' => $request->operacion]); //Retorno a vista de Cepillado.
             } else { //Si no existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
-                $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase, $id); //Llamado a función para obtener las piezas disponibles.
-                return view('processes.pysOpeSoldadura', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'juegos' => count($pzasUtilizar), 'operacion' => $request->operacion])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
+                $pzasUtilizar = $this->piezaUtilizar($clase, $id); //Llamado a función para obtener las piezas disponibles.
+                return view('processes.pysOpeSoldadura', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes, 'operacion' => $request->operacion])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
             }
         } else {
             if (isset($request->password)) { //Si se ingreso una contraseña y la meta existe entonces...
                 $usersPasswords = User::all(); //Obtengo todas las contraseñas.
                 foreach ($usersPasswords as $userPassword) { //Recorro las contraseñas.
                     if (Hash::check($request->password, $userPassword->contrasena) && $userPassword->perfil == 1) {  //Si la contraseña es correcta.
-                        return view('processes.pysOpeSoldadura', ['band' => 4, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'clase' => $clase, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'juegos' => count($this->piezaUtilizar($ot->id, $clase, $id)), 'operacion' => $request->operacion]); //Retorno la vista de cepillado.
+                        return view('processes.pysOpeSoldadura', ['band' => 4, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'clase' => $clase, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'pzasRestantes' => $pzasRestantes, 'operacion' => $request->operacion]); //Retorno la vista de cepillado.
                     }
                 }
             }
@@ -329,94 +445,37 @@ class PySOpeSoldaduraController extends Controller
                     $piezaEncontrada = false; //No se encontro una pieza para utilizar.
                 }
                 if (!$piezaEncontrada) { //Si no se encontro una pieza para utilizar, se crea una nueva pieza.
-                    $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase, $id); //Llamado a función para obtener las piezas disponibles.
+                    $pzasUtilizar = $this->piezaUtilizar($clase, $id); //Llamado a función para obtener las piezas disponibles.
                 }
             }
             $pzasCreadas = PySOpeSoldadura_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas.
             $cNominal = PySOpeSoldadura_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
             $tolerancia = PySOpeSoldadura_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
             if (isset($pzasUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
-                return view('processes.pysOpeSoldadura', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'juegos' => count($pzasUtilizar), 'operacion' => $request->operacion]); //Retorno a vista de Cepillado.
+                return view('processes.pysOpeSoldadura', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes, 'operacion' => $request->operacion]); //Retorno a vista de Cepillado.
             } else { //Si no existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
-                $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase, $id); //Llamado a función para obtener las piezas disponibles.
-                return view('processes.pysOpeSoldadura', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'juegos' => count($pzasUtilizar), 'operacion' => $request->operacion])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
+                $pzasUtilizar = $this->piezaUtilizar($clase, $id); //Llamado a función para obtener las piezas disponibles.
+                return view('processes.pysOpeSoldadura', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes, 'operacion' => $request->operacion])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
             }
         }
     }
 
-    public function piezaUtilizar($ot, $clase, $id) //Función para obtener la pieza a utilizar.
+    public function piezaUtilizar($clase, $id) //Función para obtener la pieza a utilizar.
     {
-        //Obtener las piezas que esten terminadas y correctas en la tabla cepillado para despues comparar cada una con su consecuente y asi armar los juegos
-        $pzasUtilizar = array();
-        $pzasGuardadas = array(); //Creación de array para guardar los números de pieza.
-        $numero = ""; //Creación de variable para guardar el número de pieza.
-        $pzasEncontradasSegunOpe = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Segunda Operacion Soldadura')->get(); //Obtención de todas las piezas creadas.
-        $pzasEncontradasProceso = PySOpeSoldadura_pza::where('id_proceso', $id)->first();
-        if ($pzasEncontradasProceso->operacion == 1) {
-
-        $proceso = PySOpeSoldadura::where('id_proceso', $id)->first(); //Busco el proceso de la OT.
-
-        $pzasOcupadas = PySOpeSoldadura_pza::where('id_proceso', $proceso->id)->where('estado', 1)->get(); //Obtención de todas las piezas creadas.
-
-        if ($proceso) {
-            $pzasUsadas = PySOpeSoldadura_pza::where('id_proceso', $id)->where('estado', 2)->get();
-            // $pzasUsadas = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Primera y Segunda Operacion Equipo')->get(); //Obtención de todas las piezas creadas.
+        //Obtener el numero de juego de los juegos ya utilizados o ya registrados
+        $pzasUtilizadas = array();
+        $operacionEquipo = PySOpeSoldadura::where('id_proceso', $id)->first();
+        $pzas1y2Ope = PySOpeSoldadura_pza::where('id_proceso', $operacionEquipo->id)->get();
+        foreach ($pzas1y2Ope as $pza) {
+            array_push($pzasUtilizadas, $pza->n_juego);
         }
-        for ($i = 0; $i < count($pzasEncontradasSegunOpe); $i++) { //Recorro las piezas encontradas.
-            if (array_search($pzasEncontradasSegunOpe[$i]->n_pieza, $pzasGuardadas) == false) {
-                if ($pzasEncontradasSegunOpe[$i]->error == "Ninguno") {
-                    $numerosUsados = array();
-                    if (isset($pzasUsadas)) {
-                        $numeroUsado = ""; //Reinicio la variable.
-                        for ($x = 0; $x < count($pzasUsadas); $x++) {
-                            $pzaDividida_Usada = str_split($pzasUsadas[$x]->n_pieza); //División del número de pieza usada.
-                            for ($h = 0; $h < count($pzaDividida_Usada) - 1; $h++) { //Recorro el número de pieza usada.
-                                $numeroUsado .= $pzaDividida_Usada[$h]; //Obtención del número de pieza usada.
-                            }
-                            array_push($numerosUsados, $numeroUsado); //Guardo el número de ppieza usada.
-                            $numeroUsado = ""; //Reinicio la variable.
-                        }
-                    }
-                    if (isset($pzasOcupadas)) {
-                        $numeroUsado = ""; //Reinicio la variable.
-                        for ($x = 0; $x < count($pzasOcupadas); $x++) {
-                            $n_piezaUsada = $pzasOcupadas[$x]->n_pieza; //Obtención del número de pieza ocupada
-                            $pzaDividida_Usada = str_split($n_piezaUsada);
-                            for ($h = 0; $h < count($pzaDividida_Usada) - 1; $h++) {
-                                $numeroUsado .= $pzaDividida_Usada[$h];
-                            }
-                            array_push($numerosUsados, $numeroUsado);
-                            $numeroUsado = "";
-                        }
-                    }
-                    $n_pieza = $pzasEncontradasSegunOpe[$i]->n_pieza; //Obtención del número de pieza.
-                    $piezaDividida = str_split($n_pieza); //División del número de pieza.
-                    for ($j = 0; $j < count($piezaDividida) - 1; $j++) { //Recorro el número de pieza.
-                        $numero .= $piezaDividida[$j]; //Obtención del número de pieza.
-                    }
-                    //Se hace la condicion para saber si el numero de la pieza se encuentra ya usada.
-                    if (array_search($numero, $numerosUsados) === false) { //Si el número de pieza no se encuentra en el array de piezas usadas, se guarda.
-                        if (mb_substr($n_pieza, -1, null, 'UTF-8') == "M") { //Si la pieza es macho, se busca la pieza hembra.
-                            $pieza = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Segunda Operacion Soldadura')->where('n_pieza', $numero . "H")->where('error', 'Ninguno')->first(); //Busco la pieza hembra.
-                        } else {
-                            $pieza = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Segunda Operacion Soldadura')->where('n_pieza', $numero . "M")->where('error', 'Ninguno')->first(); //Busco la pieza macho.
-                        }
-                        if (isset($pieza)) {
-                            array_push($pzasUtilizar, $numero . "J"); //Guardo el número de pieza.
-                            array_push($pzasGuardadas, $pzasEncontradasSegunOpe[$i]->n_pieza); //Guardo el número de pieza.
-                            array_push($pzasGuardadas, $pieza->n_pieza); //Guardo el número de pieza.
-                        }
-                    }
-                    $numero = "";
-                } else {
-                    $numeroDiv = str_split($pzasEncontradasSegunOpe[$i]->n_pieza);
-                    for ($l = 0; $l < count($numeroDiv) - 1; $l++) {
-                        $numero .= $numeroDiv[$l];
-                    }
-                    array_push($pzasGuardadas, $numero . "H");
-                    array_push($pzasGuardadas, $numero . "M");
-                    $numero = "";
-                }
+
+
+        //Obtener el numero de piezas que se crearan
+        $pzasUtilizar = array();
+        for ($i = 0; $i < $clase->piezas; $i++) {
+            if (!in_array($i + 1 . 'J', $pzasUtilizadas)) {
+                array_push($pzasUtilizar, $i + 1 . 'J');
             }
         }
         return $pzasUtilizar;

@@ -28,6 +28,9 @@
                                         <th>Operador</th>
                                         <th>Estatus</th>
                                         <th>Máquina</th>
+                                        @if ($proceso[0] == "Operacion Equipo")
+                                            <th>Operación</th>
+                                        @endif
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -37,6 +40,9 @@
                                         <td>{{$piezas[1]}}</td>
                                         <td>{{$piezas[2]}}</td>
                                         <td>{{$piezas[3]}}</td>
+                                        @if ($proceso[0] == "Operacion Equipo")
+                                            <td>{{$piezas[4]}}</td>
+                                        @endif
                                     </tr>
                                 @endforeach
                                 </tbody>

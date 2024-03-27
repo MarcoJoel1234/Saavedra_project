@@ -24,7 +24,6 @@
         }
     </style>
 @endif
-
 @if (isset($band) && $band == 2 || isset($band) && $band == 4)
     <style>
         #btn-class {
@@ -32,7 +31,16 @@
         }
     </style>
 @endif
-
+@isset($error)
+    <script>
+        alert("La máquina elegida esta ocupada, por favor elige otra");
+    </script>
+@endisset
+@if((isset($pzasRestantes) && $pzasRestantes == 0) && $band != 4)
+    <script>
+        alert("Se han registrado todas las piezas");
+    </script>
+@endif
 <body background="{{ asset('images/hola.jpg') }}">
     <div class="container">
         <!--Formulario en donde se guardara la meta de desbaste-->

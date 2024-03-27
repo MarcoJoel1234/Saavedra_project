@@ -14,26 +14,29 @@
         <nav class="nav" id="nav">
             <button class="cerrar-menu" id="cerrar"><img class="icono" src="{{asset('images/icono.png')}}"></button>
             <ul class="nav-list">
-                <li><a href="home">Inicio</a></li>
+                <li><a href="{{route('home')}}">Inicio</a></li>
                 <li><a href="{{route ('cepillado', ['error' => 0])}}">Cepillado</a></li>
-                <li><a href="{{route ('desbasteExterior')}}">Desbaste exterior</a></li>
-                <li><a href="{{route ('revisionLaterales')}}">Revisión de laterales</a></li>
-                <li><a href="{{route ('primeraOpeSoldadura')}}">1ra Operación soldadura</a></li>
-                <li><a href="{{route ('barrenoManiobra')}}">Barreno de maniobra</a></li>
-                <li><a href="{{route ('segundaOpeSoldadura')}}">2da Operación soldadura</a></li>
-                <li><a href="{{route ('soldadura')}}">Soldadura</a></li>
-                <li><a href="{{route ('soldaduraPTA')}}">Soldadura PTA</a></li>
-                <li><a href="{{route ('rectificado')}}">Reporte diario de rectificado</a></li>
-                <li><a href="{{route ('asentado')}}">Reporte diario de asentado</a></li>
-                <li><a href="{{route ('calificado')}}">Revisión calificado</a></li>
-                <li><a href="{{route ('acabadoBombillo')}}">Revisión acabados bombillo</a></li>
-                <li><a href="{{route ('acabadoMolde')}}">Revisión acabados molde</a></li>
-                <li><a href="{{route ('cavidades')}}">Reporte diario de Cavidades</a></li>
-                <li><a href="{{route ('copiado')}}">Reporte de Copiado</a></li>
-                <li><a href="{{route ('offSet')}}">Ranura Off-Set</a></li>
-                <li><a href="{{route ('palomas')}}">Reporte de Palomas</a></li>
-                <li><a href="{{route ('rebajes')}}">Rebajes</a></li>
-            <ul>
+                <li><a href="{{route ('desbasteExterior', ['error' => 0])}}">Desbaste exterior</a></li>
+                <li><a href="{{route ('revisionLaterales', ['error' => 0])}}">Revisión de laterales</a></li>
+                <li><a href="{{route ('primeraOpeSoldadura', ['error' => 0])}}">1ra Operación Soldadura </a></li>
+                <li><a href="{{route ('barrenoManiobra', ['error' => 0])}}">Barreno de maniobra</a></li>
+                <li><a href="{{route ('segundaOpeSoldadura', ['error' => 0])}}">2da Operación Soldadura</a></li>
+                <li><a href="{{route ('soldadura', ['error' => 0])}}">Soldadura</a></li>
+                <li><a href="{{route ('soldaduraPTA', ['error' => 0])}}">Soldadura PTA</a></li>
+                <li><a href="{{route ('rectificado', ['error' => 0])}}">Reporte diario de rectificado</a></li>
+                <li><a href="{{route ('asentado', ['error' => 0])}}">Reporte diario de asentado</a></li>
+                <li><a href="{{route ('calificado', ['error' => 0])}}">Revisión calificado</a></li>
+                <li><a href="{{route ('acabadoBombillo', ['error' => 0])}}">Revisión acabados bombillo</a></li>
+                <li><a href="{{route ('acabadoMolde', ['error' => 0])}}">Revisión acabados molde</a></li>
+                <li><a href="{{route ('barrenoProfundidad', ['error' => 0])}}">Barreno de profundidad</a></li>
+                <li><a href="{{route ('cavidades', ['error' => 0])}}">Reporte diario de Cavidades</a></li>
+                <li><a href="{{route ('copiado', ['error' => 0])}}">Reporte de Copiado</a></li>
+                <li><a href="{{route ('offSet', ['error' => 0])}}">Ranura Off-Set</a></li>
+                <li><a href="{{route ('palomas', ['error' => 0])}}">Reporte de Palomas</a></li>
+                <li><a href="{{route ('rebajes', ['error' => 0])}}">Rebajes</a></li>
+                <li><a href="{{route ('1y2OpeSoldadura', ['error' => 0])}}">1ra y 2da Operación Equipo</a></li>
+                <li><a href="{{route ('embudoCM', ['error' => 0])}}">Embudo C.M</a></li>
+                <ul>
                     <a class="btn1" href="{{ route('logout') }}">Cerrar sesión</a>
                 </ul>
             </ul>

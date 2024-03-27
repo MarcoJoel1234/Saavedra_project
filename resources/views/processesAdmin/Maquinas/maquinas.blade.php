@@ -15,18 +15,27 @@
             if(ot.value != "null"){
                 for(let i=0; i<arregloOT.length; i++){
                     if(arregloOT[i][0] == ot.value){
+                        //Eliminar select de clases si existe
+                        let label = document.getElementsByClassName('label-select')[1];
+                        let select_clases = document.getElementById('clases');
+                        let button = document.getElementsByClassName('btn-search')[0];
+                        if(select_clases != null){
+                            label.remove();
+                            select_clases.remove();
+                            button.remove();
+                        }
+
                         //Creacion de la etiqueta para el select de clases
-                        let label = document.createElement('label');
+                        label = document.createElement('label');
                         label.for = 'clases';
                         label.className = 'label-select';
                         label.innerHTML = 'Selecciona la clase:';
 
                         //Creacion del select de clases
-                        let select_clases = document.createElement('select');
+                        select_clases = document.createElement('select');
                         select_clases.name = 'clase';
                         select_clases.id = 'clases';
 
-                        console.log(arregloOT);
                         //Creacion de las opciones para el select de clases
                         arregloOT[i][1].forEach((clase) => {
                             let option = document.createElement('option');
@@ -37,7 +46,7 @@
                         });
 
                         //Creacion del boton
-                        let button = document.createElement('button');
+                        button = document.createElement('button');
                         button.className = 'btn-search';
                         button.type = 'submit';
                         button.innerHTML = 'Buscar máquinas';

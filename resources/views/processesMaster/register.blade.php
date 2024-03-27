@@ -66,6 +66,7 @@
                                         <option value="1">Administrador</option>
                                         <option value="2">Operador</option>
                                         <option value="3">Maestro</option>
+                                        <option value="4">Calidad</option>
                                     </select>
                                     <label for="floatingSelect">Tipo de usuario</label>
                                 </div>

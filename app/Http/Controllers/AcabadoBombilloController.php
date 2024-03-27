@@ -18,14 +18,14 @@ use Illuminate\Support\Facades\Hash;
 
 class AcabadoBombilloController extends Controller
 {
-    public function show()
+    public function show($error)
     {
         $ot = Orden_trabajo::all(); //Obtención de todas las ordenes de trabajo.
         if (count($ot) != 0) {
-            $oTrabajo = array(); //Declara arreglo para guardar las ordenes de trabajo disponibles en Barreno maniobra.
+            $oTrabajo = array(); //Declara arreglo para guardar las ordenes de trabajo disponibles en Acabado bombillo.
             //Recorre todas las ordenes de trabajo.
             foreach ($ot as $ot) {
-                $contador = 0; //Contador para verificar que existan clases que pasaran por Barreno maniobra
+                $contador = 0; //Contador para verificar que existan clases que pasaran por Acabado bombillo
                 $clases = Clase::where('id_ot', $ot->id)->get();
                 //Recorre todas las clases registradas en la orden de trabajo.
                 foreach ($clases as $clase) {
@@ -36,16 +36,26 @@ class AcabadoBombilloController extends Controller
                         }
                     }
                 }
-                //Si hay clases que pasaran por Barreno maniobra, se almacena la orden de trabajo en el arreglo.
+                //Si hay clases que pasaran por Acabado bombillo, se almacena la orden de trabajo en el arreglo.
                 if ($contador != 0) {
                     array_push($oTrabajo, $ot);
                 }
             }
+            //Si hay clases que pasaran por Acabado bombillo, se almacena la orden de trabajo en el arreglo.
             if (count($oTrabajo) != 0) {
-                return view('processes.revAcabadosBombillo', ['ot' => $oTrabajo]); //Retorno a vista de Barreno maniobra
+                if ($error == 1) {
+                    return view('processes.revAcabadosBombillo', ['ot' => $oTrabajo, 'error' => $error]); //Retorno a vista de Acabado bombillo
+                }
+                return view('processes.revAcabadosBombillo', ['ot' => $oTrabajo]); //Retorno a vista de Acabado bombillo
             }
-            //Se retorna a la vista de Cepillado con las ordenes de trabajo que tienen clases que pasaran por Barreno maniobra
-            return view('processes.revAcabadosBombillo', ['ot']); //Retorno a vista de Barreno maniobra
+            if ($error == 1) {
+                return view('processes.revAcabadosBombillo', ['ot' => $oTrabajo, 'error' => $error]); //Retorno a vista de Acabado bombillo
+            }
+            //Se retorna a la vista de Acabado bombillo con las ordenes de trabajo que tienen clases que pasaran por Acabado bombillo
+            return view('processes.revAcabadosBombillo', ['ot']); //Retorno a vista de Acabado bombillo
+        }
+        if ($error == 1) {
+            return view('processes.revAcabadosBombillo', ['error' => $error]); //Retorno a vista de Acabado bombillo
         }
         return view('processes.revAcabadosBombillo');
     }
@@ -63,7 +73,18 @@ class AcabadoBombilloController extends Controller
         $cNominal = AcabadoBombilo_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $tolerancia = AcabadoBombilo_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $moldura = Moldura::find($ot->id_moldura); //Busco la moldura de la OT.
+        $proceso = AcabadoBombilo::where('id_proceso', $id)->first(); //Busco el proceso de la OT.
+        if (!$proceso) {
+            //Llenado de la tabla Acabado bombillo
+            $soldadura = new AcabadoBombilo(); //Creación de objeto para llenar tabla Acabado bombillo
+            $soldadura->id_proceso = $id; //Creación de id para tabla Acabado bombillo
+            $soldadura->id_ot = $ot->id; //Llenado de id_proceso para tabla Acabado bombillo
+            $soldadura->save(); //Guardado de datos en la tabla Acabado bombillo
+        }
         $id_proceso = AcabadoBombilo::where('id_proceso', $id)->first();
+        $pzasAcabadoB = AcabadoBombilo_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
+        $pzasCalificado = Pieza::where('id_ot', $ot->id)->where('id_clase', $clase->id)->where('proceso', 'Revision Calificado')->where('error', 'Ninguno')->get();
+        $pzasRestantes = $this->piezasRestantes($pzasCalificado, $pzasAcabadoB);
 
         if (isset($request->n_pieza)) {  //Si se obtienen los datos de las piezas, se guardan en la tabla Cepillado_cnominal.
             $id_pieza = $request->n_pieza . $id_proceso->id; //Creación de id para tabla Cepillado_cnominal.
@@ -103,7 +124,7 @@ class AcabadoBombilloController extends Controller
                 }
                 $piezaExistente->save();
 
-                $pieza = Pieza::where('n_pieza', $piezaExistente->n_pieza)->where('proceso', 'Acabado Bombillo')->where('id_ot', $ot->id)->where('id_clase', $clase->id)->first();
+                $pieza = Pieza::where('n_pieza', $piezaExistente->n_juego)->where('proceso', 'Acabado Bombillo')->where('id_ot', $ot->id)->where('id_clase', $clase->id)->first();
                 //Guardar los datos de las pieza en la tabla pieza (En donde se almacenan todas las piezas)
                 if (!isset($pieza)) {
                     $pieza = new Pieza();
@@ -119,39 +140,33 @@ class AcabadoBombilloController extends Controller
 
                 //Actualizar resultado de la meta
                 $pzasCorrectas = AcabadoBombilo_pza::where('id_meta', $meta->id)->where('error', 'Ninguno')->get(); //Obtención de todas las piezas correctas.
+                $pzasAcabadoB = AcabadoBombilo_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
+                $pzasCalificado = Pieza::where('id_ot', $ot->id)->where('id_clase', $clase->id)->where('proceso', 'Revision Calificado')->where('error', 'Ninguno')->get();
+                $pzasRestantes = $this->piezasRestantes($pzasCalificado, $pzasAcabadoB);
                 Metas::where('id', $meta->id)->update([ //Actualización de datos en tabla Metas.
                     'resultado' => $pzasCorrectas->count(),
                 ]);
                 $meta = Metas::find($meta->id); //Busco la meta de la OT.
-                //  //Retornar la pieza siguiente
+                //Retornar la pieza siguiente
                 $pzaUtilizar = AcabadoBombilo_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first();
                 if (isset($pzaUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de 2da Operacion Soldadura.
                     $pzasCreadas = AcabadoBombilo_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get();
-                    return view('processes.revAcabadosBombillo', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'juegos' => count($this->piezaUtilizar($ot->id, $clase))]); //Retorno a vista de Cepillado.
+                    return view('processes.revAcabadosBombillo', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Cepillado.
                 } else {
-                    //Actualizar solo dos registros de las piezas que se van a ocupar en la tabla desbaste
+                    //Actualizar solo dos registros de las piezas que se van a ocupar en la tabla Acabado bombillo
                     $this->piezaUtilizar($ot->id, $clase);
                 }
             }
         } else if (isset($request->n_juegoElegido)) {
             $juegoExiste = AcabadoBombilo_pza::where('n_juego', $request->n_juegoElegido)->where('id_proceso', $id_proceso->id)->first();
             if (!$juegoExiste) {
-                $newPza = new AcabadoBombilo_pza(); //Creación de objeto para llenar tabla Rectificado
-                $newPza->id_pza = $request->n_juegoElegido . $id_proceso->id; //Creación de id para tabla Rectificado.
-                $newPza->id_meta = $meta->id; //Llenado de id_meta para tabla Rectificado
-                $newPza->id_proceso = $id_proceso->id; //Llenado de id_proceso para tabla Rectificado
-                $newPza->estado = 1; //Llenado de estado para tabla Rectificado
-                $newPza->n_juego = $request->n_juegoElegido; //Llenado de estado para tabla Rectificado
-                $newPza->save(); //Guardado de datos en la tabla Rectificado
-            }
-        } else {
-            $proceso = AcabadoBombilo::where('id_proceso', $id)->first(); //Busco el proceso de la OT.
-            if (!$proceso) {
-                //Llenado de la tabla Rectificado
-                $soldadura = new AcabadoBombilo(); //Creación de objeto para llenar tabla Rectificado
-                $soldadura->id_proceso = $id; //Creación de id para tabla Rectificado
-                $soldadura->id_ot = $ot->id; //Llenado de id_proceso para tabla Rectificado
-                $soldadura->save(); //Guardado de datos en la tabla Rectificado
+                $newPza = new AcabadoBombilo_pza(); //Creación de objeto para llenar tabla Acabado bombillo
+                $newPza->id_pza = $request->n_juegoElegido . $id_proceso->id; //Creación de id para tabla Acabado bombillo.
+                $newPza->id_meta = $meta->id; //Llenado de id_meta para tabla Acabado bombillo
+                $newPza->id_proceso = $id_proceso->id; //Llenado de id_proceso para tabla Acabado bombillo
+                $newPza->estado = 1; //Llenado de estado para tabla Acabado bombillo
+                $newPza->n_juego = $request->n_juegoElegido; //Llenado de estado para tabla Acabado bombillo
+                $newPza->save(); //Guardado de datos en la tabla Acabado bombillo
             }
         }
         $id_proceso = AcabadoBombilo::where('id_proceso', $id)->first();
@@ -181,7 +196,7 @@ class AcabadoBombilloController extends Controller
 
             if (isset($cNominal) && isset($tolerancia)) {
                 $pzaUtilizar = AcabadoBombilo_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
-                if ($pzaUtilizar == null) { //Si no existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
+                if ($pzaUtilizar == null) { //Si no existe una pieza para utilizar, se retorna a la vista de Acabado bombillo.
                     $piezasVacias = AcabadoBombilo_pza::where('error', null)->where('estado', 1)->where('id_proceso', $id_proceso->id)->get();
                     if (isset($piezasVacias) && $piezasVacias->count() > 0) { //Si existen piezas vacias, se busca una pieza para utilizar.
                         for ($i = 0; $i < count($piezasVacias); $i++) { //Recorro las piezas creadas.
@@ -204,13 +219,13 @@ class AcabadoBombilloController extends Controller
                     }
                 }
                 if (isset($pzasUtilizar)) { //Si no se encontro una pieza para utilizar, se crea una nueva pieza.
-                    return view('processes.revAcabadosBombillo', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'juegos' => count($pzasUtilizar)]); //Retorno a vista de Cepillado.
+                    return view('processes.revAcabadosBombillo', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Cepillado.
                 } else {
-                    return view('processes.revAcabadosBombillo', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'juegos' => count($this->piezaUtilizar($ot->id, $clase))])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
+                    return view('processes.revAcabadosBombillo', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
                 }
             } else {
                 $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
-                return view('processes.revAcabadosBombillo', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'juegos' => count($pzasUtilizar)])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
+                return view('processes.revAcabadosBombillo', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
             }
         }
     }
@@ -221,6 +236,11 @@ class AcabadoBombilloController extends Controller
         } else {
             return 1; //Si los datos de la pieza son iguales a los nominales y de tolerancia, se retorna 1.
         }
+    }
+    public function piezasRestantes($pzasProcesoA, $pzasProcesoB)
+    {
+        $pzasRestantes = count($pzasProcesoA) - count($pzasProcesoB);
+        return $pzasRestantes;
     }
     public function edit(Request $request)
     {
@@ -233,10 +253,13 @@ class AcabadoBombilloController extends Controller
         $cNominal = AcabadoBombilo_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $tolerancia = AcabadoBombilo_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $pzasCreadas = AcabadoBombilo_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas.
+        $pzasAcabadoB = AcabadoBombilo_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
+        $pzasCalificado = Pieza::where('id_ot', $ot->id)->where('id_clase', $clase->id)->where('proceso', 'Revision Calificado')->where('error', 'Ninguno')->get();
+        $pzasRestantes = $this->piezasRestantes($pzasCalificado, $pzasAcabadoB);
         $pzaUtilizar = AcabadoBombilo_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
         if (isset($request->n_pieza)) { //Si se obtienen los datos de las piezas, se gua
             for ($i = 0; $i < count($request->n_pieza); $i++) {
-                $id_pieza = $request->n_pieza[$i] . $id_proceso->id; //Creación de id para tabla Desbaste_cnominal.
+                $id_pieza = $request->n_pieza[$i] . $id_proceso->id; //Creación de id para tabla Acabado bombillo_cnominal.
                 $piezaExistente = AcabadoBombilo_pza::where('id_pza', $id_pieza)->first();
                 if ($piezaExistente) {
                     $piezaExistente->diametro_mordaza = $request->diametro_mordaza[$i];
@@ -258,8 +281,8 @@ class AcabadoBombilloController extends Controller
                     $piezaExistente->profundidad_caja_corona = $request->profundidad_caja_corona[$i];
                     $piezaExistente->simetria = $request->simetria[$i];
                     $piezaExistente->save();
-                    if (isset($request->observaciones[$i])) { //Si se obtienen los datos de las piezas, se guardan en la tabla Desbaste_cnominal.
-                        $piezaExistente->observaciones = $request->observaciones[$i];  //Llenado de observaciones para tabla Desbaste_cnominal.
+                    if (isset($request->observaciones[$i])) { //Si se obtienen los datos de las piezas, se guardan en la tabla Acabado bombillo_cnominal.
+                        $piezaExistente->observaciones = $request->observaciones[$i];  //Llenado de observaciones para tabla Acabado bombillo_cnominal.
                     }
                     $piezaExistente->save(); //Guardado de datos en la tabla Pza_cepillado.
 
@@ -299,7 +322,7 @@ class AcabadoBombilloController extends Controller
             $meta = Metas::find($meta->id); //Busco la meta de la OT.
             //Retornar la pieza siguiente
             $pzaUtilizar = AcabadoBombilo_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
-            if ($pzaUtilizar == null) { //Si no existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
+            if ($pzaUtilizar == null) { //Si no existe una pieza para utilizar, se retorna a la vista de Acabado bombillo.
                 $piezasVacias = AcabadoBombilo_pza::where('correcto', null)->where('estado', 1)->where('id_proceso', $id_proceso->id)->get();
                 if (isset($piezasVacias) && $piezasVacias->count() > 0) { //Si existen piezas vacias, se busca una pieza para utilizar.
                     for ($i = 0; $i < count($piezasVacias); $i++) { //Recorro las piezas creadas.
@@ -324,23 +347,23 @@ class AcabadoBombilloController extends Controller
             $pzasCreadas = AcabadoBombilo_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas.
             $cNominal = AcabadoBombilo_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
             $tolerancia = AcabadoBombilo_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
-            if (isset($pzasUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
-                return view('processes.revAcabadosBombillo', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'juegos' => count($pzasUtilizar)]); //Retorno a vista de Cepillado.
-            } else { //Si no existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
+            if (isset($pzasUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Acabado bombillo.
+                return view('processes.revAcabadosBombillo', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Cepillado.
+            } else { //Si no existe una pieza para utilizar, se retorna a la vista de Acabado bombillo.
                 $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
-                return view('processes.revAcabadosBombillo', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'juegos' => count($pzasUtilizar)])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
+                return view('processes.revAcabadosBombillo', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
             }
         } else {
             if (isset($request->password)) { //Si se ingreso una contraseña y la meta existe entonces...
                 $usersPasswords = User::all(); //Obtengo todas las contraseñas.
                 foreach ($usersPasswords as $userPassword) { //Recorro las contraseñas.
                     if (Hash::check($request->password, $userPassword->contrasena) && $userPassword->perfil == 1) {  //Si la contraseña es correcta.
-                        return view('processes.revAcabadosBombillo', ['band' => 4, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'clase' => $clase, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'juegos' => count($this->piezaUtilizar($ot->id, $clase))]); //Retorno la vista de cepillado.
+                        return view('processes.revAcabadosBombillo', ['band' => 4, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'clase' => $clase, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'pzasRestantes' => $pzasRestantes]); //Retorno la vista de cepillado.
                     }
                 }
             }
             $pzaUtilizar = AcabadoBombilo_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
-            if ($pzaUtilizar == null) { //Si no existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
+            if ($pzaUtilizar == null) { //Si no existe una pieza para utilizar, se retorna a la vista de Acabado bombillo.
                 $piezasVacias = AcabadoBombilo_pza::where('correcto', null)->where('estado', 1)->where('id_proceso', $id_proceso->id)->get();
                 if (isset($piezasVacias) && $piezasVacias->count() > 0) { //Si existen piezas vacias, se busca una pieza para utilizar.
                     for ($i = 0; $i < count($piezasVacias); $i++) { //Recorro las piezas creadas.
@@ -365,11 +388,11 @@ class AcabadoBombilloController extends Controller
             $pzasCreadas = AcabadoBombilo_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas.
             $cNominal = AcabadoBombilo_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
             $tolerancia = AcabadoBombilo_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
-            if (isset($pzasUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
-                return view('processes.revAcabadosBombillo', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'juegos' => count($pzasUtilizar)]); //Retorno a vista de Cepillado.
-            } else { //Si no existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
+            if (isset($pzasUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Acabado bombillo.
+                return view('processes.revAcabadosBombillo', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Cepillado.
+            } else { //Si no existe una pieza para utilizar, se retorna a la vista de Acabado bombillo.
                 $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
-                return view('processes.revAcabadosBombillo', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'juegos' => count($pzasUtilizar)])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
+                return view('processes.revAcabadosBombillo', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
             }
         }
     }
@@ -380,16 +403,16 @@ class AcabadoBombilloController extends Controller
         $pzasGuardadas = array();
         $procesos = Procesos::where('id_clase', $clase->id)->first();
 
-        //Obtener las piezas que esten terminadas y correctas en la tabla Rectificado para despues comparar cada una con su consecuente y asi armar los juegos
+        //Obtener las piezas que esten terminadas y correctas en la tabla Acabado bombillo para despues comparar cada una con su consecuente y asi armar los juegos
         $id_proceso = "acabadoBombillo_" . $clase->nombre . "_" . $ot;
         $proceso = AcabadoBombilo::where('id_proceso', $id_proceso)->first();
         $pzasOcupadas = AcabadoBombilo_pza::where('id_proceso', $proceso->id)->where('estado', 1)->get(); //Obtención de todas las piezas creadas.
         if ($proceso) {
-            $pzasUsadas = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Acabado Bombillo')->get(); //Obtención de todas las piezas creadas en Rectificado
+            $pzasUsadas = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Acabado Bombillo')->get(); //Obtención de todas las piezas creadas en Acabado bombillo
         }
 
         if ($procesos->calificado != 0) {
-            //Obtener las piezas solamente en el proceso de Rectificado
+            //Obtener las piezas solamente en el proceso de Acabado bombillo
             $pzasEncontradas = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Revision Calificado')->where('error', 'Ninguno')->get();
             $this->piezasEncontradas($pzasEncontradas, $pzasUtilizar, $pzasGuardadas, $pzasUsadas, $pzasOcupadas);
         }
@@ -401,14 +424,14 @@ class AcabadoBombilloController extends Controller
         if (count($pzasUsadas) > 0) {
             for ($x = 0; $x < count($pzasUsadas); $x++) {
                 array_push($numerosUsados, $pzasUsadas[$x]->n_pieza); //Guardo el número de pieza usada.
-            } //Recorro las piezas ocupadas en Rectificado
+            } //Recorro las piezas ocupadas en Acabado bombillo
         }
         if (count($pzasOcupadas) > 0) {
             for ($x = 0; $x < count($pzasOcupadas); $x++) {
                 array_push($numerosUsados, $pzasOcupadas[$x]->n_juego); //Guardo el número de pieza usada.
             }
         }
-        for ($i = 0; $i < count($pzasEncontradas); $i++) { //Recorro las piezas encontradas de Rectificado
+        for ($i = 0; $i < count($pzasEncontradas); $i++) { //Recorro las piezas encontradas de Acabado bombillo
             if (array_search($pzasEncontradas[$i]->n_pieza, $pzasGuardadas) == false) {
                 // if ($pzasEncontradas[$i]->error == "Ninguno") {
                 //Se hace la condicion para saber si el numero de la pieza se encuentra ya usada.

@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Hash;
 
 class CavidadesController extends Controller
 {
-    public function show()
+    public function show($error)
     {
         $ot = Orden_trabajo::all(); //Obtención de todas las ordenes de trabajo.
         if (count($ot) != 0) {
@@ -41,11 +41,21 @@ class CavidadesController extends Controller
                     array_push($oTrabajo, $ot);
                 }
             }
+            //Si hay clases que pasaran por Primera operación soldadura, se almacena la orden de trabajo en el arreglo.
             if (count($oTrabajo) != 0) {
-                return view('processes.cavidades', ['ot' => $oTrabajo]); //Retorno a vista de Cavidades
+                if ($error == 1) {
+                    return view('processes.cavidades', ['ot' => $oTrabajo, 'error' => $error]); //Retorno a vista de Desbaste exterior
+                }
+                return view('processes.cavidades', ['ot' => $oTrabajo]); //Retorno a vista de Desbaste exterior
             }
-            //Se retorna a la vista de Cepillado con las ordenes de trabajo que tienen clases que pasaran por Cavidades
-            return view('processes.cavidades', ['ot']); //Retorno a vista de Cavidades
+            if ($error == 1) {
+                return view('processes.cavidades', ['ot' => $oTrabajo, 'error' => $error]); //Retorno a vista de Desbaste exterior
+            }
+            //Se retorna a la vista de Primera operación soldadura con las ordenes de trabajo que tienen clases que pasaran por Desbaste exterior
+            return view('processes.cavidades', ['ot']); //Retorno a vista de Desbaste exterior
+        }
+        if ($error == 1) {
+            return view('processes.cavidades', ['error' => $error]); //Retorno a vista de Desbaste exterior
         }
         return view('processes.cavidades');
     }
@@ -63,8 +73,18 @@ class CavidadesController extends Controller
         $cNominal = Cavidades_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $tolerancia = Cavidades_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $moldura = Moldura::find($ot->id_moldura); //Busco la moldura de la OT.
+        $proceso = Cavidades::where('id_proceso', $id)->first(); //Busco el proceso de la OT.
+        if (!$proceso) {
+            //Llenado de la tabla Rectificado
+            $soldadura = new Cavidades(); //Creación de objeto para llenar tabla Cavidades
+            $soldadura->id_proceso = $id; //Creación de id para tabla Cavidades
+            $soldadura->id_ot = $ot->id; //Llenado de id_proceso para tabla Cavidades
+            $soldadura->save(); //Guardado de datos en la tabla Cavidades
+        }
         $id_proceso = Cavidades::where('id_proceso', $id)->first();
-
+        $pzasCavidades = Cavidades_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
+        $pzasBarrenoP = Pieza::where('id_ot', $ot->id)->where('id_clase', $clase->id)->where('proceso', 'Barreno Profundidad')->where('error', 'Ninguno')->get();
+        $pzasRestantes = $this->piezasRestantes($pzasBarrenoP, $pzasCavidades);
         if (isset($request->n_pieza)) {  //Si se obtienen los datos de las piezas, se guardan en la tabla Cavidades_cnominal.
             $id_pieza = $request->n_pieza . $id_proceso->id; //Creación de id para tabla Cavidades_cnominal.
             $piezaExistente = Cavidades_pza::where('id_pza', $id_pieza)->first();
@@ -92,7 +112,7 @@ class CavidadesController extends Controller
                 }
                 $piezaExistente->save();
 
-                $pieza = Pieza::where('n_pieza', $piezaExistente->n_pieza)->where('proceso', 'Cavidades')->where('id_ot', $ot->id)->where('id_clase', $clase->id)->first();
+                $pieza = Pieza::where('n_pieza', $piezaExistente->n_juego)->where('proceso', 'Cavidades')->where('id_ot', $ot->id)->where('id_clase', $clase->id)->first();
                 //Guardar los datos de las pieza en la tabla pieza (En donde se almacenan todas las piezas)
                 if (!isset($pieza)) {
                     $pieza = new Pieza();
@@ -113,10 +133,13 @@ class CavidadesController extends Controller
                 ]);
                 $meta = Metas::find($meta->id); //Busco la meta de la OT.
                 //  //Retornar la pieza siguiente
+                $pzasCavidades = Cavidades_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
+                $pzasBarrenoP = Pieza::where('id_ot', $ot->id)->where('id_clase', $clase->id)->where('proceso', 'Barreno Profundidad')->where('error', 'Ninguno')->get();
+                $pzasRestantes = $this->piezasRestantes($pzasBarrenoP, $pzasCavidades);
                 $pzaUtilizar = Cavidades_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first();
                 if (isset($pzaUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Cavidades
                     $pzasCreadas = Cavidades_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get();
-                    return view('processes.cavidades', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'juegos' => count($this->piezaUtilizar($ot->id, $clase))]); //Retorno a vista de Cepillado.
+                    return view('processes.cavidades', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Cepillado.
                 } else {
                     //Actualizar solo dos registros de las piezas que se van a ocupar en la tabla Cavidades
                     $this->piezaUtilizar($ot->id, $clase);
@@ -132,15 +155,6 @@ class CavidadesController extends Controller
                 $newPza->estado = 1; //Llenado de estado para tabla Cavidades
                 $newPza->n_juego = $request->n_juegoElegido; //Llenado de estado para tabla Cavidades
                 $newPza->save(); //Guardado de datos en la tabla Cavidades
-            }
-        } else {
-            $proceso = Cavidades::where('id_proceso', $id)->first(); //Busco el proceso de la OT.
-            if (!$proceso) {
-                //Llenado de la tabla Rectificado
-                $soldadura = new Cavidades(); //Creación de objeto para llenar tabla Cavidades
-                $soldadura->id_proceso = $id; //Creación de id para tabla Cavidades
-                $soldadura->id_ot = $ot->id; //Llenado de id_proceso para tabla Cavidades
-                $soldadura->save(); //Guardado de datos en la tabla Cavidades
             }
         }
         $id_proceso = Cavidades::where('id_proceso', $id)->first();
@@ -193,23 +207,28 @@ class CavidadesController extends Controller
                     }
                 }
                 if (isset($pzasUtilizar)) { //Si no se encontro una pieza para utilizar, se crea una nueva pieza.
-                    return view('processes.cavidades', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'juegos' => count($pzasUtilizar)]); //Retorno a vista de Cavidades
+                    return view('processes.cavidades', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Cavidades
                 } else {
-                    return view('processes.cavidades', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'juegos' => count($this->piezaUtilizar($ot->id, $clase))])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cavidades
+                    return view('processes.cavidades', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cavidades
                 }
             } else {
                 $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
-                return view('processes.cavidades', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'juegos' => count($pzasUtilizar)])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cavidades
+                return view('processes.cavidades', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cavidades
             }
         }
     }
     public function compararDatosPieza($pieza, $cNominal, $tolerancia) //Función para comparar los datos de la pieza con los datos nominales y de tolerancia.
     {
-        if ($pieza->diametro_mordaza > ($cNominal->diametro_mordaza + $tolerancia->diametro_mordaza1) || $pieza->diametro_mordaza < ($cNominal->diametro_mordaza - $tolerancia->diametro_mordaza2) || $pieza->diametro_ceja > ($cNominal->diametro_ceja + $tolerancia->diametro_ceja1) || $pieza->diametro_ceja < ($cNominal->diametro_ceja - $tolerancia->diametro_ceja2) || $pieza->diametro_sufridera > ($cNominal->diametro_sufridera + $tolerancia->diametro_sufridera1) || $pieza->diametro_sufridera < ($cNominal->diametro_sufridera - $tolerancia->diametro_sufridera2) || $pieza->altura_mordaza > ($cNominal->altura_mordaza + $tolerancia->altura_mordaza1) || $pieza->altura_mordaza < ($cNominal->altura_mordaza - $tolerancia->altura_mordaza2) || $pieza->altura_ceja > ($cNominal->altura_ceja + $tolerancia->altura_ceja1) || $pieza->altura_ceja < ($cNominal->altura_ceja - $tolerancia->altura_ceja2) || $pieza->altura_sufridera > ($cNominal->altura_sufridera + $tolerancia->altura_sufridera1) || $pieza->altura_sufridera < ($cNominal->altura_sufridera - $tolerancia->altura_sufridera2) || $pieza->diametro_boca > ($cNominal->diametro_boca + $tolerancia->diametro_boca1) || $pieza->diametro_boca < ($cNominal->diametro_boca - $tolerancia->diametro_boca2) || $pieza->diametro_asiento_corona > ($cNominal->diametro_asiento_corona + $tolerancia->diametro_asiento_corona1) || $pieza->diametro_asiento_corona < ($cNominal->diametro_asiento_corona - $tolerancia->diametro_asiento_corona2) || $pieza->diametro_llanta > ($cNominal->diametro_llanta + $tolerancia->diametro_llanta1) || $pieza->diametro_llanta < ($cNominal->diametro_llanta - $tolerancia->diametro_llanta2) || $pieza->diametro_caja_corona > ($cNominal->diametro_caja_corona + $tolerancia->diametro_caja_corona1) || $pieza->diametro_caja_corona < ($cNominal->diametro_caja_corona - $tolerancia->diametro_caja_corona2) || $pieza->profundidad_corona > ($cNominal->profundidad_corona + $tolerancia->profundidad_corona1) || $pieza->profundidad_corona < ($cNominal->profundidad_corona - $tolerancia->profundidad_corona2) || $pieza->angulo_30 > ($cNominal->angulo_30 + $tolerancia->angulo_301) || $pieza->angulo_30 < ($cNominal->angulo_30 - $tolerancia->angulo_302) || $pieza->profundidad_caja_corona > ($cNominal->profundidad_caja_corona + $tolerancia->profundidad_caja_corona1) || $pieza->profundidad_caja_corona < ($cNominal->profundidad_caja_corona - $tolerancia->profundidad_caja_corona2) || $pieza->simetria > ($cNominal->simetria + $tolerancia->simetria1) || $pieza->simetria < ($cNominal->simetria - $tolerancia->simetria2)) {
+        if ($pieza->profundidad1 > $cNominal->profundidad1 + $tolerancia->profundidad1_1 || $pieza->profundidad1 < $cNominal->profundidad1 - $tolerancia->profundidad1_2 || $pieza->diametro1 > $cNominal->diametro1 + $tolerancia->diametro1_1 || $pieza->diametro1 < $cNominal->diametro1 - $tolerancia->diametro1_2 || $pieza->profundidad2 > $cNominal->profundidad2 + $tolerancia->profundidad2_1 || $pieza->profundidad2 < $cNominal->profundidad2 - $tolerancia->profundidad2_2 || $pieza->diametro2 > $cNominal->diametro2 + $tolerancia->diametro2_1 || $pieza->diametro2 < $cNominal->diametro2 - $tolerancia->diametro2_2 || $pieza->profundidad3 > $cNominal->profundidad3 + $tolerancia->profundidad3_1 || $pieza->profundidad3 < $cNominal->profundidad3 - $tolerancia->profundidad3_2 || $pieza->diametro3 > $cNominal->diametro3 + $tolerancia->diametro3_1 || $pieza->diametro3 < $cNominal->diametro3 - $tolerancia->diametro3_2 || $pieza->acetatoBM != 'Bien') {
             return 0; //Si los datos de la pieza son diferentes a los nominales y de tolerancia, se retorna 0.
         } else {
             return 1; //Si los datos de la pieza son iguales a los nominales y de tolerancia, se retorna 1.
         }
+    }
+    public function piezasRestantes($pzasProcesoA, $pzasProcesoB)
+    {
+        $pzasRestantes = count($pzasProcesoA) - count($pzasProcesoB);
+        return $pzasRestantes;
     }
     public function edit(Request $request)
     {
@@ -222,6 +241,9 @@ class CavidadesController extends Controller
         $cNominal = Cavidades_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $tolerancia = Cavidades_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $pzasCreadas = Cavidades_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas.
+        $pzasCavidades = Cavidades_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
+        $pzasBarrenoP = Pieza::where('id_ot', $ot->id)->where('id_clase', $clase->id)->where('proceso', 'Barreno Profundidad')->where('error', 'Ninguno')->get();
+        $pzasRestantes = $this->piezasRestantes($pzasBarrenoP, $pzasCavidades);
         $pzaUtilizar = Cavidades_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
         if (isset($request->n_pieza)) { //Si se obtienen los datos de las piezas, se guardan en la tabla Cavidades_cnominal.
             for ($i = 0; $i < count($request->n_pieza); $i++) {
@@ -257,7 +279,7 @@ class CavidadesController extends Controller
                     $pieza = Pieza::where('n_pieza', $piezaExistente->n_juego)->where('proceso', 'Cavidades')->where('id_ot', $ot->id)->where('id_clase', $clase->id)->first();
                     //Guardar los datos de las pieza en la tabla pieza (En donde se almacenan todas las piezas)
                     if (!isset($pieza)) {
-                        $pieza = new Pieza(); //Creación del obejeto para llenar la tabla pieza.
+                        $pieza = new Pieza(); //Creación del objeto para llenar la tabla pieza.
                     }
                     $pieza->id_clase = $clase->id; //Lenado de id_clase para la tabla pieza.
                     $pieza->id_ot = $ot->id;
@@ -303,17 +325,17 @@ class CavidadesController extends Controller
             $cNominal = Cavidades_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
             $tolerancia = Cavidades_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
             if (isset($pzasUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Cavidades.
-                return view('processes.cavidades', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'juegos' => count($pzasUtilizar)]); //Retorno a vista de Cepillado.
+                return view('processes.cavidades', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Cepillado.
             } else { //Si no existe una pieza para utilizar, se retorna a la vista de Cavidades.
                 $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
-                return view('processes.cavidades', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'juegos' => count($pzasUtilizar)])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
+                return view('processes.cavidades', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
             }
         } else {
             if (isset($request->password)) { //Si se ingreso una contraseña y la meta existe entonces...
                 $usersPasswords = User::all(); //Obtengo todas las contraseñas.
                 foreach ($usersPasswords as $userPassword) { //Recorro las contraseñas.
                     if (Hash::check($request->password, $userPassword->contrasena) && $userPassword->perfil == 1) {  //Si la contraseña es correcta.
-                        return view('processes.cavidades', ['band' => 4, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'clase' => $clase, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'juegos' => count($this->piezaUtilizar($ot->id, $clase))]); //Retorno la vista de cepillado.
+                        return view('processes.cavidades', ['band' => 4, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'clase' => $clase, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'pzasRestantes' => $pzasRestantes]); //Retorno la vista de cepillado.
                     }
                 }
             }
@@ -344,10 +366,10 @@ class CavidadesController extends Controller
             $cNominal = Cavidades_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
             $tolerancia = Cavidades_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
             if (isset($pzasUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
-                return view('processes.cavidades', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'juegos' => count($pzasUtilizar)]); //Retorno a vista de Cepillado.
+                return view('processes.cavidades', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Cepillado.
             } else { //Si no existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
                 $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
-                return view('processes.cavidades', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'juegos' => count($pzasUtilizar)])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
+                return view('processes.cavidades', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
             }
         }
     }
@@ -366,13 +388,9 @@ class CavidadesController extends Controller
             $pzasUsadas = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Cavidades')->get(); //Obtención de todas las piezas creadas en Cavidades
         }
 
-        if ($procesos->acabadoBombillo != 0) {
-            //Obtener las piezas solamente en el proceso de Cavidades
-            $pzasEncontradas = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Acabado Bombillo')->where('error', 'Ninguno')->get();
-            $this->piezasEncontradas($pzasEncontradas, $pzasUtilizar, $pzasGuardadas, $pzasUsadas, $pzasOcupadas);
-        }else if($procesos->acabadoMolde != 0){
-            //Obtener las piezas solamente en el proceso de Cavidades
-            $pzasEncontradas = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Acabado Molde')->where('error', 'Ninguno')->get();
+        if ($procesos->barreno_profundidad != 0) {
+            //Obtener las piezas solamente en el proceso de Barreno Profundidad
+            $pzasEncontradas = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Barreno Profundidad')->where('error', 'Ninguno')->get();
             $this->piezasEncontradas($pzasEncontradas, $pzasUtilizar, $pzasGuardadas, $pzasUsadas, $pzasOcupadas);
         }
         return $pzasUtilizar;

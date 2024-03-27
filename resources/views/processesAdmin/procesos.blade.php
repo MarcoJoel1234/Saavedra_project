@@ -179,6 +179,22 @@ class Proceso {
                     return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, valoresCnomi, valoresTole); // Crear tabla
                 }   
                 return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined, 'acabado molde'); // Crear tabla
+            case "Barreno Profundidad"://Proceso de barrero profundidad
+                titulos = ['', 'Broca 1', 'Tiempo 1', 'Broca 2', 'Tiempo2', 'Broca3', 'Tiempo3', 'Entrada / Salida', 'Diametro de arrastre 1', 'Diametro de arrastre 2', 'Diametro de arrastre 3'];
+
+                cNominal = ['C.nominal', 'cNomi_broca1', 'cNomi_tiempo1', 'cNomi_broca2', 'cNomi_tiempo2', 'cNomi_broca3', 'cNomi_tiempo3', 'cNomi_entradaSalida', 'cNomi_diametro_arrastre1', 'cNomi_diametro_arrastre2', 'cNomi_diametro_arrastre3'];
+                cNomiPosiciones = [null]; // Posiciones de los inputs de c.nominal
+
+                tolerancias = ['Tolerancias', 'tole_broca1', 'tole_tiempo1', 'tole_broca2', 'tole_tiempo2', 'tole_broca3', 'tole_tiempo3', 'tole_entrada', 'tole_salida', 'tole_diametro_arrastre1', 'tole_diametro_arrastre2', 'tole_diametro_arrastre3'];
+                tolePosiciones = [7]; // Posiciones de los inputs de tolerancias
+
+                if(this.valoresCnomi != undefined && this.valoresTole != undefined){
+                    let valoresCnomi = [this.valoresCnomi['id'], this.valoresCnomi['broca1'], this.valoresCnomi['tiempo1'], this.valoresCnomi['broca2'], this.valoresCnomi['tiempo2'], this.valoresCnomi['broca3'], this.valoresCnomi['tiempo3'], this.valoresCnomi['entradaSalida'], this.valoresCnomi['diametro_arrastre1'], this.valoresCnomi['diametro_arrastre2'], this.valoresCnomi['diametro_arrastre3']]; 
+                
+                    let valoresTole = [this.valoresTole['id'], this.valoresTole['broca1'], this.valoresTole['tiempo1'], this.valoresTole['broca2'], this.valoresTole['tiempo2'], this.valoresTole['broca3'], this.valoresTole['tiempo3'], this.valoresTole['entrada'], this.valoresTole['salida'], this.valoresTole['diametro_arrastre1'], this.valoresTole['diametro_arrastre2'], this.valoresTole['diametro_arrastre3']];
+                    return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, valoresCnomi, valoresTole); // Crear tabla
+                }   
+                return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined, 'palomas'); // Crear tabla
             case "Copiado": //Proceso de copiado
                 if(subproceso == 'Cilindrado'){
                     titulos = ['', 'Diametro 1', 'Profundidad 1', 'Diametro 2', 'Profundidad 2', 'Diametro de sufridera', 'Diametro Ranura', 'Profundidad Ranura', 'Profundidad de sufridera', 'ALTURA TOTAL'];
@@ -246,6 +262,37 @@ class Proceso {
                     return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, valoresCnomi, valoresTole); // Crear tabla
                 }   
                 return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined, 'rebajes'); // Crear tabla
+            case "1 y 2 Operacion Equipo": //Proceso de Rebajes
+                titulos = ['', 'Altura', 'ø Altura de candado', 'Altura asiento obturador', 'ø Profundidad de soldadura', 'ø De push up',];
+                cNominal = ['C.nominal', 'cNomi_altura', 'cNomi_alturaCandado1', 'cNomi_alturaCandado2', 'cNomi_alturaAsientoObturador1', 'cNomi_alturaAsientoObturador2', 'cNomi_profundidadSoldadura1', 'cNomi_profundidadSoldadura2', 'cNomi_pushUp'];
+                cNomiPosiciones = [2, 4, 6]; // Posiciones de los inputs de c.nominal
+
+                tolerancias = ['Tolerancias', 'tole_altura', 'tole_alturaCandado1', 'tole_alturaCandado2', 'tole_alturaAsientoObturador1', 'tole_alturaAsientoObturador2', 'tole_profundidadSoldadura1', 'tole_profundidadSoldadura2', 'tole_pushUp'];
+                tolePosiciones = [2, 4, 6]; // Posiciones de los inputs de tolerancias
+
+                if(this.valoresCnomi != undefined && this.valoresTole != undefined){
+                    let valoresCnomi = [this.valoresCnomi['id'], this.valoresCnomi['altura'], this.valoresCnomi['alturaCandado1'] , this.valoresCnomi['alturaCandado2'], this.valoresCnomi['alturaAsientoObturador1'], this.valoresCnomi['alturaAsientoObturador2'], this.valoresCnomi['profundidadSoldadura1'], this.valoresCnomi['profundidadSoldadura2'], this.valoresCnomi['pushUp']];
+                
+                    let valoresTole = [this.valoresTole['id'], this.valoresTole['altura'], this.valoresTole['alturaCandado1'], this.valoresTole['alturaCandado2'], this.valoresTole['alturaAsientoObturador1'], this.valoresTole['alturaAsientoObturador2'], this.valoresTole['profundidadSoldadura1'], this.valoresTole['profundidadSoldadura2'], this.valoresTole['pushUp']];  
+                    return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, valoresCnomi, valoresTole); // Crear tabla
+                }   
+                return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined, 'rebajes'); // Crear tabla
+            case "Embudo CM": //Proceso de Rebajes
+                titulos = ['', 'Conexion de linea de partida', 'Conexión 90G', 'Altura de conexión', 'Diametro de embudo'];
+
+                cNominal = ['C.nominal', 'cNomi_conexion_lineaPartida', 'cNomi_conexion_90G', 'cNomi_altura_conexion', 'cNomi_diametro_embudo'];
+                cNomiPosiciones = [null]; // Posiciones de los inputs de c.nominal
+
+                tolerancias = ['Tolerancias', 'tole_conexion_lineaPartida', 'tole_conexion_90G', 'tole_altura_conexion', 'tole_diametro_embudo'];
+                tolePosiciones = [null]; // Posiciones de los inputs de tolerancias
+
+                if(this.valoresCnomi != undefined && this.valoresTole != undefined){
+                    let valoresCnomi = [this.valoresCnomi['id'], this.valoresCnomi['conexion_lineaPartida'], this.valoresCnomi['conexion_90G'] , this.valoresCnomi['altura_conexion'], this.valoresCnomi['diametro_embudo']];
+                
+                    let valoresTole = [this.valoresTole['id'], this.valoresTole['conexion_lineaPartida'], this.valoresTole['conexion_90G'], this.valoresTole['altura_conexion'], this.valoresTole['diametro_embudo']];
+                    return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, valoresCnomi, valoresTole); // Crear tabla
+                }   
+                return this.crearTabla(titulos, cNominal, cNomiPosiciones, tolerancias, tolePosiciones, undefined, undefined, 'embudoCM'); // Crear tabla
             default:
                 return 'No se encontro el proceso'; //Retorna el mensaje de que el proceso no existe
         }
@@ -372,14 +419,20 @@ class Proceso {
             labelExistente.removeChild(document.getElementsByTagName('label')[2]);
             div.removeChild(document.getElementsByTagName('select')[2]);
         }
-        if(selectOp.value == "pysOpeSoldadura"){ //Si el proceso es pysOpeSoldadura
+        if(selectOp.value == "1 y 2 Operacion Equipo"){ //Si el proceso es pysOpeSoldadura
+            divTitle = document.getElementById("row-title");
+            let label = document.createElement('label'); // Crear label
+            label.className = "title"; // Agregar clase al label
+            label.innerHTML = 'Selecciona la operacion'; // Agregar texto al label
+            divTitle.appendChild(label); // Agregar label al div
+
             let select = document.createElement('select'); // Crear select
             select.id = 'select-operacion'; // Agregar id al select
             select.name = 'operacion'; // Agregar nombre al select
             for(let i=1; i<=2; i++){ //Crear option de operaciones 
                 let option = document.createElement('option'); // Crear option
                 option.value = i; // Agregar valor al option 
-                option.innerHTML = i + ' operacion soldadura'; // Agregar texto al option
+                option.innerHTML = i + ' operacion'; // Agregar texto al option
                 select.appendChild(option); // Agregar option al select
             }
             div.appendChild(select); // Agregar select al div
@@ -415,7 +468,7 @@ class Proceso {
         let title_div = document.getElementById("row-title");
         let label = document.createElement('label');
         label.className = "title";
-        label.id = "proceso-label";
+        label.id = "proceso-label"; 
         label.innerHTML = 'Selecciona el proceso';
         let labelExistente = document.getElementById("proceso-label");
         eliminarElemento(labelExistente);
@@ -430,11 +483,19 @@ class Proceso {
         for(let i=0; i<clases.length; i++){ //Recorre las clases
             if(selectClase.value == clases[i][0]["id"]){ //Si el valor del select es igual a la clase
                 eliminarElemento(selectExistente);
-                let selectCreate = document.createElement("select"); //Crear un select 
+                let selectCreate = document.createElement("select"); //Crear un select
                 selectCreate.id = "select-proceso"; //Agrega el id al select
                 selectCreate.name = "proceso"; //Agrega el nombre de los procesos al select
+                selectCreate.style = "width: 380px;"; //Agrega el estilo al select
+                
                 for(let j=0; j<procesos[i].length; j++){ //Crea la opción de los procesos
                     let option = document.createElement("option"); //Crea el option 
+                    if(j == 0){
+                        option.text = ' '; //Agrega el texto al option
+                        option.value = ' '; //Agrega el valor al option 
+                        selectCreate.appendChild(option); //Agrega el option al select     
+                    }
+                    option = document.createElement("option"); //Crea el option
                     option.text = procesos[i][j]; //Agrega el texto al option
                     option.value = procesos[i][j]; //Agrega el valor al option 
                     selectCreate.appendChild(option); //Agrega el option al select 
@@ -442,7 +503,7 @@ class Proceso {
                 selectCreate.addEventListener("change", function(){
                     agregarSelect(selectCreate);
                 });
-                div.appendChild(selectCreate); //Agrega el select al div
+                div.appendChild(selectCreate); //Agrega el select al div 
                 break;
             }
         }
@@ -477,13 +538,9 @@ class Proceso {
                 <input type="text" class="ot" value="{{$ot}}" readonly>
                 <div class="disabled">
                     <div class="row" id="row-title">
-                        @isset($proceso)
-                            @if ($proceso == "pysOpeSoldadura")
-                                <label class="title">Selecciona la operación:</label>
-                            @endif
-                        @else
+                        @if(!isset($proceso))
                             <label class="title" style="margin-left: 60px;">Selecciona la clase:</label>
-                        @endisset
+                        @endif
                         
                     </div>
                     @if (isset($proceso))
@@ -492,6 +549,8 @@ class Proceso {
                             <label class="title" style="margin-left: 200px;">Proceso:</label>
                             @if ($proceso == 'Copiado')
                             <label class="title" style="margin-left: 200px;">Subproceso:</label>
+                            @elseif ($proceso == '1 y 2 Operacion Equipo')
+                            <label class="title" style="margin-left: 200px;">Operación:</label>
                             @endif
                         </div>
                         <div class="row" id="row">
@@ -499,10 +558,13 @@ class Proceso {
                             <input type="text" class="ot" value="{{$clase->nombre}}" readonly>
                             <input type="hidden" name="clase" class="ot" value="{{$clase->id}}">
                             <!--Valor del proceso elegido-->
-                            <input type="text" name="proceso" id="select-proceso" class="ot" value="{{$proceso}}" readonly>
+                            <input type="text" name="proceso" id="select-proceso" class="ot" value="{{$proceso}}" style="width: 380px;" readonly>
                             @if ($proceso == 'Copiado')
                             <!--Valor del subproceso elegido-->
                                 <input type="text" name="subproceso" id="select-proceso" class="ot" value="{{$subproceso}}" readonly>
+                            @elseif ($proceso == '1 y 2 Operacion Equipo')
+                                <!--Valor de la operación elegida-->
+                                <input type="text" id="select-proceso" class="ot" value="{{$operacion}} operación" readonly>
                             @endif
                         </div>
                     @else
@@ -517,7 +579,7 @@ class Proceso {
                         <script>
                             //Modificar los procesos de acuerdo a la clase seleccionada
                             let select_clase = document.getElementById("select-clase"); 
-                            select_clase.addEventListener("change", function(){  
+                            select_clase.addEventListener("change", function(){
                                 selectProcesos(@json($procesos), @json($clases));
                             });
                         </script>
@@ -760,6 +822,8 @@ class Proceso {
                 <input type="hidden" name="clase" class="ot" value="{{$clase->id}}">
                 @if ($proceso == 'Copiado')
                     <input type="hidden" name="subproceso" value="{{$subproceso}}">
+                @elseif ($proceso == '1 y 2 Operacion Equipo')
+                    <input type="hidden" name="operacion" value="{{$operacion}}">
                 @endif
             @endisset
         </div>

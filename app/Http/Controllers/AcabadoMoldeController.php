@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Hash;
 
 class AcabadoMoldeController extends Controller
 {
-    public function show()
+    public function show($error)
     {
         $ot = Orden_trabajo::all(); //Obtención de todas las ordenes de trabajo.
         if (count($ot) != 0) {
@@ -41,11 +41,21 @@ class AcabadoMoldeController extends Controller
                     array_push($oTrabajo, $ot);
                 }
             }
+            //Si hay clases que pasaran por Primera operación soldadura, se almacena la orden de trabajo en el arreglo.
             if (count($oTrabajo) != 0) {
-                return view('processes.revAcabadosMolde', ['ot' => $oTrabajo]); //Retorno a vista de Acabado Molde
+                if ($error == 1) {
+                    return view('processes.revAcabadosMolde', ['ot' => $oTrabajo, 'error' => $error]); //Retorno a vista de Desbaste exterior
+                }
+                return view('processes.revAcabadosMolde', ['ot' => $oTrabajo]); //Retorno a vista de Desbaste exterior
             }
-            //Se retorna a la vista de Cepillado con las ordenes de trabajo que tienen clases que pasaran por Acabado Molde
-            return view('processes.revAcabadosMolde', ['ot']); //Retorno a vista de Acabado Molde
+            if ($error == 1) {
+                return view('processes.revAcabadosMolde', ['ot' => $oTrabajo, 'error' => $error]); //Retorno a vista de Desbaste exterior
+            }
+            //Se retorna a la vista de Primera operación soldadura con las ordenes de trabajo que tienen clases que pasaran por Desbaste exterior
+            return view('processes.revAcabadosMolde', ['ot']); //Retorno a vista de Desbaste exterior
+        }
+        if ($error == 1) {
+            return view('processes.revAcabadosMolde', ['error' => $error]); //Retorno a vista de Desbaste exterior
         }
         return view('processes.revAcabadosMolde');
     }
@@ -63,7 +73,18 @@ class AcabadoMoldeController extends Controller
         $cNominal = AcabadoMolde_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $tolerancia = AcabadoMolde_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $moldura = Moldura::find($ot->id_moldura); //Busco la moldura de la OT.
+        $proceso = AcabadoMolde::where('id_proceso', $id)->first(); //Busco el proceso de la OT.
+        if (!$proceso) {
+            //Llenado de la tabla Acabado Molde
+            $soldadura = new AcabadoMolde(); //Creación de objeto para llenar tabla Acabado Molde
+            $soldadura->id_proceso = $id; //Creación de id para tabla Acabado Molde
+            $soldadura->id_ot = $ot->id; //Llenado de id_proceso para tabla Acabado Molde
+            $soldadura->save(); //Guardado de datos en la tabla Acabado Molde
+        }
         $id_proceso = AcabadoMolde::where('id_proceso', $id)->first();
+        $pzasAcabadoM = AcabadoMolde_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
+        $pzasCalificado = Pieza::where('id_ot', $ot->id)->where('id_clase', $clase->id)->where('proceso', 'Revision Calificado')->where('error', 'Ninguno')->get();
+        $pzasRestantes = $this->piezasRestantes($pzasCalificado, $pzasAcabadoM);
 
         if (isset($request->n_pieza)) {  //Si se obtienen los datos de las piezas, se guardan en la tabla Acabado_Molde_cnominal.
             $id_pieza = $request->n_pieza . $id_proceso->id; //Creación de id para tabla Acabado_Molde_cnominal.
@@ -100,7 +121,7 @@ class AcabadoMoldeController extends Controller
                 }
                 $piezaExistente->save();
 
-                $pieza = Pieza::where('n_pieza', $piezaExistente->n_pieza)->where('proceso', 'Acabado Molde')->where('id_ot', $ot->id)->where('id_clase', $clase->id)->first();
+                $pieza = Pieza::where('n_pieza', $piezaExistente->n_juego)->where('proceso', 'Acabado Molde')->where('id_ot', $ot->id)->where('id_clase', $clase->id)->first();
                 //Guardar los datos de las pieza en la tabla pieza (En donde se almacenan todas las piezas)
                 if (!isset($pieza)) {
                     $pieza = new Pieza();
@@ -120,11 +141,15 @@ class AcabadoMoldeController extends Controller
                     'resultado' => $pzasCorrectas->count(),
                 ]);
                 $meta = Metas::find($meta->id); //Busco la meta de la OT.
+
+                $pzasAcabadoM = AcabadoMolde_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
+                $pzasCalificado = Pieza::where('id_ot', $ot->id)->where('id_clase', $clase->id)->where('proceso', 'Revision Calificado')->where('error', 'Ninguno')->get();
+                $pzasRestantes = $this->piezasRestantes($pzasCalificado, $pzasAcabadoM);
                 //  //Retornar la pieza siguiente
                 $pzaUtilizar = AcabadoMolde_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first();
                 if (isset($pzaUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Acabado Molde
                     $pzasCreadas = AcabadoMolde_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get();
-                    return view('processes.revAcabadosMolde', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'juegos' => count($this->piezaUtilizar($ot->id, $clase))]); //Retorno a vista de Cepillado.
+                    return view('processes.revAcabadosMolde', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Cepillado.
                 } else {
                     //Actualizar solo dos registros de las piezas que se van a ocupada de Acabado Molde
                     $this->piezaUtilizar($ot->id, $clase);
@@ -140,15 +165,6 @@ class AcabadoMoldeController extends Controller
                 $newPza->estado = 1; //Llenado de estado para tabla Acabado Molde
                 $newPza->n_juego = $request->n_juegoElegido; //Llenado de estado para tabla Acabado Molde
                 $newPza->save(); //Guardado de datos en la tabla Acabado Molde
-            }
-        } else {
-            $proceso = AcabadoMolde::where('id_proceso', $id)->first(); //Busco el proceso de la OT.
-            if (!$proceso) {
-                //Llenado de la tabla Acabado Molde
-                $soldadura = new AcabadoMolde(); //Creación de objeto para llenar tabla Acabado Molde
-                $soldadura->id_proceso = $id; //Creación de id para tabla Acabado Molde
-                $soldadura->id_ot = $ot->id; //Llenado de id_proceso para tabla Acabado Molde
-                $soldadura->save(); //Guardado de datos en la tabla Acabado Molde
             }
         }
         $id_proceso = AcabadoMolde::where('id_proceso', $id)->first();
@@ -201,13 +217,13 @@ class AcabadoMoldeController extends Controller
                     }
                 }
                 if (isset($pzasUtilizar)) { //Si no se encontro una pieza para utilizar, se crea una nueva pieza.
-                    return view('processes.revAcabadosMolde', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'juegos' => count($pzasUtilizar)]); //Retorno a vista de Cepillado.
+                    return view('processes.revAcabadosMolde', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Cepillado.
                 } else {
-                    return view('processes.revAcabadosMolde', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'juegos' => count($this->piezaUtilizar($ot->id, $clase))])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
+                    return view('processes.revAcabadosMolde', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
                 }
             } else {
                 $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
-                return view('processes.revAcabadosMolde', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'juegos' => count($pzasUtilizar)])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
+                return view('processes.revAcabadosMolde', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
             }
         }
     }
@@ -218,6 +234,11 @@ class AcabadoMoldeController extends Controller
         } else {
             return 1; //Si los datos de la pieza son iguales a los nominales y de tolerancia, se retorna 1.
         }
+    }
+    public function piezasRestantes($pzasProcesoA, $pzasProcesoB)
+    {
+        $pzasRestantes = count($pzasProcesoA) - count($pzasProcesoB);
+        return $pzasRestantes;
     }
     public function edit(Request $request)
     {
@@ -230,6 +251,9 @@ class AcabadoMoldeController extends Controller
         $cNominal = AcabadoMolde_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $tolerancia = AcabadoMolde_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $pzasCreadas = AcabadoMolde_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas.
+        $pzasAcabadoM = AcabadoMolde_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
+        $pzasCalificado = Pieza::where('id_ot', $ot->id)->where('id_clase', $clase->id)->where('proceso', 'Revision Calificado')->where('error', 'Ninguno')->get();
+        $pzasRestantes = $this->piezasRestantes($pzasCalificado, $pzasAcabadoM);
         $pzaUtilizar = AcabadoMolde_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
         if (isset($request->n_pieza)) { //Si se obtienen los datos de las piezas, se guardan en la tabla AcabadoMolde_cnominal.
             for ($i = 0; $i < count($request->n_pieza); $i++) {
@@ -318,17 +342,17 @@ class AcabadoMoldeController extends Controller
             $cNominal = AcabadoMolde_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
             $tolerancia = AcabadoMolde_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
             if (isset($pzasUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
-                return view('processes.revAcabadosMolde', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'juegos' => count($pzasUtilizar)]); //Retorno a vista de Cepillado.
+                return view('processes.revAcabadosMolde', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Cepillado.
             } else { //Si no existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
                 $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
-                return view('processes.revAcabadosMolde', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'juegos' => count($pzasUtilizar)])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
+                return view('processes.revAcabadosMolde', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
             }
         } else {
             if (isset($request->password)) { //Si se ingreso una contraseña y la meta existe entonces...
                 $usersPasswords = User::all(); //Obtengo todas las contraseñas.
                 foreach ($usersPasswords as $userPassword) { //Recorro las contraseñas.
                     if (Hash::check($request->password, $userPassword->contrasena) && $userPassword->perfil == 1) {  //Si la contraseña es correcta.
-                        return view('processes.revAcabadosMolde', ['band' => 4, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'clase' => $clase, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'juegos' => count($this->piezaUtilizar($ot->id, $clase))]); //Retorno la vista de cepillado.
+                        return view('processes.revAcabadosMolde', ['band' => 4, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'clase' => $clase, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'pzasRestantes' => $pzasRestantes]); //Retorno la vista de cepillado.
                     }
                 }
             }
@@ -359,10 +383,10 @@ class AcabadoMoldeController extends Controller
             $cNominal = AcabadoMolde_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
             $tolerancia = AcabadoMolde_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
             if (isset($pzasUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
-                return view('processes.revAcabadosMolde', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'juegos' => count($pzasUtilizar)]); //Retorno a vista de Cepillado.
+                return view('processes.revAcabadosMolde', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Cepillado.
             } else { //Si no existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
                 $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
-                return view('processes.revAcabadosMolde', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'juegos' => count($pzasUtilizar)])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
+                return view('processes.revAcabadosMolde', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
             }
         }
     }

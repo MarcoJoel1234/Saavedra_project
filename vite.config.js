@@ -25,6 +25,7 @@ export default defineConfig({
                 'resources/css/maquinas2.css',
                 'resources/css/rectificado.css',
                 'resources/css/copiado.css',
+                'resources/css/elegirPieza.css',
             ],
             refresh: true,
         }),

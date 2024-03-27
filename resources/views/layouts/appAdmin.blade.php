@@ -15,14 +15,14 @@
             <button class="cerrar-menu" id="cerrar"><img class="icono" src="{{asset('images/icono.png')}}"></button>
             <ul class="nav-list">
                 <li><a href="{{ route('home') }}">Inicio</a></li>
-                <li><a href="{{ route('registerMoldura') }}">Registrar nueva moldura.</a></li>
+                <li><a href="{{ route('registerMoldura') }}">Registrar nueva moldura</a></li>
                 <li><a href="{{ route('registerOT') }}">Registrar o Modificar O.T</a></li>
-                <li><a href="{{ route('recoverPassword') }}">Recuperar contraseña.</a></li>
-                <li><a href="{{ route('procesos') }}">Editar C.Nominales y tolerancias</a></li>
-                <li><a href="{{ route('vistaPiezas') }}">Piezas en progreso.</a></li>
-                <li><a href="{{ route('verProcesos') }}">Progreso de Ordenes de Trabajo.</a></li>
+                <li><a href="{{ route('recoverPassword') }}">Recuperar contraseña</a></li>
+                <li><a href="{{ route('procesos') }}">Editar C.Nominales y Tolerancias</a></li>
+                <li><a href="{{ route('vistaPiezas') }}">Piezas en progreso</a></li>
+                <li><a href="{{ route('verProcesos') }}">Progreso de O.T</a></li>
                 <li><a href="{{ route('vistaPzasGenerales') }}">Reporte de piezas</a></li>
-                <li><a href="{{ route('vistaPzasMaquina') }}">Buscar piezas por maquina</a></li>
+                <li><a href="{{ route('vistaPzasMaquina') }}">Buscar piezas por máquina</a></li>
                 <ul>
                     <a class="btn1" href="{{ route('logout') }}">Cerrar sesión</a>
                 </ul>

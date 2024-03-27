@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Hash;
 
 class OffSetController extends Controller
 {
-    public function show()
+    public function show($error)
     {
         $ot = Orden_trabajo::all(); //Obtención de todas las ordenes de trabajo.
         if (count($ot) != 0) {
@@ -41,11 +41,21 @@ class OffSetController extends Controller
                     array_push($oTrabajo, $ot);
                 }
             }
+            //Si hay clases que pasaran por Primera operación soldadura, se almacena la orden de trabajo en el arreglo.
             if (count($oTrabajo) != 0) {
-                return view('processes.offSet', ['ot' => $oTrabajo]); //Retorno a vista de Offset
+                if ($error == 1) {
+                    return view('processes.offSet', ['ot' => $oTrabajo, 'error' => $error]); //Retorno a vista de Desbaste exterior
+                }
+                return view('processes.offSet', ['ot' => $oTrabajo]); //Retorno a vista de Desbaste exterior
             }
-            //Se retorna a la vista de Offset con las ordenes de trabajo que tienen clases que pasaran por Offset
-            return view('processes.offSet', ['ot']); //Retorno a vista de Offset
+            if ($error == 1) {
+                return view('processes.offSet', ['ot' => $oTrabajo, 'error' => $error]); //Retorno a vista de Desbaste exterior
+            }
+            //Se retorna a la vista de Primera operación soldadura con las ordenes de trabajo que tienen clases que pasaran por Desbaste exterior
+            return view('processes.offSet', ['ot']); //Retorno a vista de Desbaste exterior
+        }
+        if ($error == 1) {
+            return view('processes.offSet', ['error' => $error]); //Retorno a vista de Desbaste exterior
         }
         return view('processes.offSet');
     }
@@ -63,8 +73,18 @@ class OffSetController extends Controller
         $cNominal = OffSet_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $tolerancia = OffSet_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $moldura = Moldura::find($ot->id_moldura); //Busco la moldura de la OT.
+        $proceso = OffSet::where('id_proceso', $id)->first(); //Busco el proceso de la OT.
+        if (!$proceso) {
+            //Llenado de la tabla Offset
+            $copiado = new OffSet(); //Creación de objeto para llenar tabla Offset
+            $copiado->id_proceso = $id; //Creación de id para tabla Offset
+            $copiado->id_ot = $ot->id; //Llenado de id_proceso para tabla Offset
+            $copiado->save(); //Guardado de datos en la tabla Offset
+        }
         $id_proceso = OffSet::where('id_proceso', $id)->first();
-
+        $pzasOffSet = offSet_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
+        $pzasCopiado = Pieza::where('id_ot', $ot->id)->where('id_clase', $clase->id)->where('proceso', 'Copiado')->where('error', 'Ninguno')->get();
+        $pzasRestantes = $this->piezasRestantes($pzasCopiado, $pzasOffSet);
         if (isset($request->n_pieza)) {  //Si se obtienen los datos de las piezas, se guardan en la tabla OffSet_cnominal.
             $id_pieza = $request->n_pieza . $id_proceso->id;
             $piezaExistente = OffSet_pza::where('id_pza', $id_pieza)->first();
@@ -114,10 +134,13 @@ class OffSetController extends Controller
                 ]);
                 $meta = Metas::find($meta->id); //Busco la meta de la OT.
                 //  //Retornar la pieza siguiente
+                $pzasOffSet = offSet_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
+                $pzasCopiado = Pieza::where('id_ot', $ot->id)->where('id_clase', $clase->id)->where('proceso', 'Copiado')->where('error', 'Ninguno')->get();
+                $pzasRestantes = $this->piezasRestantes($pzasCopiado, $pzasOffSet);
                 $pzaUtilizar = OffSet_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first();
                 if (isset($pzaUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Offset
                     $pzasCreadas = OffSet_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get();
-                    return view('processes.offSet', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'juegos' => count($this->piezaUtilizar($ot->id, $clase))]); //Retorno a vista de Copiado
+                    return view('processes.offSet', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Copiado
                 } else {
                     //Actualizar solo dos registros de las piezas que se van a ocupar en la tabla Offset
                     $this->piezaUtilizar($ot->id, $clase);
@@ -133,15 +156,6 @@ class OffSetController extends Controller
                 $newPza->estado = 1; //Llenado de estado para tabla Offset
                 $newPza->n_juego = $request->n_juegoElegido; //Llenado de estado para tabla Offset
                 $newPza->save(); //Guardado de datos en la tabla Offset
-            }
-        } else {
-            $proceso = OffSet::where('id_proceso', $id)->first(); //Busco el proceso de la OT.
-            if (!$proceso) {
-                //Llenado de la tabla Offset
-                $copiado = new OffSet(); //Creación de objeto para llenar tabla Offset
-                $copiado->id_proceso = $id; //Creación de id para tabla Offset
-                $copiado->id_ot = $ot->id; //Llenado de id_proceso para tabla Offset
-                $copiado->save(); //Guardado de datos en la tabla Offset
             }
         }
         $id_proceso = OffSet::where('id_proceso', $id)->first();
@@ -191,13 +205,13 @@ class OffSetController extends Controller
                     }
                 }
                 if (isset($pzasUtilizar)) { //Si no se encontro una pieza para utilizar, se crea una nueva pieza.
-                    return view('processes.offSet', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'juegos' => count($pzasUtilizar)]); //Retorno a vista de OffSet
+                    return view('processes.offSet', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de OffSet
                 } else {
-                    return view('processes.offSet', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'juegos' => count($this->piezaUtilizar($ot->id, $clase))])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de OffSet
+                    return view('processes.offSet', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de OffSet
                 }
             } else {
                 $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
-                return view('processes.offSet', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'juegos' => count($pzasUtilizar)])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de OffSet
+                return view('processes.offSet', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de OffSet
             }
         }
     }
@@ -206,7 +220,12 @@ class OffSetController extends Controller
         if ($pieza->anchoRanura > ($cNominal->anchoRanura + $tolerancia->anchoRanura) || $pieza->anchoRanura < ($cNominal->anchoRanura - $tolerancia->anchoRanura) || $pieza->profuTaconHembra > ($cNominal->profuTaconHembra + $tolerancia->profuTaconHembra) || $pieza->profuTaconHembra < ($cNominal->profuTaconHembra - $tolerancia->profuTaconHembra) || $pieza->profuTaconMacho > ($cNominal->profuTaconMacho + $tolerancia->profuTaconMacho) || $pieza->profuTaconMacho < ($cNominal->profuTaconMacho - $tolerancia->profuTaconMacho) || $pieza->simetriaHembra > ($cNominal->simetriaHembra + $tolerancia->simetriaHembra) || $pieza->simetriaHembra < ($cNominal->simetriaHembra - $tolerancia->simetriaHembra) || $pieza->simetriaMacho > ($cNominal->simetriaMacho + $tolerancia->simetriaMacho) || $pieza->simetriaMacho < ($cNominal->simetriaMacho - $tolerancia->simetriaMacho) || $pieza->anchoTacon > ($cNominal->anchoTacon + $tolerancia->anchoTacon) || $pieza->anchoTacon < ($cNominal->anchoTacon - $tolerancia->anchoTacon) || $pieza->barrenoLateralHembra > ($cNominal->barrenoLateralHembra + $tolerancia->barrenoLateralHembra) || $pieza->barrenoLateralHembra < ($cNominal->barrenoLateralHembra - $tolerancia->barrenoLateralHembra) || $pieza->barrenoLateralMacho > ($cNominal->barrenoLateralMacho + $tolerancia->barrenoLateralMacho) || $pieza->barrenoLateralMacho < ($cNominal->barrenoLateralMacho - $tolerancia->barrenoLateralMacho) || $pieza->alturaTaconInicial > ($cNominal->alturaTaconInicial + $tolerancia->alturaTaconInicial) || $pieza->alturaTaconInicial < ($cNominal->alturaTaconInicial - $tolerancia->alturaTaconInicial) || $pieza->alturaTaconIntermedia > ($cNominal->alturaTaconIntermedia + $tolerancia->alturaTaconIntermedia) || $pieza->alturaTaconIntermedia < ($cNominal->alturaTaconIntermedia - $tolerancia->alturaTaconIntermedia)) {
             return 0; //Retorno de datos. //Si los datos de la pieza son diferentes a los nominales y de tolerancia, se retorna 0.
         }
-            return 1;
+        return 1;
+    }
+    public function piezasRestantes($pzasProcesoA, $pzasProcesoB)
+    {
+        $pzasRestantes = count($pzasProcesoA) - count($pzasProcesoB);
+        return $pzasRestantes;
     }
     public function edit(Request $request)
     {
@@ -219,6 +238,10 @@ class OffSetController extends Controller
         $cNominal = OffSet_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $tolerancia = OffSet_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $pzasCreadas = OffSet_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas.
+        $pzasOffSet = offSet_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
+        $pzasCopiado = Pieza::where('id_ot', $ot->id)->where('id_clase', $clase->id)->where('proceso', 'Copiado')->where('error', 'Ninguno')->get();
+        $pzasRestantes = $this->piezasRestantes($pzasCopiado, $pzasOffSet);
+
         $pzaUtilizar = OffSet_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
         if (isset($request->n_pieza)) { //Si se obtienen los datos de las piezas, se guardan en la tabla OffSet_cnominal.
             for ($i = 0; $i < count($request->n_pieza); $i++) {
@@ -299,17 +322,17 @@ class OffSetController extends Controller
             $cNominal = OffSet_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
             $tolerancia = OffSet_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
             if (isset($pzasUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de OffSet
-                return view('processes.offSet', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'juegos' => count($pzasUtilizar)]); //Retorno a vista de OffSet
+                return view('processes.offSet', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de OffSet
             } else { //Si no existe una pieza para utilizar, se retorna a la vista de OffSet
                 $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
-                return view('processes.offSet', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'juegos' => count($pzasUtilizar)])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Copiado
+                return view('processes.offSet', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Copiado
             }
         } else {
             if (isset($request->password)) { //Si se ingreso una contraseña y la meta existe entonces...
                 $usersPasswords = User::all(); //Obtengo todas las contraseñas.
                 foreach ($usersPasswords as $userPassword) { //Recorro las contraseñas.
                     if (Hash::check($request->password, $userPassword->contrasena) && $userPassword->perfil == 1) {  //Si la contraseña es correcta.
-                        return view('processes.offSet', ['band' => 4, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'clase' => $clase, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'juegos' => count($this->piezaUtilizar($ot->id, $clase))]); //Retorno la vista de OffSet
+                        return view('processes.offSet', ['band' => 4, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'clase' => $clase, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'pzasRestantes' => $pzasRestantes]); //Retorno la vista de OffSet
                     }
                 }
             }
@@ -340,10 +363,10 @@ class OffSetController extends Controller
             $cNominal = OffSet_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
             $tolerancia = OffSet_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
             if (isset($pzasUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de OffSet
-                return view('processes.offSet', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'juegos' => count($pzasUtilizar)]); //Retorno a vista de OffSet
+                return view('processes.offSet', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de OffSet
             } else { //Si no existe una pieza para utilizar, se retorna a la vista de OffSet
                 $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
-                return view('processes.offSet', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'juegos' => count($pzasUtilizar)])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de OffSet
+                return view('processes.offSet', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de OffSet
             }
         }
     }

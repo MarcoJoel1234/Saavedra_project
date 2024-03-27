@@ -15,7 +15,7 @@
             <button class="cerrar-menu" id="cerrar"><img class="icono" src="{{asset('images/icono.png')}}"></button>
             <ul class="nav-list">
                 <li><a href="{{ route('home') }}">Inicio</a></li>
-                <li><a href="{{ route('register') }}">Registrar Usuario</a></li>
+                <li><a href="{{ route('register') }}">Registrar usuario</a></li>
                 <ul>
                     <a class="btn1" href="{{ route('logout') }}">Cerrar sesión</a>
                 </ul>

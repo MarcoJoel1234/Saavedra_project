@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cepillado;
 use App\Models\Clase;
 use App\Models\Desbaste_cnominal;
 use App\Models\Desbaste_pza;
@@ -12,13 +13,16 @@ use App\Models\Moldura;
 use App\Models\Orden_trabajo;
 use App\Models\Pieza;
 use App\Models\Procesos;
+use App\Models\Pza_cepillado;
+use App\Models\RevLaterales;
+use App\Models\RevLaterales_pza;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class DesbasteExteriorController extends Controller
 {
-    public function show()
+    public function show($error)
     {
         $ot = Orden_trabajo::all(); //Obtención de todas las ordenes de trabajo.
         if (count($ot) != 0) {
@@ -31,21 +35,30 @@ class DesbasteExteriorController extends Controller
                 foreach ($clases as $clase) {
                     $proceso = Procesos::where('id_clase', $clase->id)->first(); //Obtención del proceso de la clase.
                     if ($proceso) {
-                        if ($proceso->desbaste_exterior) { //Si existen maquinas en cepillado de esa clase, se almacena en el arreglo que se pasara a la vista
+                        if ($proceso->desbaste_exterior) { //Si existen maquinas en Desbaste exterior de esa clase, se almacena en el arreglo que se pasara a la vista
                             $contador++;
                         }
                     }
                 }
-                //Si hay clases que pasaran por Cepillado, se almacena la orden de trabajo en el arreglo.
+                //Si hay clases que pasaran por Desbaste exterior, se almacena la orden de trabajo en el arreglo.
                 if ($contador != 0) {
                     array_push($oTrabajo, $ot);
                 }
             }
-            if(count($oTrabajo) != 0){
+            if (count($oTrabajo) != 0) {
+                if ($error == 1) {
+                    return view('processes.desbaste', ['ot' => $oTrabajo, 'error' => $error]); //Retorno a vista de Desbaste exterior
+                }
                 return view('processes.desbaste', ['ot' => $oTrabajo]); //Retorno a vista de Desbaste exterior
             }
-            //Se retorna a la vista de Cepillado con las ordenes de trabajo que tienen clases que pasaran por Desbaste exterior
-            return view('processes.desbaste', ['ot']); //Retorno a vista de Desbaste exterior
+            if ($error == 1) {
+                return view('processes.desbaste', ['ot' => $oTrabajo, 'error' => $error]); //Retorno a vista de Desbaste exterior
+            }
+            //Se retorna a la vista de Desbaste exterior con las ordenes de trabajo que tienen clases que pasaran por Desbaste exterior
+            return view('processes.desbaste', ['ot' => $oTrabajo]); //Retorno a vista de Desbaste exterior
+        }
+        if ($error == 1) {
+            return view('processes.desbaste', ['error' => $error]); //Retorno a vista de Desbaste exterior
         }
         return view('processes.desbaste');
     }
@@ -63,7 +76,19 @@ class DesbasteExteriorController extends Controller
         $cNominal = Desbaste_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $tolerancia = Desbaste_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $moldura = Moldura::find($ot->id_moldura); //Busco la moldura de la OT.
+        $proceso = DesbasteExterior::where('id_proceso', $id)->first(); //Busco el proceso de la OT.
+        if (!$proceso) {
+            //Llenado de la tabla Desbaste exterior.
+            $desbaste = new DesbasteExterior(); //Creación de objeto para llenar tabla Desbaste exterior.
+            $desbaste->id_proceso = $id; //Creación de id para tabla Desbaste exterior.
+            $desbaste->id_ot = $ot->id; //Llenado de id_proceso para tabla Desbaste exterior.
+            $desbaste->save(); //Guardado de datos en la tabla Desbaste exterior.
+        }
         $id_proceso = DesbasteExterior::where('id_proceso', $id)->first();
+        $pzasDesbaste = Desbaste_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
+        $id_procesoC = Cepillado::where('id_proceso', 'Cepillado_' . $clase->nombre . '_' . $clase->id_ot)->first();
+        $pzasCepillado = Pza_cepillado::where('id_proceso', $id_procesoC->id)->where('estado', 2)->where('correcto', 1)->get();
+        $pzasRestantes = $this->piezasRestantes($pzasCepillado, $pzasDesbaste, $clase);
 
         if (isset($request->n_pieza)) {  //Si se obtienen los datos de las piezas, se guardan en la tabla Desbaste exterior_cnominal.
             $id_pieza = $request->n_pieza . $id_proceso->id; //Creación de id para tabla Desbaste exterior_cnominal.
@@ -107,20 +132,45 @@ class DesbasteExteriorController extends Controller
                 $pieza->save();
 
                 //Actualizar resultado de la meta
+                $contadorPzas = 0;
+                $juegosUsados = array();
                 $pzasCorrectas = Desbaste_pza::where('id_meta', $meta->id)->where('correcto', 1)->get(); //Obtención de todas las piezas correctas.
-                Metas::where('id', $meta->id)->update([ //Actualización de datos en tabla Metas.
-                    'resultado' => $pzasCorrectas->count() / 2,
-                ]);
-                $meta = Metas::find($meta->id); //Busco la meta de la OT.
+                foreach ($pzasCorrectas as $pzaCorrecta) {
+                    $pzaCorrecta2 = Desbaste_pza::where('n_juego', $pzaCorrecta->n_juego)->where('id_meta', $meta->id)->get();
+                    if (!in_array($pzaCorrecta->n_juego, $juegosUsados)) {
+                        array_push($juegosUsados, $pzaCorrecta->n_juego);
+                        $pzasMalas = 0;
+                        foreach ($pzaCorrecta2 as $pza) {
+                            if ($pza->correcto == 1) {
+                                $contadorPzas += .5;
+                            } else if ($pza->correcto === 0) {
+                                $pzasMalas++;
+                            }
+                        }
+                        if ($pzasMalas == 1) {
+                            $contadorPzas -= .5;
+                        }
+                    }
+                }
+                $meta = Metas::find($meta->id); //Actualización de datos en tabla Metas.
+                $meta->resultado = $contadorPzas;
+                $meta->save(); //Guardado de datos en la tabla Metas.
 
-                //  //Retornar la pieza siguiente
+                //Retornar la pieza siguiente
                 $pzaUtilizar = Desbaste_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first();
+                if ($id_proceso) {
+                    $pzasDesbaste = Desbaste_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
+                    $pzasCepillado = Pza_cepillado::where('id_proceso', $id_procesoC->id)->where('estado', 2)->where('correcto', 1)->get();
+                    $pzasRestantes = $this->piezasRestantes($pzasCepillado, $pzasDesbaste, $clase);
+                } else {
+                    $pzasRestantes = 0;
+                }
                 if (isset($pzaUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de desbaste.
                     $pzasCreadas = Desbaste_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get();
-                    return view('processes.desbaste', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'juegos' => count($this->piezaUtilizar($ot->id, $clase))]); //Retorno a vista de Cepillado.
+                    return view('processes.desbaste', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'pzasRestantes' => $pzasRestantes, 'piezaElegida' => $pzaUtilizar]); //Retorno a vista de Desbaste exterior.
                 } else {
                     //Actualizar solo dos registros de las piezas que se van a ocupar en la tabla desbaste exteriorts
-                   $this->piezaUtilizar($ot->id, $clase);
+                    $this->piezaUtilizar($ot->id, $clase);
                 }
             }
         } else if (isset($request->n_juegoElegido)) {
@@ -149,15 +199,6 @@ class DesbasteExteriorController extends Controller
                     $newPza->save(); //Guardado de datos en la tabla Desbaste.
                 }
             }
-        } else {
-            $proceso = DesbasteExterior::where('id_proceso', $id)->first(); //Busco el proceso de la OT.
-            if (!$proceso) {
-                //Llenado de la tabla Cepillado.
-                $desbaste = new DesbasteExterior(); //Creación de objeto para llenar tabla Cepillado.
-                $desbaste->id_proceso = $id; //Creación de id para tabla Cepillado.
-                $desbaste->id_ot = $ot->id; //Llenado de id_proceso para tabla Cepillado.
-                $desbaste->save(); //Guardado de datos en la tabla Cepillado.
-            }
         }
         $id_proceso = DesbasteExterior::where('id_proceso', $id)->first();
         if ($id_proceso !== "[]") {
@@ -177,26 +218,29 @@ class DesbasteExteriorController extends Controller
                 $pzasCreadas[$i]->save();
             }
 
-            $pzasCorrectas = Desbaste_pza::where('id_meta', $meta->id)->where('correcto', 1)->get();
-            if (isset($pzasCorrectas)) { //Si existen piezas correctas, se actualiza el resultado de la meta.
-                $correctas = 0;
-                $juegosUtilizados = array();
-                for ($x = 0; $x < count($pzasCorrectas); $x++) {
-                    for ($y = 0; $y < count($pzasCorrectas); $y++) {
-                        if ($pzasCorrectas[$x]->n_juego === $pzasCorrectas[$y]->n_juego && $x != $y) {
-                            if ($pzasCorrectas[$x]->correcto == 1 && $pzasCorrectas[$y]->correcto == 1) {
-                                if(array_search($pzasCorrectas[$x]->n_juego, $juegosUtilizados) === false){
-                                    array_push($juegosUtilizados, $pzasCorrectas[$x]->n_juego);
-                                    $correctas++;
-                                }
-                            }
+            //Actualizar resultado de la meta
+            $contadorPzas = 0;
+            $juegosUsados = array();
+            $pzasCorrectas = Desbaste_pza::where('id_meta', $meta->id)->where('correcto', 1)->get(); //Obtención de todas las piezas correctas.
+            foreach ($pzasCorrectas as $pzaCorrecta) {
+                $pzaCorrecta2 = Desbaste_pza::where('n_juego', $pzaCorrecta->n_juego)->where('id_meta', $meta->id)->get();
+                if (!in_array($pzaCorrecta->n_juego, $juegosUsados)) {
+                    array_push($juegosUsados, $pzaCorrecta->n_juego);
+                    $pzasMalas = 0;
+                    foreach ($pzaCorrecta2 as $pza) {
+                        if ($pza->correcto == 1) {
+                            $contadorPzas += .5;
+                        } else if ($pza->correcto === 0) {
+                            $pzasMalas++;
                         }
                     }
+                    if ($pzasMalas == 1) {
+                        $contadorPzas -= .5;
+                    }
                 }
-                $meta->resultado = $correctas; //Actualización de datos en tabla Metas.
-            } else {
-                $meta->resultado = 0; //Actualización de los datos en la tabla metas.
             }
+            $meta = Metas::find($meta->id); //Actualización de datos en tabla Metas.
+            $meta->resultado = $contadorPzas;
             $meta->save(); //Guardado de datos en la tabla Metas.
 
             if (isset($cNominal) && isset($tolerancia)) {
@@ -207,8 +251,8 @@ class DesbasteExteriorController extends Controller
                         for ($i = 0; $i < count($piezasVacias); $i++) { //Recorro las piezas creadas.
                             $metaAnterior = Metas::where('id', $piezasVacias[$i]->id_meta)->first(); //Obtención de la meta anterior.
                             if ($metaAnterior->maquina == $meta->maquina) { //Si la meta anterior es igual a la meta actual, se utiliza la pieza.
-                                $piezasVacias[$i]->id_meta = $meta->id; //Llenado de id_meta para tabla Pza_cepillado.
-                                $piezasVacias[$i]->save(); //Guardado de datos en tabla Pza_cepillado.
+                                $piezasVacias[$i]->id_meta = $meta->id; //Llenado de id_meta para tabla Pza_Desbaste exterior.
+                                $piezasVacias[$i]->save(); //Guardado de datos en tabla Pza_Desbaste exterior.
                                 $pzaUtilizar = $piezasVacias[$i]; //Obtención de la pieza a utilizar.
                                 $piezaEncontrada = true; //Se encontro una pieza para utilizar.
                                 break; //Se rompe el ciclo.
@@ -224,15 +268,13 @@ class DesbasteExteriorController extends Controller
                     }
                 }
                 if (isset($pzasUtilizar)) { //Si no se encontro una pieza para utilizar, se crea una nueva pieza.
-                    return view('processes.desbaste', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'juegos' => count($pzasUtilizar)]); //Retorno a vista de Cepillado.
+                    return view('processes.desbaste', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'pzasRestantes' => $pzasRestantes, 'piezasUtilizar' => $pzasUtilizar]); //Retorno a vista de Desbaste exterior.
                 } else {
-                    return view('processes.desbaste', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'juegos' => count($this->piezaUtilizar($ot->id, $clase))])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
+                    return view('processes.desbaste', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'pzasRestantes' => $pzasRestantes, 'piezaElegida' => $pzaUtilizar])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Desbaste exterior.
                 }
-            } else {
-                $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
-                return view('processes.desbaste', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'juegos' => count($pzasUtilizar)])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
             }
         }
+        return view('processes.desbaste', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'clase' => $clase, 'pzasRestantes' => $pzasRestantes,])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Desbaste exterior.
     }
     public function compararDatosPieza($pieza, $cNominal, $tolerancia) //Función para comparar los datos de la pieza con los datos nominales y de tolerancia.
     {
@@ -242,19 +284,75 @@ class DesbasteExteriorController extends Controller
             return 1; //Si los datos de la pieza son iguales a los nominales y de tolerancia, se retorna 1.
         }
     }
+    public function piezasRestantes($piezasProcesoA, $piezasProcesoB, $clase)
+    {
+        $juegosRestantes = 0;
+        $juegosContados = array();
+        //Contar los juegos restantes de la piezas de cepillado
+        foreach ($piezasProcesoA as $piezaA) {
+            if (!in_array($piezaA->n_juego, $juegosContados)) {
+                $juego = Pza_cepillado::where('n_juego', $piezaA->n_juego)->where('id_proceso', $piezaA->id_proceso)->get();
+                $estado = 0;
+                foreach ($juego as $pieza) {
+                    if ($pieza->correcto == 1) {
+                        $estado++;
+                    }
+                }
+                if ($estado == 2) {
+                    $juegosRestantes++;
+                }
+                array_push($juegosContados, $piezaA->n_juego);
+            }
+        }
+        //Contar las piezas malas en el proceso de Revision laterales
+        $juegosMalos = array();
+        $contadorJM = 0;
+        $id_proceso = RevLaterales::where('id_proceso', 'revLaterales_' . $clase->nombre . '_' . $clase->id_ot)->first();
+        if ($id_proceso) {
+            $piezasProcesoC = RevLaterales_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('correcto', 0)->get();
+            foreach ($piezasProcesoC as $pzaMala) {
+                if (!in_array($pzaMala->n_juego, $juegosMalos)) {
+                    foreach ($piezasProcesoB as $pzaMala2) {
+                        if ($pzaMala->n_juego == $pzaMala2->n_juego) {
+                            $pzaMala2->n_juego;
+                            $pzasRestar = 1;
+                            break;
+                        } else {
+                            $pzasRestar = 0;
+                        }
+                    }
+                    if ($pzasRestar != 1) {
+                        $contadorJM++;
+                    }
+                    array_push($juegosMalos, $pzaMala->n_juego);
+                }
+            }
+        }
+        return $juegosRestantes = ($juegosRestantes - (count($piezasProcesoB) / 2)) - $contadorJM;
+    }
     public function edit(Request $request)
     {
         $meta = Metas::find($request->metaData); //Busco la meta de la OT.
         $ot = Orden_trabajo::find($meta->id_ot); //Obtención de la OT.
         $moldura = Moldura::find($ot->id_moldura); //Busco la moldura de la OT.
         $clase = Clase::find($meta->id_clase); //Busco la clase de la OT.
-        $id = "desbaste_" . $clase->nombre . "_" . $ot->id; //Creación de id para tabla Cepillado.
+        $id = "desbaste_" . $clase->nombre . "_" . $ot->id; //Creación de id para tabla Desbaste exterior.
         $id_proceso = DesbasteExterior::where('id_proceso', $id)->first();;
         $cNominal = Desbaste_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $tolerancia = Desbaste_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $pzasCreadas = Desbaste_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas.
         $pzaUtilizar = Desbaste_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
-        if (isset($request->n_pieza)) { //Si se obtienen los datos de las piezas, se gua
+        //Retornar la pieza siguiente
+        $pzaUtilizar = Desbaste_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first();
+        if ($id_proceso) {
+            $pzasDesbaste = Desbaste_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
+            $id_procesoC = Cepillado::where('id_proceso', 'Cepillado_' . $clase->nombre . '_' . $clase->id_ot)->first();
+            $pzasCepillado = Pza_cepillado::where('id_proceso', $id_procesoC->id)->where('estado', 2)->where('correcto', 1)->get();
+            $pzasRestantes = $this->piezasRestantes($pzasCepillado, $pzasDesbaste, $clase);
+        } else {
+            $pzasRestantes = 0;
+        }
+        if (isset($request->n_pieza)) { //Si se obtienen los datos de las piezas
             for ($i = 0; $i < count($request->n_pieza); $i++) {
                 $id_pieza = $request->n_pieza[$i] . $id_proceso->id; //Creación de id para tabla Desbaste_cnominal.
                 $piezaExistente = Desbaste_pza::where('id_pza', $id_pieza)->first();
@@ -263,13 +361,13 @@ class DesbasteExteriorController extends Controller
                     $piezaExistente->diametro_ceja = $request->diametro_ceja[$i];
                     $piezaExistente->diametro_sufrideraExtra = $request->diametro_sufrideraExtra[$i];
                     $piezaExistente->simetria_ceja = $request->simetria_ceja[$i];
-                    $piezaExistente->simetria_mordaza = $request->simetria_mordaza[$i]; 
+                    $piezaExistente->simetria_mordaza = $request->simetria_mordaza[$i];
                     $piezaExistente->altura_ceja = $request->altura_ceja[$i];
                     $piezaExistente->altura_sufridera = $request->altura_sufridera[$i];
                     if (isset($request->observaciones[$i])) { //Si se obtienen los datos de las piezas, se guardan en la tabla Desbaste_cnominal.
                         $piezaExistente->observaciones = $request->observaciones[$i];  //Llenado de observaciones para tabla Desbaste_cnominal.
                     }
-                    $piezaExistente->save(); //Guardado de datos en la tabla Pza_cepillado.
+                    $piezaExistente->save(); //Guardado de datos en la tabla Pza_Desbaste exterior.
 
                     //Acrualiza el estado correcto de la pieza.
                     if ($this->compararDatosPieza($piezaExistente, $cNominal, $tolerancia) == 0 && ($request->error[$i] == "Ninguno" || $request->error[$i] == "Maquinado")) {
@@ -301,37 +399,50 @@ class DesbasteExteriorController extends Controller
                     $pieza->save();
                 }
             }
-            $pzasCorrectas = Desbaste_pza::where('id_meta', $meta->id)->where('correcto', 1)->get();
-            if (isset($pzasCorrectas)) { //Si existen piezas correctas, se actualiza el resultado de la meta.
-                $correctas = 0;
-                $juegosUtilizados = array();
-                for ($x = 0; $x < count($pzasCorrectas); $x++) {
-                    for ($y = 0; $y < count($pzasCorrectas); $y++) {
-                        if ($pzasCorrectas[$x]->n_juego === $pzasCorrectas[$y]->n_juego && $x != $y) {
-                            if ($pzasCorrectas[$x]->correcto == 1 && $pzasCorrectas[$y]->correcto == 1) {
-                                if(array_search($pzasCorrectas[$x]->n_juego, $juegosUtilizados) === false){
-                                    array_push($juegosUtilizados, $pzasCorrectas[$x]->n_juego);
-                                    $correctas++;
-                                }
-                            }
+            //Actualizar resultado de la meta
+            $contadorPzas = 0;
+            $juegosUsados = array();
+            $pzasCorrectas = Desbaste_pza::where('id_meta', $meta->id)->where('correcto', 1)->get(); //Obtención de todas las piezas correctas.
+            foreach ($pzasCorrectas as $pzaCorrecta) {
+                $pzaCorrecta2 = Desbaste_pza::where('n_juego', $pzaCorrecta->n_juego)->where('id_meta', $meta->id)->get();
+                if (!in_array($pzaCorrecta->n_juego, $juegosUsados)) {
+                    array_push($juegosUsados, $pzaCorrecta->n_juego);
+                    $pzasMalas = 0;
+                    foreach ($pzaCorrecta2 as $pza) {
+                        if ($pza->correcto == 1) {
+                            $contadorPzas += .5;
+                        } else if ($pza->correcto === 0) {
+                            $pzasMalas++;
                         }
                     }
+                    if ($pzasMalas == 1) {
+                        $contadorPzas -= .5;
+                    }
                 }
-                $meta->resultado = $correctas; //Actualización de datos en tabla Metas.
-            } else {
-                $meta->resultado = 0; //Actualización de los datos en la tabla metas.
             }
+            $meta = Metas::find($meta->id); //Actualización de datos en tabla Metas.
+            $meta->resultado = $contadorPzas;
             $meta->save(); //Guardado de datos en la tabla Metas.
             //Retornar la pieza siguiente
             $pzaUtilizar = Desbaste_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
+            //Retornar la pieza siguiente
+            $pzaUtilizar = Desbaste_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first();
+            if ($id_proceso) {
+                $pzasDesbaste = Desbaste_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
+                $id_procesoC = Cepillado::where('id_proceso', 'Cepillado_' . $clase->nombre . '_' . $clase->id_ot)->first();
+                $pzasCepillado = Pza_cepillado::where('id_proceso', $id_procesoC->id)->where('estado', 2)->where('correcto', 1)->get();
+                $pzasRestantes = $this->piezasRestantes($pzasCepillado, $pzasDesbaste, $clase);
+            } else {
+                $pzasRestantes = 0;
+            }
             if ($pzaUtilizar == null) { //Si no existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
                 $piezasVacias = Desbaste_pza::where('correcto', null)->where('estado', 1)->where('id_proceso', $id_proceso->id)->get();
                 if (isset($piezasVacias) && $piezasVacias->count() > 0) { //Si existen piezas vacias, se busca una pieza para utilizar.
                     for ($i = 0; $i < count($piezasVacias); $i++) { //Recorro las piezas creadas.
                         $metaAnterior = Metas::where('id', $piezasVacias[$i]->id_meta)->first(); //Obtención de la meta anterior.
                         if ($metaAnterior->maquina == $meta->maquina) { //Si la meta anterior es igual a la meta actual, se utiliza la pieza.
-                            $piezasVacias[$i]->id_meta = $meta->id; //Llenado de id_meta para tabla Pza_cepillado.
-                            $piezasVacias[$i]->save(); //Guardado de datos en tabla Pza_cepillado.
+                            $piezasVacias[$i]->id_meta = $meta->id; //Llenado de id_meta para tabla Pza_Desbaste exterior.
+                            $piezasVacias[$i]->save(); //Guardado de datos en tabla Pza_Desbaste exterior.
                             $pzaUtilizar = $piezasVacias[$i]; //Obtención de la pieza a utilizar.
                             $piezaEncontrada = true; //Se encontro una pieza para utilizar.
                             break; //Se rompe el ciclo.
@@ -350,17 +461,17 @@ class DesbasteExteriorController extends Controller
             $cNominal = Desbaste_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
             $tolerancia = Desbaste_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
             if (isset($pzasUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
-                return view('processes.desbaste', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'juegos' => count($pzasUtilizar)]); //Retorno a vista de Cepillado.
+                return view('processes.desbaste', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Desbaste exterior.
             } else { //Si no existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
                 $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
-                return view('processes.desbaste', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'juegos' => count($pzasUtilizar)])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
+                return view('processes.desbaste', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Desbaste exterior.
             }
         } else {
             if (isset($request->password)) { //Si se ingreso una contraseña y la meta existe entonces...
                 $usersPasswords = User::all(); //Obtengo todas las contraseñas.
                 foreach ($usersPasswords as $userPassword) { //Recorro las contraseñas.
                     if (Hash::check($request->password, $userPassword->contrasena) && $userPassword->perfil == 1) {  //Si la contraseña es correcta.
-                        return view('processes.desbaste', ['band' => 4, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'clase' => $clase, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'juegos' => count($this->piezaUtilizar($ot->id, $clase))]); //Retorno la vista de cepillado.
+                        return view('processes.desbaste', ['band' => 4, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'clase' => $clase, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'pzasRestantes' => $pzasRestantes]); //Retorno la vista de Desbaste exterior.
                     }
                 }
             }
@@ -371,8 +482,8 @@ class DesbasteExteriorController extends Controller
                     for ($i = 0; $i < count($piezasVacias); $i++) { //Recorro las piezas creadas.
                         $metaAnterior = Metas::where('id', $piezasVacias[$i]->id_meta)->first(); //Obtención de la meta anterior.
                         if ($metaAnterior->maquina == $meta->maquina) { //Si la meta anterior es igual a la meta actual, se utiliza la pieza.
-                            $piezasVacias[$i]->id_meta = $meta->id; //Llenado de id_meta para tabla Pza_cepillado.
-                            $piezasVacias[$i]->save(); //Guardado de datos en tabla Pza_cepillado.
+                            $piezasVacias[$i]->id_meta = $meta->id; //Llenado de id_meta para tabla Pza_Desbaste exterior.
+                            $piezasVacias[$i]->save(); //Guardado de datos en tabla Pza_Desbaste exterior.
                             $pzaUtilizar = $piezasVacias[$i]; //Obtención de la pieza a utilizar.
                             $piezaEncontrada = true; //Se encontro una pieza para utilizar.
                             break; //Se rompe el ciclo.
@@ -391,24 +502,24 @@ class DesbasteExteriorController extends Controller
             $cNominal = Desbaste_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
             $tolerancia = Desbaste_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
             if (isset($pzasUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
-                return view('processes.desbaste', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'juegos' => count($pzasUtilizar)]); //Retorno a vista de Cepillado.
+                return view('processes.desbaste', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Desbaste exterior.
             } else { //Si no existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
                 $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
-                return view('processes.desbaste', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'juegos' => count($pzasUtilizar)])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Cepillado.
+                return view('processes.desbaste', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Desbaste exterior.
             }
         }
     }
 
     public function piezaUtilizar($ot, $clase) //Función para obtener la pieza a utilizar.
     {
-        //Obtener las piezas que esten terminadas y correctas en la tabla cepillado para despues comparar cada una con su consecuente y asi armar los juegos
+        //Obtener las piezas que esten terminadas y correctas en la tabla Desbaste exterior para despues comparar cada una con su consecuente y asi armar los juegos
         $pzasUtilizar = array();
         $pzasGuardadas = array(); //Creación de array para guardar los números de pieza.
         $numero = ""; //Creación de variable para guardar el número de pieza.
         $pzasEncontradas = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Cepillado')->where('error', 'Ninguno')->get(); //Obtención de todas las piezas creadas.
 
 
-        $id_proceso = "desbaste_" . $clase->nombre . "_" . $ot; //Creación de id para la tabla cepillado
+        $id_proceso = "desbaste_" . $clase->nombre . "_" . $ot; //Creación de id para la tabla Desbaste exterior
         $proceso = DesbasteExterior::where('id_proceso', $id_proceso)->first(); //Busco el proceso de la OT.
 
         $pzasOcupadas = Desbaste_pza::where('id_proceso', $proceso->id)->where('estado', 1)->get(); //Obtención de todas las piezas creadas.
@@ -459,7 +570,7 @@ class DesbasteExteriorController extends Controller
                     $piezaRevision2 = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Revision Laterales')->where('n_pieza', $numero . "M")->first();
 
                     if (isset($pieza)) {
-                        if((!isset($piezaRevision1) && !isset($piezaRevision2)) || (isset($piezaRevision1) && $piezaRevision1->error == "Ninguno" && isset($piezaRevision2) && $piezaRevision2->error == "Ninguno")){
+                        if ((!isset($piezaRevision1) && !isset($piezaRevision2)) || (isset($piezaRevision1) && $piezaRevision1->error == "Ninguno" && isset($piezaRevision2) && $piezaRevision2->error == "Ninguno")) {
                             array_push($pzasUtilizar, $numero . "J"); //Guardo el número de pieza.
                             array_push($pzasGuardadas, $pzasEncontradas[$i]->n_pieza); //Guardo el número de pieza.
                             array_push($pzasGuardadas, $pieza->n_pieza); //Guardo el número de pieza.

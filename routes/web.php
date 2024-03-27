@@ -4,11 +4,12 @@ use App\Http\Controllers\AcabadoBombilloController;
 use App\Http\Controllers\AcabadoMoldeController;
 use App\Http\Controllers\AsentadoController;
 use App\Http\Controllers\BarrenoManiobraController;
+use App\Http\Controllers\BarrenoProfundidadController;
 use App\Http\Controllers\CavidadesController;
 use App\Http\Controllers\CepilladoController;
-use App\Http\Controllers\ClaseController;
 use App\Http\Controllers\CopiadoController;
 use App\Http\Controllers\DesbasteExteriorController;
+use App\Http\Controllers\EmbudoCMController;
 use App\Http\Controllers\GestionOTController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LoginController;
@@ -22,17 +23,16 @@ use App\Http\Controllers\ProcesosController;
 use App\Http\Controllers\ProgresoProcesosController;
 use App\Http\Controllers\PySOpeSoldaduraController;
 use App\Http\Controllers\PzasGeneralesController;
+use App\Http\Controllers\PzasLiberadasController;
 use App\Http\Controllers\RebajesController;
 use App\Http\Controllers\RecoverPasswordController;
 use App\Http\Controllers\RectificadoController;
 use App\Http\Controllers\RegisterController;
-use App\Http\Controllers\RestorePasswordController;
 use App\Http\Controllers\revCalificadoController;
 use App\Http\Controllers\RevLateralesController;
 use App\Http\Controllers\SegundaOpeSoldaduraController;
 use App\Http\Controllers\SoldaduraController;
 use App\Http\Controllers\SoldaduraPTAController;
-use App\Models\RevLaterales;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -49,246 +49,247 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
-//Vista registro
-Route::get('/register', [RegisterController::class, 'show'])->name('register');
-//Registrar usuario
-Route::post('/register', [RegisterController::class, 'register'])->name('registerUser');
-//Vista login
-Route::get('/login', [LoginController::class, 'show'])->name('login');
-//Ingresar en el login
-Route::post('/login', [LoginController::class, 'login'])->name('loginUser');
-//Vista Home
+
 Route::get('/home', [HomeController::class, 'index'])->name('home');
-//logout
+
+//Ruta para el controlador LogoutController
 Route::get('/logout', [LogoutController::class, 'logout'])->name('logout');
-//Vista recuperar contraseña
-Route::get('/recoverPassword', [RecoverPasswordController::class, 'show'])->name('recoverPassword');
-//Recuperar contraseña
-Route::post('/recover', [RecoverPasswordController::class, 'recover'])->name('recover');
 
-//VISTA MOLDURAS
-//Vista registrar moldura
-Route::get('/registerMoldura', [MolduraController::class, 'create'])->name('registerMoldura');
-//Vista buscar moldura
-Route::post('/searchMoldura', [MolduraController::class, 'show'])->name('searchMoldura');
-//Registrar moldura
-Route::post('/registerMolduras', [MolduraController::class, 'store'])->name('registerMolduras');
-//Eliminar moldura
-Route::get('/deleteMoldura', [MolduraController::class, 'destroy'])->name('deleteMoldura');
+//Grupo de rutas para el controlador RegisterController
+Route::controller(RegisterController::class)->group(function () {
+    Route::get('/register', 'show')->name('register');
+    Route::post('/register', 'register')->name('registerUser');
+});
 
-//Vista registrar OT
-Route::get('/registerOT', [OTController::class, 'show'])->name('registerOT');
-//Registrar OT
-Route::post('/saveOT', [OTController::class, 'store'])->name('saveOT');
-//Vista registrar clase
-Route::get('/registerClass/{ot}', [OTController::class, 'registerClass'])->name('registerClass');
-//Informacion sobre piezas agregadas
-Route::post('/saveClass', [OTController::class, 'saveProcess'])->name('saveClass');
-//Eliminar clase
-Route::get('/deleteClass/{clase}/{claseIndice}', [OTController::class, 'deleteClass'])->name('deleteClass');
-//Eliminar ot
-Route::get('/deleteOT/{ot}', [OTController::class, 'deleteOT'])->name('deleteOT');
-//Editar clase
-Route::get('/editClase/{clase}', [OTController::class, 'editClass'])->name('editClase');
-//Mostrar clases
-Route::get('/clases/{ot}', [OTController::class, 'mostrarClases'])->name('mostrarClases');
+//Grupo de rutas para el controlador LoginController
+Route::controller(LoginController::class)->group(function () {
+    Route::get('/login', 'show')->name('login');
+    Route::post('/login', 'login')->name('loginUser');
+});
 
-//Guardar datos de HeaderProcess
-Route::post('/saveHeader', [OTController::class, 'saveHeader'])->name('saveHeader');
+//Grupo de rutas para el controlador RecoverPasswordController
+Route::controller(RecoverPasswordController::class)->group(function () {
+    Route::get('/recoverPassword', 'show')->name('recoverPassword'); //Vista recuperar contraseña
+    Route::post('/recover', 'recover')->name('recover'); //Recuperar contraseña
+});
 
-//Ruta para la interfaz de los procesos para editar las cotas nominales y tolerancias
-Route::get('/procesos', [ProcesosController::class, 'show'])->name('procesos');
-//Ruta para la interfaz de los procesos para editar las cotas nominales y tolerancias
-Route::post('/procesos', [ProcesosController::class, 'verificarProceso'])->name('verificarProceso');
+//Grupo de ruta para el controlador MolduraController
+Route::controller(MolduraController::class)->group(function () {
+    Route::get('/registerMoldura', 'create')->name('registerMoldura'); //Vista registrar moldura
+    Route::post('/searchMoldura', 'show')->name('searchMoldura'); //Vista buscar moldura    
+    Route::post('/registerMolduras', 'store')->name('registerMolduras'); //Registrar moldura
+    Route::get('/deleteMoldura', 'destroy')->name('deleteMoldura'); //Eliminar moldura
+});
 
-Route::get('/piezas', [GestionOTController::class, 'show'])->name('vistaPiezas');
-Route::post('/updatePiezas', [GestionOTController::class, 'terminarPedido'])->name('UpdatePiezas');
+//Grupo de ruta para el controlador OTController
+Route::controller(OTController::class)->group(function () {
+    Route::get('/registerOT', 'show')->name('registerOT'); //Vista registrar OT
+    Route::post('/saveOT', 'store')->name('saveOT'); //Registrar OT
+    Route::get('/registerClass/{ot}', 'registerClass')->name('registerClass'); //Vista registrar clase
+    Route::post('/saveClass', 'saveProcess')->name('saveClass'); //Informacion sobre piezas agregadas
+    Route::get('/deleteClass/{clase}/{claseIndice}', 'deleteClass')->name('deleteClass'); //Eliminar clase
+    Route::get('/deleteOT/{ot}', 'deleteOT')->name('deleteOT'); //Eliminar ot
+    Route::get('/editClase/{clase}', 'editClass')->name('editClase'); //Editar clase
+    Route::get('/clases/{ot}', 'mostrarClases')->name('mostrarClases'); //Mostrar clases
+    Route::post('/saveHeader', 'saveHeader')->name('saveHeader'); //Guardar datos de HeaderProcess
+});
+
+//Grupo de rutas para el controlador ProcesosController
+Route::controller(ProcesosController::class)->group(function () {
+    Route::get('/procesos', 'show')->name('procesos'); //Ruta para la interfaz de los procesos para editar las cotas nominales y tolerancias
+    Route::post('/procesos', 'verificarProceso')->name('verificarProceso'); //Ruta para la interfaz de los procesos para editar las cotas nominales y tolerancias
+}); 
+
+//Grupo de rutas para GestionOTController
+Route::controller(GestionOTController::class)->group(function () {
+    Route::get('/piezas', 'show')->name('vistaPiezas');
+    Route::post('/updatePiezas', 'terminarPedido')->name('UpdatePiezas');
+});
 
 //Ruta para ver el progreso de los procesos
 Route::get('/progresoOT', [ProgresoProcesosController::class, 'show'])->name('verProcesos');
 
-//Ruta para la vista general de piezas
-Route::get('/piezasGenerales', [PzasGeneralesController::class, 'show'])->name('vistaPzasGenerales');
-//Ruta para el controlador de piezas generales
-Route::post('/searchPiezas', [PzasGeneralesController::class, 'search'])->name('searchPzasGenerales');
+//Grupo de rutas para el controlador PzasGeneralesController
+Route::controller(PzasGeneralesController::class)->group(function () {
+    Route::get('/piezasGenerales', 'showVistaPiezas')->name('vistaPzasGenerales'); //Ruta para la vista general de piezas
+    Route::post('/searchPiezas', 'obtenerPiezasRequest')->name('searchPzasGenerales'); //Ruta para el controlador de piezas generales
+    Route::get('/admin/pieza/{piezas}/{proceso}/{perfil}', 'showPieza')->name('piezaElegida'); //Vista de la pieza elegida
+    Route::get('/piezasMaquina', 'showVistaMaquina')->name('vistaPzasMaquina'); //Ruta para la vista de piezas por maquina
+    Route::post('/piezasMaquina', 'showMachinesProcess')->name('showMachinesProcess'); //Ruta para ver los procesos de las maquinas
+});
 
-//Vista de la pieza elegida
-Route::get('/admin/pieza/{pieza}/{proceso}', [PzasGeneralesController::class, 'showPieza'])->name('piezaElegida');
+//Grupo de rutas para el controlador PzasLiberadasController
+Route::controller(PzasLiberadasController::class)->group(function () {
+    Route::get('/piezasLiberar', 'mostrarOTs')->name('vistaOTLiberar'); //Ruta para la vista de piezas para liberar
+    Route::post('/piezasLiberar', 'obtenerPiezasRequest')->name('vistaPiezasLiberar'); //Ruta para ver los procesos de las maquinas
+    Route::get('/piezasLiberar/{pieza}/{proceso}/{liberar}/{buena}/{request}', 'liberar_rechazar')->name('liberar_rechazar'); //Ruta para liberar o rechazar
+});
 
-//Ruta para la vista de piezas por maquina
-Route::get('/piezasMaquina', [PzasGeneralesController::class, 'showVistaMaquina'])->name('vistaPzasMaquina');
-//Ruta para ver los procesos de las maquinas
-Route::post('/piezasMaquina', [PzasGeneralesController::class, 'showMachinesProcess'])->name('showMachinesProcess');
+//Grupo de rutas de cepillado
+Route::controller(CepilladoController::class)->group(function () {
+    Route::get('/cepillado/{error}', 'show')->name('cepillado'); //Vista de cepillado
+    Route::get('/cepilladoHeader', 'storeheaderTable')->name('cepilladoHeaderGet'); //Guardar encabezado de la tabla de cepillado
+    Route::post('/cepilladoHeader', 'storeheaderTable')->name('cepilladoHeader'); //Guardar encabezado de la tabla de cepillado
+    Route::post('/editCepillado', 'edit')->name('editCepillado'); //Ruta para editar datos de la tabla de cepillado
+});
 
+//Grupo de rutas de Desbaste Exterior
+Route::controller(DesbasteExteriorController::class)->group(function () {
+    Route::get('/desbasteExterior/{error}', 'show')->name('desbasteExterior'); //Vista de Desbaste exterior
+    Route::get('/desbasteHeader', 'storeheaderTable')->name('desbasteHeaderGet'); //Guardar encabezado de la tabla Desbaste Exterior
+    Route::post('/desbasteHeader', 'storeheaderTable')->name('desbasteHeader'); //Guardar encabezado de la tabla Desbaste Exterior
+    Route::post('/editDesbaste', 'edit')->name('editDesbaste'); //Ruta para editar datos de la tabla Desbaste Exterior
+});
 
-//Vista cepillado
-//Guardar encabezado de la tabla cepillado
-Route::get('/cepillado/{error}', [CepilladoController::class, 'show'])->name('cepillado');
-Route::post('/cepilladoHeader', [CepilladoController::class, 'storeheaderTable'])->name('cepilladoHeader');
-//Guardar encabezado de la tabla cepillado
-Route::get('/cepilladoHeader', [CepilladoController::class, 'storeheaderTable'])->name('cepilladoHeaderGet');
-//Ruta para editar datos de la tabla cepillado
-Route::post('/editCepillado', [CepilladoController::class, 'edit'])->name('editCepillado');
+//Grupo de rutas para Revisión Laterales
+Route::controller(RevLateralesController::class)->group(function () {
+    Route::get('/revisionLaterales/{error}', 'show')->name('revisionLaterales'); //Vista de Revision laterales
+    Route::get('/revLateralesHeader', 'storeheaderTable')->name('revLateralesHeaderGet'); //Guardar encabezado de la tabla Revision laterales
+    Route::post('/revLateralesHeader', 'storeheaderTable')->name('revLateralesHeader'); //Guardar encabezado de la tabla Revision laterales
+    Route::post('/editRevLaterales', 'edit')->name('editRevLaterales'); //Ruta para editar datos de la tabla Revision laterales
+});
 
-//Vista de Desbaste exterior
-Route::get('/desbasteExterior', [DesbasteExteriorController::class, 'show'])->name('desbasteExterior');
-//Guardar encabezado de la tabla Desbaste Exterior
-Route::get('/desbasteHeader', [DesbasteExteriorController::class, 'storeheaderTable'])->name('desbasteHeaderGet');
-//Guardar encabezado de la tabla Desbaste Exterior
-Route::post('/desbasteHeader', [DesbasteExteriorController::class, 'storeheaderTable'])->name('desbasteHeader');
-//Ruta para editar datos de la tabla Desbaste Exterior
-Route::post('/editDesbaste', [DesbasteExteriorController::class, 'edit'])->name('editDesbaste');
+//Grupo de rutas de Primera Operación Soldadura
+Route::controller(PrimeraOpeSoldaduraController::class)->group(function () {
+    Route::get('/primeraOpeSoldadura/{error}', 'show')->name('primeraOpeSoldadura'); //Vista de Primera Operacion Soldadura
+    Route::get('/primeraOpeSoldaduraHeader', 'storeheaderTable')->name('primeraOpeSoldaduraHeaderGet'); //Guardar encabezado de la tabla Primera Operacion Soldadura
+    Route::post('/primeraOpeSoldaduraHeader', 'storeheaderTable')->name('primeraOpeSoldaduraHeader'); //Guardar encabezado de la tabla Primera Operacion Soldadura
+    Route::post('/editPrimeraOpeSoldadura', 'edit')->name('editPrimeraOpeSoldadura'); //Ruta para editar datos de la tabla Primera Operacion Soldadura
+});
 
-//Vista de Revision laterales
-Route::get('/revisionLaterales', [RevLateralesController::class, 'show'])->name('revisionLaterales');
-//Guardar encabezado de la tabla Desbaste Exterior
-Route::get('/revLateralesHeader', [RevLateralesController::class, 'storeheaderTable'])->name('revLateralesHeaderGet');
-//Guardar encabezado de la tabla Desbaste Exterior
-Route::post('/revLateralesHeader', [RevLateralesController::class, 'storeheaderTable'])->name('revLateralesHeader');
-//Ruta para editar datos de la tabla Desbaste Exterior
-Route::post('/editRevLaterales', [RevLateralesController::class, 'edit'])->name('editRevLaterales');
+//Grupo de rutas de Barreno Maniobra
+Route::controller(BarrenoManiobraController::class)->group(function () {
+    Route::get('/barrenoManiobra/{error}', 'show')->name('barrenoManiobra'); //Vista de Barreno Maniobra
+    Route::get('/barrenoManiobraHeader', 'storeheaderTable')->name('barrenoManiobraHeaderGet'); //Guardar encabezado de la tabla Barreno Maniobra
+    Route::post('/barrenoManiobraHeader', 'storeheaderTable')->name('barrenoManiobraHeader'); //Guardar encabezado de la tabla Barreno Maniobra
+    Route::post('/editBarrenoManiobra', 'edit')->name('editBarrenoManiobra'); //Ruta para editar datos de la tabla Barreno Maniobra
+});
 
-//Vista de Primera Operacion Soldadura
-Route::get('/primeraOpeSoldadura', [PrimeraOpeSoldaduraController::class, 'show'])->name('primeraOpeSoldadura');
-//Guardar encabezado de la tabla Primera Operacion Soldadura
-Route::get('/primeraOpeSoldaduraHeader', [PrimeraOpeSoldaduraController::class, 'storeheaderTable'])->name('primeraOpeSoldaduraHeaderGet');
-//Guardar encabezado de la tabla Primera Operacion Soldadura
-Route::post('/primeraOpeSoldaduraHeader', [PrimeraOpeSoldaduraController::class, 'storeheaderTable'])->name('primeraOpeSoldaduraHeader');
-//Ruta para editar datos de la tabla Primera Operacion Soldaduraedit
-Route::post('/editPrimeraOpeSoldadura', [PrimeraOpeSoldaduraController::class, 'edit'])->name('editPrimeraOpeSoldadura');  
+//Grupo de rutas para Segunda Operación Soldadura
+Route::controller(SegundaOpeSoldaduraController::class)->group(function () {
+    Route::get('/segundaOpeSoldadura/{error}', 'show')->name('segundaOpeSoldadura'); //Vista de Segunda Operacion Soldadura
+    Route::get('/segundaOpeSoldaduraHeader', 'storeheaderTable')->name('segundaOpeSoldaduraHeaderGet'); //Guardar encabezado de la tabla Segunda Operacion Soldadura
+    Route::post('/segundaOpeSoldaduraHeader', 'storeheaderTable')->name('segundaOpeSoldaduraHeader'); //Guardar encabezado de la tabla Segunda Operacion Soldadura
+    Route::post('/editSegundaOpeSoldadura', 'edit')->name('editSegundaOpeSoldadura'); //Ruta para editar datos de la tabla Segunda Operacion Soldadura
+});
 
-//Vista de Barreno Maniobra
-Route::get('/barrenoManiobra', [BarrenoManiobraController::class, 'show'])->name('barrenoManiobra');
-//Guardar encabezado de la tabla Barreno Maniobra
-Route::get('/barrenoManiobraHeader', [BarrenoManiobraController::class, 'storeheaderTable'])->name('barrenoManiobraHeaderGet');
-//Guardar encabezado de la tabla Barreno Maniobra
-Route::post('/barrenoManiobraHeader', [BarrenoManiobraController::class, 'storeheaderTable'])->name('barrenoManiobraHeader');
-//Ruta para editar datos de la tabla Barreno Maniobra
-Route::post('/editBarrenoManiobra', [BarrenoManiobraController::class, 'edit'])->name('editBarrenoManiobra');
+//Grupo de rutas para el controlador SoldaduraPTAController
+Route::controller(SoldaduraController::class)->group(function () {
+    Route::get('/soldadura/{error}', 'show')->name('soldadura'); //Vista de Soldadura
+    Route::get('/soldaduraHeaderGet', 'storeheaderTable')->name('soldaduraHeaderGet'); //Guardar encabezado de la tabla Soldadura
+    Route::post('/soldaduraHeader', 'storeheaderTable')->name('soldaduraHeader'); //Guardar encabezado de la tabla Soldadura
+    Route::post('/editSoldadura', 'edit')->name('editSoldadura'); //Ruta para editar datos de la tabla Soldadura
 
-//Vista de Segunda Operacion Soldadura
-Route::get('/segundaOpeSoldadura', [SegundaOpeSoldaduraController::class, 'show'])->name('segundaOpeSoldadura');
-//Guardar encabezado de la tabla Segunda Operacion Soldadura
-Route::get('/segundaOpeSoldaduraHeader', [SegundaOpeSoldaduraController::class, 'storeheaderTable'])->name('segundaOpeSoldaduraHeaderGet');
-//Guardar encabezado de la tabla Segunda Operacion Soldadura
-Route::post('/segundaOpeSoldaduraHeader', [SegundaOpeSoldaduraController::class, 'storeheaderTable'])->name('segundaOpeSoldaduraHeader');
-//Ruta para editar datos de la tabla Segunda Operacion Soldadura
-Route::post('/editSegundaOpeSoldadura', [SegundaOpeSoldaduraController::class, 'edit'])->name('editSegundaOpeSoldadura');
+});
 
-//Vista de Soldadura
-Route::get('/soldadura', [SoldaduraController::class, 'show'])->name('soldadura');
-//Guardar encabezado de la tabla Soldadura
-Route::get('/soldaduraHeaderGet', [SoldaduraController::class, 'storeheaderTable'])->name('soldaduraHeaderGet');
-//Guardar encabezado de la tabla Soldadura
-Route::post('/soldaduraHeader', [SoldaduraController::class, 'storeheaderTable'])->name('soldaduraHeader');
-//Ruta para editar datos de la tabla Soldadura
-Route::post('/editSoldadura', [SoldaduraController::class, 'edit'])->name('editSoldadura');
+//Grupo de rutas para el controlador SoldaduraPTAController
+    Route::controller(SoldaduraPTAController::class)->group(function () {
+    Route::get('/soldaduraPTA/{error}', 'show')->name('soldaduraPTA'); //Vista de Soldadura PTA
+    Route::get('/soldaduraPTAHeaderGet', 'storeheaderTable')->name('soldaduraPTAHeaderGet'); //Guardar encabezado de la tabla Soldadura PTA
+    Route::post('/soldaduraPTAHeader', 'storeheaderTable')->name('soldaduraPTAHeader'); //Guardar encabezado de la tabla Soldadura PTA
+    Route::post('/editSoldaduraPTA', 'edit')->name('editSoldaduraPTA'); //Ruta para editar datos de la tabla Soldadura PTA
+});
 
-//Vista soldadura PTA
-Route::get('/soldaduraPTA', [SoldaduraPTAController::class, 'show'])->name('soldaduraPTA');
-//Guardar encabezado de la tabla Soldadura PTA
-Route::get('/soldaduraPTAHeaderGet', [SoldaduraPTAController::class, 'storeheaderTable'])->name('soldaduraPTAHeaderGet');
-//Guardar encabezado de la tabla Soldadura PTA
-Route::post('/soldaduraPTAHeader', [SoldaduraPTAController::class, 'storeheaderTable'])->name('soldaduraPTAHeader');
-//Ruta para editar datos de la tabla Soldadura PTA
-Route::post('/editSoldaduraPTA', [SoldaduraPTAController::class, 'edit'])->name('editSoldaduraPTA');
+//Grupo de rutas para el controlador RectificadoController
+Route::controller(RectificadoController::class)->group(function () {
+    Route::get('/rectificado/{error}', 'show')->name('rectificado'); //Vista Rectificado
+    Route::get('/rectificadoHeader', 'storeheaderTable')->name('rectificadoHeaderGet'); //Guardar encabezado de la tabla Rectificado
+    Route::post('/rectificadoHeader', 'storeheaderTable')->name('rectificadoHeader'); //Guardar encabezado de la tabla Rectificado
+    Route::post('/editRectificado', 'edit')->name('editRectificado'); //Ruta para editar datos de la tabla Rectificado
+});
 
-//Vista Rectificado
-Route::get('/rectificado', [RectificadoController::class, 'show'])->name('rectificado');
-//Guardar encabezado de la tabla Rectificado
-Route::get('/rectificadoHeader', [RectificadoController::class, 'storeheaderTable'])->name('rectificadoHeaderGet');
-//Guardar encabezado de la tabla Rectificado
-Route::post('/rectificadoHeader', [RectificadoController::class, 'storeheaderTable'])->name('rectificadoHeader');
-//Ruta para editar datos de la tabla Rectificado
-Route::post('/editRectificado', [RectificadoController::class, 'edit'])->name('editRectificado');
+//Grupo de rutas para el controlador AsentadoController
+Route::controller(AsentadoController::class)->group(function () {
+    Route::get('/asentado/{error}', 'show')->name('asentado'); //Vista de Asentado
+    Route::get('/asentadoHeader', 'storeheaderTable')->name('asentadoHeaderGet'); //Guardar encabezado de la tabla Asentado
+    Route::post('/asentadoHeader', 'storeheaderTable')->name('asentadoHeader'); //Guardar encabezado de la tabla Asentado
+    Route::post('/editAsentado', 'edit')->name('editAsentado'); //Ruta para editar datos de la tabla Asentado
+});
 
-//Vista de Asentado
-Route::get('/asentado', [AsentadoController::class, 'show'])->name('asentado');
-//Guardar encabezado de la tabla Asentado
-Route::get('/asentadoHeader', [AsentadoController::class, 'storeheaderTable'])->name('asentadoHeaderGet');
-//Guardar encabezado de la tabla Asentado
-Route::post('/asentadoHeader', [AsentadoController::class, 'storeheaderTable'])->name('asentadoHeader');
-//Ruta para editar datos de la tabla Asentado
-Route::post('/editAsentado', [AsentadoController::class, 'edit'])->name('editAsentado');
+//Grupo de rutas para el controlador revCalificadoController
+Route::controller(revCalificadoController::class)->group(function () {
+    Route::get('/calificado/{error}', 'show')->name('calificado'); //Vista de Calificado
+    Route::get('/calificadoHeader', 'storeheaderTable')->name('calificadoHeaderGet'); //Guardar encabezado de la tabla Calificado
+    Route::post('/calificadoHeader', 'storeheaderTable')->name('calificadoHeader'); //Guardar encabezado de la tabla Calificado
+    Route::post('/editCalificado', 'edit')->name('editCalificado'); //Ruta para editar datos de la tabla Calificado
+});
 
-//Vista de Calificado
-Route::get('/calificado', [revCalificadoController::class, 'show'])->name('calificado');
-//Guardar encabezado de la tabla Calificado
-Route::get('/calificadoHeader', [revCalificadoController::class, 'storeheaderTable'])->name('calificadoHeaderGet');
-//Guardar encabezado de la tabla Calificado
-Route::post('/calificadoHeader', [revCalificadoController::class, 'storeheaderTable'])->name('calificadoHeader');
-//Ruta para editar datos de la tabla Calificado
-Route::post('/editCalificado', [revCalificadoController::class, 'edit'])->name('editCalificado');
+//Grupo de rutas para el controlador AcabadoBombilloController
+Route::controller(AcabadoBombilloController::class)->group(function () {
+    Route::get('/acabadoBombillo/{error}', 'show')->name('acabadoBombillo'); //Vista de acabado bombillo
+    Route::get('/acabadoBombilloHeader', 'storeheaderTable')->name('acabadoBombilloHeaderGet'); //Guardar encabezado de la tabla acabado bombillo
+    Route::post('/acabadoBombilloHeader', 'storeheaderTable')->name('acabadoBombilloHeader'); //Guardar encabezado de la tabla acabado bombillo
+    Route::post('/editAcabadoBombillo', 'edit')->name('editAcabadoBombillo'); //Ruta para editar datos de la tabla acabado bombillo
+});
 
-//Vista de acabado bombillo
-Route::get('/acabadoBombillo', [AcabadoBombilloController::class, 'show'])->name('acabadoBombillo');
-//Guardar encabezado de la tabla acabado bombillo
-Route::get('/acabadoBombilloHeader', [AcabadoBombilloController::class, 'storeheaderTable'])->name('acabadoBombilloHeaderGet');
-//Guardar encabezado de la tabla acabado bombillo
-Route::post('/acabadoBombilloHeader', [AcabadoBombilloController::class, 'storeheaderTable'])->name('acabadoBombilloHeader');
-//Ruta para editar datos de la tabla acabado bombillo
-Route::post('/editAcabadoBombillo', [AcabadoBombilloController::class, 'edit'])->name('editAcabadoBombillo');
+//Grupo de rutas para el controlador AcabadoMoldeController
+Route::controller(AcabadoMoldeController::class)->group(function () {
+    Route::get('/acabadoMolde/{error}', 'show')->name('acabadoMolde'); //Vista de acabado molde
+    Route::get('/acabadoMoldeHeader', 'storeheaderTable')->name('acabadoMoldeHeaderGet'); //Guardar encabezado de la tabla acabado molde
+    Route::post('/acabadoMoldeHeader', 'storeheaderTable')->name('acabadoMoldeHeader'); //Guardar encabezado de la tabla acabado molde
+    Route::post('/editAcabadoMolde', 'edit')->name('editAcabadoMolde'); //Ruta para editar datos de la tabla acabado molde
+});
 
-//Vista de acabado molde
-Route::get('/acabadoMolde', [AcabadoMoldeController::class, 'show'])->name('acabadoMolde');
-//Guardar encabezado de la tabla acabado molde
-Route::get('/acabadoMoldeHeader', [AcabadoMoldeController::class, 'storeheaderTable'])->name('acabadoMoldeHeaderGet');
-//Guardar encabezado de la tabla acabado molde
-Route::post('/acabadoMoldeHeader', [AcabadoMoldeController::class, 'storeheaderTable'])->name('acabadoMoldeHeader');
-//Ruta para editar datos de la tabla acabado molde
-Route::post('/editAcabadoMolde', [AcabadoMoldeController::class, 'edit'])->name('editAcabadoMolde');
+//Grupo de rutas para el vomtrolador BarrenoProfundidadController
+Route::controller(BarrenoProfundidadController::class)->group(function () {
+    Route::get('/barrenoProfundidad/{error}', 'show')->name('barrenoProfundidad'); //Vista de Barreno de profundidad
+    Route::get('/barrenoProfundidadHeader', 'storeheaderTable')->name('barrenoProfundidadHeaderGet'); //Guardar encabezado de la tabla Barreno de profundidad
+    Route::post('/barrenoProfundidadHeader', 'storeheaderTable')->name('barrenoProfundidadHeader'); //Guardar encabezado de la tabla Barreno de profundidad
+    Route::post('/editBarrenoProfundidad', 'edit')->name('editBarrenoProfundidad'); //Ruta para editar datos de la tabla Barreno de profundidad
+});
 
-//Vista de Cavidades
-Route::get('/cavidades', [CavidadesController::class, 'show'])->name('cavidades');
-//Guardar encabezado de la tabla Cavidades
-Route::get('/cavidadesHeader', [CavidadesController::class, 'storeheaderTable'])->name('cavidadesHeaderGet');
-//Guardar encabezado de la tabla Cavidades
-Route::post('/cavidadesHeader', [CavidadesController::class, 'storeheaderTable'])->name('cavidadesHeader');
-//Ruta para editar datos de la tabla Cavidades
-Route::post('/editCavidades', [CavidadesController::class, 'edit'])->name('editCavidades');
+//Grupo de rutas para el controlador CavidadesController
+Route::controller(CavidadesController::class)->group(function () {
+    Route::get('/cavidades/{error}', 'show')->name('cavidades'); //Vista de Cavidades
+    Route::get('/cavidadesHeader', 'storeheaderTable')->name('cavidadesHeaderGet'); //Guardar encabezado de la tabla Cavidades
+    Route::post('/cavidadesHeader', 'storeheaderTable')->name('cavidadesHeader'); //Guardar encabezado de la tabla Cavidades
+    Route::post('/editCavidades', 'edit')->name('editCavidades'); //Ruta para editar datos de la tabla Cavidades
+});
 
-//Vista de Copiado
-Route::get('/copiado', [CopiadoController::class, 'show'])->name('copiado');
-//Guardar encabezado de la tabla Copiado
-Route::get('/copiadoHeader', [CopiadoController::class, 'storeheaderTable'])->name('copiadoHeaderGet');
-//Guardar encabezado de la tabla Copiado
-Route::post('/copiadoHeader', [CopiadoController::class, 'storeheaderTable'])->name('copiadoHeader');
-//Ruta para editar datos de la tabla Copiado
-Route::post('/editCopiado', [CopiadoController::class, 'edit'])->name('editCopiado');
+//Grupo  de rutas para el controlador CopiadoController
+Route::controller(CopiadoController::class)->group(function () {
+    Route::get('/copiado/{error}', 'show')->name('copiado'); //Vista de Copiado
+    Route::get('/copiadoHeader', 'storeheaderTable')->name('copiadoHeaderGet'); //Guardar encabezado de la tabla Copiado
+    Route::post('/copiadoHeader', 'storeheaderTable')->name('copiadoHeader'); //Guardar encabezado de la tabla Copiado
+    Route::post('/editCopiado', 'edit')->name('editCopiado'); //Ruta para editar datos de la tabla Copiado
+});
 
-//Vista de OffSet
-Route::get('/offSet', [OffSetController::class, 'show'])->name('offSet');
-//Guardar encabezado de la tabla OffSet
-Route::get('/offSetHeader', [OffSetController::class, 'storeheaderTable'])->name('offSetHeaderGet');
-//Guardar encabezado de la tabla OffSet
-Route::post('/offSetHeader', [OffSetController::class, 'storeheaderTable'])->name('offSetHeader');
-//Ruta para editar datos de la tabla OffSet
-Route::post('/editOffSet', [OffSetController::class, 'edit'])->name('editOffSet');
+//Grupo de rutas para el controlador OffSetController
+Route::controller(OffSetController::class)->group(function () {
+    Route::get('/offSet/{error}', 'show')->name('offSet'); //Vista de OffSet
+    Route::get('/offSetHeader', 'storeheaderTable')->name('offSetHeaderGet'); //Guardar encabezado de la tabla OffSet
+    Route::post('/offSetHeader', 'storeheaderTable')->name('offSetHeader'); //Guardar encabezado de la tabla OffSet
+    Route::post('/editOffSet', 'edit')->name('editOffSet'); //Ruta para editar datos de la tabla OffSet
+});
 
-//Vista de Palomas
-Route::get('/palomas', [PalomasController::class, 'show'])->name('palomas');
-//Guardar encabezado de la tabla Palomas
-Route::get('/palomasHeader', [PalomasController::class, 'storeheaderTable'])->name('palomasHeaderGet');
-//Guardar encabezado de la tabla Palomas
-Route::post('/palomasHeader', [PalomasController::class, 'storeheaderTable'])->name('palomasHeader');
-//Ruta para editar datos de la tabla Palomas
-Route::post('/editPalomas', [PalomasController::class, 'edit'])->name('editPalomas');
+//Grupo de rutas para el controlador PalomasController
+Route::controller(PalomasController::class)->group(function () {
+    Route::get('/palomas/{error}', 'show')->name('palomas'); //Vista de palomas
+    Route::get('/palomasHeader', 'storeheaderTable')->name('palomasHeaderGet'); //Guardar encabezado de la tabla Palomas
+    Route::post('/palomasHeader', 'storeheaderTable')->name('palomasHeader'); //Guardar encabezado de la tabla Palomas
+    Route::post('/editPalomas', 'edit')->name('editPalomas'); //Ruta para editar datos de la tabla Palomas
+});
 
-//Vista de Rebajes
-Route::get('/rebajes', [RebajesController::class, 'show'])->name('rebajes');
-//Guardar encabezado de la tabla Rebajes
-Route::get('/rebajesHeader', [RebajesController::class, 'storeheaderTable'])->name('rebajesHeaderGet');
-//Guardar encabezado de la tabla Rebajes
-Route::post('/rebajesHeader', [RebajesController::class, 'storeheaderTable'])->name('rebajesHeader');
-//Ruta para editar datos de la tabla Rebajes
-Route::post('/editRebajes', [RebajesController::class, 'edit'])->name('editRebajes');
+//Grupo de rutas para el controlador RebajesControllera
+Route::controller(RebajesController::class)->group(function () {
+    Route::get('/rebajes/{error}', 'show')->name('rebajes'); //Vista de proceso de rebajes
+    Route::get('/rebajesHeader', 'storeheaderTable')->name('rebajesHeaderGet'); //Guardar encabezado de la tabla Rebajes
+    Route::post('/rebajesHeader', 'storeheaderTable')->name('rebajesHeader'); //Guardar encabezado de la tabla Rebajes
+    Route::post('/editRebajes', 'edit')->name('editRebajes'); //Ruta para editar datos de la tabla Rebajes
+});
 
+//Grupo de rutas para el controlador PySOpeController
+Route::controller(PySOpeSoldaduraController::class)->group(function () {
+    Route::get('/1y2OpeSoldadura/{error}', 'show')->name('1y2OpeSoldadura'); //Vista de Primera y segunda operación
+    Route::get('/1y2OpeSoldaduraHeader', 'storeheaderTable')->name('1y2OpeSoldaduraHeaderGet'); //Guardar encabezado de la tabla Primera y segunda operación
+    Route::post('/1y2OpeSoldaduraHeader', 'storeheaderTable')->name('1y2OpeSoldaduraHeader'); //Guardar encabezado de la tabla Primera y segunda operación
+    Route::post('/edit1y2OpeSoldadura', 'edit')->name('edit1y2OpeSoldadura'); //Ruta para editar datos de la tabla Primera y segunda operación
+});
 
-// //Vista de Primera y Segunda Operacion Soldadura Equipo
-// Route::get('/1y2OpeSoldadura', [PySOpeSoldaduraController::class, 'show'])->name('1y2OpeSoldadura');
-// //Guardar encabezado de la tabla Primera y Segunda Operacion Soldadura
-// Route::get('/1y2OpeSoldaduraHeader', [PySOpeSoldaduraController::class, 'storeheaderTable'])->name('1y2OpeSoldaduraHeaderGet');
-// //Guardar encabezado de la tabla Primera y Segunda Operacion Soldadura
-// Route::post('/1y2OpeSoldaduraHeader', [PySOpeSoldaduraController::class, 'storeheaderTable'])->name('1y2OpeSoldaduraHeader');
-// //Ruta para editar datos de la tabla Primera y Segunda Operacion Soldaduraedit
-// Route::post('/edit1y2OpeSoldadura', [PySOpeSoldaduraController::class, 'edit'])->name('edit1y2OpeSoldadura');
+//Grupo de rutas para el controlador EmbudoCMController
+Route::controller(EmbudoCMController::class)->group(function () {
+    Route::get('/embudoCM/{error}', 'show')->name('embudoCM'); //Vista de Embudo CM
+    Route::get('/embudoCMHeader', 'storeheaderTable')->name('embudoCMHeaderGet'); //Guardar encabezado de la tabla Embudo CM
+    Route::post('/embudoCMHeader', 'storeheaderTable')->name('embudoCMHeader'); //Guardar encabezado de la tabla Embudo CM
+    Route::post('/editEmbudoCM', 'edit')->name('editEmbudoCM'); //Ruta para editar datos de la tabla Embudo CM
+});

@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Hash;
 
 class AsentadoController extends Controller
 {
-    public function show()
+    public function show($error)
     {
         $ot = Orden_trabajo::all(); //Obtención de todas las ordenes de trabajo.
         if (count($ot) != 0) {
@@ -39,11 +39,21 @@ class AsentadoController extends Controller
                     array_push($oTrabajo, $ot);
                 }
             }
+            //Si hay clases que pasaran por asentado, se almacena la orden de trabajo en el arreglo.
             if (count($oTrabajo) != 0) {
-                return view('processes.asentado', ['ot' => $oTrabajo]); //Retorno a vista de Asentado
+                if ($error == 1) {
+                    return view('processes.asentado', ['ot' => $oTrabajo, 'error' => $error]); //Retorno a vista de Desbaste exterior
+                }
+                return view('processes.asentado', ['ot' => $oTrabajo]); //Retorno a vista de Desbaste exterior
             }
-            //Se retorna a la vista de Cepillado con las ordenes de trabajo que tienen clases que pasaran por Asentado
-            return view('processes.asentado', ['ot']); //Retorno a vista de Asentado
+            if ($error == 1) {
+                return view('processes.asentado', ['ot' => $oTrabajo, 'error' => $error]); //Retorno a vista de Desbaste exterior
+            }
+            //Se retorna a la vista de asentado con las ordenes de trabajo que tienen clases que pasaran por Desbaste exterior
+            return view('processes.asentado', ['ot']); //Retorno a vista de Desbaste exterior
+        }
+        if ($error == 1) {
+            return view('processes.asentado', ['error' => $error]); //Retorno a vista de Desbaste exterior
         }
         return view('processes.asentado');
     }
@@ -59,7 +69,18 @@ class AsentadoController extends Controller
         $clase = Clase::find($meta->id_clase); //Busco la clase de la OT.
         $id = "asentado_" . $clase->nombre . "_" . $ot->id; //Creación de id para tabla Asentado
         $moldura = Moldura::find($ot->id_moldura); //Busco la moldura de la OT.
+        $proceso = Asentado::where('id_proceso', $id)->first(); //Busco el proceso de la OT.
+        if (!$proceso) {
+            //Llenado de la tabla Asentado
+            $soldadura = new Asentado(); //Creación de objeto para llenar tabla Asentado
+            $soldadura->id_proceso = $id; //Creación de id para tabla Asentado
+            $soldadura->id_ot = $ot->id; //Llenado de id_proceso para tabla Asentado
+            $soldadura->save(); //Guardado de datos en la tabla Asentado
+        }
         $id_proceso = Asentado::where('id_proceso', $id)->first();
+        $pzasAsentado = Asentado_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
+        $pzasRectificado = Pieza::where('id_ot', $ot->id)->where('id_clase', $clase->id)->where('proceso', 'Rectificado')->where('error', 'Ninguno')->get();
+        $pzasRestantes = $this->piezasRestantes($pzasRectificado, $pzasAsentado);
 
         if (isset($request->n_pieza)) {  //Si se obtienen los datos de las piezas, se guardan en la tabla Asentado_cnominal.
             $id_pieza = $request->n_pieza . $id_proceso->id; //Creación de id para tabla Asentado_cnominal.
@@ -102,9 +123,13 @@ class AsentadoController extends Controller
 
                 //Retornar la pieza siguiente
                 $pzaUtilizar = Asentado_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first();
+                $pzasAsentado = Asentado_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
+                $pzasRectificado = Pieza::where('id_ot', $ot->id)->where('id_clase', $clase->id)->where('proceso', 'Rectificado')->where('error', 'Ninguno')->get();
+                $pzasRestantes = $this->piezasRestantes($pzasRectificado, $pzasAsentado);
+
                 if (isset($pzaUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Asentado
                     $pzasCreadas = Asentado_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get();
-                    return view('processes.asentado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'juegos' => count($this->piezaUtilizar($ot->id, $clase))]); //Retorno a vista de Cepillado.
+                    return view('processes.asentado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de asentado.
                 } else {
                     //Actualizar solo dos registros de las piezas que se van a ocupar en la tabla Asentado
                     $this->piezaUtilizar($ot->id, $clase);
@@ -121,15 +146,6 @@ class AsentadoController extends Controller
                 $newPza->n_juego = $request->n_juegoElegido; //Llenado de estado para tabla Asentado
                 $newPza->save(); //Guardado de datos en la tabla Asentado
             }
-        } else {
-            $proceso = Asentado::where('id_proceso', $id)->first(); //Busco el proceso de la OT.
-            if (!$proceso) {
-                //Llenado de la tabla Asentado
-                $soldadura = new Asentado(); //Creación de objeto para llenar tabla Asentado
-                $soldadura->id_proceso = $id; //Creación de id para tabla Asentado
-                $soldadura->id_ot = $ot->id; //Llenado de id_proceso para tabla Asentado
-                $soldadura->save(); //Guardado de datos en la tabla Asentado
-            }
         }
         $id_proceso = Asentado::where('id_proceso', $id)->first();
         if ($id_proceso !== "[]") {
@@ -142,7 +158,9 @@ class AsentadoController extends Controller
             ]);
             $meta = Metas::find($meta->id); //Busco la meta de la OT.
 
-
+            $pzasAsentado = Asentado_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
+            $pzasRectificado = Pieza::where('id_ot', $ot->id)->where('id_clase', $clase->id)->where('proceso', 'Rectificado')->where('error', 'Ninguno')->get();
+            $pzasRestantes = $this->piezasRestantes($pzasRectificado, $pzasAsentado);
             $pzaUtilizar = Asentado_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
             if ($pzaUtilizar == null) { //Si no existe una pieza para utilizar, se retorna a la vista de Asentado
                 $piezasVacias = Asentado_pza::where('sin_juego', null)->where('estado', 1)->where('id_proceso', $id_proceso->id)->get();
@@ -166,14 +184,19 @@ class AsentadoController extends Controller
                     $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
                 }
                 if (isset($pzasUtilizar)) { //Si no se encontro una pieza para utilizar, se crea una nueva pieza.
-                    return view('processes.asentado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'juegos' => count($pzasUtilizar)]); //Retorno a vista de Asentado
+                    return view('processes.asentado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Asentado
                 } else {
-                    return view('processes.asentado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'juegos' => count($this->piezaUtilizar($ot->id, $clase))])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Asentado
+                    return view('processes.asentado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Asentado
                 }
             } else {
-                return view('processes.asentado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Asentado
+                return view('processes.asentado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Asentado
             }
         }
+    }
+    public function piezasRestantes($pzasProcesoA, $pzasProcesoB)
+    {
+        $pzasRestantes = count($pzasProcesoA) - count($pzasProcesoB);
+        return $pzasRestantes;
     }
     public function edit(Request $request)
     {
@@ -185,6 +208,9 @@ class AsentadoController extends Controller
         $id_proceso = Asentado::where('id_proceso', $id)->first();
         $pzasCreadas = Asentado_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas.
         $pzaUtilizar = Asentado_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
+        $pzasAsentado = Asentado_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
+        $pzasRectificado = Pieza::where('id_ot', $ot->id)->where('id_clase', $clase->id)->where('proceso', 'Rectificado')->where('error', 'Ninguno')->get();
+        $pzasRestantes = $this->piezasRestantes($pzasRectificado, $pzasAsentado);
         if (isset($request->n_pieza)) { //Si se obtienen los datos de las piezas, se guardan en la tabla Rectificado_cnominal.
             for ($i = 0; $i < count($request->n_pieza); $i++) {
                 $id_pieza = $request->n_pieza[$i] . $id_proceso->id; //Creación de id para tabla Asentado_cnominal.
@@ -252,17 +278,17 @@ class AsentadoController extends Controller
             }
             $pzasCreadas = Asentado_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas.
             if (isset($pzasUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Asentado
-                return view('processes.asentado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'juegos' => count($pzasUtilizar)]); //Retorno a vista de Rectificado
+                return view('processes.asentado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Rectificado
             } else { //Si no existe una pieza para utilizar, se retorna a la vista de Asentado
                 $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
-                return view('processes.asentado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'juegos' => count($pzasUtilizar)])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Rectificado
+                return view('processes.asentado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Rectificado
             }
         } else {
             if (isset($request->password)) { //Si se ingreso una contraseña y la meta existe entonces...
                 $usersPasswords = User::all(); //Obtengo todas las contraseñas.
                 foreach ($usersPasswords as $userPassword) { //Recorro las contraseñas.
                     if (Hash::check($request->password, $userPassword->contrasena) && $userPassword->perfil == 1) {  //Si la contraseña es correcta.
-                        return view('processes.asentado', ['band' => 4, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'clase' => $clase, 'nPiezas' => $pzasCreadas, 'juegos' => count($this->piezaUtilizar($ot->id, $clase))]); //Retorno la vista de cepillado.
+                        return view('processes.asentado', ['band' => 4, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'clase' => $clase, 'nPiezas' => $pzasCreadas, 'pzasRestantes' => $pzasRestantes]); //Retorno la vista de asentado.
                     }
                 }
             }
@@ -291,10 +317,10 @@ class AsentadoController extends Controller
             }
             $pzasCreadas = Asentado_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas.
             if (isset($pzasUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Asentado
-                return view('processes.asentado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'juegos' => count($pzasUtilizar)]); //Retorno a vista de Rectificado
+                return view('processes.asentado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Rectificado
             } else { //Si no existe una pieza para utilizar, se retorna a la vista de Asentado
                 $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
-                return view('processes.asentado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'juegos' => count($pzasUtilizar)])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Rectificado
+                return view('processes.asentado', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Rectificado
             }
         }
     }

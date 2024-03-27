@@ -18,8 +18,10 @@ class HomeController extends Controller
                 return view ('home.indexAdmin');
             }else if(auth()->user()->perfil == 2){
                 return view ('home.index');
-            }else{
+            }else if(auth()->user()->perfil == 3){
                 return view ('home.indexMaster');
+            }else{
+                return view ('home.indexQuality');
             }
         }else{
             return view ('auth.login');

@@ -69,7 +69,7 @@ select {
 .btn-search {
     margin-top: 35px;
     padding: 10px 20px;
-    background-color: #007bffe6;
+    background-color: #46484be6;
     color: #FFFFFF;
     border: none;
     border-radius: 5px;
@@ -77,8 +77,8 @@ select {
     text-align: center;
 }
 .btn-search:hover {
-    background-color: #0db326c3;
-    color: black;
+    background-color: #59615ac3;
+    color: rgb(255, 255, 255);
     transform: scale(1.05); 
 }
 
