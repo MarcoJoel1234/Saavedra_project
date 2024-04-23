@@ -20,6 +20,11 @@ use Illuminate\Support\Facades\Hash;
 
 class SegundaOpeSoldaduraController extends Controller
 {
+    protected $controladorPzasLiberadas;
+    public function __construct()
+    {
+        $this->controladorPzasLiberadas = new PzasLiberadasController();
+    }
     public function show($error)
     {
         $ot = Orden_trabajo::all(); //Obtención de todas las ordenes de trabajo.
@@ -133,6 +138,11 @@ class SegundaOpeSoldaduraController extends Controller
                 $pieza->proceso = "Segunda Operacion Soldadura";
                 $pieza->error = $piezaExistente->error;
                 $pieza->save();
+                if ($pieza->error == 'Ninguno') {
+                    //Obtener piezas de la meta
+                    $piezasMeta = SegundaOpeSoldadura_pza::where('id_meta', $meta->id)->get();
+                    $this->controladorPzasLiberadas->liberarPiezasMeta($meta, $piezasMeta, $pieza->n_pieza, "Segunda Operacion Soldadura");
+                }
 
                 //Actualizar resultado de la meta
                 $contadorPzas = 0;
@@ -377,6 +387,11 @@ class SegundaOpeSoldaduraController extends Controller
                     $pieza->proceso = "Segunda Operacion Soldadura";
                     $pieza->error = $piezaExistente->error;
                     $pieza->save();
+                    if ($pieza->error == 'Ninguno') {
+                        //Obtener piezas de la meta
+                        $piezasMeta = SegundaOpeSoldadura_pza::where('id_meta', $meta->id)->get();
+                        $this->controladorPzasLiberadas->liberarPiezasMeta($meta, $piezasMeta, $pieza->n_pieza, "Segunda Operacion Soldadura");
+                    }
                 }
             }
             //Actualizar resultado de la meta

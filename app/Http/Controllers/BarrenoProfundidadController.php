@@ -20,6 +20,11 @@ use Illuminate\Support\Facades\Hash;
 
 class BarrenoProfundidadController extends Controller
 {
+    protected $controladorPzasLiberadas;
+    public function __construct()
+    {
+        $this->controladorPzasLiberadas = new PzasLiberadasController();
+    }
     public function show($error)
     {
         $ot = Orden_trabajo::all(); //Obtención de todas las ordenes de trabajo.
@@ -145,6 +150,11 @@ class BarrenoProfundidadController extends Controller
                 $pieza->proceso = "Barreno Profundidad";
                 $pieza->error = $piezaExistente->error;
                 $pieza->save();
+                if ($pieza->error == 'Ninguno') {
+                    //Obtener piezas de la meta
+                    $piezasMeta = BarrenoProfundidad_pza::where('id_meta', $meta->id)->get();
+                    $this->controladorPzasLiberadas->liberarPiezasMeta($meta, $piezasMeta, $pieza->n_pieza, "Barreno Profundidad");
+                }
 
                 //Actualizar resultado de la meta
                 $pzasCorrectas = BarrenoProfundidad_pza::where('id_meta', $meta->id)->where('error', 'Ninguno')->get(); //Obtención de todas las piezas correctas.
@@ -360,6 +370,11 @@ class BarrenoProfundidadController extends Controller
                     $pieza->proceso = "Barreno Profundidad";
                     $pieza->error = $piezaExistente->error;
                     $pieza->save();
+                    if ($pieza->error == 'Ninguno') {
+                        //Obtener piezas de la meta
+                        $piezasMeta = BarrenoProfundidad_pza::where('id_meta', $meta->id)->get();
+                        $this->controladorPzasLiberadas->liberarPiezasMeta($meta, $piezasMeta, $pieza->n_pieza, "Barreno Profundidad");
+                    }
                 }
             }
             //Actualizar resultado de la meta

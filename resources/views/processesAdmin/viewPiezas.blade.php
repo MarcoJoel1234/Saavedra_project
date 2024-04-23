@@ -30,7 +30,7 @@
                 // console.log(this.molduras);
                 // console.log(this.pedidos);
                 // console.log(this.procesosClase);
-                console.log(this.procesos);
+                // console.log(this.procesos);
                 for (let indice = 0; indice < otArray.length; indice++) {
                     for (this.indiCarru = 0; this.indiCarru < this.clases[indice].length; this.indiCarru++) {
                         let main = document.querySelector('main');

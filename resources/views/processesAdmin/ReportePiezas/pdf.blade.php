@@ -102,58 +102,120 @@
             @endforeach
             <th>Errores</th>
             <th>Fecha de máquinado</th>
-            <th>Fecha de liberación</th>
-            <th>Liberado por</th>
+            @if ($perfil == "quality")
+                <th>Fecha de liberación</th>
+                <th>Liberado por</th>
+            @endif
         </tr>
     </thead>
 
-    @for ($i = 0; $i < count($piezas); $i++)
+    @for ($i = 0; $i < count($piezas); $i++) ¿
         @if ($piezas[$i][4] == 'Operacion Equipo')
-            @if ($piezas[$i][10] == 1)
-                <tr style="background-color: #acf980a8">
+            @if ($perfil == "quality")
+                @if ($piezas[$i][10] == 1)    
+                    <tr style="background-color: #acf980a8">
                 @elseif ($piezas[$i][6] == 'Incompleto')
-                <tr style="background-color: #f9f9a8">
+                    <tr style="background-color: #f9f9a8">
                 @elseif ($piezas[$i][10] == 2)
-                <tr style="background-color: #ec7163cd">
+                    <tr style="background-color: #ec7163cd">
                 @else
-                <tr>
+                    <tr>
+                @endif
+            @else
+                @if ($piezas[$i][6] == "Ninguno")    
+                    <tr style="background-color: #acf980a8">
+                @elseif ($piezas[$i][6] == 'Incompleto')
+                    <tr style="background-color: #f9f9a8">
+                @elseif($piezas[$i][6] != "Ninguno")
+                    <tr style="background-color: #ec7163cd">
+                @else
+                    <tr>
+                @endif
             @endif
-            @for ($j = 1; $j < count($piezas[$i]) - 1; $j++)
-                <td>{{ $piezas[$i][$j] }}</td>
-            @endfor
+        
+            @if ($perfil == "quality")
+                @for ($j = 1; $j < count($piezas[$i]) - 1; $j++)
+                    <td>{{ $piezas[$i][$j] }}</td>
+                @endfor
+            @else
+                @for ($j = 1; $j < count($piezas[$i]) - 4; $j++)
+                    <td>{{ $piezas[$i][$j] }}</td>
+                @endfor
+            @endif
             </tr>
         @elseif (isset($band))
-            @if ($piezas[$i][9] == 1)
-                <tr style="background-color: #acf980a8">
+            @if($perfil == "quality")
+                @if ($piezas[$i][9] == 1)
+                    <tr style="background-color: #acf980a8">
                 @elseif ($piezas[$i][5] == 'Incompleto')
-                <tr style="background-color: #f9f9a8">
+                    <tr style="background-color: #f9f9a8">
                 @elseif ($piezas[$i][9] == 2)
-                <tr style="background-color: #ec7163cd">
+                    <tr style="background-color: #ec7163cd">
                 @else
-                <tr>
-            @endif
-            @for ($j = 1; $j < count($piezas[$i]) - 1; $j++)
-                @if ($j == 5)
-                    <td></td>
-                    <td>{{ $piezas[$i][$j] }}</td>
-                @else
-                    <td>{{ $piezas[$i][$j] }}</td>
+                    <tr>
                 @endif
-            @endfor
+            @else
+                @if ($piezas[$i][5] == "Ninguno")
+                    <tr style="background-color: #acf980a8">
+                @elseif ($piezas[$i][5] == 'Incompleto')
+                    <tr style="background-color: #f9f9a8">
+                @elseif($piezas[$i][5] != 'Ninguno')
+                    <tr style="background-color: #ec7163cd">
+                @else
+                    <tr>
+                @endif
+            @endif
+            @if ($perfil == "quality")
+                @for ($j = 1; $j < count($piezas[$i]) - 1; $j++)
+                    @if ($j == 5)
+                        <td></td>
+                        <td>{{ $piezas[$i][$j] }}</td>
+                    @else
+                        <td>{{ $piezas[$i][$j] }}</td>
+                    @endif
+                @endfor
+            @else
+                @for ($j = 1; $j < count($piezas[$i]) - 4; $j++)
+                    @if ($j == 5)
+                        <td></td>
+                        <td>{{ $piezas[$i][$j] }}</td>
+                    @else
+                        <td>{{ $piezas[$i][$j] }}</td>
+                    @endif
+                @endfor
+            @endif
             </tr>
         @else
-            @if ($piezas[$i][9] == 1)
-                <tr style="background-color: #acf980a8">
+            @if ($perfil == "quality")
+                @if ($piezas[$i][9] == 1)
+                    <tr style="background-color: #acf980a8">
                 @elseif ($piezas[$i][5] == 'Incompleto')
-                <tr style="background-color: #f9f9a8">
+                    <tr style="background-color: #f9f9a8">
                 @elseif ($piezas[$i][9] == 2)
-                <tr style="background-color: #ec7163cd">
+                    <tr style="background-color: #ec7163cd">
                 @else
-                <tr>
+                    <tr>
+                @endif
+            @else
+                @if ($piezas[$i][5] == "Ninguno")
+                    <tr style="background-color: #acf980a8">
+                @elseif ($piezas[$i][5] == 'Incompleto')
+                    <tr style="background-color: #f9f9a8">
+                @elseif ($piezas[$i][5] != "Ninguno")
+                    <tr style="background-color: #ec7163cd">
+                @else
+                    <tr>
+                @endif
             @endif
-            @for ($j = 1; $j < count($piezas[$i]) - 1; $j++)
-                <td>{{ $piezas[$i][$j] }}</td>
-            @endfor
+            @if ($perfil == "quality")
+                @for ($j = 1; $j < count($piezas[$i]) - 1; $j++)
+                    <td>{{ $piezas[$i][$j] }}</td>
+                @endfor
+            @else
+                @for ($j = 1; $j < count($piezas[$i]) - 4; $j++)
+                    <td>{{ $piezas[$i][$j] }}</td>
+                @endfor
+            @endif
             </tr>
         @endif
     @endfor

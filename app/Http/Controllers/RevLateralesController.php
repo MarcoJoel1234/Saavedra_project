@@ -22,6 +22,11 @@ use Illuminate\Support\Facades\Hash;
 
 class RevLateralesController extends Controller
 {
+    protected $controladorPzasLiberadas;
+    public function __construct()
+    {
+        $this->controladorPzasLiberadas = new PzasLiberadasController();
+    }
     public function show($error)
     {
         $ot = Orden_trabajo::all(); //Obtención de todas las ordenes de trabajo.
@@ -128,6 +133,11 @@ class RevLateralesController extends Controller
                 $pieza->proceso = "Revision Laterales";
                 $pieza->error = $piezaExistente->error;
                 $pieza->save();
+                if ($pieza->error == 'Ninguno') {
+                    //Obtener piezas de la meta
+                    $piezasMeta = RevLaterales_pza::where('id_meta', $meta->id)->get();
+                    $this->controladorPzasLiberadas->liberarPiezasMeta($meta, $piezasMeta, $pieza->n_pieza, "Revision Laterales");
+                }
 
                 //Actualizar resultado de la meta
                 $contadorPzas = 0;
@@ -391,6 +401,11 @@ class RevLateralesController extends Controller
                     $pieza->proceso = "Revision Laterales";
                     $pieza->error = $piezaExistente->error;
                     $pieza->save();
+                    if ($pieza->error == 'Ninguno') {
+                        //Obtener piezas de la meta
+                        $piezasMeta = RevLaterales_pza::where('id_meta', $meta->id)->get();
+                        $this->controladorPzasLiberadas->liberarPiezasMeta($meta, $piezasMeta, $pieza->n_pieza, "Revision Laterales");
+                    }
                 }
             }
             //Actualizar resultado de la meta

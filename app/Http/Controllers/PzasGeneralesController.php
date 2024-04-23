@@ -102,7 +102,7 @@ class PzasGeneralesController extends Controller
             return view('processesAdmin.ReportePiezas.OT');
         }
     }
-        public function obtenerPiezasRequest(Request $request)
+    public function obtenerPiezasRequest(Request $request)
     {
         $datosPiezas = array(
             "ot" => $request->ot,
@@ -138,7 +138,7 @@ class PzasGeneralesController extends Controller
             if ($perfil == 'quality') {
                 return [false, $piezas, $otElegida, $clase, $operadores, $maquina, $array, $proceso, $error];
             }
-            $pdf = Pdf::loadView('processesAdmin.ReportePiezas.pdf', compact('piezas', 'otElegida', 'clase', 'operadores', 'maquina', 'array', 'proceso', 'error'));
+            $pdf = Pdf::loadView('processesAdmin.ReportePiezas.pdf', compact('piezas', 'otElegida', 'clase', 'operadores', 'maquina', 'array', 'proceso', 'error', 'perfil'));
             return $pdf->download('Reporte de piezas.pdf');
         }
     }
@@ -242,16 +242,29 @@ class PzasGeneralesController extends Controller
                     $pzas[0] = Pieza::where('id_clase', $item->id_clase)->where('proceso', $item->proceso)->where('n_pieza', $numJuego . 'H')->first();
                     $pzas[1] = Pieza::where('id_clase', $item->id_clase)->where('proceso', $item->proceso)->where('n_pieza', $numJuego . 'M')->first();
 
-                    if (!$pzas[1]) { //Si no existe la mitad M
-                        //Guardar operador
-                        $array[$contador][2] = $this->getNameOperador($pzas[0]->id_operador);
+                    if (!$pzas[0] || !$pzas[1]) { //Si no existe la mitad M
+                        if (!$pzas[0]) {
+                            //Guardar operador
+                            $array[$contador][2] = $this->getNameOperador($pzas[1]->id_operador);
 
-                        //Identificar error
-                        $error = "";
-                        if ($pzas[0]->error != "Ninguno") {
-                            $error = $pzas[0]->error . " / Incompleto";
+                            //Identificar error
+                            $error = "";
+                            if ($pzas[1]->error != "Ninguno") {
+                                $error = $pzas[1]->error . " / Incompleto";
+                            } else {
+                                $error = "Incompleto";
+                            }
                         } else {
-                            $error = "Incompleto";
+                            //Guardar operador
+                            $array[$contador][2] = $this->getNameOperador($pzas[0]->id_operador);
+
+                            //Identificar error
+                            $error = "";
+                            if ($pzas[0]->error != "Ninguno") {
+                                $error = $pzas[0]->error . " / Incompleto";
+                            } else {
+                                $error = "Incompleto";
+                            }
                         }
 
                         //Guardar el error
@@ -310,11 +323,11 @@ class PzasGeneralesController extends Controller
                     } else {
                         $array[$contador][8] = "No liberado";
                     }
-                    if($user_liberacion){
+                    if ($user_liberacion) {
                         $array[$contador][9] = $user_liberacion->nombre . " " . $user_liberacion->a_paterno . " " . $user_liberacion->a_materno;
-                    }else{
+                    } else {
                         $array[$contador][9] = null;
-                    }                    
+                    }
                 } else {
                     $array[$contador][4] = $item->proceso;
                     $array[$contador][6] = $item->created_at;
@@ -323,11 +336,11 @@ class PzasGeneralesController extends Controller
                     } else {
                         $array[$contador][7] = "No liberado";
                     }
-                    if($user_liberacion){
+                    if ($user_liberacion) {
                         $array[$contador][8] = $user_liberacion->nombre . " " . $user_liberacion->a_paterno . " " . $user_liberacion->a_materno;
-                    }else{
+                    } else {
                         $array[$contador][8] = null;
-                    }                    
+                    }
                 }
                 //Almacenar valor de liberacion
                 array_push($array[$contador], $item->liberacion);
@@ -514,7 +527,7 @@ class PzasGeneralesController extends Controller
                 $tolerancia = RevLaterales_tolerancia::where('id_proceso', $id_proceso->id_proceso)->first()->toArray();
                 $proceso = 'Revision Laterales';
                 break;
-            case 'Primera Operacion':
+            case 'Primera Operacion Soldadura':
                 //Obtener informacion de la pieza elegida
                 $piezaInfo = array();
                 $pieza = explode(",", $pieza);
@@ -540,7 +553,7 @@ class PzasGeneralesController extends Controller
                 $tolerancia = BarrenoManiobra_tolerancia::where('id_proceso', $id_proceso->id_proceso)->first()->toArray();
                 $proceso = 'Barreno Maniobra';
                 break;
-            case 'Segunda Operacion':
+            case 'Segunda Operacion Soldadura':
                 //Obtener informacion de la pieza elegida
                 $piezaInfo = array();
                 $pieza = explode(",", $pieza);
@@ -1463,7 +1476,7 @@ class PzasGeneralesController extends Controller
             case "pOperacion":
                 return "Primera Operacion Soldadura";
             case "barreno_maniobra":
-                return "Barreno maniobra";
+                return "Barreno Maniobra";
             case "sOperacion":
                 return "Segunda Operacion Soldadura";
             case "soldadura":

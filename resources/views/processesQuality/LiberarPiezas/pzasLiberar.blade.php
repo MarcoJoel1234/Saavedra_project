@@ -1,4 +1,4 @@
-@extends('layouts.appQuality')
+@extends($layout)
 @section('content')
 
 <head>
@@ -84,30 +84,28 @@
                     }
                 } else {
                     if (operacion) {
+                        let inputEmpty = false;
                         switch(j){
                             case 5:
                                 tr.appendChild(td);
                                 let td1 = document.createElement('td');
                                 td1.textContent = piezas[i][j];
                                 tr.appendChild(td1);
+                                inputEmpty = true;
                                 break;
                             case 6:
                                 td.textContent = crearFecha(piezas[i][j]);
-                                tr.appendChild(td);
                                 break;
                             case 9:
                                 if(!piezas[i][5].includes("Incompleto") && piezas[i][piezas[i].length - 2] != 1){
                                     td.appendChild(crearBotonLiberar(infoPiezas, i, piezas));
-                                    tr.appendChild(td);
                                 }
                                 break;
                             case 10:
                                 td.appendChild(crearBotonRechazar(infoPiezas, i));
-                                tr.appendChild(td);
                                     break;
                             case 11:
                                 td.appendChild(crearBotonVer(infoPiezas, i, piezas[i][2]));
-                                tr.appendChild(td);
                                     break;
                             default:
                                 if(piezas[i][j] != undefined){
@@ -115,10 +113,11 @@
                                 }else{
                                     td.textContent = "";
                                 }
-                                tr.appendChild(td);
                                 break;
                         }
-                        tr.appendChild(td);
+                        if(!inputEmpty){
+                            tr.appendChild(td);
+                        }
                     } else {
                         console.log(piezas[i][8]);
                         switch(j){
@@ -375,7 +374,7 @@
                                     <th style="width: 300px;">Errores</th>
                                     <th>Fecha de Maquinado</th>
                                     <th>Fecha de Liberación</th>
-                                    <th>Liberado por</th>
+                                    <th>Liberado/Rechazado por</th>
                                     <th>Liberar</th>
                                     <th>Rechazar</th>
                                     <th>Ver</th>

@@ -225,8 +225,9 @@
 
 <body background="{{ asset('images/fondoLogin.jpg') }}">
     <div class="container">
-        <form action="{{ route('vistaPiezasLiberar') }}" method="post"> 
+        <form action="{{ route('searchPzasGenerales') }}" method="post">
             @csrf
+            <input type="hidden" name="perfil" value="admin">
             @isset($otElegida)
                 <!-- FILTROS DE BÚSQUEDA Y RESULTADOS DE PIEZAS EN GENERAL. -->
                 <label id="title_ot">Orden de trabajo: {{$otElegida->id}} </label>

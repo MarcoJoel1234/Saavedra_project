@@ -22,6 +22,7 @@
                 <li><a href="{{ route('vistaPiezas') }}">Piezas en progreso</a></li>
                 <li><a href="{{ route('verProcesos') }}">Progreso de O.T</a></li>
                 <li><a href="{{ route('vistaPzasGenerales') }}">Reporte de piezas</a></li>
+                <li><a href="{{ route('vistaOTLiberar')}}">Liberacion de piezas</a></li>
                 <li><a href="{{ route('vistaPzasMaquina') }}">Buscar piezas por máquina</a></li>
                 <ul>
                     <a class="btn1" href="{{ route('logout') }}">Cerrar sesión</a>

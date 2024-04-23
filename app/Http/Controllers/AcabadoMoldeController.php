@@ -18,6 +18,11 @@ use Illuminate\Support\Facades\Hash;
 
 class AcabadoMoldeController extends Controller
 {
+    protected $controladorPzasLiberadas;
+    public function __construct()
+    {
+        $this->controladorPzasLiberadas = new PzasLiberadasController();
+    }
     public function show($error)
     {
         $ot = Orden_trabajo::all(); //Obtención de todas las ordenes de trabajo.
@@ -134,6 +139,11 @@ class AcabadoMoldeController extends Controller
                 $pieza->proceso = "Acabado Molde";
                 $pieza->error = $piezaExistente->error;
                 $pieza->save();
+                if ($pieza->error == 'Ninguno') {
+                    //Obtener piezas de la meta
+                    $piezasMeta = AcabadoMolde_pza::where('id_meta', $meta->id)->get();
+                    $this->controladorPzasLiberadas->liberarPiezasMeta($meta, $piezasMeta, $pieza->n_pieza, "Acabado Molde");
+                }
 
                 //Actualizar resultado de la meta
                 $pzasCorrectas = AcabadoMolde_pza::where('id_meta', $meta->id)->where('error', 'Ninguno')->get(); //Obtención de todas las piezas correctas.
@@ -306,6 +316,11 @@ class AcabadoMoldeController extends Controller
                     $pieza->proceso = "Acabado Molde";
                     $pieza->error = $piezaExistente->error;
                     $pieza->save();
+                    if ($pieza->error == 'Ninguno') {
+                        //Obtener piezas de la meta
+                        $piezasMeta = AcabadoMolde_pza::where('id_meta', $meta->id)->get();
+                        $this->controladorPzasLiberadas->liberarPiezasMeta($meta, $piezasMeta, $pieza->n_pieza, "Acabado Molde");
+                    }
                 }
             }
             //Actualizar resultado de la meta

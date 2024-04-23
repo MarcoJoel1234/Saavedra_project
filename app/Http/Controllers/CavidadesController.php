@@ -18,6 +18,11 @@ use Illuminate\Support\Facades\Hash;
 
 class CavidadesController extends Controller
 {
+    protected $controladorPzasLiberadas;
+    public function __construct()
+    {
+        $this->controladorPzasLiberadas = new PzasLiberadasController();
+    }
     public function show($error)
     {
         $ot = Orden_trabajo::all(); //Obtención de todas las ordenes de trabajo.
@@ -125,6 +130,11 @@ class CavidadesController extends Controller
                 $pieza->proceso = "Cavidades";
                 $pieza->error = $piezaExistente->error;
                 $pieza->save();
+                if ($pieza->error == 'Ninguno') {
+                    //Obtener piezas de la meta
+                    $piezasMeta = Cavidades_pza::where('id_meta', $meta->id)->get();
+                    $this->controladorPzasLiberadas->liberarPiezasMeta($meta, $piezasMeta, $pieza->n_pieza, "Cavidades");
+                }
 
                 //Actualizar resultado de la meta
                 $pzasCorrectas = Cavidades_pza::where('id_meta', $meta->id)->where('error', 'Ninguno')->get(); //Obtención de todas las piezas correctas.
@@ -289,6 +299,11 @@ class CavidadesController extends Controller
                     $pieza->proceso = "Cavidades";
                     $pieza->error = $piezaExistente->error;
                     $pieza->save();
+                    if ($pieza->error == 'Ninguno') {
+                        //Obtener piezas de la meta
+                        $piezasMeta = Cavidades_pza::where('id_meta', $meta->id)->get();
+                        $this->controladorPzasLiberadas->liberarPiezasMeta($meta, $piezasMeta, $pieza->n_pieza, "Cavidades");
+                    }
                 }
             }
             //Actualizar resultado de la meta

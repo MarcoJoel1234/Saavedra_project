@@ -18,6 +18,11 @@ use Illuminate\Support\Facades\Hash;
 
 class PySOpeSoldaduraController extends Controller
 {
+    protected $controladorPzasLiberadas;
+    public function __construct()
+    {
+        $this->controladorPzasLiberadas = new PzasLiberadasController();
+    }
     public function show($error)
     {
         $ot = Orden_trabajo::all(); //Obtención de todas las ordenes de trabajo.
@@ -129,6 +134,7 @@ class PySOpeSoldaduraController extends Controller
                 $piezaExistente->save();
 
                 
+                
                 //Guardar los datos de las pieza en la tabla pieza (En donde se almacenan todas las piezas)
                 //Se verifica si la pieza ya existe en la tabla pieza
                 $pieza = Pieza::where('n_pieza', $request->n_pieza)->where('proceso', 'Operacion Equipo_' . $operacion)->where('id_ot', $ot->id)->where('id_clase', $clase->id)->first();
@@ -143,6 +149,11 @@ class PySOpeSoldaduraController extends Controller
                 $pieza->proceso = "Operacion Equipo_" . $operacion;
                 $pieza->error = $piezaExistente->error;
                 $pieza->save();
+                if ($pieza->error == 'Ninguno') {
+                    //Obtener piezas de la meta
+                    $piezasMeta = PySOpeSoldadura_pza::where('id_meta', $meta->id)->get();
+                    $this->controladorPzasLiberadas->liberarPiezasMeta($meta, $piezasMeta, $pieza->n_pieza, $pieza->proceso);
+                }
 
                 //Actualizar resultado de la meta
                 $contadorPzas = 0;
@@ -357,6 +368,11 @@ class PySOpeSoldaduraController extends Controller
                     $pieza->proceso = "Operacion Equipo_" . $request->operacion;
                     $pieza->error = $piezaExistente->error;
                     $pieza->save();
+                    if ($pieza->error == 'Ninguno') {
+                        //Obtener piezas de la meta
+                        $piezasMeta = PySOpeSoldadura_pza::where('id_meta', $meta->id)->get();
+                        $this->controladorPzasLiberadas->liberarPiezasMeta($meta, $piezasMeta, $pieza->n_pieza, $pieza->proceso);
+                    }
                 }
             }
             //Actualizar resultado de la meta

@@ -18,6 +18,11 @@ use Illuminate\Support\Facades\Hash;
 
 class CopiadoController extends Controller
 {
+    protected $controladorPzasLiberadas;
+    public function __construct()
+    {
+        $this->controladorPzasLiberadas = new PzasLiberadasController();
+    }
     public function show($error)
     {
         $ot = Orden_trabajo::all(); //Obtención de todas las ordenes de trabajo.
@@ -151,6 +156,11 @@ class CopiadoController extends Controller
                     }
                 }
                 $pieza->save();
+                if ($pieza->error == 'Ninguno') {
+                    //Obtener piezas de la meta
+                    $piezasMeta = Copiado_pza::where('id_meta', $meta->id)->get();
+                    $this->controladorPzasLiberadas->liberarPiezasMeta($meta, $piezasMeta, $pieza->n_pieza, "Copiado");
+                }
 
                 //Actualizar resultado de la meta
                 $pzasCorrectas = Copiado_pza::where('id_meta', $meta->id)->where('error_cilindrado', 'Ninguno')->where('error_cavidades', 'Ninguno')->get(); //Obtención de todas las piezas correctas.
@@ -355,6 +365,11 @@ class CopiadoController extends Controller
                         }
                     }
                     $pieza->save();
+                    if ($pieza->error == 'Ninguno') {
+                        //Obtener piezas de la meta
+                        $piezasMeta = Copiado_pza::where('id_meta', $meta->id)->get();
+                        $this->controladorPzasLiberadas->liberarPiezasMeta($meta, $piezasMeta, $pieza->n_pieza, "Copiado");
+                    }
                 }
             }
             //Actualizar resultado de la meta

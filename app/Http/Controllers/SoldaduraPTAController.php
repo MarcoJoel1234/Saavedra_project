@@ -20,6 +20,11 @@ use Illuminate\Support\Facades\Hash;
 
 class SoldaduraPTAController extends Controller
 {
+    protected $controladorPzasLiberadas;
+    public function __construct()
+    {
+        $this->controladorPzasLiberadas = new PzasLiberadasController();
+    }
     public function show($error)
     {
         $ot = Orden_trabajo::all(); //Obtención de todas las ordenes de trabajo.
@@ -120,6 +125,11 @@ class SoldaduraPTAController extends Controller
                 $pieza->proceso = "Soldadura PTA";
                 $pieza->error = $piezaExistente->error;
                 $pieza->save();
+                if ($pieza->error == 'Ninguno') {
+                    //Obtener piezas de la meta
+                    $piezasMeta = SoldaduraPTA_pza::where('id_meta', $meta->id)->get();
+                    $this->controladorPzasLiberadas->liberarPiezasMeta($meta, $piezasMeta, $pieza->n_pieza, "Soldadura PTA");
+                }
 
                 //Actualizar resultado de la meta
                 $pzasMeta = SoldaduraPTA_pza::where('id_meta', $meta->id)->where('estado', 2)->where('error', "Ninguno")->get(); //Obtención de todas las piezas correctas.
@@ -291,6 +301,11 @@ class SoldaduraPTAController extends Controller
                     $pieza->proceso = "Soldadura PTA";
                     $pieza->error = $piezaExistente->error;
                     $pieza->save();
+                    if ($pieza->error == 'Ninguno') {
+                        //Obtener piezas de la meta
+                        $piezasMeta = SoldaduraPTA_pza::where('id_meta', $meta->id)->get();
+                        $this->controladorPzasLiberadas->liberarPiezasMeta($meta, $piezasMeta, $pieza->n_pieza, "Soldadura PTA");
+                    }
                 }
             }
             //Actualizar resultado de la meta

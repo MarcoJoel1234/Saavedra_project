@@ -34,6 +34,7 @@ use App\Models\Soldadura_pza;
 use App\Models\SoldaduraPTA_pza;
 use ArchTech\Enums\Meta\Meta;
 use Barryvdh\DomPDF\Facade\Pdf;
+use DragonCode\Contracts\Cashier\Auth\Auth;
 use Illuminate\Http\Request;
 
 class PzasLiberadasController extends Controller
@@ -43,13 +44,18 @@ class PzasLiberadasController extends Controller
     {
         $this->controladorPzas = new PzasGeneralesController();
     }
+    public function obtenerLayout(){
+        $perfil = auth()->user()->perfil;
+        return $perfil == 4 ? 'layouts.appQuality' : 'layouts.appAdmin';
+    }
     public function mostrarOTs()
     {
+        $layout = $this->obtenerLayout();
         if ($this->controladorPzas->retornarOTs() != 0) {
             $arregloOT = $this->controladorPzas->retornarOTs();
-            return view('processesQuality.LiberarPiezas.OT', compact('arregloOT'));
+            return view('processesQuality.LiberarPiezas.OT', compact('arregloOT', 'layout'));
         } else {
-            return view('processesQuality.LiberarPiezas.OT');
+            return view('processesQuality.LiberarPiezas.OT', compact('layout'));
         }
     }
     public function obtenerPiezasRequest(Request $request)
@@ -68,8 +74,9 @@ class PzasLiberadasController extends Controller
     }
     public function show($array)
     {
+        $layout = $this->obtenerLayout();
         if ($array[0]) {
-            return view('processesQuality.LiberarPiezas.pzasLiberar', ['piezas' => $array[1], 'otElegida' => $array[2], 'clase' => $array[3], 'operadores' => $array[4], 'maquina' => $array[5], 'array' => $array[6], 'proceso' => $array[7], 'error' => $array[8], 'infoPiezas' => $array[9]]);
+            return view('processesQuality.LiberarPiezas.pzasLiberar', ['layout' => $layout, 'piezas' => $array[1], 'otElegida' => $array[2], 'clase' => $array[3], 'operadores' => $array[4], 'maquina' => $array[5], 'array' => $array[6], 'proceso' => $array[7], 'error' => $array[8], 'infoPiezas' => $array[9]]);
         } else {
             //Eliminar el último elemento del array
             $contador = 0;
@@ -78,7 +85,7 @@ class PzasLiberadasController extends Controller
                 $array[1][$contador] = $pza;
                 $contador++;
             }
-            $pdf = Pdf::loadView('processesAdmin.ReportePiezas.pdf', ['piezas' => $array[1], 'otElegida' => $array[2], 'clase' => $array[3], 'operadores' => $array[4], 'maquina' => $array[5], 'array' => $array[6], 'proceso' => $array[7], 'error' => $array[8]]);
+            $pdf = Pdf::loadView('processesAdmin.ReportePiezas.pdf', ['piezas' => $array[1], 'otElegida' => $array[2], 'clase' => $array[3], 'operadores' => $array[4], 'maquina' => $array[5], 'array' => $array[6], 'proceso' => $array[7], 'error' => $array[8], 'perfil' => "quality"]);
             return $pdf->download('Informe de piezas.pdf');
         }
     }
@@ -303,7 +310,7 @@ class PzasLiberadasController extends Controller
                     $piezaH = Pieza::where('n_pieza', $numero . "H")->where('id_clase', $meta->id_clase)->where('proceso', $proceso)->where('error', 'Ninguno')->where('liberacion', 0)->first();
                     $piezaM = Pieza::where('n_pieza', $numero . "M")->where('id_clase', $meta->id_clase)->where('proceso', $proceso)->where('error', 'Ninguno')->where('liberacion', 0)->first();
 
-                    if($piezaH && $piezaM){
+                    if ($piezaH && $piezaM) {
                         if (!in_array($numero, $juegosMalos)) {
                             $piezaH->liberacion = 1;
                             $piezaH->fecha_liberacion = date('Y-m-d H:i:s');
@@ -314,7 +321,7 @@ class PzasLiberadasController extends Controller
                             $piezaM->fecha_liberacion = date('Y-m-d H:i:s');
                             $piezaM->user_liberacion = auth()->user()->matricula;
                             $piezaM->save();
-                        }    
+                        }
                     }
                 } else {
                     $pieza = Pieza::where('n_pieza', $pza->n_juego)->where('id_clase', $meta->id_clase)->where('proceso', $proceso)->where('error', 'Ninguno')->where('liberacion', 0)->first();
@@ -340,6 +347,7 @@ class PzasLiberadasController extends Controller
                 Pieza::where('n_pieza', $n_pieza)->where('id_clase', $meta->id_clase)->where('proceso', $proceso)->update([
                     'liberacion' => 1,
                     'fecha_liberacion' => date('Y-m-d H:i:s'),
+                    'user_liberacion' => auth()->user()->matricula,
                 ]);
             }
         }
@@ -357,6 +365,7 @@ class PzasLiberadasController extends Controller
             Pieza::where('n_pieza', $n_pieza)->where('id_clase', $meta->id_clase)->where('proceso', $proceso)->update([
                 'liberacion' => 2,
                 'fecha_liberacion' => date('Y-m-d H:i:s'),
+                'user_liberacion' => auth()->user()->matricula,
             ]);
         }
     }
@@ -377,29 +386,29 @@ class PzasLiberadasController extends Controller
         }
         return $juegosMalos;
     }
-    public function liberarPiezasMeta($meta, $piezasMeta, $piezaLiberar, $proceso){
-        foreach($piezasMeta as $pieza){
-            if($pieza->n_pieza){
+    public function liberarPiezasMeta($meta, $piezasMeta, $piezaLiberar, $proceso)
+    {
+
+        foreach ($piezasMeta as $pieza) {
+            if ($pieza->n_pieza) {
                 $numero = substr($pieza->n_pieza, 0, -1);
                 $piezaLiberadaH = Pieza::where('id_ot', $meta->id_ot)->where('id_clase', $meta->id_clase)->where('id_operador', $meta->id_usuario)->where('proceso', $proceso)->where('n_pieza', $numero . "H")->where('error', 'Ninguno')->where('liberacion', 1)->first();
                 $piezaLiberadaM = Pieza::where('id_ot', $meta->id_ot)->where('id_clase', $meta->id_clase)->where('id_operador', $meta->id_usuario)->where('proceso', $proceso)->where('n_pieza', $numero . "M")->where('error', 'Ninguno')->where('liberacion', 1)->first();
-
-                if($piezaLiberadaH && $piezaLiberadaM){
+                if ($piezaLiberadaH && $piezaLiberadaM) {
                     $piezaLiberada = true;
-                }else{
+                } else {
                     $piezaLiberada = false;
                 }
-            }else{
-                $piezaLiberada = Pieza::where('id_ot', $meta->id_ot)->where('id_clase', $meta->id_clase)->where('id_operador', $meta->id_usuario)->where('proceso', $proceso)->where('n_pieza', $pieza->n_juego)->where('error', 'Ninguno')->first();
+            } else {
+                $piezaLiberada = Pieza::where('id_ot', $meta->id_ot)->where('id_clase', $meta->id_clase)->where('id_operador', $meta->id_usuario)->where('proceso', $proceso)->where('n_pieza', $pieza->n_juego)->where('error', 'Ninguno')->where('liberacion', 1)->first();
             }
-
-            if($piezaLiberada){
-                if(substr($piezaLiberar, -1) == "H" || substr($piezaLiberar, -1) == "M"){
+            if ($piezaLiberada) {
+                if (substr($piezaLiberar, -1) == "H" || substr($piezaLiberar, -1) == "M") {
                     $numero = substr($piezaLiberar, 0, -1);
                     $piezaLiberarH = Pieza::where('id_ot', $meta->id_ot)->where('id_clase', $meta->id_clase)->where('id_operador', $meta->id_usuario)->where('proceso', $proceso)->where('n_pieza', $numero . "H")->where('error', 'Ninguno')->first();
                     $piezaLiberarM = Pieza::where('id_ot', $meta->id_ot)->where('id_clase', $meta->id_clase)->where('id_operador', $meta->id_usuario)->where('proceso', $proceso)->where('n_pieza', $numero . "M")->where('error', 'Ninguno')->first();
-                    
-                    if($piezaLiberarH && $piezaLiberarM){
+
+                    if ($piezaLiberarH && $piezaLiberarM) {
                         $piezaLiberarH->liberacion = 1;
                         $piezaLiberarH->fecha_liberacion = date('Y-m-d H:i:s');
                         $piezaLiberarH->user_liberacion = $piezaLiberadaH->user_liberacion;
@@ -411,7 +420,7 @@ class PzasLiberadasController extends Controller
                         $piezaLiberarM->save();
                         return;
                     }
-                }else{
+                } else {
                     $piezaLiberar = Pieza::where('id_ot', $meta->id_ot)->where('id_clase', $meta->id_clase)->where('id_operador', $meta->id_usuario)->where('proceso', $proceso)->where('n_pieza', $piezaLiberar)->where('error', 'Ninguno')->first();
                     $piezaLiberar->liberacion = 1;
                     $piezaLiberar->fecha_liberacion = date('Y-m-d H:i:s');
