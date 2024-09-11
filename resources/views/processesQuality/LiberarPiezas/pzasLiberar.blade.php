@@ -265,8 +265,9 @@
             @csrf
             @isset($otElegida)
                 <!-- FILTROS DE BÚSQUEDA Y RESULTADOS DE PIEZAS EN GENERAL. -->
-                <label id="title_ot">Orden de trabajo: {{$otElegida->id}} </label>
-                <label id="title_ot">Clase: {{$clase->nombre}} </label>
+                <h1>Liberación de piezas</h1>
+                <label class="title_ot">Orden de trabajo: {{$otElegida->id}} </label>
+                <label class="title_ot">Clase: {{$clase->nombre}} </label>
                 <input type="hidden" name="ot" value="{{$otElegida->id}}">
                 <input type="hidden" name="clase" value="{{$clase->id}}">
 
@@ -349,7 +350,7 @@
 
                 <button class="btns" type="submit" name="action" value="search">Buscar</button>
                 <!-- IMAGEN DE PDF -->
-                <button type="submit" name="action" value="pdf" class="btn-PDF">
+                <button type="submit" name="action" value="btn-pdf" class="btn-PDF">
                     <img src="{{ asset('images/pdf.png')}}" alt="pdf" id="pdf" class="generar_pdf">
                 </button>
                 
@@ -386,6 +387,7 @@
                             </script>
                         </table>
                     </div>
+                    <a href="{{route('vistaOTLiberar')}}" class="btn-back">Regresar</a>
                 @else
                     <div class="letrero">
                         <label class="advertence"> No hay piezas trabajadas.</label>

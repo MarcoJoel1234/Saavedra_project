@@ -84,6 +84,7 @@ form{
     width: 50%;
     border-radius: 10px;
     padding: 10px 40px;
+    margin-top: 3%;
     box-shadow: 20px 20px 80px rgb(0, 0, 0);
 }
 .casillas {
@@ -117,6 +118,11 @@ form{
     padding: 5px;
     display: flex;
     justify-content: space-between;
+}
+.sub-title{
+    margin-left: 220px;
+    font-size: 20px;
+    margin-top: 20px;
 }
 h2 {
     margin-top: 10%;
@@ -341,7 +347,6 @@ a:hover {
 }
  .lg-saavedra{
     width: 300px;
-    margin-bottom: 10%;
   }
    /* Estilo para el botón */
   #botonGuardar {

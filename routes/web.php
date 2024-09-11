@@ -33,6 +33,7 @@ use App\Http\Controllers\RevLateralesController;
 use App\Http\Controllers\SegundaOpeSoldaduraController;
 use App\Http\Controllers\SoldaduraController;
 use App\Http\Controllers\SoldaduraPTAController;
+use App\Http\Controllers\TiemposProduccionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -46,11 +47,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
 
-Route::get('/home', [HomeController::class, 'index'])->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 //Ruta para el controlador LogoutController
 Route::get('/logout', [LogoutController::class, 'logout'])->name('logout');
@@ -87,7 +85,7 @@ Route::controller(OTController::class)->group(function () {
     Route::post('/saveOT', 'store')->name('saveOT'); //Registrar OT
     Route::get('/registerClass/{ot}', 'registerClass')->name('registerClass'); //Vista registrar clase
     Route::post('/saveClass', 'saveProcess')->name('saveClass'); //Informacion sobre piezas agregadas
-    Route::get('/deleteClass/{clase}/{claseIndice}', 'deleteClass')->name('deleteClass'); //Eliminar clase
+    Route::get('/deleteClass/{clase}', 'deleteClass')->name('deleteClass'); //Eliminar clase
     Route::get('/deleteOT/{ot}', 'deleteOT')->name('deleteOT'); //Eliminar ot
     Route::get('/editClase/{clase}', 'editClass')->name('editClase'); //Editar clase
     Route::get('/clases/{ot}', 'mostrarClases')->name('mostrarClases'); //Mostrar clases
@@ -108,6 +106,13 @@ Route::controller(GestionOTController::class)->group(function () {
 
 //Ruta para ver el progreso de los procesos
 Route::get('/progresoOT', [ProgresoProcesosController::class, 'show'])->name('verProcesos');
+
+//Grupo de rutas para el controlador TiemposProduccionController
+Route::controller(TiemposProduccionController::class)->group(function(){
+    Route::get('/tiemposProduccion/{clase?}', 'show')->name('mostrarTiempos');
+    Route::post('/tiemposProduccion', 'store')->name('guardarTiempos');
+});
+
 
 //Grupo de rutas para el controlador PzasGeneralesController
 Route::controller(PzasGeneralesController::class)->group(function () {

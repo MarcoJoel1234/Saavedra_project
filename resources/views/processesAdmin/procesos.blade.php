@@ -1,4 +1,4 @@
-@extends('layouts.appAdmin')
+@extends($layout)
 @vite('resources/css/procesos.css')
 @section('content')
 <script>
@@ -526,6 +526,7 @@ class Proceso {
 </script>
 <body background="{{ asset('images/fondoLogin.jpg') }}">
 <div class="container-select">
+    <a href="{{route('procesos')}}" class="btn-back">Regresar</a>
     <div class="search">
         <img src="{{asset('/images/lg_saavedra.png')}}" alt="lg-saavedra" class="search-img">
         <form action="{{ route('verificarProceso') }}" method="post" class="form-search">
@@ -830,6 +831,11 @@ class Proceso {
         <!--Aparecer boton-->
         @if(isset($existe))
             <button class="btn" id="btn"">Guardar</button>
+            <style>
+                .btn-back{
+                    display: block;
+                }
+            </style>
         @endif
     </form>
 </div>

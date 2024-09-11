@@ -73,6 +73,7 @@
     <div class="container">
         <form action="{{route('searchPzasGenerales')}}" method="post" class="wrapper bg-white">
             @csrf
+            <h1 class="title">Reporte de piezas</h1>
             <img src="{{ asset('images/lg_saavedra.png') }}" class="logo-saa">
             <div class="selecttts">
                 @isset($arregloOT)

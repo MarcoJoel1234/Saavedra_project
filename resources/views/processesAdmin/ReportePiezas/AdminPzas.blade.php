@@ -230,8 +230,9 @@
             <input type="hidden" name="perfil" value="admin">
             @isset($otElegida)
                 <!-- FILTROS DE BÚSQUEDA Y RESULTADOS DE PIEZAS EN GENERAL. -->
-                <label id="title_ot">Orden de trabajo: {{$otElegida->id}} </label>
-                <label id="title_ot">Clase: {{$clase->nombre}} </label>
+                <h1>Reporte de piezas</h1>
+                <label class="title_ot">Orden de trabajo: {{$otElegida->id}} </label>
+                <label class="title_ot">Clase: {{$clase->nombre}} </label>
                 <input type="hidden" name="ot" value="{{$otElegida->id}}">
                 <input type="hidden" name="clase" value="{{$clase->id}}">
 
@@ -347,6 +348,7 @@
                             </script>
                         </table>
                     </div>
+                    <a href="{{route('vistaPzasGenerales')}}" class="btn-back">Regresar</a>
                 @else
                     <div class="letrero">
                         <label class="advertence"> No hay piezas trabajadas.</label>

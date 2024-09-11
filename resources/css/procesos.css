@@ -131,3 +131,24 @@ select, .ot{
     transform: scale(1.1);
     transition: 0.2s;
   }
+  /* BOTON */
+.btn-back {
+  display: none;
+  position: absolute;
+  top: 90px;
+  left: 80px;
+  padding: 15px 20px;
+  background-color: #d02600e6;
+  color: #FFFFFF;
+  text-decoration: none;
+  font-size: 20px;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease; /* Efecto de transición al pasar el mouse */
+}
+.btn-back:hover {
+  background-color: #f5a1a1;
+  color: rgb(0, 0, 0);
+  transform: scale(1.05); /* Realiza un pequeño zoom del 5% */
+}

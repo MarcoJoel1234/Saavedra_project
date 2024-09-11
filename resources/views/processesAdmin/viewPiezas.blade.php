@@ -65,7 +65,7 @@
                         let carousel_item_container = document.createElement('div');
                         carousel_item_container.className = "carousel-item-container";
                         carousel.appendChild(prevBtn);
-                        let containers = this.procesosClase[indice][this.indiCarru].length / 3;//Numero de carruseles
+                        let containers = this.procesosClase[indice][this.indiCarru][0].length / 3;//Numero de carruseles
                         let contadorElementos = [];
                         if (!Number.isInteger(containers)) {
                             containers = Math.trunc(containers) + 1;//Numero de carruseles
@@ -73,7 +73,7 @@
                             //Elementos por carrusel
                             for (let j = 0; j < containers; j++) {
                                 if (containers - j == 1) {
-                                    contadorElementos[j] = this.procesosClase[indice][this.indiCarru].length - aux;
+                                    contadorElementos[j] = this.procesosClase[indice][this.indiCarru][0].length - aux;
                                 } else {
                                         contadorElementos[j] = 3;
                                         aux += 3;
@@ -91,15 +91,23 @@
                             let carousel_item_container = document.createElement('div');
                             carousel_item_container.className = "carousel-item-container";
                             for (let j = 0; j < contadorElementos[i]; j++) {
-                                console.log(this.otArray[indice]);
                                 let carousel_item = document.createElement('div');
                                 carousel_item.className = "carousel-item item";
 
                                 //Titulo del proceso que se esta realizando
                                 let h2 = document.createElement('h2');
                                 h2.className = "title-proceso";
-                                h2.innerHTML = this.procesosClase[indice][this.indiCarru][contadorProcesos];
+                                h2.innerHTML = this.procesosClase[indice][this.indiCarru][0][contadorProcesos];
+                                // //Titulo de fecha de termino
+                                let h3 = document.createElement('h3');
+                                h3.className = "title-fecha";
+                                h3.innerHTML = "Fecha de termino:"
+                                let p = document.createElement('p');
+                                p.className = "title-fecha";
+                                p.innerHTML = this.procesosClase[indice][this.indiCarru][1][contadorProcesos];
                                 carousel_item.appendChild(h2);
+                                carousel_item.appendChild(h3);
+                                carousel_item.appendChild(p);
                                 //Barra de progreso de piezas buenas, malas y progreso de piezas
                                 for (let x = 0; x < 3; x++) {
                                     let label = document.createElement('label');
@@ -170,21 +178,42 @@
                         let div_ot = document.createElement('div');
                         div_ot.className = "div-ot";
                         let label = document.createElement('label');
-                        label.innerHTML = this.otArray[indice] + " - " + this.clases[indice][this.indiCarru];
+                        label.innerHTML = this.otArray[indice] + " - " + this.clases[indice][this.indiCarru][0];
                         label.className = "ot";
                         let moldura = document.createElement('label');
                         moldura.className = "moldura";
                         moldura.innerHTML = this.molduras[indice];
+                        
                         div_ot.appendChild(label);
                         div_ot.appendChild(moldura);
                         div1.appendChild(div_ot);
 
                         let div_pedido = document.createElement('div');
                         div_pedido.className = "div-pedido";
+
+                        // Boton para terminar pedido****************************************************
                         let btn_pedido = document.createElement('button');
                         btn_pedido.className = "btn-pedido";
                         btn_pedido.innerHTML = "Terminar pedido";
                         btn_pedido.type = "submit";
+                        div_pedido.appendChild(btn_pedido);
+
+                        // //Div para fechas de inicio y termino
+                        let div_fechas = document.createElement('div');
+                        div_fechas.className = "div-fechas";
+
+                        // //Label para agregar la fecha y hora de inicio de la moldura
+                        let fecha_ini = document.createElement('label');
+                        fecha_ini.className = "fecha-ini";
+                        fecha_ini.innerHTML = "<b>Inicio:</b><br>" + this.clases[indice][this.indiCarru][1];
+                        div_fechas.appendChild(fecha_ini);
+
+                        // //Label para agregar la fecha y hora de termino de la moldura
+                        let fecha_ter = document.createElement('label');
+                        fecha_ter.className = "fecha-ter";
+                        fecha_ter.innerHTML = "<b>Termino:</b><br>" + this.clases[indice][this.indiCarru][2];
+                        div_fechas.appendChild(fecha_ter);
+                        
                         let input_hidd = document.createElement('input');
                         input_hidd.type = "hidden";
                         input_hidd.name = "ot";
@@ -192,17 +221,18 @@
                         let input_hidd2 = document.createElement('input');
                         input_hidd2.type = "hidden";
                         input_hidd2.name = "clase";
-                        input_hidd2.value = this.clases[indice][this.indiCarru];
+                        input_hidd2.value = this.clases[indice][this.indiCarru][0];
 
                         let label1 = document.createElement('label');
                         label1.className = "piezas";
                         label1.innerHTML = this.procesos[indice][this.indiCarru][0][0] + "/" + this.pedidos[indice][this.indiCarru];
 
                         div_pedido.appendChild(label1);
-                        div_pedido.appendChild(btn_pedido);
                         div_pedido.appendChild(input_hidd);
                         div_pedido.appendChild(input_hidd2);
+                        div_pedido.appendChild(div_fechas);
                         div1.appendChild(div_pedido);
+
 
                         let div2 = document.createElement('div');
                         div2.className = "div2 item";

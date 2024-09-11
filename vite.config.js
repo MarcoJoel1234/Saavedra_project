@@ -26,6 +26,7 @@ export default defineConfig({
                 'resources/css/rectificado.css',
                 'resources/css/copiado.css',
                 'resources/css/elegirPieza.css',
+                'resources/css/tiemposProduccion.css',
             ],
             refresh: true,
         }),

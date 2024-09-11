@@ -1,3 +1,6 @@
+body{
+    background-color: rgb(220, 227, 225);
+}
 .divP{
     position: absolute;
     margin-top: 95px;
@@ -29,20 +32,22 @@
 
 /* BOTON */
 .btn-back {
-    width: 100px;
-    height: 40px;
-    margin-top: 280px;
-    padding: 10px 20px;
-    background-color: #007bffe6;
+    width: 160px;
+    height: 75px;
+    margin: 20px;
+    padding: 20px 20px;
+    background-color: #043d79e6;
     color: #FFFFFF;
-    border: none;
+    text-decoration: none;
+    font-size: 30px;
+    font-weight: bold;
     border-radius: 5px;
     cursor: pointer;
-    text-align: center;
+    transition: all 0.3s ease; /* Efecto de transición al pasar el mouse */
 }
 .btn-back:hover {
-    background-color: #0db326c3;
-    color: black;
+    background-color: #AED6F1;
+    color: rgb(0, 0, 0);
     transform: scale(1.05); /* Realiza un pequeño zoom del 5% */
 }
 

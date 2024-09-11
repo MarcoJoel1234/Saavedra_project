@@ -50,13 +50,21 @@ use Illuminate\Http\Request;
 
 class ProcesosController extends Controller
 {
+    protected $controladorPzas;
+    public function __construct()
+    {
+        $this->controladorPzas = new PzasLiberadasController();
+    }
     public function show()
     {
+        //Obtener el perfil del usuario
+        $layout = $this->controladorPzas->obtenerLayout();
         $ot = Orden_trabajo::all();
-        return view('processesAdmin.procesos', ['ot' => $ot]);
+        return view('processesAdmin.procesos', ['ot' => $ot, 'layout' => $layout]);
     }
     public function verificarProceso(Request $request)
     {
+        $layout = $this->controladorPzas->obtenerLayout();
         if (isset($request->ot)) {
             $clasesFound = Clase::where('id_ot', $request->ot)->get();
             if ($clasesFound) {
@@ -81,7 +89,7 @@ class ProcesosController extends Controller
                     }
                 }
             }
-            return view('processesAdmin.procesos', ['ot' => $request->ot, 'clases' => $clases, 'procesos' => $procesos]);
+            return view('processesAdmin.procesos', ['ot' => $request->ot, 'clases' => $clases, 'procesos' => $procesos, 'layout' => $layout]);
         } else {
             $clase = Clase::find($request->clase); //Busqueda de clase 
             switch ($request->proceso) { //Verificación de proceso.
@@ -99,7 +107,7 @@ class ProcesosController extends Controller
                             $tolerancia = new Cepillado_tolerancia(); //Creación de objeto Cepillado_tolerancia.
                             $existe = 1; //Variable para verificar existencia de datos en tablas Cepillado_cnominal y Cepillado_tolerancia.
                         } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot]); //Retorno a vista de procesos.
+                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
                         }
                     }
                     if (isset($request->cNomi_radiof_mordaza)) { //Verificación de ela existencia de datos en la tabla Cepillado_cnominal.
@@ -127,7 +135,7 @@ class ProcesosController extends Controller
                             $tolerancia = new Desbaste_tolerancia(); //Creación de objeto Desbaste_tolerancia.
                             $existe = 1; //Variable para verificar existencia de datos en tablas Desbaste_cnominal y Desbaste_tolerancia.
                         } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot]); //Retorno a vista de procesos.
+                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
                         }
                     }
                     if (isset($request->cNomi_diametro_mordaza)) { //Verificación de ela existencia de datos en la tabla Desbaste_cnominal.
@@ -153,7 +161,7 @@ class ProcesosController extends Controller
                             $tolerancia = new RevLaterales_tolerancia(); //Creación de objeto RevLaterales_tolerancia.
                             $existe = 1; //Variable para verificar existencia de datos en tablas RevLaterales_cnominal y RevLaterales_tolerancia.
                         } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot]); //Retorno a vista de procesos.
+                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
                         }
                     }
                     if (isset($request->cNomi_desfasamiento_entrada)) { //Verificación de ela existencia de datos en la tabla RevLaterales_cnominal.
@@ -179,7 +187,7 @@ class ProcesosController extends Controller
                             $tolerancia = new PrimeraOpeSoldadura_tolerancia(); //Creación de objeto 1opeSoldadura_tolerancia.
                             $existe = 1; //Variable para verificar existencia de datos en tablas 1opeSoldadura_cnominal y 1opeSoldadura_tolerancia.
                         } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot]); //Retorno a vista de procesos.
+                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
                         }
                     }
                     if (isset($request->cNomi_diametro1)) { //Verificación de ela existencia de datos en la tabla 1opeSoldadura_cnominal.
@@ -205,7 +213,7 @@ class ProcesosController extends Controller
                             $tolerancia = new BarrenoManiobra_tolerancia(); //Creación de objeto 1opeSoldadura_tolerancia.
                             $existe = 1; //Variable para verificar existencia de datos en tablas 1opeSoldadura_cnominal y 1opeSoldadura_tolerancia.
                         } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot]); //Retorno a vista de procesos.
+                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
                         }
                     }
                     if (isset($request->cNomi_profundidadBarreno)) { //Verificación de ela existencia de datos en la tabla BarrenoManiobra_cnominal.
@@ -232,7 +240,7 @@ class ProcesosController extends Controller
                             $tolerancia = new SegundaOpeSoldadura_tolerancia(); //Creación de objeto 2opeSoldadura_tolerancia.
                             $existe = 1; //Variable para verificar existencia de datos en tablas 2opeSoldadura_cnominal y 2opeSoldadura_tolerancia.
                         } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot]); //Retorno a vista de procesos.
+                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
                         }
                     }
                     if (isset($request->cNomi_diametro1)) { //Verificación de ela existencia de datos en la tabla 2opeSoldadura_cnominal.
@@ -258,7 +266,7 @@ class ProcesosController extends Controller
                             $tolerancia = new revCalificado_tolerancia(); //Creación de objeto RevCalificado_tolerancia.
                             $existe = 1; //Variable para verificar existencia de datos en tablas RevCalificado_cnominal y RevCalificado_tolerancia.
                         } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot]); //Retorno a vista de procesos.
+                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
                         }
                     }
                     if (isset($request->cNomi_diametro_ceja)) { //Verificación de ela existencia de datos en la tabla RevCalificado_cnominal.
@@ -284,7 +292,7 @@ class ProcesosController extends Controller
                             $tolerancia = new AcabadoBombilo_tolerancia(); //Creación de objeto AcabadoBombillo_tolerancia.
                             $existe = 1; //Variable para verificar existencia de datos en tablas AcabadoBombillo_cnominal y AcabadoBombillo_tolerancia.
                         } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot]); //Retorno a vista de procesos.
+                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
                         }
                     }
                     if (isset($request->cNomi_diametro_mordaza)) { //Verificación de ela existencia de datos en la tabla AcabadoBombillo_cnominal.
@@ -310,7 +318,7 @@ class ProcesosController extends Controller
                             $tolerancia = new AcabadoMolde_tolerancia(); //Creación de objeto AcabadoMolde_tolerancia.
                             $existe = 1; //Variable para verificar existencia de datos en tablas AcabadoMolde_cnominal y AcabadoMolde_tolerancia.
                         } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot]); //Retorno a vista de procesos.
+                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
                         }
                     }
                     if (isset($request->cNomi_diametro_mordaza)) { //Verificación de ela existencia de datos en la tabla AcabadoMolde_cnominal.
@@ -336,7 +344,7 @@ class ProcesosController extends Controller
                             $tolerancia = new BarrenoProfundidad_tolerancia(); //Creación de objeto barrenoProfundidad_tolerancia.
                             $existe = 1; //Variable para verificar existencia de datos en tablas barrenoProfundidad_cnominal y barrenoProfundidad_tolerancia.
                         } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot]); //Retorno a vista de procesos.
+                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
                         }
                     }
                     if (isset($request->cNomi_broca1)) { //Verificación de ela existencia de datos en la tabla barrenoProfundidad_cnominal.
@@ -358,7 +366,7 @@ class ProcesosController extends Controller
                             $tolerancia = new Cavidades_tolerancia(); //Creación de objeto Cavidades_tolerancia.
                             $existe = 1; //Variable para verificar existencia de datos en tablas Cavidades_cnominal y Cavidades_tolerancia.
                         } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot]); //Retorno a vista de procesos.
+                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
                         }
                     }
                     if (isset($request->cNomi_profundidad1)) { //Verificación de ela existencia de datos en la tabla Cavidades_cnominal.
@@ -381,7 +389,7 @@ class ProcesosController extends Controller
                                 $tolerancia = new Copiado_tolerancia(); //Creación de objeto copiado_tolerancia.
                                 $existe = 1; //Variable para verificar existencia de datos en tablas copiado_cnominal y copiado_tolerancia.
                             } else {
-                                return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'subproceso' => $request->subproceso]); //Retorno a vista de procesos.
+                                return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'subproceso' => $request->subproceso, 'layout' => $layout]); //Retorno a vista de procesos.
                             }
                         }
                         if (isset($request->cNomi_diametro1_cilindrado)) { //Verificación de ela existencia de datos en la tabla copiado_cnominal.
@@ -397,7 +405,7 @@ class ProcesosController extends Controller
                                 $tolerancia = new Copiado_tolerancia(); //Creación de objeto copiado_tolerancia.
                                 $existe = 1; //Variable para verificar existencia de datos en tablas copiado_cnominal y copiado_tolerancia.
                             } else {
-                                return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'subproceso' => $request->subproceso]); //Retorno a vista de procesos.
+                                return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'subproceso' => $request->subproceso, 'layout' => $layout]); //Retorno a vista de procesos.
                             }
                         }
                         if (isset($request->cNomi_diametro1_cavidades)) { //Verificación de ela existencia de datos en la tabla copiado_cnominal.
@@ -420,7 +428,7 @@ class ProcesosController extends Controller
                             $tolerancia = new OffSet_tolerancia(); //Creación de objeto OffSet_tolerancia.
                             $existe = 1; //Variable para verificar existencia de datos en tablas OffSet_cnominal y OffSet_tolerancia.
                         } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot]); //Retorno a vista de procesos.
+                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
                         }
                     }
                     if (isset($request->cNomi_anchoRanura)) { //Verificación de ela existencia de datos en la tabla OffSet_cnominal.
@@ -442,7 +450,7 @@ class ProcesosController extends Controller
                             $tolerancia = new Palomas_tolerancia(); //Creación de objeto Palomas_tolerancia.
                             $existe = 1; //Variable para verificar existencia de datos en tablas Palomas_cnominal y Palomas_tolerancia.
                         } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot]); //Retorno a vista de procesos.
+                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
                         }
                     }
                     if (isset($request->cNomi_ancho_paloma)) { //Verificación de ela existencia de datos en la tabla Palomas_cnominal.
@@ -464,7 +472,7 @@ class ProcesosController extends Controller
                             $tolerancia = new Rebajes_tolerancia(); //Creación de objeto Rebajes_tolerancia.
                             $existe = 1; //Variable para verificar existencia de datos en tablas Rebajes_cnominal y Palomas_tolerancia.
                         } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot]); //Retorno a vista de procesos.
+                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
                         }
                     }
                     if (isset($request->cNomi_rebaje1)) { //Verificación de ela existencia de datos en la tabla Rebajes_cnominal.
@@ -486,7 +494,7 @@ class ProcesosController extends Controller
                             $tolerancia = new PySOpeSoldadura_tolerancia(); //Creación de objeto 1y2opeSoldadura__tolerancia.
                             $existe = 1; //Variable para verificar existencia de datos en tablas 1y2opeSoldadura__cnominal y 1y2opeSoldadura__tolerancia.
                         } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'operacion' => $request->operacion]); //Retorno a vista de procesos.
+                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'operacion' => $request->operacion, 'layout' => $layout]); //Retorno a vista de procesos.
                         }
                     }
                     if (isset($request->cNomi_altura)) { //Verificación de ela existencia de datos en la tabla 1y2opeSoldadura__cnominal.
@@ -512,7 +520,7 @@ class ProcesosController extends Controller
                             $tolerancia = new EmbudoCM_tolerancias(); //Creación de objeto Rebajes_tolerancia.
                             $existe = 1; //Variable para verificar existencia de datos en tablas Rebajes_cnominal y Palomas_tolerancia.
                         } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot]); //Retorno a vista de procesos.
+                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
                         }
                     }
                     if (isset($request->cNomi_conexion_lineaPartida)) { //Verificación de ela existencia de datos en la tabla Rebajes_cnominal.
@@ -522,7 +530,7 @@ class ProcesosController extends Controller
                     $operacion = 0;
                     break;
             }
-            return view('processesAdmin.procesos', ['cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'subproceso' => $subproceso, 'operacion' => $operacion]); //Retorno a vista de procesos.
+            return view('processesAdmin.procesos', ['cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'subproceso' => $subproceso, 'operacion' => $operacion, 'layout' => $layout]); //Retorno a vista de procesos.
         }
     }
     public function convertirString($procesos)

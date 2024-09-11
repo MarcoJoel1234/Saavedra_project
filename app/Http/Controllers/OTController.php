@@ -14,6 +14,7 @@ use App\Models\Clase;
 use App\Models\Copiado;
 use App\Models\DesbasteExterior;
 use App\Models\EmbudoCM;
+use App\Models\Fecha_proceso;
 use App\Models\Maquinas;
 use App\Models\Metas;
 use App\Models\Moldura;
@@ -31,8 +32,10 @@ use App\Models\RevLaterales;
 use App\Models\SegundaOpeSoldadura;
 use App\Models\Soldadura;
 use App\Models\SoldaduraPTA;
+use App\Models\tiempoproduccion;
 use App\Models\User;
 use Carbon\Carbon;
+use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
@@ -66,11 +69,7 @@ class OTController extends Controller
         if (count($piezas) == 0 && count($meta) == 0) { //Si la OT no tiene piezas ni metas asociadas entonces
             $clase = Clase::where('id_ot', $ot)->get(); //Busco todas las clases que pertenecen a la OT
             foreach ($clase as $clase) { //Recorro las clases de la OT
-                $proceso = Procesos::where('id_clase', $clase->id)->first();
-                if ($proceso) {
-                    Procesos::find($proceso->id)->delete(); //Elimino el proceso de la clase                    
-                }
-                Clase::find($clase->id)->delete(); //Elimino la clase de la OT                
+                $this->deleteClass($clase->id); //Elimino las clases
             }
             Orden_trabajo::find($ot)->delete(); //Elimino la OT
             return redirect()->route('registerOT')->with('success', '¡Orden de trabajo eliminada con éxito!'); //Redirecciono a la vista de registro de la OT
@@ -87,7 +86,7 @@ class OTController extends Controller
         //Si la orden de trabajo existe.
         if ($ot) {
             $moldura = Moldura::find($request->id_moldura);
-            //Si el usuario ingreso datos una clase.
+            //Si el usuario ingreso datos de una clase.
             if (isset($request->clase)) {
                 $clase = Clase::where('id_ot', $request->ot)->where('nombre', $request->clase)->first(); //Busco la clase.
                 if (!$clase) { //Si la clase no existe.
@@ -111,16 +110,20 @@ class OTController extends Controller
                 $proceso = Procesos::where('id_clase', $clase->id)->first(); //Busco la clase.
                 if ($proceso) {
                     // Obtener los campos donde el valor es igual a 1
-                    $camposConValorUno = [];
-                    $contador = 0; //Contador para los campos
+                    $camposConValor = [];
+                    $maquinas = []; //Guardo las máquinas que se utilizaron en el proceso
+                    $contador = 0;
                     foreach ($proceso->getAttributes() as $campo => $valor) { //Recorro los campos.
-                        if ($valor == 1) { //Si el valor es igual a 1.
-                            $camposConValorUno[$contador] = $campo; //Guardo los campos.
-                            $contador++;
+                        if ($campo != "id" && $campo != "id_clase") {
+                            if ($valor != 0) { //Si el valor es diferente de 0
+                                $camposConValor[$contador] = $campo; //Guardo los campos.
+                                $maquinas[$contador] = $valor;
+                                $contador++;
+                            }
                         }
                     }
                     $clasesEncontradas = Clase::where('id_ot', $request->ot)->get(); //Busco la clase.
-                    return view('processesAdmin.RegistrarOT.infoOT', ['ot' => $ot->id, 'moldura' => $moldura, 'clase' => $clase, 'proceso' => $camposConValorUno, 'clases' => $clasesEncontradas]); //Redirecciono a la vista de registro de OT.
+                    return view('processesAdmin.RegistrarOT.infoOT', ['ot' => $ot->id, 'moldura' => $moldura, 'clase' => $clase, 'proceso' => $camposConValor, 'maquinas' => $maquinas, 'clases' => $clasesEncontradas]); //Redirecciono a la vista de editar de OT.
                 } else {
                     $clasesEncontradas = Clase::where('id_ot', $request->ot)->get(); //Busco la clase.
                     return view('processesAdmin.RegistrarOT.infoOT', ['ot' => $ot->id, 'moldura' => $moldura, 'clase' => $clase, 'clases' => $clasesEncontradas]); //Redirecciono a la vista de registro de OT.
@@ -154,14 +157,19 @@ class OTController extends Controller
         $clasesEncontradas = Clase::where('id_ot', $ot)->get(); //Busco la clase.
         return view('processesAdmin.RegistrarOT.registrarOT', ['ot' => $ot, 'moldura' => $moldura, 'clasesEncontradas' => $clasesEncontradas]); //Redirecciono a la vista de registro de OT.
     }
-    public function deleteClass($clase, $claseIndice)
+    public function deleteClass($clase)
     {
         $clase = Clase::find($clase);
-        $claseIndice = Clase::find($claseIndice);
         $proceso = Procesos::where('id_clase', $clase->id)->first();
         //Si el proceso existe.
         if ($proceso) {
             $proceso->delete(); //Elimino el proceso de la clase
+            $fechasProcesos = Fecha_proceso::where('clase', $clase->id)->get();
+            if (count($fechasProcesos) > 0) {
+                foreach ($fechasProcesos as $fecha) {
+                    $fecha->delete();
+                }
+            }
         }
         $ot = $clase->id_ot; //Busco la OT ingresada.
         $ot = Orden_trabajo::find($ot); //Busco la OT ingresada
@@ -328,6 +336,8 @@ class OTController extends Controller
         //Almacenar los valores en la base de datos
         $contadorMaquinas = 0;
         $proceso->id_clase = $clase->id;
+
+        //Implementar una forma mas agil para hacer este proceso
         $proceso->cepillado = 0;
         $proceso->desbaste_exterior = 0;
         $proceso->revision_laterales = 0;
@@ -350,17 +360,170 @@ class OTController extends Controller
         $proceso->grabado = 0;
         $proceso->operacionEquipo = 0;
         $proceso->embudoCM = 0;
+
+        $noProceso = 0;
         for ($i = 0; $i < count($procesos); $i++) {
             if (in_array($procesos[$i], $procesosData)) {
-                $string = $procesos[$i]; //Asigno el nombre del proceso.   
+                $string = $procesos[$i]; //Asigno el nombre del proceso.
+                //Asigno el valor de la máquina al campo correspondiente del proceso
                 $proceso->$string = $maquinas[$contadorMaquinas];
                 $contadorMaquinas++;
+
+                //***IMPLEMENTAR FUNCION PARA CREAR REGISTRO EM LA TABLA fechas_procesos***/
+                $procesoFechas = $this->crearRegistroFechaProceso($clase, $procesos, $i, $noProceso, $maquinas[$contadorMaquinas - 1]);
+                $noProceso++;
             } else {
                 $string = $procesos[$i]; //Asigno el nombre del proceso.   
                 $proceso->$string = 0;
             }
         }
+        //Guardar unicamente la fecha de termino
+        $clase->fecha_termino = $procesoFechas->fecha_fin->format('Y-m-d');
+        $clase->hora_termino = $procesoFechas->fecha_fin->format('H:i:s');
+        $clase->save();
         $proceso->save(); //Guardo los cambios.
+    }
+    public function crearRegistroFechaProceso($clase, $procesos, $i, $noProceso, $maquinas)
+    {
+        $procesoExistente = Fecha_proceso::where('clase', $clase->id)->where('proceso', $procesos[$i])->first();
+        if ($procesoExistente) {
+            $procesoExistente->delete();
+        }
+        $nuevoProceso = new Fecha_proceso();
+        $nuevoProceso->clase = $clase->id;
+        $nuevoProceso->proceso = $procesos[$i];
+
+        $fechaInicio = $this->calcularFechaInicio($clase, $procesos, $i, $noProceso);
+        $nuevoProceso->fecha_inicio = $fechaInicio;
+        $nuevoProceso->fecha_fin = $this->calcularFechaTermino($clase, $procesos[$i], $i, $maquinas, $fechaInicio);
+        $nuevoProceso->save();
+        return $nuevoProceso;
+    }
+    public function calcularFechaInicio($clase, $procesos, $i, $noProceso)
+    {
+        $fechaInicio = "";
+        $clases = ["Bombillo", "Molde", "Corona"];
+        $fechaInicio = $clase->fecha_inicio . " " . $clase->hora_inicio;
+        $fechaInicio = new DateTime($fechaInicio);
+        if ((in_array($clase->nombre, $clases) && $procesos[$i] == "cepillado") || (!in_array($clase->nombre, $clases) && $procesos[$i] == "operacionEquipo")) {
+        } else {
+            if($this->juegosPorMaqTurn($i, $clase) != 0){
+                for ($i = 0; $i < $noProceso; $i++) {
+                    $fecha = new DateTime($fechaInicio->format('Y-m-d H:i:s'));
+                    $fecha->modify("+1 hours");
+                    if ($fecha->format('H') >= 22) {
+                        $fechaInicio->modify("+1 days");
+                        $fechaInicio->setTime(6, $fechaInicio->format('i'), 0);
+                    } else if ($fecha->format('H') >= 19 && $fecha->format('l') == "Saturday") {
+                        $fechaInicio->modify("+2 days");
+                        $fechaInicio->setTime(6, $fechaInicio->format('i'), 0);
+                    } else {
+                        $fechaInicio->modify("1 hours");
+                    }
+                }
+            }else{
+                $contador = 1;
+                do{
+                    $proceso = Fecha_proceso::where('clase', $clase->id)->where('proceso', $procesos[$i-$contador])->first();
+                    $contador++;
+                }while($proceso == null);
+                $fechaInicio = new DateTime($proceso->fecha_fin);
+            }
+        }
+        return $fechaInicio;
+    }
+    public function calcularFechaTermino($clase, $proceso, $i, $maquinas, $fecha)
+    {
+        $fechaInicio = new DateTime($fecha->format('Y-m-d H:i:s'));
+
+        // echo "Proceso: " . $proceso . "<br>";
+        // echo "Pedido: " . $clase->pedido . "<br>";
+
+        //Calcular los dias que tarda en maquinar el proceso
+        $diasMaq = $this->calcularDiasMaquinar($clase, $i, $maquinas);
+
+        // echo "Dias maquinar: " . $diasMaq . "<br>";
+
+        //Convertir los dias a horas y minutos
+        $tiempo = $this->convertirDiasMaqAHoras($diasMaq);
+        $horas = $tiempo[0];
+        $minutos = $tiempo[1];
+        //Sumar horas y minutos
+        $fecha_termino = $this->sumarHrsMnts($fechaInicio, $horas, $minutos);
+
+        // echo "Horas: " . $horas . " Minutos: " . $minutos . "<br>";
+        // echo "Fecha inicio: " . $fecha->format('l') . " " . $fecha->format('Y-m-d H:i:s') . "<br>";
+        // echo "Fecha termino: " . $fecha_termino->format('l') . " " . $fecha_termino->format('Y-m-d H:i:s') . "<br>";
+
+        return $fecha_termino;
+    }
+    public function calcularDiasMaquinar($clase, $i, $maquinas)
+    {
+        $juegosTurn = $maquinas * $this->juegosPorMaqTurn($i, $clase);
+        $juegosDia = $juegosTurn * 2;
+        if ($juegosDia != 0) {
+            $diasMaq = $clase->pedido / $juegosDia;
+            $diasMaq = floor($diasMaq * 100) / 100; //Tomar solo dos numeros despues del punto y redondearlo
+        } else {
+            $diasMaq = 0;
+        }
+        return $diasMaq;
+    }
+    public function convertirDiasMaqAHoras($diasMaq)
+    {
+        $tiempoMaq = $diasMaq * 16;
+        $hrsMaq = (int)$tiempoMaq;
+        $mntsMaq = round($tiempoMaq - $hrsMaq, 2) * 100;
+        if ($mntsMaq >= 60) {
+            $hrsMaq++;
+            $mntsMaq -= 60;
+        }
+        return [$hrsMaq, $mntsMaq];
+    }
+    public function sumarHrsMnts($fecha, $horas, $minutos)
+    {
+        while ($horas != 0) {
+            if ($minutos >= 60) {
+                $horas++;
+                $minutos -= 60;
+            }
+            if ($fecha->format('H') == 21) {
+                if ($fecha->format('i') > 0) {
+                    $mntosSobrantes = 60 - $fecha->format('i');
+                    $minutos += $mntosSobrantes;
+                }
+                $fecha->modify("+1 days");
+                $horas--;
+                $fecha->setTime(6, 0, 0);
+            } else if ($fecha->format('H') == 18 && $fecha->format('l') == "Saturday") {
+                if ($fecha->format('i') > 0) {
+                    $mntosSobrantes = 60 - $fecha->format('i');
+                    $minutos += $mntosSobrantes;
+                }
+                $horas--;
+                $fecha->modify("+2 days");
+                $fecha->setTime(6, 0, 0);
+            } else {
+                $horas--;
+                $fecha->modify("+1 hours");
+            }
+        }
+        if ($minutos > 0) {
+            $fecha->modify("+{$minutos} minutes");
+        }
+        return $fecha;
+    }
+    public function juegosPorMaqTurn($i, $clase)
+    {
+        $procesos = ["cepillado", "desbaste", "revLaterales", "primeraOpeSoldadura", "barrenoManiobra", "segundaOpeSoldadura", "soldadura", "soldaduraPTA", "rectificado", "asentado", "revCalificado", "acabadoBombillo", "acabadoMolde", "barrenoProfundidad", "cavidades", "copiado", "offset", "palomas", "rebajes"];
+
+        $juegos = 0;
+        $t_estandar = tiempoproduccion::where('clase', $clase->nombre)->where('proceso', $procesos[$i])->where('tamanio', $clase->tamanio)->first();
+        if($t_estandar && $t_estandar->tiempo != 0){
+            $juegos = 420 / $t_estandar->tiempo;
+            $juegos = floor($juegos * 10) / 10;
+        }
+        return $juegos;
     }
     public function saveHeader(Request $request)
     {
@@ -1106,174 +1269,13 @@ class OTController extends Controller
     public function AsignarDatos_Meta($meta, $hrsTrabajadas, $ot, $reqClase, $proceso) //Función para asignar los datos de la meta.
     {
         $clase = Clase::where('id_ot', $ot->id)->where('nombre', $reqClase)->first(); //Busco la clase.
-        $meta->id_clase = $clase->id; //Asigno los datos de la OT.
-        switch ($proceso) {
-                //Asignacion de tiempos estandar.
-            case "cepillado":
-                $meta->t_estandar = $this->asignarMetas($clase, 52, 60, 90, 53, 64, 120,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
-                break;
-            case "desbaste":
-                $meta->t_estandar = $this->asignarMetas($clase, 26, 30, 35, 26, 30, 35,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
-                break;
-            case "revLaterales":
-                $meta->t_estandar = $this->asignarMetas($clase, 20, 24, 26, 20, 24, 26,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
-                break;
-            case "primeraOpeSoldadura":
-                $meta->t_estandar = $this->asignarMetas($clase, 24, 28, 30, 20, 24, 26,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
-                break;
-            case "barrenoManiobra":
-                $meta->t_estandar = $this->asignarMetas($clase, 15, 15, 15, 15, 15, 15,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
-                break;
-            case "segundaOpeSoldadura":
-                $meta->t_estandar = $this->asignarMetas($clase, 24, 28, 28, 24, 28, 30,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
-                break;
-            case "soldadura":
-                $meta->t_estandar = $this->asignarMetas($clase, 24, 30, 34,  24, 30, 70,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
-                break;
-            case "soldaduraPTA":
-                $meta->t_estandar = $this->asignarMetas($clase, 24, 30, 34,  24, 30, 70,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
-                break;
-            case "rectificado":
-                $meta->t_estandar = $this->asignarMetas($clase, 12, 13, 14,  12, 13, 20,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
-                break;
-            case "asentado":
-                $meta->t_estandar = $this->asignarMetas($clase, 20, 24, 30,  20, 24, 30,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
-                break;
-            case 'revCalificado':
-                $meta->t_estandar = $this->asignarMetas($clase, 22, 24, 26,  22, 24, 26,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
-                break;
-            case 'acabadoBombillo':
-                $meta->t_estandar = $this->asignarMetas($clase, 25, 27, 28,  0, 0, 0,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
-                break;
-            case 'acabadoMolde':
-                $meta->t_estandar = $this->asignarMetas($clase, 0, 0, 0,  24, 26, 30,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
-                break;
-            case 'barrenoProfundidad':
-                $meta->t_estandar = $this->asignarMetas($clase, 0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
-                break;
-            case 'cavidades':
-                $meta->t_estandar = $this->asignarMetas($clase, 0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
-                break;
-            case 'copiado':
-                $meta->t_estandar = $this->asignarMetas($clase, 27, 29, 0,  0, 0, 0,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
-                break;
-            case 'offSet':
-                $meta->t_estandar = $this->asignarMetas($clase, 16, 16, 0,  0, 0, 0,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
-                break;
-            case 'palomas':
-                $meta->t_estandar = $this->asignarMetas($clase, 12, 12, 0,  0, 0, 0,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
-                break;
-            case 'rebajes':
-                $meta->t_estandar = $this->asignarMetas($clase, 20, 20, 0,  0, 0, 0,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
-                break;
-            case "pysOpeSoldadura":
-                $meta->t_estandar = $this->asignarMetas($clase, 20, 20, 20,  24, 24, 24,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
-                break;
-            case "embudoCM":
-                $meta->t_estandar = $this->asignarMetas($clase, 0, 0, 0,  0, 0, 0,  0, 0, 0,  0, 0,  0, 0, 0,  0, 0, 0, 0, 0, 0);
-                break;
-        }
-        if ($meta->t_estandar != 0) {
-            $meta->meta = $this->calcularMeta($meta->t_estandar, $hrsTrabajadas); //Se calcula la meta.
-        } else {
-            $meta->meta = 0;
-        }
+        $meta->id_clase = $clase->id;
+
+        $tiempo = tiempoproduccion::where('clase', $clase->nombre)->where('tamanio', $clase->tamanio)->where('proceso', $proceso)->first();
+        $meta->t_estandar = $tiempo->tiempo ?? 0;
+        $meta->meta = $this->calcularMeta($meta->t_estandar, $hrsTrabajadas) ?? 0; //Se calcula la meta.
 
         $meta->save();
         return $clase; //Se retorna la clase.
-    }
-    public function asignarMetas($clase, $b1, $b2, $b3,  $m1, $m2, $m3,  $c1, $c2, $c3, $s1, $s2, $e1, $e2, $e3, $p1, $p2, $p3, $f1, $f2, $f3) //Función para asignar los tiempos estándar.
-    {
-        switch ($clase->nombre) { //Switch para asignar el tiempo estandar.
-            case "Bombillo":
-                switch ($clase->tamanio) { //Asigno el tiempo estandar.
-                    case "Chico":
-                        $t_estantar = $b1; //Asigno el tiempo estandar.    
-                        break;
-                    case "Mediano":
-                        $t_estantar = $b2; //Asigno el tiempo estandar.
-                        break;
-                    case "Grande":
-                        $t_estantar = $b3; //Asigno el tiempo estandar.
-                        break;
-                }
-                break;
-            case "Molde":
-                switch ($clase->tamanio) { //Asigno el tiempo estandar.
-                    case "Chico":
-                        $t_estantar = $m1; //Asigno el tiempo estandar.
-                        break;
-                    case "Mediano":
-                        $t_estantar = $m2; //Asigno el tiempo estandar.
-                        break; //Asigno el tiempo estandar.
-                    case "Grande":
-                        $t_estantar = $m3; //Asigno el tiempo estandar.
-                        break; //Asigno el tiempo estandar.
-                }
-                break;
-            case "Corona":
-                switch ($clase->tamanio) { //Asigno el tiempo estandar.
-                    case "Chico":
-                        $t_estantar = $c1; //Asigno el tiempo estandar.
-                        break;
-                    case "Mediano":
-                        $t_estantar = $c2; //Asigno el tiempo estandar.
-                        break; //Asigno el tiempo estandar.
-                    case "Grande":
-                        $t_estantar = $c3; //Asigno el tiempo estandar.
-                        break; //Asigno el tiempo estandar.
-                }
-                break;
-            case "Obturador":
-                switch ($clase->seccion) { //Asigno el tiempo estandar.
-                    case 1:
-                        $t_estantar = $s1; //Asigno el tiempo estandar.
-                        break;
-                    case 2:
-                        $t_estantar = $s2; //Asigno el tiempo estandar.
-                        break; //Asigno el tiempo estandar.
-                }
-                break;
-            case "Plato":
-                switch ($clase->tamanio) { //Asigno el tiempo estandar.
-                    case "Chico":
-                        $t_estantar = $p1; //Asigno el tiempo estandar.
-                        break;
-                    case "Mediano":
-                        $t_estantar = $p2; //Asigno el tiempo estandar.
-                        break; //Asigno el tiempo estandar.
-                    case "Grande":
-                        $t_estantar = $p3; //Asigno el tiempo estandar.
-                        break; //Asigno el tiempo estandar.
-                }
-                break;
-            case "Embudo":
-                switch ($clase->tamanio) { //Asigno el tiempo estandar.
-                    case "Chico":
-                        $t_estantar = $e1; //Asigno el tiempo estandar.
-                        break;
-                    case "Mediano":
-                        $t_estantar = $e2; //Asigno el tiempo estandar.
-                        break; //Asigno el tiempo estandar.
-                    case "Grande":
-                        $t_estantar = $e3; //Asigno el tiempo estandar.
-                        break; //Asigno el tiempo estandar.
-                }
-                break;
-            case "Fondo":
-                switch ($clase->tamanio) { //Asigno el tiempo estandar.
-                    case "Chico":
-                        $t_estantar = $f1; //Asigno el tiempo estandar.
-                        break;
-                    case "Mediano":
-                        $t_estantar = $f2; //Asigno el tiempo estandar.
-                        break; //Asigno el tiempo estandar.
-                    case "Grande":
-                        $t_estantar = $f3; //Asigno el tiempo estandar.
-                        break; //Asigno el tiempo estandar.
-                }
-                break;
-        }
-        return $t_estantar; //Retorno el tiempo estandar.
     }
 }

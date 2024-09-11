@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Máquinas por proceso</title>
+    <title>Piezas en máquinas</title>
     @vite('resources/css/maquinas.css')
     <link rel="stylesheet" href="{{asset('bootstrap/css/bootstrap.min.css')}}">
 </head>
@@ -73,6 +73,7 @@
     <div class="container">
         <form action="{{route('showMachinesProcess')}}" method="post" class="wrapper bg-white">
             @csrf
+            <h1 class="title">Piezas en máquinas</h1>
             <img src="{{ asset('images/lg_saavedra.png') }}" class="logo-saa">
             <div class="selecttts">
                 @isset($arregloOT)

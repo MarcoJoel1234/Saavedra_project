@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Clase;
+use App\Models\Fecha_proceso;
 use App\Models\Metas;
 use App\Models\Moldura;
 use App\Models\Orden_trabajo;
@@ -11,6 +12,7 @@ use App\Models\Procesos;
 use App\Models\PySOpeSoldadura;
 use App\Models\PySOpeSoldadura_pza;
 use App\Models\User;
+use DateTime;
 use Illuminate\Http\Request;
 
 class GestionOTController extends Controller
@@ -57,22 +59,41 @@ class GestionOTController extends Controller
                         //Piezas buenas, malas y totales de cada proceso
                         $procesosClase = Procesos::where('id_clase', $clase->id)->first();
                         if ($procesosClase) {
-                            $clases[$i][$contador] = $clase->nombre;
+                            $clases[$i][$contador][0] = $clase->nombre;
+                            $clases[$i][$contador][1] = $clase->fecha_inicio . " " . $clase->hora_inicio;
+                            $clases[$i][$contador][1] = $this->obtenerStringFecha($clase->fecha_inicio, $clase->hora_inicio);
+                            if ($clase->fecha_termino == null) {
+                                $clases[$i][$contador][2] = "-";
+                            } else {
+                                $clases[$i][$contador][2] = $this->obtenerStringFecha($clase->fecha_termino, $clase->hora_termino);
+                            }
                             $pedidos[$i][$contador] = $clase->pedido;
                             $procesosClase = $procesosClase->toArray();
                             $camposNoCero = array_filter($procesosClase, function ($valor) {
                                 return $valor != 0;
                             });
-                            $procesosClases[$i][$contador] = array();
+                            $procesosClases[$i][$contador][0] = array();
                             foreach (array_keys($camposNoCero) as $nombreCampo) {
-                                array_push($procesosClases[$i][$contador], $nombreCampo);
+                                array_push($procesosClases[$i][$contador][0], $nombreCampo);
                             }
-                            array_splice($procesosClases[$i][$contador], 0, 2);
-                            for ($j = 0; $j < count($procesosClases[$i][$contador]); $j++) {
-                                switch ($procesosClases[$i][$contador][$j]) {
+                            array_splice($procesosClases[$i][$contador][0], 0, 2);
+                            for ($j = 0; $j < count($procesosClases[$i][$contador][0]); $j++) {
+                                //Prueba de datos para agregar fecha y hora
+                                $fechaTermino = Fecha_proceso::where('clase', $clase->id)->where('proceso', $procesosClases[$i][$contador][0][$j])->first();
+                                if ($fechaTermino) {
+                                    $fechaTForma = new DateTime($fechaTermino->fecha_fin);
+                                    $fechaTForma = $fechaTForma->format('d-m-Y');
+
+                                    $horaTForma = new DateTime($fechaTermino->fecha_fin);
+                                    $horaTForma = $horaTForma->format('H:i:s');
+                                    $procesosClases[$i][$contador][1][$j] = $this->obtenerStringFecha($fechaTForma, $horaTForma);
+                                }else{
+                                    $procesosClases[$i][$contador][1][$j] = "No terminado";
+                                }
+
+                                switch ($procesosClases[$i][$contador][0][$j]) {
                                     case 'operacionEquipo':
                                         $juegosP = array();
-
                                         $proceso1 = PySOpeSoldadura::where('id_ot', $otArray[$i])->where('id_proceso', "1y2opeSoldadura_" . $clase->nombre . "_" . $otArray[$i] . '_1')->first();
                                         $proceso2 = PySOpeSoldadura::where('id_ot', $otArray[$i])->where('id_proceso', "1y2opeSoldadura_" . $clase->nombre . "_" . $otArray[$i] . '_2')->first();
 
@@ -237,14 +258,14 @@ class GestionOTController extends Controller
                                         $procesos[$i][$contador][$j][2] = $pzasTotales;
                                         break;
                                     default:
-                                        $proceso = $this->nombreProceso($procesosClases[$i][$contador][$j]);
+                                        $proceso = $this->nombreProceso($procesosClases[$i][$contador][0][$j]);
                                         $array = $this->obtenerPiezasBM($otArray[$i], $clase->id, $proceso, $infoPzMala[$i][$contador]);
                                         $procesos[$i][$contador][$j][0] = $array[0]; //Piezas buenas
                                         $procesos[$i][$contador][$j][1] = $array[1]; //Piezas malas
                                         $procesos[$i][$contador][$j][2] = $array[2]; //Piezas totales
                                         break;
                                 }
-                                $procesosClases[$i][$contador][$j] = $this->nombreProceso($procesosClases[$i][$contador][$j]);
+                                $procesosClases[$i][$contador][0][$j] = $this->nombreProceso($procesosClases[$i][$contador][0][$j]);
                             }
                             $contador++;
                         }
@@ -254,6 +275,44 @@ class GestionOTController extends Controller
             }
         }
         return view('processesAdmin.viewPiezas');
+    }
+    public function obtenerStringFecha($fecha, $hora)
+    {
+        $fechaFormat = new DateTime($fecha);
+        $fechaFormat = $fechaFormat->format('d-m-Y');
+
+        //Establecer la fecha en español
+        $nombreDia = new DateTime($fecha);
+        $nombreDia = $nombreDia->format('l');
+
+        switch ($nombreDia) {
+            case "Monday":
+                $nombreDia = "Lunes";
+                break;
+            case "Tuesday":
+                $nombreDia = "Martes";
+                break;
+            case "Wednesday":
+                $nombreDia = "Miercoles";
+                break;
+            case "Thursday":
+                $nombreDia = "Jueves";
+                break;
+            case "Friday":
+                $nombreDia = "Viernes";
+                break;
+            case "Saturday":
+                $nombreDia = "Sabado";
+                break;
+            case "Sunday":
+                $nombreDia = "Domingo";
+                break;
+        }
+
+        $horaFormateada = new DateTime($hora);
+        $horaFormateada = $horaFormateada->format('H:i:s A');
+
+        return $nombreDia . " " . $fechaFormat . " " . $horaFormateada;
     }
     public function savePzasMalas($pzaMala, $contador, $i, &$infoPzMala)
     {
@@ -336,7 +395,7 @@ class GestionOTController extends Controller
         $juegosRegistrados = array();
         $pBuenas = array();
         $pMalas = array();
-        $pzasTotales = 0;   
+        $pzasTotales = 0;
         $pProceso = Pieza::where("proceso", $proceso)->where('id_ot', $ot)->where('id_clase', $clase)->get();
 
         if (count($pProceso) > 0) {

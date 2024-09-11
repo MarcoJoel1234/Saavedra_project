@@ -120,7 +120,7 @@ class PzasGeneralesController extends Controller
     {
         $array = array();
         $infoPiezas = array();
-        $otElegida = Orden_trabajo::find($datosPiezas["ot"]);
+        $otElegida = Orden_trabajo::find($datosPiezas["ot"]); 
         $clase = Clase::find($datosPiezas["clase"]);
         $operadores = $this->getOperadores($otElegida->id);
         $maquina = Pieza::where('id_ot', $otElegida->id)->distinct('maquina')->pluck('maquina');

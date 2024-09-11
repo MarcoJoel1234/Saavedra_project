@@ -14,7 +14,7 @@
         }
         .wrapper{
             width: 80%;
-            height: 85%;
+            height: 88%;
         }
         .lg-saavedra{
             width: 300px;
@@ -274,6 +274,7 @@
                     });
                 </script>
             @else
+                <label class="sub-title">¡Agrega o selecciona una orden de trabajo!</label>
                 <div class="botones-ot">
                     <button id="btn-agregar">Agregar OT</button>
                     <button id="btn-seleccionar">Seleccionar OT</button>

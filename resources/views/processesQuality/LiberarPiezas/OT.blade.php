@@ -73,6 +73,7 @@
     <div class="container">
         <form action="{{route('vistaPiezasLiberar')}}" method="post" class="wrapper bg-white">
             @csrf
+            <h1 class="title">Liberación de piezas</h1>
             <input type="hidden" name="perfil" value="{{ Auth::user()->perfil }}">
             <img src="{{ asset('images/lg_saavedra.png') }}" class="logo-saa">
             <div class="selecttts">

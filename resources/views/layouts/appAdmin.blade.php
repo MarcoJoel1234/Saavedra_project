@@ -20,10 +20,11 @@
                 <li><a href="{{ route('recoverPassword') }}">Recuperar contraseña</a></li>
                 <li><a href="{{ route('procesos') }}">Editar C.Nominales y Tolerancias</a></li>
                 <li><a href="{{ route('vistaPiezas') }}">Piezas en progreso</a></li>
-                <li><a href="{{ route('verProcesos') }}">Progreso de O.T</a></li>
+                {{-- <li><a href="{{ route('verProcesos') }}">Progreso de O.T</a></li> --}}
                 <li><a href="{{ route('vistaPzasGenerales') }}">Reporte de piezas</a></li>
                 <li><a href="{{ route('vistaOTLiberar')}}">Liberacion de piezas</a></li>
-                <li><a href="{{ route('vistaPzasMaquina') }}">Buscar piezas por máquina</a></li>
+                {{-- <li><a href="{{ route('vistaPzasMaquina') }}">Buscar piezas por máquina</a></li> --}}
+                <li><a href="{{ route('mostrarTiempos') }}">Modificar tiempos de producción</a></li>
                 <ul>
                     <a class="btn1" href="{{ route('logout') }}">Cerrar sesión</a>
                 </ul>

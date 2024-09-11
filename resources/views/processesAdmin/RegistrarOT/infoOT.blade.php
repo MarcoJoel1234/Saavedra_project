@@ -7,6 +7,7 @@
     @vite('resources/css/RegistrarOT/agregarClass.css')
 </head>
 
+
 <body background="{{ asset('images/fondoLogin.jpg') }}">
     <script>
         function changeStatus(){
@@ -185,7 +186,7 @@
             div_casillas.appendChild(secciones); //Agregar a las casillas
             changeStatus();
         }
-        function mostrarDiv(clase, id_clase, claseIndice){
+        function mostrarDiv(clase, id_clase){
             let div_padre = document.createElement('div'); //Crear un div para cada checkbox
             div_padre.className = "div-padre";
             div_padre.id = "div-padre";
@@ -212,7 +213,7 @@
 
             let a = document.createElement('a');
             a.className = "btn-delete"; //Clase del label
-            a.href = `{{ url('/deleteClass', '') }}/${id_clase}/${claseIndice}`;
+            a.href = `{{ url('/deleteClass', '') }}/${id_clase}`;
             a.innerHTML = "Eliminar";
 
             div.appendChild(div_cerrar); 
@@ -362,7 +363,6 @@
                                     @endfor
                                 </select>
                             @else
-                                <!-- pto marco  -->
                                 <label id="titulo-select" style="color: green; font-weight: bold;">Seleccione el tamaño:</label>
                                 <select id="tamaños" name="tamanio" class="selects form-control">
                                     <option value="{{$clase->tamanio}}">{{$clase->tamanio}}</option>
@@ -394,7 +394,7 @@
                         </div>
                     </div>
                 </div>
-                @else
+            @else
                 <div class="row">
                 <div class="col-md-6 mb-2">
                     <div class="form-outline">
@@ -531,7 +531,7 @@
                         <script>
                             document.getElementById('btn-delete' + @json($class->id)).addEventListener('click', function(){
                                 event.preventDefault();
-                                document.body.appendChild(mostrarDiv(@json($class->nombre), @json($class->id), @json($clase->id)));
+                                document.body.appendChild(mostrarDiv(@json($class->nombre), @json($class->id)));
                             });
                         </script>
                     </tr>
