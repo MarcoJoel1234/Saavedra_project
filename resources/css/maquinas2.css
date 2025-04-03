@@ -29,7 +29,6 @@ body{
 .label-ot, .label-margin {
     margin-left: 80px; /* Ajusta el margen derecho según tus necesidades */
 }
-
 /* BOTON */
 .btn-back {
     width: 160px;
@@ -50,12 +49,10 @@ body{
     color: rgb(0, 0, 0);
     transform: scale(1.05); /* Realiza un pequeño zoom del 5% */
 }
-
 /* DIVS */
 .flex-container {
     display: grid;
     grid-template-columns: auto auto auto;
-
 }
 .box{
     width: 90%;
@@ -69,7 +66,6 @@ body{
     border-radius: 10px;
     padding: 20px;
 }
-
 /* LABEL DEL TITULO DEL PROCESO */
 .titulo-proceso {
     font-size: 32px; /* Tamaño de la fuente */
@@ -79,14 +75,12 @@ body{
     text-align: center; /* Alineación del texto al centro */
     /* Otros estilos que desees agregar */
 }
-
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
     
 }
-
 th, td {
     border: 1px solid #000000;
     padding: 8px;
@@ -94,7 +88,6 @@ th, td {
     font-size: 18px;
     font-family: Arial, Helvetica, sans-serif;
 }
-
 th {
     background-color: rgba(67, 62, 80, 0.527);
     color: rgb(0, 0, 0);

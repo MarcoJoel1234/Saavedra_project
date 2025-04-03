@@ -3,6 +3,7 @@
 
     <head>
         <title>Modificar tiempos</title>
+        <link rel="stylesheet" href="{{asset('bootstrap/css/bootstrap.min.css')}}">
         @vite(['resources/css/tiemposProduccion.css', 'resources/css/recoverPassword.css'])
     </head>
 
@@ -14,6 +15,7 @@
                 <h1 class="title">Modificar tiempos de producción</h1>
                 <form action="{{ route('verificarProceso') }}" method="post" class="form-search">
                     @csrf
+                    @include('layouts.partials.messages')
                     <div class="div-select">
                         @if(isset($clase))
                             <select name="clase" id="clase" class="form-select">

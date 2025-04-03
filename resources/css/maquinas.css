@@ -44,7 +44,6 @@ form {
     height: 80px;
     
 }
-
 /* SELECT */
 select {
     padding: 9px;
@@ -59,19 +58,16 @@ select {
     color: rgb(9, 9, 9);
     
 }
-
 /* SELECTTTS */
 .selecttts {
     text-align: center;
 }
-
 .select-container {
     display: inline-block;
     text-align: center;
     margin: 0 10px;
     margin-top: 20px;
 }
-
 /* BOTON */
 .btn-search {
     margin-top: 35px;

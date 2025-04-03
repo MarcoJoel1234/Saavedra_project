@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <title>@yield('title')</title>
 </head>
 
 <body>
@@ -16,6 +17,7 @@
             <ul class="nav-list">
                 <li><a href="{{ route('home') }}">Inicio</a></li>
                 <li><a href="{{ route('register') }}">Registrar usuario</a></li>
+                <li><a href="{{ route('users') }}">Ver usuarios</a></li>
                 <ul>
                     <a class="btn1" href="{{ route('logout') }}">Cerrar sesión</a>
                 </ul>

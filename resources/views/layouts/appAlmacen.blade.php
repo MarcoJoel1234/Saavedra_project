@@ -16,10 +16,7 @@
             <button class="cerrar-menu" id="cerrar"><img class="icono" src="{{asset('images/icono.png')}}"></button>
             <ul class="nav-list">
                 <li><a href="{{ route('home') }}">Inicio</a></li>
-                <li><a href="{{ route('vistaOTLiberar')}}">Liberacion de piezas</a></li>
-                <li><a href="{{ route('procesos') }}">Editar C.Nominales y Tolerancias</a></li>
-                <li><a href="{{ route('mostrarTiempos') }}">Modificar tiempos de producción</a></li>
-                {{-- <li><a href="#">Envio de piezas</a></li> --}}
+                <li><a href="{{ route('registerOT') }}">Modificar OT</a></li>
                 <ul>
                     <a class="btn1" href="{{ route('logout') }}">Cerrar sesión</a>
                 </ul>

@@ -35,7 +35,6 @@
                     for (this.indiCarru = 0; this.indiCarru < this.clases[indice].length; this.indiCarru++) {
                         let main = document.querySelector('main');
                         //Nombres de los procesos insertados en un arreglo
-
                         let form = document.createElement('form');
                         form.method = "POST";
                         form.action = "{{ route('UpdatePiezas') }}";
@@ -48,10 +47,8 @@
                         let section = document.createElement('section');
                         let carousel_container = document.createElement('div');
                         carousel_container.className = "carousel-container";
-
                         let carousel = document.createElement('div');
                         carousel.className = "carousel";
-
                         //Botones del carrusel
                         let prevBtn = document.createElement('button');
                         prevBtn.className = "prevBtn";
@@ -65,10 +62,10 @@
                         let carousel_item_container = document.createElement('div');
                         carousel_item_container.className = "carousel-item-container";
                         carousel.appendChild(prevBtn);
-                        let containers = this.procesosClase[indice][this.indiCarru][0].length / 3;//Numero de carruseles
+                        let containers = this.procesosClase[indice][this.indiCarru][0].length / 3;//Número de carruseles
                         let contadorElementos = [];
                         if (!Number.isInteger(containers)) {
-                            containers = Math.trunc(containers) + 1;//Numero de carruseles
+                            containers = Math.trunc(containers) + 1;//Número de carruseles
                             let aux = 0;
                             //Elementos por carrusel
                             for (let j = 0; j < containers; j++) {
@@ -93,12 +90,11 @@
                             for (let j = 0; j < contadorElementos[i]; j++) {
                                 let carousel_item = document.createElement('div');
                                 carousel_item.className = "carousel-item item";
-
-                                //Titulo del proceso que se esta realizando
+                                //Título del proceso que se esta realizando
                                 let h2 = document.createElement('h2');
                                 h2.className = "title-proceso";
                                 h2.innerHTML = this.procesosClase[indice][this.indiCarru][0][contadorProcesos];
-                                // //Titulo de fecha de termino
+                                //Título de fecha de termino
                                 let h3 = document.createElement('h3');
                                 h3.className = "title-fecha";
                                 h3.innerHTML = "Fecha de termino:"
@@ -156,7 +152,6 @@
                                     bProgreso.appendChild(progreso);
                                     carousel_item.appendChild(bProgreso);
                                 }
-
                                 carousel_item_container.appendChild(carousel_item);
                                 if (i == 7) {
                                     break;
@@ -169,7 +164,7 @@
                         carousel_container.appendChild(carousel);
                         section.appendChild(carousel_container);
 
-                        //Seccion de abajo
+                        //Sección de abajo
                         let section_abajo = document.createElement('div');
                         section_abajo.className = "seccion-abajo";
 
@@ -270,11 +265,12 @@
                                         }
                                         tbody.appendChild(dataRow);
                                     }
+                                    // Agregar la fila de datos al cuerpo de la tabla
+                                    // table.appendChild(tbody);
                                 }
                             }
                         }
-                        // Agregar la fila de datos al cuerpo de la tabla
-
+                        // Agregar la fila de datos al cuerpo de la tabla   
                         table.appendChild(tbody);
                         // Aplicar estilos CSS básicos
                         table.style.border = '1px solid #ccc';
@@ -307,7 +303,6 @@
                 }
                 this.movimientoCarrusel();
             }
-
             movimientoCarrusel() {
                 const carousel = document.querySelectorAll('.carousel');
                 const prevBtn = document.querySelectorAll('.prevBtn');
@@ -395,4 +390,42 @@
     </div>
     @endisset
 </body>
+@endsection
+
+@section('scripts')
+<script src="{{ asset('js/viewPiezas.js') }}"></script>
+<script src="{{ asset('js/axios.min.js') }}"></script>
+<script src="{{ asset('js/axios.min.js.map') }}"></script>
+<script src="{{ asset('js/axios.min.js.br') }}"></script>
+<!-- Aquí va un Java Script -->
+<script>
+    // Función para obtener los datos de la base de datos
+    function obtenerDatos() {
+        // Petición para obtener los datos de la base de datos
+        axios.get('/getDatos')
+            .then(function(response) {
+                // console.log(response.data);
+                let datos = response.data;
+                let otArray = datos[0];
+                let molduras = datos[1];
+                let clases = datos[2];
+                let pedidos = datos[3];
+                let procesos = datos[4];
+                let infoPzMala = datos[5];
+                let csrf = "{{ csrf_token() }}";
+                let procesosClase = datos[6]
+                let procesosClase = datos[7];
+                let 
+                let carrusel = new Carrusel(otArray, molduras, clases, pedidos, procesos, infoPzMala, csrf, procesosClase);
+                carrusel.generarCarrusel();
+                setTimeout(function() {
+                    location.relad();
+                }, 50000);
+            })
+            .catch(function(error) {
+                console.log(error);
+            });
+    }
+    // Llamar a la función para obtener los datos
+    obtenerDatos();
 @endsection
