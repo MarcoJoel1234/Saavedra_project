@@ -10,7 +10,7 @@
     <!-- Bootstrap CSS v5.2.1 -->
     <link rel="stylesheet" href="{{asset('bootstrap/css/bootstrap.min.css')}}">
     <!-- Link estilos de CSS -->
-    @vite(['resources/css/login.css'])
+    @vite(['resources/css/auth/login.css'])
 </head>
 
 <body background="{{ asset('images/fondoLogin.jpg') }}">

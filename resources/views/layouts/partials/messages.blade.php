@@ -12,21 +12,21 @@
     <?php $data = Session:: get('success')?>
     @if (is_array($data))
         @foreach ($data as $message)
-            <div class="alert alert-success">
+            <div class="alert alert-success text-center">
                 <i class="fa fa-check"></i>
                 {{ $data }}
             </div>
         @endforeach
     @else
-        <div class="alert alert-success">
+        <div class="alert alert-success text-center">
             <i class="fa fa-check"></i>
             {{ $data }}
         </div>
     @endif
 @endif
 
-@if(session('mensaje'))
-    <div class="alert alert-danger">
-        {{ session('mensaje') }}
+@if(session('error'))
+    <div class="alert alert-danger text-center">
+        {{ session('error') }}
     </div>
 @endif

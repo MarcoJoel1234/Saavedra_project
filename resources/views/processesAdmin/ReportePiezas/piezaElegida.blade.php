@@ -1,4 +1,4 @@
-@extends($perfil == 'admin' ? 'layouts.appAdmin' : 'layouts.appQuality')
+@extends('layouts.appMenu')
 @vite('resources/css/elegirPieza.css')
 @section('content')
 <script>

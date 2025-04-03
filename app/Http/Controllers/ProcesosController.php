@@ -8,7 +8,6 @@ use App\Models\AcabadoMolde_cnominal;
 use App\Models\AcabadoMolde_tolerancia;
 use App\Models\BarrenoManiobra_cnominal;
 use App\Models\BarrenoManiobra_tolerancia;
-use App\Models\BarrenoProfundidad;
 use App\Models\BarrenoProfundidad_cnominal;
 use App\Models\BarrenoProfundidad_tolerancia;
 use App\Models\Cavidades_cnominal;
@@ -36,7 +35,6 @@ use App\Models\Procesos;
 use App\Models\PySOpeSoldadura_cnominal;
 use App\Models\PySOpeSoldadura_tolerancia;
 use App\Models\Pza_cepillado;
-use App\Models\Rebajes;
 use App\Models\Rebajes_cnominal;
 use App\Models\Rebajes_tolerancia;
 use App\Models\revCalificado_cnominal;
@@ -45,493 +43,342 @@ use App\Models\RevLaterales_cnominal;
 use App\Models\RevLaterales_tolerancia;
 use App\Models\SegundaOpeSoldadura_cnominal;
 use App\Models\SegundaOpeSoldadura_tolerancia;
-use ArchTech\Enums\Meta\Meta;
 use Illuminate\Http\Request;
 
 class ProcesosController extends Controller
 {
-    protected $controladorPzas;
+    protected $userController;
+    protected $classController;
     public function __construct()
     {
-        $this->controladorPzas = new PzasLiberadasController();
+        $this->userController = new UserController();
+        $this->classController = new ClassController();
     }
-    public function show()
+    public function show_cNominalsView()
     {
         //Obtener el perfil del usuario
-        $layout = $this->controladorPzas->obtenerLayout();
-        $ot = Orden_trabajo::all();
-        return view('processesAdmin.procesos', ['ot' => $ot, 'layout' => $layout]);
-    }
-    public function verificarProceso(Request $request)
-    {
-        $layout = $this->controladorPzas->obtenerLayout();
-        if (isset($request->ot)) {
-            $clasesFound = Clase::where('id_ot', $request->ot)->get();
-            if ($clasesFound) {
-                $clases = array(); //Creación del array para almacenar las clases.
-                $procesos = array();
-                $contador = 0;
-                foreach ($clasesFound as $class) {
-                    $proceso = Procesos::where('id_clase', $class->id)->first();
-                    if ($proceso) {
-                        $proceso = $proceso->toArray();
-                        $clases[$contador][0] = $class;
-                        $camposNoCero = array_filter($proceso, function ($valor) {
-                            return $valor != 0;
-                        });
-                        $procesos[$contador] = array();
-                        foreach (array_keys($camposNoCero) as $nombreCampo) {
-                            array_push($procesos[$contador], $nombreCampo);
+        $layout = $this->userController->getLayout();
+
+        $wOrdersFounded = Orden_trabajo::all();
+        $workOrders = array();
+        if (count($wOrdersFounded) > 0) {
+            foreach ($wOrdersFounded as $workOrder) {
+                $classes = $this->classController->getClasses($workOrder);
+                if (count($classes) > 0) {
+                    $workOrders[$workOrder->id] = array();
+                    foreach ($classes as $class) {
+                        $process = Procesos::where('id_clase', $class->id)->first();
+                        if ($process) {
+                            $workOrders[$workOrder->id][$class->nombre] = array();
+                            foreach ($process->getAttributes() as $campo => $valor) {
+                                if (($campo != "id" && $campo != "id_clase") && $valor != 0) {
+                                    $campo = $this->convertProcessToString($campo);
+                                    array_push($workOrders[$workOrder->id][$class->nombre], $campo);
+                                }
+                            }
                         }
-                        array_splice($procesos[$contador], 0, 2);
-                        $procesos[$contador] = $this->convertirString($procesos[$contador]);
-                        $contador++;
                     }
                 }
             }
-            return view('processesAdmin.procesos', ['ot' => $request->ot, 'clases' => $clases, 'procesos' => $procesos, 'layout' => $layout]);
-        } else {
-            $clase = Clase::find($request->clase); //Busqueda de clase 
-            switch ($request->proceso) { //Verificación de proceso.
-                case 'Cepillado':
-                    $id_proceso = 'Cepillado_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
-                    $cNominal = Cepillado_cnominal::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla Cepillado_cnominal.
-                    $tolerancia = Cepillado_tolerancia::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla Cepillado_tolerancia.
-                    if (isset($cNominal) && isset($tolerancia)) { //Verificación de existencia de datos en tablas Cepillado_cnominal y Cepillado_tolerancia.
-                        $this->actualizarPiezas($id_proceso, $cNominal, $tolerancia, 'Cepillado'); //Llamando a la función actualizarPiezas.
-                        $existe = 1; //Variable para verificar existencia de datos en tablas Cepillado_cnominal y Cepillado_tolerancia.
-                    } else {
-                        $existe = 0; //Variable para verificar existencia de datos en tablas Cepillado_cnominal y Cepillado_tolerancia.
-                        if (isset($request->cNomi_radiof_mordaza)) { //Verificación de existencia de datos en tabla Cepillado_cnominal.
-                            $cNominal = new Cepillado_cnominal(); //Creación de objeto Cepillado_cnominal.
-                            $tolerancia = new Cepillado_tolerancia(); //Creación de objeto Cepillado_tolerancia.
-                            $existe = 1; //Variable para verificar existencia de datos en tablas Cepillado_cnominal y Cepillado_tolerancia.
-                        } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
-                        }
-                    }
-                    if (isset($request->cNomi_radiof_mordaza)) { //Verificación de ela existencia de datos en la tabla Cepillado_cnominal.
-                        $array = $this->cepillado($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleCepillado.
-                        $this->actualizarPiezas($id_proceso, $cNominal, $tolerancia, 'Cepillado'); //Llamando a la función actualizarPiezas.
-                        $cNomi = $array[0]; //Creación de objeto Cepillado_cnominal
-                        $tole = $array[1]; //Creación de objeto Cepillado_tolerancia.
-                        $cNominal = $cNomi->toArray();
-                        $tolerancia = $tole->toArray();
-                    }
-                    $subproceso = 0;
-                    $operacion = 0;
-                    break;
-
-                case 'Desbaste Exterior':
-                    $id_proceso = 'desbaste_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
-                    $cNominal = Desbaste_cnominal::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla Desbaste_cnominal.
-                    $tolerancia = Desbaste_tolerancia::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla Desbaste_tolerancia.
-                    if (isset($cNominal) && isset($tolerancia)) { //Verificación de existencia de datos en tablas Desbaste_cnominal y Desbaste_tolerancia.
-                        $existe = 1; //Variable para verificar existencia de datos en tablas Desbaste_cnominal y Desbaste_tolerancia.
-                    } else {
-                        $existe = 0; //Variable para verificar existencia de datos en tablas Cepillado_cnominal y Desbaste_tolerancia.
-                        if (isset($request->cNomi_diametro_mordaza)) { //Verificación de existencia de datos en tabla Desbaste_cnominal.
-                            $cNominal = new Desbaste_cnominal(); //Creación de objeto Desbaste_cnominal.
-                            $tolerancia = new Desbaste_tolerancia(); //Creación de objeto Desbaste_tolerancia.
-                            $existe = 1; //Variable para verificar existencia de datos en tablas Desbaste_cnominal y Desbaste_tolerancia.
-                        } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
-                        }
-                    }
-                    if (isset($request->cNomi_diametro_mordaza)) { //Verificación de ela existencia de datos en la tabla Desbaste_cnominal.
-                        $array = $this->desbasteExterior($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleDesbaste.
-                        $cNomi = $array[0]; //Creación de objeto Desbaste_cnominal
-                        $tole = $array[1]; //Creación de objeto Desbaste_tolerancia.
-                        $cNominal = $cNomi->toArray();
-                        $tolerancia = $tole->toArray();
-                    }
-                    $subproceso = 0;
-                    $operacion = 0;
-                    break;
-                case 'Revision Laterales':
-                    $id_proceso = 'revLaterales_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
-                    $cNominal = RevLaterales_cnominal::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla RevLaterales_cnominal.
-                    $tolerancia = RevLaterales_tolerancia::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla RevLaterales_tolerancia.
-                    if (isset($cNominal) && isset($tolerancia)) { //Verificación de existencia de datos en tablas RevLaterales_cnominal y RevLaterales_tolerancia.
-                        $existe = 1; //Variable para verificar existencia de datos en tablas RevLaterales_cnominal y RevLaterales_tolerancia.
-                    } else {
-                        $existe = 0; //Variable para verificar existencia de datos en tablas RevLaterales_cnominal y RevLaterales_tolerancia.
-                        if (isset($request->cNomi_desfasamiento_entrada)) { //Verificación de existencia de datos en tabla RevLaterales_cnominal.
-                            $cNominal = new RevLaterales_cnominal(); //Creación de objeto RevLaterales_cnominal.
-                            $tolerancia = new RevLaterales_tolerancia(); //Creación de objeto RevLaterales_tolerancia.
-                            $existe = 1; //Variable para verificar existencia de datos en tablas RevLaterales_cnominal y RevLaterales_tolerancia.
-                        } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
-                        }
-                    }
-                    if (isset($request->cNomi_desfasamiento_entrada)) { //Verificación de ela existencia de datos en la tabla RevLaterales_cnominal.
-                        $array = $this->revisionLaterales($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleRevLaterales.
-                        $cNomi = $array[0]; //Creación de objeto Revlaterales_cnominal
-                        $tole = $array[1]; //Creación de objeto RevLaterales_tolerancia.
-                        $cNominal = $cNomi->toArray();
-                        $tolerancia = $tole->toArray();
-                    }
-                    $subproceso = 0;
-                    $operacion = 0;
-                    break;
-                case 'Primera Operacion':
-                    $id_proceso = '1opeSoldadura_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
-                    $cNominal = PrimeraOpeSoldadura_cnominal::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla 1opeSoldadura_cnominal.
-                    $tolerancia = PrimeraOpeSoldadura_tolerancia::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla 1opeSoldadura_tolerancia.
-                    if (isset($cNominal) && isset($tolerancia)) { //Verificación de existencia de datos en tablas 1opeSoldadura_cnominal y 1opeSoldadura_tolerancia.
-                        $existe = 1; //Variable para verificar existencia de datos en tablas 1opeSoldadura_cnominal y 1opeSoldadura_tolerancia.
-                    } else {
-                        $existe = 0; //Variable para verificar existencia de datos en tablas 1opeSoldadura_cnominal y 1opeSoldadura_tolerancia.
-                        if (isset($request->cNomi_diametro1)) { //Verificación de existencia de datos en tabla 1opeSoldadura_cnominal.
-                            $cNominal = new PrimeraOpeSoldadura_cnominal(); //Creación de objeto 1opeSoldadura_cnominal.
-                            $tolerancia = new PrimeraOpeSoldadura_tolerancia(); //Creación de objeto 1opeSoldadura_tolerancia.
-                            $existe = 1; //Variable para verificar existencia de datos en tablas 1opeSoldadura_cnominal y 1opeSoldadura_tolerancia.
-                        } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
-                        }
-                    }
-                    if (isset($request->cNomi_diametro1)) { //Verificación de ela existencia de datos en la tabla 1opeSoldadura_cnominal.
-                        $array = $this->primeraOpeSoldadura($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editTole1opeSoldadura.
-                        $cNomi = $array[0]; //Creación de objeto 1opeSoldadura_cnominal
-                        $tole = $array[1]; //Creación de objeto 1opeSoldadura_tolerancia.
-                        $cNominal = $cNomi->toArray();
-                        $tolerancia = $tole->toArray();
-                    }
-                    $subproceso = 0;
-                    $operacion = 0;
-                    break;
-                case 'Barreno Maniobra':
-                    $id_proceso = 'barrenoManiobra_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
-                    $cNominal = BarrenoManiobra_cnominal::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla de BarrenoManiobra_cnominal.
-                    $tolerancia = BarrenoManiobra_tolerancia::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla de BarrenoManiobra_tolerancia.
-                    if (isset($cNominal) && isset($tolerancia)) { //Verificación de existencia de datos en tablas de BarrenoManiobra_cnominal y BarrenoManiobra_tolerancia.
-                        $existe = 1; //Variable para verificar existencia de datos en tablas de BarrenoManiobra_cnominal y BarrenoManiobra_tolerancia.
-                    } else {
-                        $existe = 0; //Variable para verificar existencia de datos en tablas de BarrenoManiobra_cnominal y BarrenoManiobra_tolerancia.
-                        if (isset($request->cNomi_profundidadBarreno)) { //Verificación de existencia de datos en tabla 1opeSoldadura_cnominal.
-                            $cNominal = new BarrenoManiobra_cnominal(); //Creación de objeto 1opeSoldadura_cnominal.
-                            $tolerancia = new BarrenoManiobra_tolerancia(); //Creación de objeto 1opeSoldadura_tolerancia.
-                            $existe = 1; //Variable para verificar existencia de datos en tablas 1opeSoldadura_cnominal y 1opeSoldadura_tolerancia.
-                        } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
-                        }
-                    }
-                    if (isset($request->cNomi_profundidadBarreno)) { //Verificación de ela existencia de datos en la tabla BarrenoManiobra_cnominal.
-                        $array = $this->barrenoManiobra($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editBarrenoManiobra.
-                        $cNomi = $array[0]; //Creación de objeto BarrenoManiobra_cnominal
-                        $tole = $array[1]; //Creación de objeto BarrenoManiobra_tolerancia.
-                        $cNominal = $cNomi->toArray();
-                        $tolerancia = $tole->toArray();
-                    }
-                    $subproceso = 0;
-                    $operacion = 0;
-                    break;
-
-                case 'Segunda Operacion':
-                    $id_proceso = '2opeSoldadura_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
-                    $cNominal = SegundaOpeSoldadura_cnominal::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla 2opeSoldadura_cnominal.
-                    $tolerancia = SegundaOpeSoldadura_tolerancia::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla 2opeSoldadura_tolerancia.
-                    if (isset($cNominal) && isset($tolerancia)) { //Verificación de existencia de datos en tablas 2opeSoldadura_cnominal y 2opeSoldadura_tolerancia.
-                        $existe = 1; //Variable para verificar existencia de datos en tablas 2opeSoldadura_cnominal y 2opeSoldadura_tolerancia.
-                    } else {
-                        $existe = 0; //Variable para verificar existencia de datos en tablas 2opeSoldadura_cnominal y 2opeSoldadura_tolerancia.
-                        if (isset($request->cNomi_diametro1)) { //Verificación de existencia de datos en tabla 2opeSoldadura_cnominal.
-                            $cNominal = new SegundaOpeSoldadura_cnominal(); //Creación de objeto 2opeSoldadura_cnominal.
-                            $tolerancia = new SegundaOpeSoldadura_tolerancia(); //Creación de objeto 2opeSoldadura_tolerancia.
-                            $existe = 1; //Variable para verificar existencia de datos en tablas 2opeSoldadura_cnominal y 2opeSoldadura_tolerancia.
-                        } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
-                        }
-                    }
-                    if (isset($request->cNomi_diametro1)) { //Verificación de ela existencia de datos en la tabla 2opeSoldadura_cnominal.
-                        $array = $this->segundaOpeSoldadura($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editTole2opeSoldadura.
-                        $cNomi = $array[0]; //Creación de objeto 2opeSoldadura_cnominal
-                        $tole = $array[1]; //Creación de objeto 2opeSoldadura_tolerancia.
-                        $cNominal = $cNomi->toArray();
-                        $tolerancia = $tole->toArray();
-                    }
-                    $subproceso = 0;
-                    $operacion = 0;
-                    break;
-                case 'Calificado':
-                    $id_proceso = 'revCalificado_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
-                    $cNominal = revCalificado_cnominal::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla RevCalificado_cnominal.
-                    $tolerancia = revCalificado_tolerancia::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla RevCalificado_tolerancia.
-                    if (isset($cNominal) && isset($tolerancia)) { //Verificación de existencia de datos en tablas RevCalificado_cnominal y RevCalificado_tolerancia.
-                        $existe = 1; //Variable para verificar existencia de datos en tablas RevCalificado_cnominal y RevCalificado_tolerancia.
-                    } else {
-                        $existe = 0; //Variable para verificar existencia de datos en tablas RevCalificado_cnominal y 2opeSoldadura_tolerancia.
-                        if (isset($request->cNomi_diametro_ceja)) { //Verificación de existencia de datos en tabla RevCalificado_cnominal.
-                            $cNominal = new revCalificado_cnominal(); //Creación de objeto RevCalificado_cnominal.
-                            $tolerancia = new revCalificado_tolerancia(); //Creación de objeto RevCalificado_tolerancia.
-                            $existe = 1; //Variable para verificar existencia de datos en tablas RevCalificado_cnominal y RevCalificado_tolerancia.
-                        } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
-                        }
-                    }
-                    if (isset($request->cNomi_diametro_ceja)) { //Verificación de ela existencia de datos en la tabla RevCalificado_cnominal.
-                        $array = $this->calificado($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleRevCalificado
-                        $cNomi = $array[0]; //Creación de objeto RevCalificado_cnominal
-                        $tole = $array[1]; //Creación de objeto RevCalificado_tolerancia.
-                        $cNominal = $cNomi->toArray();
-                        $tolerancia = $tole->toArray();
-                    }
-                    $subproceso = 0;
-                    $operacion = 0;
-                    break;
-                case 'Acabado Bombillo':
-                    $id_proceso = 'acabadoBombillo_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
-                    $cNominal = AcabadoBombilo_cnominal::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla AcabadoBombillo_cnominal.
-                    $tolerancia = AcabadoBombilo_tolerancia::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla AcabadoBombillo_tolerancia.
-                    if (isset($cNominal) && isset($tolerancia)) { //Verificación de existencia de datos en tablas AcabadoBombillo_cnominal y AcabadoBombillo_tolerancia.
-                        $existe = 1; //Variable para verificar existencia de datos en tablas AcabadoBombillo_cnominal y AcabadoBombillo_tolerancia.
-                    } else {
-                        $existe = 0; //Variable para verificar existencia de datos en tablas AcabadoBombillo_cnominal y AcabadoBombillo_tolerancia.
-                        if (isset($request->cNomi_diametro_mordaza)) { //Verificación de existencia de datos en tabla AcabadoBombillo_cnominal.
-                            $cNominal = new AcabadoBombilo_cnominal(); //Creación de objeto AcabadoBombillo_cnominal.
-                            $tolerancia = new AcabadoBombilo_tolerancia(); //Creación de objeto AcabadoBombillo_tolerancia.
-                            $existe = 1; //Variable para verificar existencia de datos en tablas AcabadoBombillo_cnominal y AcabadoBombillo_tolerancia.
-                        } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
-                        }
-                    }
-                    if (isset($request->cNomi_diametro_mordaza)) { //Verificación de ela existencia de datos en la tabla AcabadoBombillo_cnominal.
-                        $array = $this->acabadoBombillo($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleAcabadoBombillo
-                        $cNomi = $array[0]; //Creación de objeto AcabadoBombillo_cnominal
-                        $tole = $array[1]; //Creación de objeto AcabadoBombillo_tolerancia.
-                        $cNominal = $cNomi->toArray();
-                        $tolerancia = $tole->toArray();
-                    }
-                    $subproceso = 0;
-                    $operacion = 0;
-                    break;
-                case 'Acabado Molde':
-                    $id_proceso = 'acabadoMolde_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
-                    $cNominal = AcabadoMolde_cnominal::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla AcabadoMolde_cnominal.
-                    $tolerancia = AcabadoMolde_tolerancia::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla AcabadoMolde_tolerancia.
-                    if (isset($cNominal) && isset($tolerancia)) { //Verificación de existencia de datos en tablas AcabadoMolde_cnominal y AcabadoMolde_tolerancia.
-                        $existe = 1; //Variable para verificar existencia de datos en tablas AcabadoMolde_cnominal y AcabadoMolde_tolerancia.
-                    } else {
-                        $existe = 0; //Variable para verificar existencia de datos en tablas AcabadoMolde_cnominal y AcabadoMolde_tolerancia.
-                        if (isset($request->cNomi_diametro_mordaza)) { //Verificación de existencia de datos en tabla AcabadoMolde_cnominal.
-                            $cNominal = new AcabadoMolde_cnominal(); //Creación de objeto AcabadoMolde_cnominal.
-                            $tolerancia = new AcabadoMolde_tolerancia(); //Creación de objeto AcabadoMolde_tolerancia.
-                            $existe = 1; //Variable para verificar existencia de datos en tablas AcabadoMolde_cnominal y AcabadoMolde_tolerancia.
-                        } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
-                        }
-                    }
-                    if (isset($request->cNomi_diametro_mordaza)) { //Verificación de ela existencia de datos en la tabla AcabadoMolde_cnominal.
-                        $array = $this->acabadoMolde($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleAcabadoMolde.
-                        $cNomi = $array[0]; //Creación de objeto AcabadoMolde_cnominal
-                        $tole = $array[1]; //Creación de objeto AcabadoMolde_tolerancia.
-                        $cNominal = $cNomi->toArray();
-                        $tolerancia = $tole->toArray();
-                    }
-                    $subproceso = 0;
-                    $operacion = 0;
-                    break;
-                case 'Barreno Profundidad':
-                    $id_proceso = 'barrenoProfundidad_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
-                    $cNominal = BarrenoProfundidad_cnominal::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla barrenoProfundidad_cnominal.
-                    $tolerancia = BarrenoProfundidad_tolerancia::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla barrenoProfundidad_tolerancia.
-                    if (isset($cNominal) && isset($tolerancia)) { //Verificación de existencia de datos en tablas barrenoProfundidad_cnominal y barrenoProfundidad_tolerancia.
-                        $existe = 1; //Variable para verificar existencia de datos en tablas barrenoProfundidad_cnominal y barrenoProfundidad_tolerancia.
-                    } else {
-                        $existe = 0; //Variable para verificar existencia de datos en tablas barrenoProfundidad_cnominal y barrenoProfundidad_tolerancia.
-                        if (isset($request->cNomi_broca1)) { //Verificación de existencia de datos en tabla barrenoProfundidad_cnominal.
-                            $cNominal = new BarrenoProfundidad_cnominal(); //Creación de objeto barrenoProfundidad_cnominal.
-                            $tolerancia = new BarrenoProfundidad_tolerancia(); //Creación de objeto barrenoProfundidad_tolerancia.
-                            $existe = 1; //Variable para verificar existencia de datos en tablas barrenoProfundidad_cnominal y barrenoProfundidad_tolerancia.
-                        } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
-                        }
-                    }
-                    if (isset($request->cNomi_broca1)) { //Verificación de ela existencia de datos en la tabla barrenoProfundidad_cnominal.
-                        $array = $this->barrenoProfundidad($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editTolebarrenoProfundidad.
-                    }
-                    $subproceso = 0;
-                    $operacion = 0;
-                    break;
-                case 'Cavidades':
-                    $id_proceso = 'cavidades_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
-                    $cNominal = Cavidades_cnominal::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla Cavidades_cnominal.
-                    $tolerancia = Cavidades_tolerancia::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla Cavidades_tolerancia.
-                    if (isset($cNominal) && isset($tolerancia)) { //Verificación de existencia de datos en tablas Cavidades_cnominal y Cavidades_tolerancia.
-                        $existe = 1; //Variable para verificar existencia de datos en tablas Cavidades_cnominal y Cavidades_tolerancia.
-                    } else {
-                        $existe = 0; //Variable para verificar existencia de datos en tablas Cavidades_cnominal y Cavidades_tolerancia.
-                        if (isset($request->cNomi_profundidad1)) { //Verificación de existencia de datos en tabla Cavidades_cnominal.
-                            $cNominal = new Cavidades_cnominal(); //Creación de objeto Cavidades_cnominal.
-                            $tolerancia = new Cavidades_tolerancia(); //Creación de objeto Cavidades_tolerancia.
-                            $existe = 1; //Variable para verificar existencia de datos en tablas Cavidades_cnominal y Cavidades_tolerancia.
-                        } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
-                        }
-                    }
-                    if (isset($request->cNomi_profundidad1)) { //Verificación de ela existencia de datos en la tabla Cavidades_cnominal.
-                        $array = $this->cavidades($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleCavidades.
-                    }
-                    $subproceso = 0;
-                    $operacion = 0;
-                    break;
-                case 'Copiado':
-                    $id_proceso = 'copiado_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
-                    $cNominal = Copiado_cnominal::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla copiado_cnominal.
-                    $tolerancia = Copiado_tolerancia::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla copiado_tolerancia.
-                    if ($request->subproceso == 'Cilindrado') {
-                        if (isset($cNominal) && isset($tolerancia)) { //Verificación de existencia de datos en tablas copiado_cnominal y copiado_tolerancia.
-                            $existe = 1; //Variable para verificar existencia de datos en tablas copiado_cnominal y copiado_tolerancia.
-                        } else {
-                            $existe = 0; //Variable para verificar existencia de datos en tablas copiado_cnominal y copiado_tolerancia.
-                            if (isset($request->cNomi_diametro1_cilindrado)) { //Verificación de existencia de datos en tabla copiado_cnominal.
-                                $cNominal = new Copiado_cnominal(); //Creación de objeto copiado_cnominal.
-                                $tolerancia = new Copiado_tolerancia(); //Creación de objeto copiado_tolerancia.
-                                $existe = 1; //Variable para verificar existencia de datos en tablas copiado_cnominal y copiado_tolerancia.
-                            } else {
-                                return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'subproceso' => $request->subproceso, 'layout' => $layout]); //Retorno a vista de procesos.
-                            }
-                        }
-                        if (isset($request->cNomi_diametro1_cilindrado)) { //Verificación de ela existencia de datos en la tabla copiado_cnominal.
-                            $array = $this->copiado($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleCopiado.
-                        }
-                    } else {
-                        if (isset($cNominal) && isset($tolerancia)) { //Verificación de existencia de datos en tablas copiado_cnominal y copiado_tolerancia.
-                            $existe = 1; //Variable para verificar existencia de datos en tablas copiado_cnominal y copiado_tolerancia.
-                        } else {
-                            $existe = 0; //Variable para verificar existencia de datos en tablas copiado_cnominal y copiado_tolerancia.
-                            if (isset($request->cNomi_diametro1_cavidades)) { //Verificación de existencia de datos en tabla copiado_cnominal.
-                                $cNominal = new Copiado_cnominal(); //Creación de objeto copiado_cnominal.
-                                $tolerancia = new Copiado_tolerancia(); //Creación de objeto copiado_tolerancia.
-                                $existe = 1; //Variable para verificar existencia de datos en tablas copiado_cnominal y copiado_tolerancia.
-                            } else {
-                                return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'subproceso' => $request->subproceso, 'layout' => $layout]); //Retorno a vista de procesos.
-                            }
-                        }
-                        if (isset($request->cNomi_diametro1_cavidades)) { //Verificación de ela existencia de datos en la tabla copiado_cnominal.
-                            $array = $this->copiado($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleCopiado
-                        }
-                    }
-                    $subproceso = $request->subproceso;
-                    $operacion = 0;
-                    break;
-                case 'Off Set':
-                    $id_proceso = 'offSet_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
-                    $cNominal = OffSet_cnominal::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla OffSet_cnominal.
-                    $tolerancia = OffSet_tolerancia::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla OffSet_tolerancia.
-                    if (isset($cNominal) && isset($tolerancia)) { //Verificación de existencia de datos en tablas OffSet_cnominal y OffSet_tolerancia.
-                        $existe = 1; //Variable para verificar existencia de datos en tablas OffSet_cnominal y OffSet_tolerancia.
-                    } else {
-                        $existe = 0; //Variable para verificar existencia de datos en tablas OffSet_cnominal y OffSet_tolerancia.
-                        if (isset($request->cNomi_anchoRanura)) { //Verificación de existencia de datos en tabla OffSet_cnominal.
-                            $cNominal = new OffSet_cnominal(); //Creación de objeto OffSet_cnominal.
-                            $tolerancia = new OffSet_tolerancia(); //Creación de objeto OffSet_tolerancia.
-                            $existe = 1; //Variable para verificar existencia de datos en tablas OffSet_cnominal y OffSet_tolerancia.
-                        } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
-                        }
-                    }
-                    if (isset($request->cNomi_anchoRanura)) { //Verificación de ela existencia de datos en la tabla OffSet_cnominal.
-                        $array = $this->offSet($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleOffSet.
-                    }
-                    $subproceso = 0;
-                    $operacion = 0;
-                    break;
-                case 'Palomas':
-                    $id_proceso = 'palomas_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
-                    $cNominal = Palomas_cnominal::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla Palomas_cnominal.
-                    $tolerancia = Palomas_tolerancia::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla Palomas_tolerancia.
-                    if (isset($cNominal) && isset($tolerancia)) { //Verificación de existencia de datos en tablas Palomas_cnominal y Palomas_tolerancia.
-                        $existe = 1; //Variable para verificar existencia de datos en tablas Palomas_cnominal y Palomas_tolerancia.
-                    } else {
-                        $existe = 0; //Variable para verificar existencia de datos en tablas Palomas_cnominal y Palomas_tolerancia.
-                        if (isset($request->cNomi_ancho_paloma)) { //Verificación de existencia de datos en tabla Palomas_cnominal.
-                            $cNominal = new Palomas_cnominal(); //Creación de objeto Palomas_cnominal.
-                            $tolerancia = new Palomas_tolerancia(); //Creación de objeto Palomas_tolerancia.
-                            $existe = 1; //Variable para verificar existencia de datos en tablas Palomas_cnominal y Palomas_tolerancia.
-                        } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
-                        }
-                    }
-                    if (isset($request->cNomi_ancho_paloma)) { //Verificación de ela existencia de datos en la tabla Palomas_cnominal.
-                        $array = $this->palomas($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editTolePalomas.
-                    }
-                    $subproceso = 0;
-                    $operacion = 0;
-                    break;
-                case 'Rebajes':
-                    $id_proceso = 'rebajes_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
-                    $cNominal = Rebajes_cnominal::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla Rebajes_cnominal.
-                    $tolerancia = Rebajes_tolerancia::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla Rebajes_tolerancia.
-                    if (isset($cNominal) && isset($tolerancia)) { //Verificación de existencia de datos en tablas Rebajes_cnominal y Rebajes_tolerancia.
-                        $existe = 1; //Variable para verificar existencia de datos en tablas Rebajes_cnominal y Rebajes_tolerancia.
-                    } else {
-                        $existe = 0; //Variable para verificar existencia de datos en tablas Rebajes_cnominal y Rebajes_tolerancia.
-                        if (isset($request->cNomi_rebaje1)) { //Verificación de existencia de datos en tabla Rebajes_cnominal.
-                            $cNominal = new Rebajes_cnominal(); //Creación de objeto Rebajes_cnominal.
-                            $tolerancia = new Rebajes_tolerancia(); //Creación de objeto Rebajes_tolerancia.
-                            $existe = 1; //Variable para verificar existencia de datos en tablas Rebajes_cnominal y Palomas_tolerancia.
-                        } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
-                        }
-                    }
-                    if (isset($request->cNomi_rebaje1)) { //Verificación de ela existencia de datos en la tabla Rebajes_cnominal.
-                        $array = $this->rebajes($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleRebajes.
-                    }
-                    $subproceso = 0;
-                    $operacion = 0;
-                    break;
-                case '1 y 2 Operacion Equipo':
-                    $id_proceso = '1y2opeSoldadura_' . $clase->nombre . "_" . $clase->id_ot . "_" . $request->operacion; //Creación de id_proceso.
-                    $cNominal = PySOpeSoldadura_cnominal::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla 1y2opeSoldadura_cnominal.
-                    $tolerancia = PySOpeSoldadura_tolerancia::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla 1y2opeSoldadura_tolerancia.
-                    if (isset($cNominal) && isset($tolerancia)) { //Verificación de existencia de datos en tablas 1y2opeSoldadura__cnominal y 1y2opeSoldadura__tolerancia.
-                        $existe = 1; //Variable para verificar existencia de datos en tablas 1y2opeSoldadura__cnominal y 1y2opeSoldadura__tolerancia.
-                    } else {
-                        $existe = 0; //Variable para verificar existencia de datos en tablas 1y2opeSoldadura__cnominal y 1y2opeSoldadura__tolerancia.
-                        if (isset($request->cNomi_altura)) { //Verificación de existencia de datos en tabla 1y2opeSoldadura__cnominal.
-                            $cNominal = new PySOpeSoldadura_cnominal(); //Creación de objeto 1y2opeSoldadura__cnominal.
-                            $tolerancia = new PySOpeSoldadura_tolerancia(); //Creación de objeto 1y2opeSoldadura__tolerancia.
-                            $existe = 1; //Variable para verificar existencia de datos en tablas 1y2opeSoldadura__cnominal y 1y2opeSoldadura__tolerancia.
-                        } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'operacion' => $request->operacion, 'layout' => $layout]); //Retorno a vista de procesos.
-                        }
-                    }
-                    if (isset($request->cNomi_altura)) { //Verificación de ela existencia de datos en la tabla 1y2opeSoldadura__cnominal.
-                        $array = $this->pysOpeSoldadura($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editTole1y2opeSoldadura_.
-                        $cNomi = $array[0]; //Creación de objeto 1y2opeSoldadura__cnominal
-                        $tole = $array[1]; //Creación de objeto 1y2opeSoldadura__tolerancia.
-                        $cNominal = $cNomi->toArray();
-                        $tolerancia = $tole->toArray();
-                    }
-                    $subproceso = 0;
-                    $operacion = $request->operacion;
-                    break;
-                case 'Embudo CM':
-                    $id_proceso = 'embudoCM_' . $clase->nombre . "_" . $clase->id_ot; //Creación de id_proceso.
-                    $cNominal = EmbudoCM_cnominal::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla Rebajes_cnominal.
-                    $tolerancia = EmbudoCM_tolerancias::where('id_proceso', $id_proceso)->first(); //Verificación de existencia de datos en tabla Rebajes_tolerancia.
-                    if (isset($cNominal) && isset($tolerancia)) { //Verificación de existencia de datos en tablas Rebajes_cnominal y Rebajes_tolerancia.
-                        $existe = 1; //Variable para verificar existencia de datos en tablas Rebajes_cnominal y Rebajes_tolerancia.
-                    } else {
-                        $existe = 0; //Variable para verificar existencia de datos en tablas Rebajes_cnominal y Rebajes_tolerancia.
-                        if (isset($request->cNomi_conexion_lineaPartida)) { //Verificación de existencia de datos en tabla Rebajes_cnominal.
-                            $cNominal = new EmbudoCM_cnominal(); //Creación de objeto Rebajes_cnominal.
-                            $tolerancia = new EmbudoCM_tolerancias(); //Creación de objeto Rebajes_tolerancia.
-                            $existe = 1; //Variable para verificar existencia de datos en tablas Rebajes_cnominal y Palomas_tolerancia.
-                        } else {
-                            return view('processesAdmin.procesos', ['existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'layout' => $layout]); //Retorno a vista de procesos.
-                        }
-                    }
-                    if (isset($request->cNomi_conexion_lineaPartida)) { //Verificación de ela existencia de datos en la tabla Rebajes_cnominal.
-                        $array = $this->embudoCM($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleRebajes.
-                    }
-                    $subproceso = 0;
-                    $operacion = 0;
-                    break;
-            }
-            return view('processesAdmin.procesos', ['cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'existe' => $existe, 'proceso' => $request->proceso, 'clase' => $clase, 'ot' => $clase->id_ot, 'subproceso' => $subproceso, 'operacion' => $operacion, 'layout' => $layout]); //Retorno a vista de procesos.
         }
+        return view('processes_views.cNominals_view', compact('workOrders', 'layout'));
+    }
+    public function verifycNominalsExisting($cNominal, $tolerance, $id_operation, $operation, )
+    {
+        $exists = 0;
+        if ($cNominal && $tolerance) {
+            if ($operation == "Cepillado") {
+                $this->updatePieces($id_operation, $cNominal, $tolerance, "Cepillado");
+            }
+            $exists = 1;
+        }
+        return $exists;
+    }
+    public function returnDataArray($operation, $id_operation, $request)
+    {
+        $array = match ($operation) {
+            'Cepillado' => $this->cepillado($id_operation, $request),
+            'Desbaste Exterior' => $this->desbasteExterior($id_operation, $request),
+            'Revision Laterales' => $this->revisionLaterales($id_operation, $request),
+            'Primera Operacion' => $this->primeraOpeSoldadura($id_operation, $request),
+            'Barreno Maniobra' => $this->barrenoManiobra($id_operation, $request),
+            'Segunda Operacion' => $this->segundaOpeSoldadura($id_operation, $request),
+            'Calificado' => $this->calificado($id_operation, $request),
+            'Acabado Bombillo' => $this->acabadoBombillo($id_operation, $request),
+            'Acabado Molde' => $this->acabadoMolde($id_operation, $request),
+            'Barreno Profundidad' => $this->barrenoProfundidad($id_operation, $request),
+            'Cavidades' => $this->cavidades($id_operation, $request),
+            'Copiado' => $this->copiado($id_operation, $request),
+            'OffSet' => $this->offSet($id_operation, $request),
+            'Palomas' => $this->palomas($id_operation, $request),
+            'Rebajes' => $this->rebajes($id_operation, $request),
+            '1 y 2 Operacion Equipo' => $this->pySOpeSoldadura($id_operation, $request),
+            'Embudo CM' => $this->embudoCM($id_operation, $request),
+        };
+    }
+    public function storecNominals() {}
+    public function searchCNominals(Request $request)
+    {
+        $layout = $this->userController->getLayout(); //Obtener el layout correspondiente al usuario
+
+        $class = Clase::where('nombre', $request->class)->where('id_ot', $request->workOrder)->first();
+        $operation = 0;
+        $subOperation = 0;
+        switch ($request->operation) {
+            case 'Cepillado':
+                //Creación de id_proceso.
+                $id_operation = 'Cepillado_' . $class->nombre . "_" . $class->id_ot;
+
+                //Verificacion de existencia de datos de Cotas Nominales y Tolerancias
+                $cNominal = Cepillado_cnominal::where('id_proceso', $id_operation)->first();
+                $tolerance = Cepillado_tolerancia::where('id_proceso', $id_operation)->first();
+
+
+                // if ($request->data_entered != null) { //Verificación de ela existencia de datos en la tabla Cepillado_cnominal.
+                //     $exists = 1;
+                //     $array = $this->cepillado($id_proceso, $request); //Llamando a la función editToleCepillado.
+                //     $this->actualizarPiezas($id_proceso, $cNominal, $tolerancia, 'Cepillado'); //Llamando a la función actualizarPiezas.
+                //     $cNomi = $array[0]; //Creación de objeto Cepillado_cnominal
+                //     $tole = $array[1]; //Creación de objeto Cepillado_tolerancia.
+                //     $cNominal = $cNomi->toArray();
+                //     $tolerancia = $tole->toArray();
+                // }
+                break;
+
+            case 'Desbaste Exterior':
+                //Creación de id_proceso.
+                $id_operation = 'desbaste_' . $class->nombre . "_" . $class->id_ot;
+
+                //Verificacion de existencia de datos de Cotas Nominales y Tolerancias
+                $cNominal = Desbaste_cnominal::where('id_proceso', $id_operation)->first();
+                $tolerance = Desbaste_tolerancia::where('id_proceso', $id_operation)->first();
+
+                // if (isset($request->cNomi_diametro_mordaza)) { //Verificación de ela existencia de datos en la tabla Desbaste_cnominal.
+                //     $array = $this->desbasteExterior($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleDesbaste.
+                //     $cNomi = $array[0]; //Creación de objeto Desbaste_cnominal
+                //     $tole = $array[1]; //Creación de objeto Desbaste_tolerancia.
+                //     $cNominal = $cNomi->toArray();
+                //     $tolerancia = $tole->toArray();
+                // }
+                break;
+            case 'Revision Laterales':
+                //Creación de id_proceso.
+                $id_operation = 'revLaterales_' . $class->nombre . "_" . $class->id_ot;
+
+                //Verificacion de existencia de datos de Cotas Nominales y Tolerancias
+                $cNominal = RevLaterales_cnominal::where('id_proceso', $id_operation)->first();
+                $tolerance = RevLaterales_tolerancia::where('id_proceso', $id_operation)->first();
+
+                // if (isset($request->cNomi_desfasamiento_entrada)) { //Verificación de ela existencia de datos en la tabla RevLaterales_cnominal.
+                //     $array = $this->revisionLaterales($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleRevLaterales.
+                //     $cNomi = $array[0]; //Creación de objeto Revlaterales_cnominal
+                //     $tole = $array[1]; //Creación de objeto RevLaterales_tolerancia.
+                //     $cNominal = $cNomi->toArray();
+                //     $tolerancia = $tole->toArray();
+                // }
+                break;
+            case 'Primera Operacion':
+                //Creación de id_proceso.
+                $id_operation = '1opeSoldadura_' . $class->nombre . "_" . $class->id_ot;
+
+                //Verificacion de existencia de datos de Cotas Nominales y Tolerancias
+                $cNominal = PrimeraOpeSoldadura_cnominal::where('id_proceso', $id_operation)->first();
+                $tolerance = PrimeraOpeSoldadura_tolerancia::where('id_proceso', $id_operation)->first();
+
+                // if (isset($request->cNomi_diametro1)) { //Verificación de ela existencia de datos en la tabla 1opeSoldadura_cnominal.
+                //     $array = $this->primeraOpeSoldadura($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editTole1opeSoldadura.
+                //     $cNomi = $array[0]; //Creación de objeto 1opeSoldadura_cnominal
+                //     $tole = $array[1]; //Creación de objeto 1opeSoldadura_tolerancia.
+                //     $cNominal = $cNomi->toArray();
+                //     $tolerancia = $tole->toArray();
+                // }
+                break;
+            case 'Barreno Maniobra':
+                //Creación de id_proceso.
+                $id_operation = 'barrenoManiobra_' . $class->nombre . "_" . $class->id_ot;
+
+                $cNominal = BarrenoManiobra_cnominal::where('id_proceso', $id_operation)->first();
+                $tolerance = BarrenoManiobra_tolerancia::where('id_proceso', $id_operation)->first();
+
+                // if (isset($request->cNomi_profundidadBarreno)) { //Verificación de ela existencia de datos en la tabla BarrenoManiobra_cnominal.
+                //     $array = $this->barrenoManiobra($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editBarrenoManiobra.
+                //     $cNomi = $array[0]; //Creación de objeto BarrenoManiobra_cnominal
+                //     $tole = $array[1]; //Creación de objeto BarrenoManiobra_tolerancia.
+                //     $cNominal = $cNomi->toArray();
+                //     $tolerancia = $tole->toArray();
+                // }
+                break;
+
+            case 'Segunda Operacion':
+                //Creación de id_operation.
+                $id_operation = '2opeSoldadura_' . $class->nombre . "_" . $class->id_ot;
+
+                //Verificacion de existencia de datos de Cotas Nominales y Tolerancias
+                $cNominal = SegundaOpeSoldadura_cnominal::where('id_proceso', $id_operation)->first();
+                $tolerance = SegundaOpeSoldadura_tolerancia::where('id_proceso', $id_operation)->first();
+
+                // if (isset($request->cNomi_diametro1)) { //Verificación de ela existencia de datos en la tabla 2opeSoldadura_cnominal.
+                //     $array = $this->segundaOpeSoldadura($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editTole2opeSoldadura.
+                //     $cNomi = $array[0]; //Creación de objeto 2opeSoldadura_cnominal
+                //     $tole = $array[1]; //Creación de objeto 2opeSoldadura_tolerancia.
+                //     $cNominal = $cNomi->toArray();
+                //     $tolerancia = $tole->toArray();
+                // }
+                break;
+            case 'Calificado':
+                //Creación de id_operation.
+                $id_operation = 'revCalificado_' . $class->nombre . "_" . $class->id_ot;
+
+                //Verificacion de existencia de datos de Cotas Nominales y Tolerancias
+                $cNominal = revCalificado_cnominal::where('id_proceso', $id_operation)->first();
+                $tolerance = revCalificado_tolerancia::where('id_proceso', $id_operation)->first();
+
+                // if (isset($request->cNomi_diametro_ceja)) { //Verificación de ela existencia de datos en la tabla RevCalificado_cnominal.
+                //     $array = $this->calificado($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleRevCalificado
+                //     $cNomi = $array[0]; //Creación de objeto RevCalificado_cnominal
+                //     $tole = $array[1]; //Creación de objeto RevCalificado_tolerancia.
+                //     $cNominal = $cNomi->toArray();
+                //     $tolerancia = $tole->toArray();
+                // }
+                break;
+            case 'Acabado Bombillo':
+                //Creación de id_operation.
+                $id_operation = 'acabadoBombillo_' . $class->nombre . "_" . $class->id_ot; //Creación de id_proceso.
+
+                //Verificacion de existencia de datos de Cotas Nominales y Tolerancias
+                $cNominal = AcabadoBombilo_cnominal::where('id_proceso', $id_operation)->first();
+                $tolerance = AcabadoBombilo_tolerancia::where('id_proceso', $id_operation)->first();
+
+                // if (isset($request->cNomi_diametro_mordaza)) { //Verificación de ela existencia de datos en la tabla AcabadoBombillo_cnominal.
+                //     $array = $this->acabadoBombillo($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleAcabadoBombillo
+                //     $cNomi = $array[0]; //Creación de objeto AcabadoBombillo_cnominal
+                //     $tole = $array[1]; //Creación de objeto AcabadoBombillo_tolerancia.
+                //     $cNominal = $cNomi->toArray();
+                //     $tolerancia = $tole->toArray();
+                // }
+                break;
+            case 'Acabado Molde':
+                //Creación de id_proceso.
+                $id_operation = 'acabadoMolde_' . $class->nombre . "_" . $class->id_ot;
+
+                //Verificacion de existencia de datos de Cotas Nominales y Tolerancias
+                $cNominal = AcabadoMolde_cnominal::where('id_proceso', $id_operation)->first();
+                $tolerance = AcabadoMolde_tolerancia::where('id_proceso', $id_operation)->first();
+
+                // if (isset($request->cNomi_diametro_mordaza)) { //Verificación de ela existencia de datos en la tabla AcabadoMolde_cnominal.
+                //     $array = $this->acabadoMolde($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleAcabadoMolde.
+                //     $cNomi = $array[0]; //Creación de objeto AcabadoMolde_cnominal
+                //     $tole = $array[1]; //Creación de objeto AcabadoMolde_tolerancia.
+                //     $cNominal = $cNomi->toArray();
+                //     $tolerancia = $tole->toArray();
+                // }
+                break;
+            case 'Barreno Profundidad':
+                //Creación de id_proceso.
+                $id_operation = 'barrenoProfundidad_' . $class->nombre . "_" . $class->id_ot;
+
+                //Verificacion de existencia de datos de Cotas Nominales y Tolerancias
+                $cNominal = BarrenoProfundidad_cnominal::where('id_proceso', $id_operation)->first();
+                $tolerance = BarrenoProfundidad_tolerancia::where('id_proceso', $id_operation)->first();
+
+                // if (isset($request->cNomi_broca1)) { //Verificación de ela existencia de datos en la tabla barrenoProfundidad_cnominal.
+                //     $array = $this->barrenoProfundidad($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editTolebarrenoProfundidad.
+                // }
+                break;
+            case 'Cavidades':
+                //Creación de id_proceso.
+                $id_operation = 'cavidades_' . $class->nombre . "_" . $class->id_ot;
+
+                //Verificacion de existencia de datos de Cotas Nominales y Tolerancias
+                $cNominal = Cavidades_cnominal::where('id_proceso', $id_operation)->first();
+                $tolerance = Cavidades_tolerancia::where('id_proceso', $id_operation)->first();
+
+                // if (isset($request->cNomi_profundidad1)) { //Verificación de ela existencia de datos en la tabla Cavidades_cnominal.
+                //     $array = $this->cavidades($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleCavidades.
+                // }
+                break;
+            case 'Copiado':
+                //Creación de id_proceso.
+                $id_operation = 'copiado_' . $class->nombre . "_" . $class->id_ot;
+
+                //Verificacion de existencia de datos de Cotas Nominales y Tolerancias
+                $cNominal = Copiado_cnominal::where('id_proceso', $id_operation)->first();
+                $tolerance = Copiado_tolerancia::where('id_proceso', $id_operation)->first();
+
+                // if (isset($request->cNomi_diametro1_cavidades)) { //Verificación de ela existencia de datos en la tabla copiado_cnominal.
+                //     $array = $this->copiado($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleCopiado
+                // }
+                $subproceso = $request->subproceso;
+                break;
+            case 'Off Set':
+                //Creación de id_proceso.
+                $id_operation = 'offSet_' . $class->nombre . "_" . $class->id_ot;
+
+                //Verificacion de existencia de datos de Cotas Nominales y Tolerancias
+                $cNominal = OffSet_cnominal::where('id_proceso', $id_operation)->first();
+                $tolerance = OffSet_tolerancia::where('id_proceso', $id_operation)->first();
+
+                // if (isset($request->cNomi_anchoRanura)) { //Verificación de ela existencia de datos en la tabla OffSet_cnominal.
+                //     $array = $this->offSet($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleOffSet.
+                // }
+                break;
+            case 'Palomas':
+                //Creación de id_proceso.
+                $id_operation = 'palomas_' . $class->nombre . "_" . $class->id_ot;
+
+                //Verificacion de existencia de datos de Cotas Nominales y Tolerancias
+                $cNominal = Palomas_cnominal::where('id_proceso', $id_operation)->first(); 
+                $tolerance = Palomas_tolerancia::where('id_proceso', $id_operation)->first();
+
+                // if (isset($request->cNomi_ancho_paloma)) { //Verificación de ela existencia de datos en la tabla Palomas_cnominal.
+                //     $array = $this->palomas($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editTolePalomas.
+                // }
+                break;
+            case 'Rebajes':
+                //Creación de id_proceso.
+                $id_operation = 'rebajes_' . $class->nombre . "_" . $class->id_ot;
+               
+                //Verificacion de existencia de datos de Cotas Nominales y Tolerancias
+                $cNominal = Rebajes_cnominal::where('id_proceso', $id_operation)->first();
+                $tolerance = Rebajes_tolerancia::where('id_proceso', $id_operation)->first();
+
+                // if (isset($request->cNomi_rebaje1)) { //Verificación de ela existencia de datos en la tabla Rebajes_cnominal.
+                //     $array = $this->rebajes($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleRebajes.
+                // }
+                break;
+            case '1 y 2 Operacion Equipo':
+                //Creación de id_proceso.
+                $id_operation = '1y2opeSoldadura_' . $class->nombre . "_" . $class->id_ot . "_" . $request->operacion;
+
+                //Verificacion de existencia de datos de Cotas Nominales y Tolerancias
+                $cNominal = PySOpeSoldadura_cnominal::where('id_proceso', $id_operation)->first();
+                $tolerance = PySOpeSoldadura_tolerancia::where('id_proceso', $id_operation)->first();
+
+                // if (isset($request->cNomi_altura)) { //Verificación de ela existencia de datos en la tabla 1y2opeSoldadura__cnominal.
+                //     $array = $this->pysOpeSoldadura($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editTole1y2opeSoldadura_.
+                //     $cNomi = $array[0]; //Creación de objeto 1y2opeSoldadura__cnominal
+                //     $tole = $array[1]; //Creación de objeto 1y2opeSoldadura__tolerancia.
+                //     $cNominal = $cNomi->toArray();
+                //     $tolerancia = $tole->toArray();
+                // }
+                $operacion = $request->operacion;
+                break;
+            case 'Embudo CM':
+                //Creación de id_proceso.
+                $id_operation = 'embudoCM_' . $class->nombre . "_" . $class->id_ot;
+
+                //Verificacion de existencia de datos de Cotas Nominales y Tolerancias
+                $cNominal = EmbudoCM_cnominal::where('id_proceso', $id_operation)->first();
+                $tolerance = EmbudoCM_tolerancias::where('id_proceso', $id_operation)->first();
+
+                // if (isset($request->cNomi_conexion_lineaPartida)) { //Verificación de ela existencia de datos en la tabla Rebajes_cnominal.
+                //     $array = $this->embudoCM($id_proceso, $cNominal, $tolerancia, $request); //Llamando a la función editToleRebajes.
+                // } 
+                break;
+        }
+        $exists = $this->verifycNominalsExisting($cNominal, $tolerance, $id_operation, $request->operation);
+        
+        return view('processes_views.cNominals_view', ['layout' => $layout, 'class' => $class, 'operation' => $request->operation, 'subOperation' => $subOperation, 'exists' => $exists, 'cNominal' => $cNominal, 'tolerance' => $tolerance]);
     }
     public function convertirString($procesos)
     {
@@ -596,8 +443,74 @@ class ProcesosController extends Controller
         }
         return $stringProcesos;
     }
+
+    public function convertProcessToString($process)
+    {
+        switch ($process) {
+            case "cepillado":
+                return "Cepillado";
+                break;
+            case "desbaste_exterior":
+                return "Desbaste Exterior";
+                break;
+            case "revision_laterales":
+                return "Revision Laterales";
+                break;
+            case "pOperacion":
+                return "Primera Operacion";
+                break;
+            case "barreno_maniobra":
+                return "Barreno Maniobra";
+                break;
+            case "sOperacion":
+                return "Segunda Operacion";
+                break;
+            case "calificado":
+                return "Calificado";
+                break;
+            case "acabadoBombillo":
+                return "Acabado Bombillo";
+                break;
+            case "acabadoMolde":
+                return "Acabado Molde";
+                break;
+            case "barreno_profundidad":
+                return "Barreno Profundidad";
+                break;
+            case "cavidades":
+                return "Cavidades";
+                break;
+            case "copiado":
+                return "Copiado";
+                break;
+            case "offSet":
+                return "Off Set";
+                break;
+            case "palomas":
+                return "Palomas";
+                break;
+            case "rebajes":
+                return "Rebajes";
+                break;
+            case "grabado":
+                return "Grabado";
+                break;
+            case "operacionEquipo":
+                return "1 y 2 Operacion Equipo";
+                break;
+            case "embudoCM":
+                return "Embudo CM";
+                break;
+            case "soldadura":
+                return "Soldadura";
+                break;
+            case "soldaduraPTA":
+                return "Soldadura PTA";
+                break;
+        }
+    }
     //Se actualiza las piezas de cada proceso para verificar que este correcta
-    public function actualizarPiezas($id_proceso, $cNominal, $tolerancia, $proceso)
+    public function updatePieces($id_proceso, $cNominal, $tolerancia, $proceso)
     {
         switch ($proceso) {
             case 'Cepillado':
@@ -662,8 +575,9 @@ class ProcesosController extends Controller
             'resultado' => $contadorPzas,
         ]);
     }
-    public function cepillado($id_proceso, $cNominal, $tolerancia, $request)
+    public function cepillado($id_proceso, $request)
     {
+        $cNominal = new Cepillado_cnominal(); //Creación de objeto Cepillado_cnominal.
         //Llenado de tabla Cepillado_cnominal
         $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla Cepillado_cnominal.
         $cNominal->radiof_mordaza = $request->cNomi_radiof_mordaza; //Llenado de radiof_mordaza para tabla Cepillado_cnominal.
@@ -682,6 +596,7 @@ class ProcesosController extends Controller
         $cNominal->pin1 = $request->Hpin1[0];
         $cNominal->pin2 = $request->Hpin2[0];
 
+        $tolerancia = new Cepillado_tolerancia(); //Creación de objeto Cepillado_tolerancia.
         //Llenado de tabla Cepillado_tolerancia
         $tolerancia->id_proceso = $id_proceso;
         $tolerancia->radiof_mordaza1 = $request->tole_radiof_mordaza1;
@@ -716,11 +631,12 @@ class ProcesosController extends Controller
         $cNominal->save(); //Guardado de datos en tabla Cepillado_cnominal.
         $tolerancia->save(); //Guardado de datos en tabla Cepillado_tolerancia.
         return array($cNominal, $tolerancia);
-        //Marco puto
     }
 
-    public function desbasteExterior($id_proceso, $cNominal, $tolerancia, $request)
+    public function desbasteExterior($id_proceso, $request)
     {
+        $cNominal = new Desbaste_cnominal(); //Creación de objeto Desbaste_cnominal.
+        $tolerancia = new Desbaste_tolerancia(); //Creación de objeto Desbaste_tolerancia.
         //Llenado de tabla desbaste_cnominal
         $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla desbaste_cnominal.
         $cNominal->diametro_mordaza = $request->cNomi_diametro_mordaza;
@@ -752,8 +668,10 @@ class ProcesosController extends Controller
         $tolerancia->save(); //Guardado de datos en tabla Desbaste_tolerancia.
         return array($cNominal, $tolerancia);
     }
-    public function revisionLaterales($id_proceso, $cNominal, $tolerancia, $request)
+    public function revisionLaterales($id_proceso, $request)
     {
+        $cNominal = new RevLaterales_cnominal(); //Creación de objeto RevLaterales_cnominal.
+        $tolerancia = new RevLaterales_tolerancia(); //Creación de objeto RevLaterales_tolerancia.
         //Llenado de tabla revLaterales_cnominal
         $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla revLaterales_cnominal.
         $cNominal->desfasamiento_entrada = $request->cNomi_desfasamiento_entrada;
@@ -779,8 +697,10 @@ class ProcesosController extends Controller
         $tolerancia->save(); //Guardado de datos en tabla revLaterales_tolerancia.
         return array($cNominal, $tolerancia);
     }
-    public function primeraOpeSoldadura($id_proceso, $cNominal, $tolerancia, $request)
+    public function primeraOpeSoldadura($id_proceso, $request)
     {
+        $cNominal = new PySOpeSoldadura_cnominal(); //Creación de objeto PySOpeSoldadura_cnominal.
+        $tolerancia = new PySOpeSoldadura_tolerancia(); //Creación de objeto PySOpeSoldadura_tolerancia.
         //Llenado de tabla primeraOpeSoldadura
         $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla primeraOpeSoldadura_cnominal.
         $cNominal->diametro1 = $request->cNomi_diametro1;
@@ -817,8 +737,10 @@ class ProcesosController extends Controller
         $tolerancia->save(); //Guardado de datos en tabla primeraOpeSoldadura_tolerancia.
         return array($cNominal, $tolerancia);
     }
-    public function barrenoManiobra($id_proceso, $cNominal, $tolerancia, $request)
+    public function barrenoManiobra($id_proceso, $request)
     {
+        $cNominal = new BarrenoManiobra_cnominal(); //Creación de objeto BarrenoManiobra_cnominal.
+        $tolerancia = new BarrenoManiobra_tolerancia(); //Creación de objeto BarrenoManiobra_tolerancia.
         //Llenado de tabla BarrenoManiobra_cnominal
         $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla BarrenoManiobra_cnominal.
         $cNominal->profundidad_barreno = $request->cNomi_profundidadBarreno;
@@ -835,8 +757,10 @@ class ProcesosController extends Controller
         $tolerancia->save(); //Guardado de datos en tabla barrenoManiobra_tolerancia.
         return array($cNominal, $tolerancia);
     }
-    public function segundaOpeSoldadura($id_proceso, $cNominal, $tolerancia, $request)
+    public function segundaOpeSoldadura($id_proceso, $request)
     {
+        $cNominal = new SegundaOpeSoldadura_cnominal(); //Creación de objeto 2opeSoldadura_cnominal.
+        $tolerancia = new SegundaOpeSoldadura_tolerancia(); //Creación de objeto 2opeSoldadura_tolerancia.
         //Llenado de tabla segundaOpeSoldadura_cnominal.
         $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla segundaOpeSoldadura_cnominal.
         $cNominal->diametro1 = $request->cNomi_diametro1;
@@ -871,8 +795,10 @@ class ProcesosController extends Controller
         $tolerancia->save(); //Guardado de datos en tabla segundaOpeSoldadura_tolerancia.
         return array($cNominal, $tolerancia);
     }
-    public function calificado($id_proceso, $cNominal, $tolerancia, $request)
+    public function calificado($id_proceso, $request)
     {
+        $cNominal = new revCalificado_cnominal(); //Creación de objeto RevCalificado_cnominal.
+        $tolerancia = new revCalificado_tolerancia(); //Creación de objeto RevCalificado_tolerancia.
         //Llenado de tabla calificado_cnominal
         $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla calificado_cnominal.
         $cNominal->diametro_ceja = $request->cNomi_diametro_ceja;
@@ -910,8 +836,10 @@ class ProcesosController extends Controller
         $tolerancia->save(); //Guardado de datos en tabla calificado_tolerancia.
         return array($cNominal, $tolerancia);
     }
-    public function acabadoBombillo($id_proceso, $cNominal, $tolerancia, $request)
+    public function acabadoBombillo($id_proceso, $request)
     {
+        $cNominal = new AcabadoBombilo_cnominal(); //Creación de objeto AcabadoBombillo_cnominal.
+        $tolerancia = new AcabadoBombilo_tolerancia(); //Creación de objeto AcabadoBombillo_tolerancia.
         //Llenado de tabla acabadoBombillo_cnominal
         $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla acabadoBombillo_cnominal.
         $cNominal->diametro_mordaza = $request->cNomi_diametro_mordaza;
@@ -964,8 +892,10 @@ class ProcesosController extends Controller
         $tolerancia->save(); //Guardado de datos en tabla acabadoBombillo_tolerancia.
         return array($cNominal, $tolerancia);
     }
-    public function acabadoMolde($id_proceso, $cNominal, $tolerancia, $request)
+    public function acabadoMolde($id_proceso, $request)
     {
+        $cNominal = new AcabadoMolde_cnominal(); //Creación de objeto AcabadoMolde_cnominal.
+        $tolerancia = new AcabadoMolde_tolerancia(); //Creación de objeto AcabadoMolde_tolerancia.
         //Llenado de tabla acabadoMolde_cnominal
         $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla acabadoMolde_cnominal.
         $cNominal->diametro_mordaza = $request->cNomi_diametro_mordaza;
@@ -1015,8 +945,10 @@ class ProcesosController extends Controller
         $tolerancia->save(); //Guardado de datos en tabla acabadoMolde_tolerancia.
         return array($cNominal, $tolerancia);
     }
-    public function barrenoProfundidad($id_proceso, $cNominal, $tolerancia, $request)
+    public function barrenoProfundidad($id_proceso, $request)
     {
+        $cNominal = new BarrenoProfundidad_cnominal(); //Creación de objeto BarrenoProfundidad_cnominal.
+        $tolerancia = new BarrenoProfundidad_tolerancia(); //Creación de objeto BarrenoProfundidad_tolerancia.
         //Llenado de tabla barrenoProfundidad cNominal
         $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla acabadoMolde_cnominal.
         $cNominal->broca1 = $request->cNomi_broca1;
@@ -1048,8 +980,11 @@ class ProcesosController extends Controller
         $tolerancia->save(); //Guardado de datos en tabla acabadoMolde_tolerancia.
         return array($cNominal, $tolerancia);
     }
-    public function pysOpeSoldadura($id_proceso, $cNominal, $tolerancia, $request)
+    public function pysOpeSoldadura($id_proceso, $request)
     {
+        $cNominal = new PySOpeSoldadura_cnominal(); //Creación de objeto PySOpeSoldadura_cnominal.
+        $tolerancia = new PySOpeSoldadura_tolerancia(); //Creación de objeto PySOpeSoldadura_tolerancia.
+
         //Llenado de tabla pysOpeSoldadura_cnominal
         $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla pysOpeSoldadura_cnominal.
         $cNominal->altura = $request->cNomi_altura;
@@ -1076,8 +1011,10 @@ class ProcesosController extends Controller
         $tolerancia->save(); //Guardado de datos en tabla pysOpeSoldadura_tolerancia.
         return array($cNominal, $tolerancia);
     }
-    public function cavidades($id_proceso, $cNominal, $tolerancia, $request)
+    public function cavidades($id_proceso, $request)
     {
+        $cNominal = new Cavidades_cnominal(); //Creación de objeto Cavidades_cnominal.
+        $tolerancia = new Cavidades_tolerancia(); //Creación de objeto Cavidades_tolerancia.
         //Llenado de tabla cavidades_cnominal
         $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla cavidades_cnominal.
         $cNominal->profundidad1 = $request->cNomi_profundidad1;
@@ -1107,8 +1044,10 @@ class ProcesosController extends Controller
         $tolerancia->save(); //Guardado de datos en tabla cavidades_tolerancia.
         return array($cNominal, $tolerancia);
     }
-    public function copiado($id_proceso, $cNominal, $tolerancia, $request)
+    public function copiado($id_proceso, $request)
     {
+        $cNominal = new Copiado_cnominal(); //Creación de objeto Copiado_cnominal.
+        $tolerancia = new Copiado_tolerancia(); //Creación de objeto Copiado_tolerancia.
         if ($request->subproceso == 'Cilindrado') {
             //Llenado de tabla copiado_cnominal en el subproceso Cilindrado.
             $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla copiado_cnominal en el subproceso Cilindrado.
@@ -1161,8 +1100,11 @@ class ProcesosController extends Controller
         $tolerancia->save(); //Guardado de datos en tabla copiado_tolerancia en el subproceso Cilindrado.
         return array($cNominal, $tolerancia);
     }
-    public function offSet($id_proceso, $cNominal, $tolerancia, $request)
+    public function offSet($id_proceso, $request)
     {
+        $cNominal = new OffSet_cnominal(); //Creación de objeto OffSet_cnominal.
+        $tolerancia = new OffSet_tolerancia(); //Creación de objeto OffSet_tolerancia.
+
         //Llenado de tabla OffSet_cnominal
         $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla OffSet_cnominal.
         $cNominal->anchoRanura = $request->cNomi_anchoRanura;
@@ -1193,8 +1135,10 @@ class ProcesosController extends Controller
         $tolerancia->save(); //Guardado de datos en tabla OffSet_tolerancia.
         return array($cNominal, $tolerancia);
     }
-    public function palomas($id_proceso, $cNominal, $tolerancia, $request)
+    public function palomas($id_proceso, $request)
     {
+        $cNominal = new Palomas_cnominal(); //Creación de objeto Palomas_cnominal.
+        $tolerancia = new Palomas_tolerancia(); //Creación de objeto Palomas_tolerancia.
         //Llenado de tabla Palomas_cnominal
         $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla Palomas_cnominal.
         $cNominal->anchoPaloma = $request->cNomi_ancho_paloma;
@@ -1213,8 +1157,10 @@ class ProcesosController extends Controller
         $tolerancia->save(); //Guardado de datos en tabla Palomas_tolerancia.
         return array($cNominal, $tolerancia);
     }
-    public function rebajes($id_proceso, $cNominal, $tolerancia, $request)
+    public function rebajes($id_proceso, $request)
     {
+        $cNominal = new Rebajes_cnominal(); //Creación de objeto Rebajes_cnominal.
+        $tolerancia = new Rebajes_tolerancia(); //Creación de objeto Rebajes_tolerancia.
         //Llenado de tabla Rebajes_cnominal
         $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla Rebajes_cnominal.
         $cNominal->rebaje1 = $request->cNomi_rebaje1;
@@ -1239,8 +1185,10 @@ class ProcesosController extends Controller
         $tolerancia->save(); //Guardado de datos en tabla Rebajes_tolerancia.
         return array($cNominal, $tolerancia);
     }
-    public function embudoCM($id_proceso, $cNominal, $tolerancia, $request)
+    public function embudoCM($id_proceso, $request)
     {
+        $cNominal = new EmbudoCM_cnominal(); //Creación de objeto EmbudoCM_cnominal.
+        $tolerancia = new EmbudoCM_tolerancias(); //Creación de objeto EmbudoCM_tolerancia.
         //Llenado de tabla Palomas_cnominal
         $cNominal->id_proceso = $id_proceso; //Llenado de id_proceso para tabla Palomas_cnominal.
         $cNominal->conexion_lineaPartida = $request->cNomi_conexion_lineaPartida;

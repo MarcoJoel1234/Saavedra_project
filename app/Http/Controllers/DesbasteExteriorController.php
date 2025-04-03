@@ -92,8 +92,11 @@ class DesbasteExteriorController extends Controller
         $id_proceso = DesbasteExterior::where('id_proceso', $id)->first();
         $pzasDesbaste = Desbaste_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
         $id_procesoC = Cepillado::where('id_proceso', 'Cepillado_' . $clase->nombre . '_' . $clase->id_ot)->first();
-        $pzasCepillado = Pza_cepillado::where('id_proceso', $id_procesoC->id)->where('estado', 2)->where('correcto', 1)->get();
-        $pzasRestantes = $this->piezasRestantes($pzasCepillado, $pzasDesbaste, $clase);
+        $pzasRestantes = "";
+        if($id_procesoC != null){
+            $pzasCepillado = Pza_cepillado::where('id_proceso', $id_procesoC->id)->where('estado', 2)->where('correcto', 1)->get();
+            $pzasRestantes = $this->piezasRestantes($pzasCepillado, $pzasDesbaste, $clase);
+        }
 
         if (isset($request->n_pieza)) {  //Si se obtienen los datos de las piezas, se guardan en la tabla Desbaste exterior_cnominal.
             $id_pieza = $request->n_pieza . $id_proceso->id; //Creación de id para tabla Desbaste exterior_cnominal.

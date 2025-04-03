@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.appMenu')
 @section('content')
 
 <head>
@@ -16,6 +16,7 @@
         #div-btn-accept {
             display: none;
         }
+        
     </style>
 @else
     <style>

@@ -42,7 +42,6 @@ function crearTabla(procesos, procesosDB, encabezados, div, tabla, boton, tiempo
     eliminarTabla(tabla, boton, div);
     let div_search = document.getElementsByClassName("search")[0];
     div_search.style.marginTop =  "0";
-    div_search.style.height = "35%";
     div.style.display = "block";
 
     let btn = document.createElement('input');

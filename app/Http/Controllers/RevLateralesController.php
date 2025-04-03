@@ -92,8 +92,10 @@ class RevLateralesController extends Controller
         $id_proceso = RevLaterales::where('id_proceso', $id)->first();
         $pzasRevision = RevLaterales_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
         $id_procesoC = Cepillado::where('id_proceso', 'Cepillado_' . $clase->nombre . '_' . $clase->id_ot)->first();
-        $pzasCepillado = Pza_cepillado::where('id_proceso', $id_procesoC->id)->where('estado', 2)->where('correcto', 1)->get();
-        $pzasRestantes = $this->piezasRestantes($pzasCepillado, $pzasRevision, $clase);
+        if($id_procesoC != null){
+            $pzasCepillado = Pza_cepillado::where('id_proceso', $id_procesoC->id)->where('estado', 2)->where('correcto', 1)->get();
+            $pzasRestantes = $this->piezasRestantes($pzasCepillado, $pzasRevision, $clase);
+        }
 
         if (isset($request->n_pieza)) {  //Si se obtienen los datos de las piezas, se guardan en la tabla Revisión laterales_cnominal.
             $id_pieza = $request->n_pieza . $id_proceso->id; //Creación de id para tabla Revisión laterales_cnominal.
@@ -277,12 +279,14 @@ class RevLateralesController extends Controller
                 if (isset($pzasUtilizar)) { //Si no se encontro una pieza para utilizar, se crea una nueva pieza.
                     return view('processes.rev-laterales', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Revisión laterales.
                 } else {
-                    return view('processes.rev-laterales', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Revisión laterales.
+                    return view('processes.rev-laterales', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Revisión laterales.
+                    // return view('processes.rev-laterales', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Revisión laterales.
                 }
             }
         }
         $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
-        return view('processes.rev-laterales', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Revisión laterales.
+        // return view('processes.rev-laterales', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Revisión laterales.
+        return view('processes.rev-laterales', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Revisión laterales.
     }
     public function compararDatosPieza($pieza, $cNominal, $tolerancia) //Función para comparar los datos de la pieza con los datos nominales y de tolerancia.
     {
@@ -316,25 +320,28 @@ class RevLateralesController extends Controller
         $juegosMalos = array();
         $contadorJM = 0;
         $id_proceso = DesbasteExterior::where('id_proceso', 'desbaste_' . $clase->nombre . '_' . $clase->id_ot)->first();
-        $piezasProcesoC = Desbaste_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('correcto', 0)->get();
-        if (count($piezasProcesoB) > 0) {
-            foreach ($piezasProcesoC as $pzaMala) {
-                if (!in_array($pzaMala->n_juego, $juegosMalos)) {
-                    foreach ($piezasProcesoB as $pzaMala2) {
-                        if ($pzaMala->n_juego == $pzaMala2->n_juego) {
-                            $pzaMala2->n_juego;
-                            $pzasRestar = 1;
-                            break;
-                        } else {
-                            $pzasRestar = 0;
+        if($id_proceso != null){
+            $piezasProcesoC = Desbaste_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('correcto', 0)->get();
+            if (count($piezasProcesoB) > 0) {
+                foreach ($piezasProcesoC as $pzaMala) {
+                    if (!in_array($pzaMala->n_juego, $juegosMalos)) {
+                        foreach ($piezasProcesoB as $pzaMala2) {
+                            if ($pzaMala->n_juego == $pzaMala2->n_juego) {
+                                $pzaMala2->n_juego;
+                                $pzasRestar = 1;
+                                break;
+                            } else {
+                                $pzasRestar = 0;
+                            }
                         }
+                        if ($pzasRestar != 1) {
+                            $contadorJM++;
+                        }
+                        array_push($juegosMalos, $pzaMala->n_juego);
                     }
-                    if ($pzasRestar != 1) {
-                        $contadorJM++;
-                    }
-                    array_push($juegosMalos, $pzaMala->n_juego);
                 }
             }
+
         }
         return $juegosRestantes = ($juegosRestantes - (count($piezasProcesoB) / 2)) - $contadorJM;
     }
@@ -470,7 +477,8 @@ class RevLateralesController extends Controller
                 return view('processes.rev-laterales', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Revisión laterales.
             } else { //Si no existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
                 $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
-                return view('processes.rev-laterales', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Revisión laterales.
+                // return view('processes.rev-laterales', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Revisión laterales.
+                return view('processes.rev-laterales', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Revisión laterales.
             }
         } else {
             if (isset($request->password)) { //Si se ingreso una contraseña y la meta existe entonces...
@@ -511,7 +519,8 @@ class RevLateralesController extends Controller
                 return view('processes.rev-laterales', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Revisión laterales.
             } else { //Si no existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
                 $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
-                return view('processes.rev-laterales', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Revisión laterales.
+                // return view('processes.rev-laterales', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Revisión laterales.
+                return view('processes.rev-laterales', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Revisión laterales.
             }
         }
     }

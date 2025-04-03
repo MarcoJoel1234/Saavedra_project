@@ -1,4 +1,4 @@
-@extends('layouts.appAdmin')
+@extends('layouts.appMenu')
 @section('content')
 
 <head>

@@ -6,26 +6,46 @@ use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
-    public function index(){
+    public function index()
+    {
         try {
             $perfil = auth()->user()->perfil;
         } catch (\Exception $e) {
             // Manejar la excepción aquí
             $perfil = null;
         }
-        if($perfil !== null){
-            if(auth()->user()->perfil == 1){
-                return view ('home.indexAdmin');
-            }else if(auth()->user()->perfil == 2){
-                return view ('home.index');
-            }else if(auth()->user()->perfil == 3){
-                return view ('home.indexMaster');
-            }else{
-                return view ('home.indexQuality');
+
+        if ($perfil !== null) {
+            $backgroundImage = "images/fondoadmin.jpg";
+            $objectiveT = 'Nuestro objetivo es producir moldes de alta calidad para botellas de vidrio que cumplan con las especificaciones de los clientes y sean eficientes en términos de costos de producción.';
+            switch (auth()->user()->perfil) {
+                case 1:
+                    $layout = "layouts.menu.appAdmin";
+                    $welcomeT = '!Bienvenido a Administración';
+                    break;
+                case 2:
+                    $layout = "layouts.menu.appProduction";
+                    $backgroundImage = "images/fondoHome.jpg";
+                    $welcomeT = '!Bienvenido a Producción';
+                    break;
+                case 3:
+                    $layout = "layouts.menu.appMaster";
+                    $welcomeT = '¡Bienvenido Master';
+                    break;
+                case 4:
+                    $layout = "layouts.menu.appQuality";
+                    $backgroundImage = "images/calidad.png";
+                    $welcomeT = '!Bienvenido a Control de calidad';
+                    $objectiveT = 'En nuestro perfil de calidad, cada milímetro importa. Nos comprometemos a inspeccionar con precisión cada pieza, asegurando medidas exactas y calidad impecable. En la búsqueda constante de la excelencia, nos destacamos por nuestra meticulosidad y compromiso con la perfección.';
+                    break;
+                case 5:
+                    $layout = "layouts.menu.appWarehouse";
+                    $welcomeT = '!Bienvenido a Almacen';
+                    break;
             }
-        }else{
-            return view ('auth.login');
+            return view('home', compact('layout', 'backgroundImage', 'objectiveT', 'welcomeT'));
+        } else {
+            return view('auth.login');
         }
-        
     }
 }

@@ -21,6 +21,6 @@ class LogoutController extends Controller
         }
         Session::flush();
         Auth::logout();
-        return redirect()->to('login')->with('success', 'Cerraste sesión correctamente.');
+        return redirect()->route('home')->with('success', 'Cerraste sesión correctamente.');
     }
 }

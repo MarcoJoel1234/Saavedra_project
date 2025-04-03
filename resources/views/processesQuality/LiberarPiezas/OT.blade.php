@@ -1,4 +1,4 @@
-@extends($layout)
+@extends('layouts.appMenu')
 @section('content')
 
 <head>
