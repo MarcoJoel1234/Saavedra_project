@@ -1,4 +1,4 @@
-@extends('layouts.appMaster')
+@extends($layout)
 @section('content')
 <head>
     <title>Registrarse</title>
@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{asset('bootstrap/css/bootstrap.min.css')}}">
     <!-- Link estilos de CSS -->
     @vite(['resources/css/login.css'])
+    @section('title', "Registrar usuario")
 </head>
 
 <body background="{{ asset('images/fondoLogin.jpg') }}">
@@ -67,6 +68,7 @@
                                         <option value="2">Operador</option>
                                         <option value="3">Maestro</option>
                                         <option value="4">Calidad</option>
+                                        <option value="5">Almacen</option>
                                     </select>
                                     <label for="floatingSelect">Tipo de usuario</label>
                                 </div>

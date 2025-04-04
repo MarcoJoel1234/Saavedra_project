@@ -44,22 +44,38 @@ use Symfony\Component\Console\Input\Input;
 
 class OTController extends Controller
 {
+    protected $userController;
+    public function __construct()
+    {
+        $this->userController = new UserController;
+    }
+    public function getLayout()
+    {
+        return $this->userController->getLayout();
+    }
     public function show()
     {
         $molduras = Moldura::all();
-        $oTrabajo = Orden_trabajo::all();
+        $oTrabajoAll = Orden_trabajo::all();
         //Si existen ordenes de trabajo registradas.
-        if ($oTrabajo != "[]") {
-            $moldurasOT = []; //Arreglo para guardar las molduras de cada OT
+        if ($oTrabajoAll != "[]") {
+            $ordenesTrabajo = []; //Arreglo para guardar las molduras de cada OT
             $contador = 0; // Contador para las molduras y OT
-            foreach ($oTrabajo as $ot) {
+            foreach ($oTrabajoAll as $ot) {
+                if (auth()->user()->perfil == 5) {
+                    $clases = Clase::where("id_ot", $ot->id)->get();
+                    if ($clases->count() == 0) {
+                        continue;
+                    }
+                }
                 $moldura = Moldura::find($ot->id_moldura);
-                $moldurasOT[$contador] = $ot->id . " - " . $moldura->nombre;
+                $ordenesTrabajo[$contador]['ot'] = $ot->id;
+                $ordenesTrabajo[$contador]['moldura'] = $moldura->nombre;
                 $contador++;
             }
-            return view('processesAdmin.RegistrarOT.registrarOT', ['molduras' => $molduras, 'moldurasOT' => $moldurasOT, 'oTrabajo' => $oTrabajo]); //Retorno la vista de registro de OT con las molduras.
+            return view('processesAdmin.RegistrarOT.registrarOT', ['molduras' => $molduras, 'ordenesTrabajo' => $ordenesTrabajo, 'layout' => $this->getLayout()]); //Retorno la vista de registro de OT con las molduras.
         }
-        return view('processesAdmin.RegistrarOT.registrarOT', ['molduras' => $molduras]); //Retorno la vista de registro de OT con las molduras.
+        return view('processesAdmin.RegistrarOT.registrarOT', ['molduras' => $molduras, 'layout' => $this->getLayout()]); //Retorno la vista de registro de OT con las molduras.
     }
 
     public function deleteOT($ot)
@@ -68,7 +84,7 @@ class OTController extends Controller
         $meta = Metas::where('id_ot', $ot)->get();
         if (count($piezas) == 0 && count($meta) == 0) { //Si la OT no tiene piezas ni metas asociadas entonces
             $clase = Clase::where('id_ot', $ot)->get(); //Busco todas las clases que pertenecen a la OT
-            foreach ($clase as $clase) { //Recorro las clases de la OT
+            foreach ($clase as $clase ) { //Recorro las clases de la OT
                 $this->deleteClass($clase->id); //Elimino las clases
             }
             Orden_trabajo::find($ot)->delete(); //Elimino la OT
@@ -78,13 +94,17 @@ class OTController extends Controller
     }
     public function store(OTRequest $request) //Funcion para registrar una OT.
     {
+        //Si el perfil ingresado es Almacen, se redirige a la interfaz de editar la OT
+        if (auth()->user()->perfil == 5) {
+            return redirect()->route('mostrarClases', ['ot' => $request->otSeleccionada]);
+        }
         if (isset($request->ot)) {
             $ot = Orden_trabajo::find($request->ot); //Busco la OT ingresada
         } else {
             $ot = Orden_trabajo::find($request->otSeleccionada); //Busco a la OT seleccionada
         }
         //Si la orden de trabajo existe.
-        if ($ot) {
+        if ($ot && $request->ot == null || isset($request->clase)) {
             $moldura = Moldura::find($request->id_moldura);
             //Si el usuario ingreso datos de una clase.
             if (isset($request->clase)) {
@@ -123,16 +143,16 @@ class OTController extends Controller
                         }
                     }
                     $clasesEncontradas = Clase::where('id_ot', $request->ot)->get(); //Busco la clase.
-                    return view('processesAdmin.RegistrarOT.infoOT', ['ot' => $ot->id, 'moldura' => $moldura, 'clase' => $clase, 'proceso' => $camposConValor, 'maquinas' => $maquinas, 'clases' => $clasesEncontradas]); //Redirecciono a la vista de editar de OT.
+                    return view('processesAdmin.RegistrarOT.infoOT', ['ot' => $ot->id, 'moldura' => $moldura, 'clase' => $clase, 'proceso' => $camposConValor, 'maquinas' => $maquinas, 'clases' => $clasesEncontradas, 'layout' => $this->getLayout()]); //Redirecciono a la vista de editar de OT.
                 } else {
                     $clasesEncontradas = Clase::where('id_ot', $request->ot)->get(); //Busco la clase.
-                    return view('processesAdmin.RegistrarOT.infoOT', ['ot' => $ot->id, 'moldura' => $moldura, 'clase' => $clase, 'clases' => $clasesEncontradas]); //Redirecciono a la vista de registro de OT.
+                    return view('processesAdmin.RegistrarOT.infoOT', ['ot' => $ot->id, 'moldura' => $moldura, 'clase' => $clase, 'clases' => $clasesEncontradas, 'layout' => $this->getLayout()]); //Redirecciono a la vista de registro de OT.
                 }
             }
             //Cuando solamente se ingresa una OT que ya existe.
             $clasesEncontradas = Clase::where('id_ot', $ot->id)->get(); //Busco la clase.
             if ($clasesEncontradas) {
-                return view('processesAdmin.RegistrarOT.registrarOT', ['ot' => $ot->id, 'moldura' => $moldura, 'clasesEncontradas' => $clasesEncontradas]); //Redirecciono a la vista de registro de OT.
+                return view('processesAdmin.RegistrarOT.registrarOT', ['ot' => $ot->id, 'moldura' => $moldura, 'clasesEncontradas' => $clasesEncontradas, 'layout' => $this->getLayout()]); //Redirecciono a la vista de registro de OT.
             }
         } else {
             $otExistente = Orden_trabajo::find($request->ot); //Busco la OT ingresada.
@@ -145,37 +165,46 @@ class OTController extends Controller
 
                 $moldura = Moldura::find($ot->id_moldura); //Busco la moldura de la OT.
             } else {
-                return redirect()->to('/registerOT')->withErrors('La orden de trabajo seleccionada ya existe con otra moldura'); //Redirecciono a la vista de registro de OT.
+                return redirect()->to('/registerOT')->withErrors('La orden de trabajo ingresada ya existe'); //Redirecciono a la vista de registro de OT.
             }
         }
-        return view('processesAdmin.RegistrarOT.registrarOT', ['ot' => $request->ot, 'moldura' => $moldura]); //Redirecciono a la vista de registro de OT.
+        return view('processesAdmin.RegistrarOT.registrarOT', ['ot' => $request->ot, 'moldura' => $moldura, 'layout' => $this->getLayout()]); //Redirecciono a la vista de registro de OT.
     }
     public function registerClass($ot)
     {
         $otEncontrada = Orden_trabajo::find($ot); //Busco la OT ingresada.
         $moldura = Moldura::find($otEncontrada->id_moldura); //Busco la OT ingresada.
         $clasesEncontradas = Clase::where('id_ot', $ot)->get(); //Busco la clase.
-        return view('processesAdmin.RegistrarOT.registrarOT', ['ot' => $ot, 'moldura' => $moldura, 'clasesEncontradas' => $clasesEncontradas]); //Redirecciono a la vista de registro de OT.
+        return view('processesAdmin.RegistrarOT.registrarOT', ['ot' => $ot, 'moldura' => $moldura, 'clasesEncontradas' => $clasesEncontradas, 'layout' => $this->getLayout()]); //Redirecciono a la vista de registro de OT.
     }
     public function deleteClass($clase)
     {
         $clase = Clase::find($clase);
-        $proceso = Procesos::where('id_clase', $clase->id)->first();
-        //Si el proceso existe.
-        if ($proceso) {
-            $proceso->delete(); //Elimino el proceso de la clase
-            $fechasProcesos = Fecha_proceso::where('clase', $clase->id)->get();
-            if (count($fechasProcesos) > 0) {
-                foreach ($fechasProcesos as $fecha) {
-                    $fecha->delete();
-                }
-            }
-        }
         $ot = $clase->id_ot; //Busco la OT ingresada.
         $ot = Orden_trabajo::find($ot); //Busco la OT ingresada
-        Clase::destroy($clase->id); //Elimino la clase
-        $ruta = route('mostrarClases', ['ot' => $ot]);
-        return redirect($ruta); //Redirecciono a la vista de registro de la OT
+
+        //Si existen metas asociadas a la clase no se elimina
+        $text = "La clase {$clase->nombre} no se puede eliminar porque ya tiene metas asociadas";
+        $param = "error";
+        $metas = Metas::where('id_clase', $clase->id)->get();
+        if(count($metas) == 0){
+            $proceso = Procesos::where('id_clase', $clase->id)->first();
+            //Si el proceso existe.
+            if ($proceso) {
+                $proceso->delete(); //Elimino el proceso de la clase
+                $fechasProcesos = Fecha_proceso::where('clase', $clase->id)->get();
+                if (count($fechasProcesos) > 0) {
+                    foreach ($fechasProcesos as $fecha) {
+                        $fecha->delete();
+                    }
+                }
+            }
+            Clase::destroy($clase->id); //Elimino la clase
+            $text = "La clase {$clase->nombre} se elimino exitosamente";
+            $param = "success";
+        }
+        $ruta = route('mostrarClases', ['ot' => $ot, 'message' => $text]);
+        return redirect($ruta)->with($param, $text); //Redirecciono a la vista de registro de la OT
     }
     public function editClass($clase)
     {
@@ -216,11 +245,11 @@ class OTController extends Controller
                     }
                 }
             }
-            return view('processesAdmin.RegistrarOT.infoOT', ['ot' => $ot->id, 'moldura' => $moldura, 'clase' => $clase, 'proceso' => $camposConValor, 'clases' => $clases, 'maquinas' => $maquinas, 'clasesName' => $clasesName, 'edit' => true, 'piezas' => $piezas, 'metas' => $metas])->with('success', '¡Orden de trabajo registrada con éxito!'); //Redirecciono a la vista de editar de OT.
+            return view('processesAdmin.RegistrarOT.infoOT', ['ot' => $ot->id, 'moldura' => $moldura, 'clase' => $clase, 'proceso' => $camposConValor, 'clases' => $clases, 'maquinas' => $maquinas, 'clasesName' => $clasesName, 'edit' => true, 'piezas' => $piezas, 'metas' => $metas, 'layout' => $this->getLayout()])->with('success', '¡Orden de trabajo registrada con éxito!'); //Redirecciono a la vista de editar de OT.
         }
-        return view('processesAdmin.RegistrarOT.infoOT', ['ot' => $ot->id, 'moldura' => $moldura, 'clase' => $clase, 'clases' => $clases, 'edit' => true, 'clasesName' => $clasesName, 'piezas' => $piezas, 'metas' => $metas]); //Redirecciono a la vista de registro de OT.
+        return view('processesAdmin.RegistrarOT.infoOT', ['ot' => $ot->id, 'moldura' => $moldura, 'clase' => $clase, 'clases' => $clases, 'edit' => true, 'clasesName' => $clasesName, 'piezas' => $piezas, 'metas' => $metas, 'layout' => $this->getLayout()]); //Redirecciono a la vista de registro de OT.
     }
-    public function mostrarClases($ot)
+    public function mostrarClases($ot, $message = null)
     {
         $ot = Orden_trabajo::find($ot); //Busco la OT ingresada.
         $moldura = Moldura::find($ot->id_moldura); //Busco la moldura de la OT.
@@ -243,27 +272,32 @@ class OTController extends Controller
                         }
                     }
                 }
-                return view('processesAdmin.RegistrarOT.infoOT', ['ot' => $ot->id, 'moldura' => $moldura, 'clase' => $clase, 'proceso' => $camposConValor, 'clases' => $clasesEncontradas, 'maquinas' => $maquinas])->with('success', '¡Orden de trabajo registrada con éxito!'); //Redirecciono a la vista de editar de OT.
+                return view('processesAdmin.RegistrarOT.infoOT', ['ot' => $ot->id, 'moldura' => $moldura, 'clase' => $clase, 'proceso' => $camposConValor, 'clases' => $clasesEncontradas, 'maquinas' => $maquinas, 'layout' => $this->getLayout()]); //Redirecciono a la vista de editar de OT.
             }
-            return view('processesAdmin.RegistrarOT.infoOT', ['ot' => $ot->id, 'moldura' => $moldura, 'clases' => $clasesEncontradas, 'clase' => $clase]); //Redirecciono a la vista de editar de OT.
+            return view('processesAdmin.RegistrarOT.infoOT', ['ot' => $ot->id, 'moldura' => $moldura, 'clases' => $clasesEncontradas, 'clase' => $clase, 'layout' => $this->getLayout()]); //Redirecciono a la vista de editar de OT.
         }
-        return view('processesAdmin.RegistrarOT.registrarOT', ['ot' => $ot->id, 'moldura' => $moldura]); //Redirecciono a la vista de registro de OT.
+        return view('processesAdmin.RegistrarOT.registrarOT', ['ot' => $ot->id, 'moldura' => $moldura, 'layout' => $this->getLayout()]); //Redirecciono a la vista de registro de OT.
     }
     public function saveProcess(Request $request) //Función para registrar una OT.
     {
         if (isset($request->pedido)) {
             $clase = Clase::find($request->id_clase); //Busco la clase ingresada.
-            $clase->nombre = $request->clase;
-            $clase->piezas = $request->piezas;
-            $clase->pedido = $request->pedido;
-            $clase->fecha_inicio = $request->fecha_inicio;
-            $clase->hora_inicio = $request->hora_inicio;
-            if ($request->clase != "Obturador") { //Si la clase no es obturador.
-                $clase->tamanio = $request->tamanio;
-                $clase->seccion = null;
-            } else { //Si la clase es obturador.
-                $clase->seccion = $request->seccion;
-                $clase->tamanio = null;
+            if(auth()->user()->perfil != 5) {
+                $clase->nombre = $request->clase;
+                $clase->piezas = $request->piezas;
+                $clase->pedido = $request->pedido;
+                $clase->fecha_inicio = $request->fecha_inicio;
+                $clase->hora_inicio = $request->hora_inicio;
+                if ($request->clase != "Obturador") { //Si la clase no es obturador.
+                    $clase->tamanio = $request->tamanio;
+                    $clase->seccion = null;
+                } else { //Si la clase es obturador.
+                    $clase->seccion = $request->seccion;
+                    $clase->tamanio = null;
+                }
+            }else{
+                $clase->piezas = $request->piezas;
+                $clase->pedido = $request->pedido;
             }
             $clase->save(); //Guardo los cambios.
 
@@ -281,17 +315,17 @@ class OTController extends Controller
         //Si la clase existe.
         if ($clase) {
             $proceso = Procesos::where('id_clase', $clase->id)->first(); //Busco el proceso.
-            if (!$proceso || isset($request->pedido)) { //Si la clase no existe entonces...
-                if (!$proceso) {
+            if (!$proceso && $request->procesos != null) { //Si no se ha creado el registro y se han seleccionado procesos
+                if (!$proceso) { //Si el registro no existe
                     $proceso = new Procesos();
                 }
                 $this->verificarCasillas($clase, $request->procesos, $request->maquinas, $proceso); //Verifico las casillas.
             }
             $procesoI = Procesos::where('id_clase', $request->id_clase)->first(); //Busco la clase.
+            $camposConValor = [];
+            $maquinas = [];
             if ($procesoI) {
                 // Obtener los campos donde el valor es igual a 1
-                $camposConValor = [];
-                $maquinas = [];
                 $contador = 0;
                 foreach ($procesoI->getAttributes() as $campo => $valor) { //Recorro los campos.
                     if ($campo != "id" && $campo != "id_clase") {
@@ -304,11 +338,11 @@ class OTController extends Controller
                 }
             }
             $clases = Clase::where('id_ot', $request->ot)->get(); //Busco la clase.
-            return view('processesAdmin.RegistrarOT.infoOT', ['ot' => $request->ot, 'moldura' => $moldura, 'clase' => $clase, 'proceso' => $camposConValor, 'clases' => $clases, 'maquinas' => $maquinas])->with('success', '¡Orden de trabajo registrada con éxito!'); //Redirecciono a la vista de registro de OT.
+            return view('processesAdmin.RegistrarOT.infoOT', ['ot' => $request->ot, 'moldura' => $moldura, 'clase' => $clase, 'proceso' => $camposConValor, 'clases' => $clases, 'maquinas' => $maquinas, 'layout' => $this->getLayout()])->with('success', '¡Orden de trabajo registrada con éxito!'); //Redirecciono a la vista de registro de OT.
         } else {
             //Cuando solamente se ingresa una OT que ya existe.
             $clasesEncontradas = Clase::where('id_ot', $request->ot)->get(); //Busco la clase.
-            return view('processesAdmin.RegistrarOT.registrarOT', ['ot' => $request->ot, 'moldura' => $moldura, 'clasesEncontradas' => $clasesEncontradas]); //Redirecciono a la vista de registro de OT.
+            return view('processesAdmin.RegistrarOT.registrarOT', ['ot' => $request->ot, 'moldura' => $moldura, 'clasesEncontradas' => $clasesEncontradas, 'layout' => $this->getLayout()]); //Redirecciono a la vista de registro de OT.
         }
     }
     public function verificarCasillas($clase, $procesosData, $maquinas, $proceso)
@@ -333,6 +367,7 @@ class OTController extends Controller
                 $procesos = array("operacionEquipo", "embudoCM");
                 break;
         }
+
         //Almacenar los valores en la base de datos
         $contadorMaquinas = 0;
         $proceso->id_clase = $clase->id;
@@ -392,10 +427,9 @@ class OTController extends Controller
         $nuevoProceso = new Fecha_proceso();
         $nuevoProceso->clase = $clase->id;
         $nuevoProceso->proceso = $procesos[$i];
-
         $fechaInicio = $this->calcularFechaInicio($clase, $procesos, $i, $noProceso);
         $nuevoProceso->fecha_inicio = $fechaInicio;
-        $nuevoProceso->fecha_fin = $this->calcularFechaTermino($clase, $procesos[$i], $i, $maquinas, $fechaInicio);
+        $nuevoProceso->fecha_fin = $this->calcularFechaTermino($clase, $procesos, $i, $maquinas, $fechaInicio, $noProceso);
         $nuevoProceso->save();
         return $nuevoProceso;
     }
@@ -405,57 +439,110 @@ class OTController extends Controller
         $clases = ["Bombillo", "Molde", "Corona"];
         $fechaInicio = $clase->fecha_inicio . " " . $clase->hora_inicio;
         $fechaInicio = new DateTime($fechaInicio);
-        if ((in_array($clase->nombre, $clases) && $procesos[$i] == "cepillado") || (!in_array($clase->nombre, $clases) && $procesos[$i] == "operacionEquipo")) {
-        } else {
-            if($this->juegosPorMaqTurn($i, $clase) != 0){
-                for ($i = 0; $i < $noProceso; $i++) {
-                    $fecha = new DateTime($fechaInicio->format('Y-m-d H:i:s'));
-                    $fecha->modify("+1 hours");
-                    if ($fecha->format('H') >= 22) {
-                        $fechaInicio->modify("+1 days");
-                        $fechaInicio->setTime(6, $fechaInicio->format('i'), 0);
-                    } else if ($fecha->format('H') >= 19 && $fecha->format('l') == "Saturday") {
-                        $fechaInicio->modify("+2 days");
-                        $fechaInicio->setTime(6, $fechaInicio->format('i'), 0);
-                    } else {
-                        $fechaInicio->modify("1 hours");
-                    }
-                }
-            }else{
-                $contador = 1;
-                do{
-                    $proceso = Fecha_proceso::where('clase', $clase->id)->where('proceso', $procesos[$i-$contador])->first();
-                    $contador++;
-                }while($proceso == null);
-                $fechaInicio = new DateTime($proceso->fecha_fin);
-            }
+        // if ((in_array($clase->nombre, $clases) && $procesos[$i] == "cepillado") || (!in_array($clase->nombre, $clases) && $procesos[$i] == "operacionEquipo")) {
+        if ($noProceso != 0) {
+            //Obtener el anterior proceso
+            $fechaInicio = $this->tiempoRetraso_Inicio_termino($procesos, $i, $clase, "inicio");
         }
         return $fechaInicio;
     }
-    public function calcularFechaTermino($clase, $proceso, $i, $maquinas, $fecha)
+    public function calcularFechaTermino($clase, $procesos, $i, $maquinas, $fecha, $noProceso)
     {
-        $fechaInicio = new DateTime($fecha->format('Y-m-d H:i:s'));
+        // if ((in_array($clase->nombre, $clases) && $procesos[$i] == "cepillado") || (!in_array($clase->nombre, $clases) && $procesos[$i] == "operacionEquipo")) {
+        if ($noProceso == 0) {
+            $fechaInicio = new DateTime($fecha->format('Y-m-d H:i:s'));
 
-        // echo "Proceso: " . $proceso . "<br>";
-        // echo "Pedido: " . $clase->pedido . "<br>";
+            // echo "Proceso: " . $proceso . "<br>";
+            // echo "Pedido: " . $clase->pedido . "<br>";
 
-        //Calcular los dias que tarda en maquinar el proceso
-        $diasMaq = $this->calcularDiasMaquinar($clase, $i, $maquinas);
+            //Calcular los dias que tarda en maquinar el proceso
+            $diasMaq = $this->calcularDiasMaquinar($clase, $i, $maquinas);
 
-        // echo "Dias maquinar: " . $diasMaq . "<br>";
+            // echo "Dias maquinar: " . $diasMaq . "<br>";
 
-        //Convertir los dias a horas y minutos
-        $tiempo = $this->convertirDiasMaqAHoras($diasMaq);
-        $horas = $tiempo[0];
-        $minutos = $tiempo[1];
-        //Sumar horas y minutos
-        $fecha_termino = $this->sumarHrsMnts($fechaInicio, $horas, $minutos);
+            //Convertir los dias a horas y minutos
+            $tiempo = $this->convertirDiasMaqAHoras($diasMaq);
+            $horas = $tiempo[0];
+            $minutos = $tiempo[1];
+            $fecha_termino = $this->sumarHrsMnts($fechaInicio, $horas, $minutos); //Sumar horas y minutos
+        } else {
+            //Obtener la fecha de termino con el tiempo de retraso
+            $fecha_termino = $this->tiempoRetraso_Inicio_termino($procesos, $i, $clase, "termino");
+        }
 
         // echo "Horas: " . $horas . " Minutos: " . $minutos . "<br>";
         // echo "Fecha inicio: " . $fecha->format('l') . " " . $fecha->format('Y-m-d H:i:s') . "<br>";
         // echo "Fecha termino: " . $fecha_termino->format('l') . " " . $fecha_termino->format('Y-m-d H:i:s') . "<br>";
 
         return $fecha_termino;
+    }
+    public function calcularProcesoAnterior($procesos, $i, $clase)
+    {
+        $contador = 1;
+        do {
+            $procesoAnterior = Fecha_proceso::where('proceso', $procesos[$i - $contador])->where('clase', $clase->id)->first();
+            if ($procesoAnterior == null) {
+                $contador++;
+            } else {
+            }
+        } while ($procesoAnterior == null);
+        return [$procesoAnterior, $contador];
+    }
+    public function tiempoRetraso_Inicio_termino($procesos, $i, $clase, $etapa)
+    {
+        //Obtener el anterior proceso
+        // echo "OT" . $clase->id_ot . $clase->nombre . "<br>";
+        // echo $procesos[$i] . "<br>";
+        $proceso_contador = $this->calcularProcesoAnterior($procesos, $i, $clase);
+        $procesoAnterior = $proceso_contador[0];
+        $contador = $proceso_contador[1];
+        //Calcular los juegos por maquina y por turno
+        $juegosMaqTurn = $this->juegosPorMaqTurn($i - $contador, $clase);
+        if ($juegosMaqTurn != 0) {
+            //Si se desea calcular la fecha de inicio
+            if ($etapa == "inicio") {
+                $fecha = new DateTime($procesoAnterior->fecha_inicio);
+            } else { //Si se desea calcular la fecha de termmino
+                $fecha = new DateTime($procesoAnterior->fecha_fin);
+            }
+            $fechaAux = new DateTime($fecha->format('Y-m-d H:i:s'));
+            //Se calcula cuanto tiempo se tarda en generar una pieza para calcular el tiempo de retraso entre el proceso
+            //Falta agregar el factor de riesgo
+            $procesosJuegos = ["cepillado", "desbaste", "revLaterales", "primeraOpeSoldadura", "barrenoManiobra", "segundaOpeSoldadura", "soldadura", "soldaduraPTA", "rectificado", "asentado", "revCalificado", "acabadoBombillo", "acabadoMolde", "barrenoProfundidad", "cavidades", "copiado", "offset", "palomas", "rebajes"];
+            $tiempoRetraso = tiempoproduccion::where('clase', $clase->nombre)->where('proceso', $procesosJuegos[$i - $contador])->where('tamanio', $clase->tamanio)->first();
+            if ($tiempoRetraso) {
+                //Agregar el factor de seguridad
+                $factorSeguridad = $tiempoRetraso->tiempo * .08;
+                $factorSeguridad = round($factorSeguridad);
+                $tiempoRetraso = $tiempoRetraso->tiempo + $factorSeguridad;
+            } else {
+                $tiempoRetraso = 0;
+            }
+
+            // echo 'Tiempo retraso: ' . $tiempoRetraso . "<br>";
+            $fechaAux->modify("+{$tiempoRetraso} minutes");
+
+            if ($fechaAux->format('H') >= 22) {
+                $fecha->modify("+1 days");
+                $fecha->setTime(6, 0, 0);
+                $fecha->modify("+{$tiempoRetraso} minutes");
+            } else if ($fechaAux->format('H') >= 19 && $fechaAux->format('l') == "Saturday") {
+                $fecha->modify("+2 days");
+                $fecha->setTime(6, 0, 0);
+                $fecha->modify("+{$tiempoRetraso} minutes");
+            } else {
+                $fecha->modify("+{$tiempoRetraso} minutes");
+            }
+        } else {
+            //Obtener el anterior proceso
+            $proceso_contador = $this->calcularProcesoAnterior($procesos, $i, $clase);
+            $procesoAnterior = $proceso_contador[0];
+            $contador = $proceso_contador[1];
+
+            $fecha = new DateTime($procesoAnterior->fecha_fin);
+        }
+        // echo $fecha->format('Y-m-d H:i:s') . "<br>";
+        return $fecha;
     }
     public function calcularDiasMaquinar($clase, $i, $maquinas)
     {
@@ -519,7 +606,7 @@ class OTController extends Controller
 
         $juegos = 0;
         $t_estandar = tiempoproduccion::where('clase', $clase->nombre)->where('proceso', $procesos[$i])->where('tamanio', $clase->tamanio)->first();
-        if($t_estandar && $t_estandar->tiempo != 0){
+        if ($t_estandar && $t_estandar->tiempo != 0) {
             $juegos = 420 / $t_estandar->tiempo;
             $juegos = floor($juegos * 10) / 10;
         }
@@ -1252,7 +1339,9 @@ class OTController extends Controller
 
     public function calcularMeta($t_estandar, $hrsTrabajadas) //Función para calcular la meta.
     {
-        return round(($hrsTrabajadas / $t_estandar)); //Calculo de la meta.
+        //Calculo de la meta.
+        $tiempo = $t_estandar != 0 ? round(($hrsTrabajadas / $t_estandar)) : 0;
+        return $tiempo;
     }
     public function calcularHrs($h_inicio, $h_termino) //Función para calcular las horas trabajadas.
     {

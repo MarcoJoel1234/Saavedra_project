@@ -8,6 +8,7 @@ use App\Http\Controllers\BarrenoProfundidadController;
 use App\Http\Controllers\CavidadesController;
 use App\Http\Controllers\CepilladoController;
 use App\Http\Controllers\CopiadoController;
+use App\Http\Controllers\DatosProduccionController;
 use App\Http\Controllers\DesbasteExteriorController;
 use App\Http\Controllers\EmbudoCMController;
 use App\Http\Controllers\GestionOTController;
@@ -34,6 +35,8 @@ use App\Http\Controllers\SegundaOpeSoldaduraController;
 use App\Http\Controllers\SoldaduraController;
 use App\Http\Controllers\SoldaduraPTAController;
 use App\Http\Controllers\TiemposProduccionController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -59,10 +62,18 @@ Route::controller(RegisterController::class)->group(function () {
     Route::post('/register', 'register')->name('registerUser');
 });
 
-//Grupo de rutas para el controlador LoginController
+//Grupo de rutas para el controlador LoginController 
 Route::controller(LoginController::class)->group(function () {
     Route::get('/login', 'show')->name('login');
     Route::post('/login', 'login')->name('loginUser');
+});
+
+//Grupo de rutas para el controlador de ver usuarios en perfil de master
+Route::controller(UserController::class)->group(function () {
+    Route::get('/users', 'show')->name('users'); //Vista de usuarios
+    Route::get('/alta-usuario', [UserController::class, 'altaUsuario'])->name('alta_usuario');
+    Route::get('/baja-usuario', [UserController::class, 'bajaUsuario'])->name('baja_usuario');
+    Route::get('/eliminar-usuario', [UserController::class, 'eliminarUsuario'])->name('eliminar_usuario');
 });
 
 //Grupo de rutas para el controlador RecoverPasswordController
@@ -109,10 +120,10 @@ Route::get('/progresoOT', [ProgresoProcesosController::class, 'show'])->name('ve
 
 //Grupo de rutas para el controlador TiemposProduccionController
 Route::controller(TiemposProduccionController::class)->group(function(){
+    // Route::get('/tiemposProduccion/update', 'update')->name('actualizarClases');
     Route::get('/tiemposProduccion/{clase?}', 'show')->name('mostrarTiempos');
     Route::post('/tiemposProduccion', 'store')->name('guardarTiempos');
 });
-
 
 //Grupo de rutas para el controlador PzasGeneralesController
 Route::controller(PzasGeneralesController::class)->group(function () {
@@ -129,7 +140,15 @@ Route::controller(PzasLiberadasController::class)->group(function () {
     Route::post('/piezasLiberar', 'obtenerPiezasRequest')->name('vistaPiezasLiberar'); //Ruta para ver los procesos de las maquinas
     Route::get('/piezasLiberar/{pieza}/{proceso}/{liberar}/{buena}/{request}', 'liberar_rechazar')->name('liberar_rechazar'); //Ruta para liberar o rechazar
 });
+//Rutas para el controlador de DatosProduccionController
+Route::controller(DatosProduccionController::class)->group(function () {
+    Route::get('/datosProduccion', 'index')->name('datosProduccion'); //Vista de datos de producción
+    Route::post('/datosProduccion', 'show')->name('showProduccion'); //Vista de datos de producción
+});
 
+
+
+//PROCESOS*************************************************************************************
 //Grupo de rutas de cepillado
 Route::controller(CepilladoController::class)->group(function () {
     Route::get('/cepillado/{error}', 'show')->name('cepillado'); //Vista de cepillado
@@ -298,3 +317,5 @@ Route::controller(EmbudoCMController::class)->group(function () {
     Route::post('/embudoCMHeader', 'storeheaderTable')->name('embudoCMHeader'); //Guardar encabezado de la tabla Embudo CM
     Route::post('/editEmbudoCM', 'edit')->name('editEmbudoCM'); //Ruta para editar datos de la tabla Embudo CM
 });
+
+

@@ -1,0 +1,191 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f8ff;
+}
+
+h1 {
+    margin: 20px 0;
+    color: #333;
+    animation: fadeInDown 1s;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 34px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.search-input {
+    width: 90%; 
+    max-width: 500px; 
+    padding: 10px; 
+    font-size: 1rem; 
+    border: 1px solid #ccc; 
+    border-radius: 5px; 
+    background-color: #f9f9f9; 
+    color: #333; 
+    outline: none; 
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); 
+    transition: all 0.3s ease; 
+}
+
+.search-input:focus {
+    border-color: #007bff; 
+}
+
+.container1 {
+    width: 150%; 
+    max-width: 1450px;
+    border-radius: 10px;
+    position: relative; 
+    top: 180px; 
+    margin-left: auto;
+    margin-right: auto;
+    padding: 30px 40px;
+    box-shadow: 20px 20px 80px rgb(0, 0, 0);
+}
+
+.search-container {
+    text-align: center; /* Centra el contenido dentro */
+    margin-top: 20px; /* Ajusta según tu diseño */
+    margin-bottom: 20px; /* Ajusta según tu diseño */
+    animation: fadeIn 1s;
+}
+
+.search-container input[type="text"] {
+    padding: 10px;
+    width: 50%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    transition: box-shadow 0.3s;
+}
+
+.search-container input[type="text"]:focus {
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+    outline: none;
+    font-family: arial;
+}
+
+.search-container button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.search-container button:hover {
+    background-color: #0056b3;
+}
+
+table {
+    width: 100%;
+    margin-top: 20px; /* Ajusta según tu diseño */
+    border-collapse: collapse;
+    animation: fadeIn 1s;
+    background-color: #fff;
+    text-align: center;
+}
+
+table thead th {
+    background-color: #65b6db8f; 
+    font-weight: bold;
+    font-size: 19px;
+}
+
+table td, table th {
+    border: 1px solid #ddd; 
+    font-size: 17px;
+    padding: 10px;
+}
+
+table tbody tr:hover {
+    background-color: rgba(56, 59, 61, 0.267); 
+    transition: background-color 0.3s ease; 
+}
+
+table thead tr:hover {
+    background-color: transparent; 
+}
+
+/* Botones */
+.btn {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.role-select {
+    width: 100%; 
+    height: 100%;
+    padding: 5px; 
+    font-weight: bold;
+    font-size: 19px; 
+    border: none; 
+    background-color: transparent;
+    color: #333; 
+    text-align: center; 
+    border-radius: 4px;
+    outline: none; 
+}
+
+/* Elimina los iconos de las flechas en navegadores como IE y Edge */
+.role-select::-ms-expand {
+    display: none;
+}
+
+/* Estilo al enfocar el select (cuando el usuario hace clic o navega con el teclado) */
+.role-select:focus {
+    border-color: #007bff; 
+}
+
+/* Menú Contextual */
+.context-menu {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    list-style: none;
+    padding: 5px;
+    margin: 0;
+    border-radius: 5px;
+    z-index: 1000; /* Ensures it's above other content */
+}
+
+.context-menu a {
+    text-decoration: none;
+    color: #333;
+    display: block;
+    padding: 8px 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+.context-menu a:last-child {
+    border-bottom: none; /* Eliminar borde inferior de la última opción */
+}
+
+/* Efecto hover general */
+#context-menu .menu-item:hover {
+    background-color: rgba(45, 49, 54, 0.274); 
+    color: #111111; 
+}
+
+/* Efecto hover específico para "Eliminar" */
+#context-menu .eliminar-option:hover {
+    background-color: rgba(238, 114, 92, 0.445);
+    color: #131212; 
+}

@@ -638,6 +638,15 @@ class ProcesosController extends Controller
                 //Guardar los datos de las pieza en la tabla pieza (En donde se almacenan todas las piezas)
                 if (!isset($pieza)) {
                     $pieza = new Pieza();
+                    $pieza->n_pieza = $piezaControlador->n_pieza;
+                    $pieza->id_ot = $proceso->id_ot;
+                    $pieza->id_clase = $clase->id;
+                    //Obtener operador
+                    $meta = Metas::find($piezaControlador->id_meta);
+                    $pieza->id_operador = $meta->id_usuario;
+                    $pieza->maquina = $meta->maquina;
+
+                    $pieza->proceso = $stringProceso;
                 }
                 $pieza->error = $piezaControlador->error;
                 $pieza->save();

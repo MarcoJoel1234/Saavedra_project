@@ -87,7 +87,7 @@
                         <div class="input-datos">
                             <label for="fecha" style="padding-right: 60px; margin-left:50px;">Fecha:</label>
                             <label for="fecha">Máquina:</label><br>
-                            <input type="date" name="fecha" value="{{$meta->fecha}}" style="cursor:auto;" readonly>
+                            <input type="date" name="fecha" id="fecha" value="{{$meta->fecha}}" style="cursor:auto;" readonly>
                             <input type="text" name="maquina" value="{{$meta->maquina}}" style="cursor:auto; width:20%;" readonly>
                         </div>
                     @else
@@ -123,6 +123,11 @@
                             <label for="fecha" style="padding-right: 70px; margin-left:50px;">Fecha:</label>
                             <label for="fecha">Máquina:</label><br>
                             <input type="date" id="fecha" name="fecha" required>
+                            <script>
+                                let today = new Date().toISOString().split("T")[0];
+                                document.getElementById("fecha").setAttribute("min", today);
+                                document.getElementById("fecha").setAttribute("max", today);
+                            </script>
                             <select name="maquina">
                             @for ($i=1; $i<=7; $i++)
                                 <option value="{{$i}}">Máquina {{$i}}</option>
