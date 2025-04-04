@@ -1,67 +1,72 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const contextMenu = document.getElementById('context-menu');
-    const tableRows = document.querySelectorAll('table tbody tr');
+document.addEventListener('DOMContentLoaded', () => { //Carga del DOM
+    const contextMenu = document.getElementById('context-menu'); //Obtención del manú contextual (se usa su ID con el que se declaro)
+    const table = document.querySelector('table'); // Asegúrate de que sea la tabla correcta
+    let selectedRow = null; // Variable para rastrear la fila seleccionada
 
-    // Mostrar el menú contextual cuando se hace clic derecho sobre una fila
-    tableRows.forEach(row => {
-        row.addEventListener('contextmenu', function(event) {
-            event.preventDefault(); // Prevenir el menú contextual predeterminado del navegador
-
-            // Obtener las dimensiones de la ventana
-            const windowWidth = window.innerWidth;
-            const windowHeight = window.innerHeight;
-
-            // Obtener las dimensiones del contenedor
-            const container = document.querySelector('.container1');
-            const containerRect = container.getBoundingClientRect();
-
-            // Obtener las dimensiones del menú
-            let menuWidth = contextMenu.offsetWidth;
-            let menuHeight = contextMenu.offsetHeight;
-
-            // Determinar la posición inicial del menú
-            let left = event.pageX;
-            let top = event.pageY;
-
-            // Ajustar la posición del menú en relación con la columna (evento.target)
-            const columnIndex = Array.from(row.cells).indexOf(event.target.closest('td')); // Obtener el índice de la columna
-            const columnRect = row.cells[columnIndex].getBoundingClientRect();
-
-            // Colocar el menú junto a la columna (a la derecha)
-            left = columnRect.right; // Aparece justo al lado derecho de la columna
-            top = columnRect.top;
-
-            // Asegurarse de que el menú no se desborde a la derecha del contenedor
-            if (left + menuWidth > containerRect.right) {
-                left = containerRect.right - menuWidth - 10; // Asegurarse que no sobrepase el contenedor
-            }
-
-            // Asegurarse de que el menú no se desborde abajo del contenedor
-            if (top + menuHeight > containerRect.bottom) {
-                top = containerRect.bottom - menuHeight - 10; // Asegurarse que no sobrepase el contenedor
-            }
-
-            // Asegurarse de que el menú no se desborde a la derecha de la ventana
-            if (left + menuWidth > windowWidth) {
-                left = windowWidth - menuWidth - 10; // No permitir que se desborde de la ventana
-            }
-
-            // Asegurarse de que el menú no se desborde por encima de la ventana
-            if (top + menuHeight > windowHeight) {
-                top = windowHeight - menuHeight - 10; // No permitir que se desborde de la ventana
-            }
-
-            // Muestra el menú contextual en la posición ajustada
-            contextMenu.style.display = 'block';
-            contextMenu.style.left = `${left}px`;
-            contextMenu.style.top = `${top}px`;
-        });
+    const showContextMenu = (e) => { //Función para mostrar el menú contextual
+        e.preventDefault();
+        // Obtener el contenedor de la tabla
+        const container = table.parentElement;
+        const containerRect = container.getBoundingClientRect();
+        // Coordenadas relativas al contenedor
+        let posX = e.clientX - containerRect.left;
+        let posY = e.clientY - containerRect.top;
+        // Dimensiones del menú contextual
+        const menuWidth = contextMenu.offsetWidth;
+        const menuHeight = contextMenu.offsetHeight;
+        // Ajustar la posición si se sale de los límites
+        if (posX + menuWidth > container.offsetWidth) {
+            posX = container.offsetWidth - menuWidth - 1; //Evita que el menú se salga del contenedor
+        }
+        if (posY + menuHeight > container.offsetHeight) {
+            posY = container.offsetHeight - menuHeight - 1;
+        }
+        // Mostrar el menú contextual personalizado
+        contextMenu.style.left = `${posX}px`;
+        contextMenu.style.top = `${posY}px`;
+        contextMenu.style.display = 'block';
+    };
+    //Oculta el menú contextual
+    const hideContextMenu = () => {
+        contextMenu.style.display = 'none'; 
+    };
+    const highlightRow = (row) => {
+        // Quitar el sombreado de la fila previamente seleccionada
+        if (selectedRow) {
+            selectedRow.style.backgroundColor = ''; // Restaurar el color original
+        }
+        // Sombrear la fila actual
+        selectedRow = row;
+        selectedRow.style.backgroundColor = 'lightblue'; // Cambiar a azul claro
+    };
+    // Manejar el clic en la tabla (para seleccionar la fila)
+    table.addEventListener('click', (e) => {
+        const cell = e.target.closest('td'); // Detectar la celda más cercana
+        if (cell) {
+            const row = cell.closest('tr'); // Obtener la fila de la celda
+            highlightRow(row); // Sombrear la fila seleccionada
+        }
     });
+    // Manejar el clic derecho en la tabla (para mostrar el menú contextual)
+    table.addEventListener('contextmenu', (e) => {
+        e.preventDefault(); // Bloquear el menú contextual del navegador
+        const cell = e.target.closest('td'); // Detectar la celda más cercana
 
-    // Cerrar el menú contextual si se hace clic fuera de él
-    document.addEventListener('click', function(event) {
-        if (!contextMenu.contains(event.target)) {
-            contextMenu.style.display = 'none';
+        if (cell) {
+            const row = cell.closest('tr'); // Obtener la fila de la celda
+            highlightRow(row); // Sombrear la fila seleccionada
+            showContextMenu(e); // Mostrar el menú contextual
+        }
+    });
+    // Ocultar menú personalizado al hacer clic fuera de él
+    document.addEventListener('click', (e) => {
+        if (!contextMenu.contains(e.target)) {
+            hideContextMenu();
+        }
+        // Quitar el sombreado de la fila si se hace clic fuera de la tabla
+        if (!table.contains(e.target) && selectedRow) {
+            selectedRow.style.backgroundColor = ''; // Restaurar el color original
+            selectedRow = null;
         }
     });
 });

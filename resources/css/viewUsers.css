@@ -27,7 +27,7 @@ h1 {
     max-width: 500px; 
     padding: 10px; 
     font-size: 1rem; 
-    border: 1px solid #ccc; 
+    border: 1px solid #ebe9e3; 
     border-radius: 5px; 
     background-color: #f9f9f9; 
     color: #333; 
@@ -35,11 +35,9 @@ h1 {
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); 
     transition: all 0.3s ease; 
 }
-
 .search-input:focus {
     border-color: #007bff; 
 }
-
 .container1 {
     width: 150%; 
     max-width: 1450px;
@@ -51,14 +49,12 @@ h1 {
     padding: 30px 40px;
     box-shadow: 20px 20px 80px rgb(0, 0, 0);
 }
-
 .search-container {
     text-align: center; /* Centra el contenido dentro */
     margin-top: 20px; /* Ajusta según tu diseño */
     margin-bottom: 20px; /* Ajusta según tu diseño */
     animation: fadeIn 1s;
 }
-
 .search-container input[type="text"] {
     padding: 10px;
     width: 50%;
@@ -66,13 +62,11 @@ h1 {
     border-radius: 4px;
     transition: box-shadow 0.3s;
 }
-
 .search-container input[type="text"]:focus {
     box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
     outline: none;
     font-family: arial;
 }
-
 .search-container button {
     padding: 10px 20px;
     background-color: #007bff;
@@ -88,32 +82,29 @@ h1 {
 .search-container button:hover {
     background-color: #0056b3;
 }
-
+.table-container {
+    max-height: 400px; /* Ajusta la altura máxima del contenedor */
+    overflow-y: auto; /* Habilita el scroll vertical */
+    border: 1px solid #ddd; /* Opcional: bordes para delimitar la tabla */
+}
 table {
     width: 100%;
-    margin-top: 20px; /* Ajusta según tu diseño */
+    margin-top: 20px;
     border-collapse: collapse;
     animation: fadeIn 1s;
     background-color: #fff;
     text-align: center;
 }
-
-table thead th {
-    background-color: #65b6db8f; 
-    font-weight: bold;
-    font-size: 19px;
-}
-
 table td, table th {
     border: 1px solid #ddd; 
     font-size: 17px;
     padding: 10px;
 }
-
 table tbody tr:hover {
     background-color: rgba(56, 59, 61, 0.267); 
     transition: background-color 0.3s ease; 
 }
+
 
 table thead tr:hover {
     background-color: transparent; 
@@ -128,7 +119,6 @@ table thead tr:hover {
     cursor: pointer;
     transition: background-color 0.3s;
 }
-
 .role-select {
     width: 100%; 
     height: 100%;
@@ -137,12 +127,15 @@ table thead tr:hover {
     font-size: 19px; 
     border: none; 
     background-color: transparent;
-    color: #333; 
+    color: white; 
     text-align: center; 
     border-radius: 4px;
     outline: none; 
 }
-
+.role-select option {
+    background-color: #47454559; /* Fondo gris claro para las opciones */
+    color: #0e0d0d; /* Color del texto de las opciones */
+}
 /* Elimina los iconos de las flechas en navegadores como IE y Edge */
 .role-select::-ms-expand {
     display: none;
@@ -150,25 +143,24 @@ table thead tr:hover {
 
 /* Estilo al enfocar el select (cuando el usuario hace clic o navega con el teclado) */
 .role-select:focus {
-    border-color: #007bff; 
+    border-color:#19749e; 
 }
-
 /* Menú Contextual */
 .context-menu {
-    display: none;
     position: absolute;
-    background-color: #fff;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    display: none;
+    background-color: #a0cbd8c0;  /* FONFO MENU*/
+    font-family: Arial, sans-serif;
+    border: 1px solid transparent;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    padding: 10px 0;
     list-style: none;
-    padding: 5px;
-    margin: 0;
-    border-radius: 5px;
-    z-index: 1000; /* Ensures it's above other content */
 }
-
 .context-menu a {
     text-decoration: none;
     color: #333;
+    font-family: Arial, Helvetica, sans-serif;
     display: block;
     padding: 8px 12px;
     border-bottom: 1px solid #ddd;
@@ -177,15 +169,196 @@ table thead tr:hover {
 .context-menu a:last-child {
     border-bottom: none; /* Eliminar borde inferior de la última opción */
 }
-
 /* Efecto hover general */
 #context-menu .menu-item:hover {
     background-color: rgba(45, 49, 54, 0.274); 
+    font-family: Arial, Helvetica, sans-serif;
     color: #111111; 
 }
-
 /* Efecto hover específico para "Eliminar" */
 #context-menu .eliminar-option:hover {
     background-color: rgba(238, 114, 92, 0.445);
     color: #131212; 
 }
+.table-wrapper {
+    max-height: 480px; /* Altura máxima para el scroll vertical */
+    overflow-y: auto; /* Habilita el scroll vertical si es necesario */
+    overflow-x: auto; /* Habilita el scroll horizontal si la tabla es demasiado ancha */
+    position: relative; /* Permite posicionar el menú contextual */ 
+}
+th {
+    position: sticky; /* Hace que el encabezado se quede fijo */
+    top: 0; /* Fija el encabezado en la parte superior */
+    z-index: 1; /* Asegura que los encabezados estén por encima del contenido */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Agrega una pequeña sombra para distinguir los encabezados */
+}
+#context-menu {
+    position: absolute;
+    display: none;
+    z-index: 1000;
+    background-color: white;
+    border: 1px solid #ccc;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    min-width: 150px;
+    color: black;
+    font-family: Arial, Helvetica, sans-serif;
+    overflow: hidden;
+}
+#context-menu .menu-item {
+    padding: 10px;
+    cursor: pointer;
+    color: #333;
+    font-size: 14px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+/* #context-menu .menu-item:hover {
+    background-color: #f1f1f1;
+} */
+.context-menu .menu-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: all 0.3s ease; /* Transiciones suaves */
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  .context-menu .menu-item a {
+    text-decoration: none; /* Quitar subrayado */
+    color: #000; /* Color predeterminado */
+    display: block; /* Hacer clic en toda el área del elemento */
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  .context-menu .menu-item:hover {
+    background-color: #f0f0f0; /* Fondo gris claro por defecto al pasar el mouse */
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  .context-menu .menu-item.eliminar-option:hover {
+    background-color: #ff4d4d; /* Fondo rojo para "Eliminar" */
+    font-family: Arial, Helvetica, sans-serif;
+    color: black; 
+  }
+  .context-menu .menu-item.eliminar-option a:hover {
+    color: #fff; /* Texto blanco en "Eliminar" al pasar el mouse */
+    font-weight: bold; /* Opcional: Resalta el texto */
+    color: black;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+/* Responsividad */
+@media (max-width: 1200px) {
+    .container1 {
+        width: 90%;
+        padding: 20px;
+        top: 120px;
+    }
+    h1 {
+        font-size: 28px;
+    }
+    .search-input {
+        width: 100%;
+        max-width: 400px;
+        font-size: 0.9rem;
+    }
+    .search-container button {
+        font-size: 12px;
+        padding: 8px 15px;
+    }
+    table thead th {
+        font-size: 17px;
+    }
+    table td, table th {
+        font-size: 15px;
+        padding: 8px;
+    }
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 24px;
+    }
+    .table-wrapper {
+        max-width: 200%; /* Asegura que la tabla ocupe el 100% del ancho en pantallas pequeñas */
+        overflow-x: auto; /* Permite scroll horizontal si la tabla es muy ancha */
+    }
+    .container1 {
+        padding: 15px;
+        top: 100px;
+    }
+    .search-input {
+        font-size: 0.8rem;
+    }
+    .search-container button {
+        padding: 6px 12px;
+    }
+    table thead th {
+        font-size: 15px;   
+    }
+    table td, table th {
+        font-size: 13px;
+        padding: 6px;
+    }
+    .role-select {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 20px;
+    }
+    table thead th {
+        font-size: 15px;
+    }
+    .container1 {
+        padding: 10px;
+        top: 80px;
+    }
+    .table-wrapper {
+        max-width: 150%; /* Asegura que la tabla ocupe el 100% del ancho en pantallas más pequeñas */
+        overflow-x: auto; /* Permite scroll horizontal si la tabla es muy ancha */
+    }
+    .search-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .search-input {
+        font-size: 0.7rem;
+    }
+    .search-container button {
+        font-size: 10px;
+        padding: 5px 10px;
+    }
+    table {
+        font-size: 10px;
+        overflow-x: auto; /* Permite scroll horizontal si la tabla es muy ancha */
+    }
+    table thead th, table td {
+        padding: 4px;
+        font-size: 12px;
+    }
+    .role-select {
+        font-size: 14px;
+    }
+}
+/* Responsividad del Menú Contextual */
+.context-menu {
+    min-width: 150px;
+}
+@media (max-width: 768px) {
+    .context-menu {
+        min-width: 120px;
+        font-size: 12px;
+    }
+    .context-menu a {
+        padding: 6px 10px;
+    }
+}
+@media (max-width: 480px) {
+    .context-menu {
+        min-width: 100px;
+        font-size: 10px;
+    }
+    .context-menu a {
+        padding: 5px 8px;
+    }
+}
+

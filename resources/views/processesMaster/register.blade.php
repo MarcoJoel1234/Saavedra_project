@@ -61,7 +61,6 @@
                                         <label class="form-label" for="form3Example4">Contraseña</label>
                                     </div>
                                 </div>
-
                                 <div class="form-floating">
                                     <select class="form-select" id="floatingSelect" name="perfil">
                                         <option value="1">Administrador</option>
@@ -72,7 +71,6 @@
                                     </select>
                                     <label for="floatingSelect">Tipo de usuario</label>
                                 </div>
-
                                 <!-- Submit button -->
                                 <button type="submit" class="custom-btn">
                                     Registrarse

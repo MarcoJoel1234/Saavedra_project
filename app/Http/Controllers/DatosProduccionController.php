@@ -106,7 +106,6 @@ class DatosProduccionController extends Controller
         $piezas = Pieza::where("id_ot", $request->ot)->where("id_clase", $clase->id)->where("id_operador", $request->operadores)->where("proceso", $request->procesos)->get();
 
         $operadores = $this->obtenerInformacionPiezas($piezas);
-
         //Guardar los datos buscados de los filtros en un arreglo
         $filtros = [
             "ot" => $request->ot,

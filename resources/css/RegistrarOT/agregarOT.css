@@ -382,3 +382,105 @@ a:hover {
   #btn-seleccionar {
     background-color: #008CBA;
   }
+  @media (max-width: 1024px) {
+    .div-delete {
+        width: 50%;
+    }
+    .casillas {
+        width: 40%;
+        padding: 10px 20px;
+    }
+    .seccion1, .seccion2 {
+        width: 100%;
+    }
+    .sub-title{
+        margin-left:auto;
+        margin-right: auto;
+        font-size: 20px;
+        margin-top: 20px;
+    }
+    .secciones {
+        flex-direction: column;
+    }
+    .wrapper {
+        width: 70%;
+    }
+}
+
+@media (max-width: 768px) {
+    .div-delete {
+        width: 70%;
+    }
+    .sub-title{
+        margin-left:auto;
+        margin-right: auto;
+        font-size: 20px;
+        margin-top: 20px;
+    }
+    .casillas {
+        width: 90%;
+        margin: 10px 0;
+    }
+    .secciones {
+        flex-direction: column;
+        align-items: center;
+    }
+    .wrapper {
+        width: 90%;
+        margin: 20px;
+    }
+    .scrollabe-table {
+        height: 150px;
+        padding: 1rem;
+    }
+    .btn-cerrar {
+        width: 10%;
+    }
+}
+
+@media (max-width: 576px) {
+    .div-delete {
+        width: 90%;
+    }
+    .sub-title{
+        margin-left:auto;
+        margin-right: auto;
+        font-size: 18px;
+        margin-top: 20px;
+    }
+    .casillas {
+        width: 100%;
+    }
+    .wrapper {
+        width: 100%;
+        padding: 10px;
+    }
+    .img-cerrar {
+        width: 20%;
+    }
+    .btn-delete, #btn-agregar, #btn-seleccionar {
+        width: 90%;
+    }
+}
+
+@media (max-width: 375px) {
+    .label-delete {
+        font-size: 16px;
+    }
+    .btn-delete, #btn-agregar, #btn-seleccionar {
+        font-size: 14px;
+    }
+    .sub-title{
+        margin-left:auto;
+        margin-right: auto;
+        font-size: 20px;
+        margin-top: 14px;
+    }
+    .img-delete {
+        width: 30%;
+        height: 30%;
+    }
+    .scrollabe-table {
+        height: 100px;
+    }
+}
