@@ -3,7 +3,7 @@
 * {
     padding: 0;
     margin: 0;
-    box-sizing: border-box
+    box-sizing: border-box;
 }
 
 body {
@@ -34,6 +34,8 @@ form {
     margin-left: 220px;
     font-size: 20px;
     margin-top: 20px;
+    position: center;
+    text-align: center;
 }
 
 .lg-saavedra {
@@ -83,16 +85,89 @@ form {
 .btn.btn-block {
     border-radius: 20px;
     background-color: #000000;
-    color: #fff
+    color: #fff;
 }
 
 .btn.btn-block:hover {
     background-color: #3ca109eb;
 }
 
-/* @media(max-width:424px) {
+/* Media Queries for Responsiveness */
+
+@media (max-width: 1024px) {
     .wrapper {
-        padding: 30px 10px;
-        margin: 5px
+        width: 70%;
+        padding: 10px 30px;
     }
-} */
+    
+    .sub-title {
+        margin-left: 50px;
+        font-size: 18px;
+        position: center;
+        text-align: center;
+    }
+
+    .lg-saavedra {
+        width: 250px;
+    }
+}
+
+@media (max-width: 768px) {
+    .wrapper {
+        width: 80%;
+        padding: 10px 20px;
+    }
+    
+    .sub-title {
+        margin-left: 20px;
+        font-size: 16px;
+        position: center;
+        text-align: center;
+    }
+
+    .lg-saavedra {
+        width: 200px;
+    }
+
+    .bttns-add-select {
+        font-size: 16px;
+        padding: 8px 16px;
+    }
+
+    .div-bttns {
+        flex-direction: column;
+        margin-top: 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    html, body {
+        overflow: hidden;
+    }
+    .wrapper {
+        width: 90%;
+        padding: 15px;
+        text-align: center;
+        margin-top: -20%;
+    }
+    .sub-title {
+        margin-left: 10px;
+        position: center;
+        text-align: center;
+        font-size: 18px;
+    }
+
+    .lg-saavedra {
+        width: 180px;
+    }
+
+    .bttns-add-select {
+        font-size: 14px;
+        padding: 11px 5px;
+    }
+
+    .div-bttns {
+        flex-direction: row;
+        margin-top: 10px;
+    }
+}

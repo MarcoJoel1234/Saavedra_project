@@ -99,10 +99,12 @@ input {
 }
 
 @media screen and (max-width: 600px) {
+    html, body {
+        overflow: hidden;
+    }
     .wrapper {
-        width: 100%;
-        height: 60%;
-        ;
+        width: 90%;
+        height: 45%;
         max-width: 500px;
         border-radius: 10px;
         margin: auto;
