@@ -103,7 +103,8 @@ function selectWorkOrder(workOrders, errorState) {
     //Creacion de form-outline
     let formOutline = document.createElement("div");
     formOutline.className = "form-outline";
-    if (workOrders.length > 0) {
+    
+    if (workOrders != null && workOrders.length > 0) {
         let select = document.createElement("select");
         select.className = "form-control";
         select.id = "workOrders";
