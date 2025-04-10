@@ -1,13 +1,13 @@
-@import url('https://fonts.googleapis.com/css2?family=Kaushan+Script&family=Poppins&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Kaushan+Script&family=Poppins&display=swap");
 
 * {
     padding: 0;
     margin: 0;
-    box-sizing: border-box
+    box-sizing: border-box;
 }
 
 body {
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
@@ -65,10 +65,9 @@ form {
 
 .h4 {
     font-size: 30px;
-    font-family: 'Poppins', sans-serif;
+    font-family: "Poppins", sans-serif;
     padding: 50px;
 }
-
 
 /*Estilos para el checbox de agregar una clase*/
 .container-checkbox {
@@ -239,7 +238,7 @@ form {
     padding: 10px;
 }
 
-.btn-pdfWO{
+.btn-pdfWO {
     background-color: #0a8504;
     padding: 10px;
 }
@@ -267,7 +266,6 @@ form {
 .div-cerrar {
     width: 5%;
     margin-left: 95%;
-
 }
 
 .btn-cerrar {
@@ -297,56 +295,76 @@ form {
 }
 
 @media (max-width: 768px) {
-    html, body {
+    html,
+    body {
         overflow-x: hidden;
+        overflow-y: hidden;
+        height: 100vh;
+        width: 100vw;
+       
+
+        
     }
-    .container-form{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    height: 100%;
-    }
-    .container_form {
+    .container-form {
         display: flex;
         justify-content: center;
         align-items: center;
-        position: relative;
         height: 100%;
     }
-    .div-boxes { 
-        flex-direction: column;
-        justify-content: center;
-        width: 100%;
-        height: 100%;
-        margin-top: 1370px;
+    .div-boxes {
+        position: fixed;
+        top: calc(50% + 400px);
+        left: 48%;
+        transform: translateX(-50%);
+        width: 95%;
+        max-width: 600px;
+      
+        height: auto;
+        max-height: 50vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+      
+        padding: 1rem;
+        border-radius: 0.5rem;
+        background-color: white;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      
+        z-index: 9998;
     }
-    .h4{
+    .h4 {
         font-size: 1.1rem;
         margin-top: 0%;
         margin-bottom: -6%;
     }
     .wrapper {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+
+        width: 95%;
+        max-width: 600px;
+
+        height: auto;
+        max-height: 85vh; /* Limita la altura total */
+        overflow-y: auto; /* Activa scroll solo dentro del wrapper */
+        overflow-x: hidden;
+
         padding: 1rem;
         border-radius: 0.5rem;
-        margin-top: 10%;
-        align-items: center;
-        justify-content: center;
-
         background-color: white;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-        width: 95%;
-        max-width: 95%;
-        height: 100%;
+
+        z-index: 9999;
     }
+
     .lg-saavedra {
         width: 200px;
         margin-bottom: -3%;
-
     }
     .btn-addClass {
         color: white;
-        margin-top: 1370PX;
+        margin-top: 1370px;
     }
     .wrapper {
         font-size: 0.95rem;
@@ -372,8 +390,13 @@ form {
         padding: 0.4rem;
     }
     /* BOTONES */
-    .btn-deleteWO, .btn-pdfWO{
+    .btn-deleteWO,
+    .btn-pdfWO {
         font-size: small;
+    }
+    .btn-addClass btn {
+        font-size: small;
+        margin-top: 200px;
     }
     .div-scrollabe-table {
         width: 50%;
@@ -393,13 +416,10 @@ form {
         height: 18px;
         margin-right: 5px;
     }
-    .input-machine, .input-machine-soldaduras{
+    .input-machine,
+    .input-machine-soldaduras {
         width: 20%;
         margin-right: 5px;
         font-size: small;
     }
 }
-
-
-
-
