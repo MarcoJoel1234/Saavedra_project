@@ -24,15 +24,16 @@ export default defineConfig({
                 "resources/css/wOrder_views/showWO.css",
                 "resources/js/wOrder_views/showWO.js",
 
+                //Clases_views
+                "resources/css/classes_views/procesos.css",
+
                 //User_views
                 "resources/css/users_views/recoverPassword.css",
-                
                 "resources/css/cepillado.css",
                 "resources/css/barreno.css",
                 "resources/js/editarInterfaz.js",
                 "resources/js/editarTabla.js",
                 "resources/css/editarClase.css",
-                "resources/css/procesos.css",
                 "resources/css/viewpiezas.css",
                 "resources/css/verProcesos.css",
                 "resources/css/adminPzas.css",

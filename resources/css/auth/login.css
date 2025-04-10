@@ -1,7 +1,12 @@
-body {
-    background-size: cover;
-    background-repeat: no-repeat;
-  }
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-attachment: fixed;
+}
   .cascading-right {
     margin-right: -50px;
     margin-top: 30px;
@@ -52,5 +57,9 @@ body {
   @media screen and (max-width: 600px) {
     .lg-saavedra{
       width: 200px;
+    }
+    .full-wrapper {
+      align-items: flex-start;
+      padding-top: 60px;
     }
   }

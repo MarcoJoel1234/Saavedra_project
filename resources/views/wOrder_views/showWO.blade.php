@@ -19,7 +19,7 @@
             <input type="hidden" name="molding" value="{{ $molding->id }}">
             <input type="hidden" name="idClass" id="idClass">
 
-            <div class="wrapper bg-white">
+            <div class="wrapper ">
                 <div class="h2 text-center">
                     <img src="{{ asset('images/lg_saavedra.png') }}" class="lg-saavedra rounded-4" alt="" />
                 </div>
@@ -33,7 +33,7 @@
             </div>
 
             <!--Segunda parte del formulario-->
-            <div class="div-boxes bg-white" id="casillas">
+            <div class="div-boxes" id="casillas">
                 <div class="h4 text-muted text-center mt-10">Selecciona los procesos</div>
                 <div class="sections">
                     <!--Se inserta el algoritmos para generar las casillas atraves de JavaScript-->

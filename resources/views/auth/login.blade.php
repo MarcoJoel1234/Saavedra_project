@@ -19,11 +19,12 @@
         <!-- Jumbotron -->
         <div class="container py-4">
             <div class="row g-0 align-items-center">
-                <div class="col-lg-6 mb-6 mb-lg-0">
-                    <img src="{{ asset('images/img-login.png') }}" class="w-100 rounded-4" alt="" />
-                </div>
+            <div class="col-lg-6 mb-6 mb-lg-0 d-none d-lg-block">
+    <img src="{{ asset('images/img-login.png') }}" class="w-100 rounded-4" alt="" />
+</div>
+
                 <div class="col-lg-6 mb-5 mb-lg-0">
-                    <div class="card cascading-right" style="background: hsla(0, 0%, 100%, 0.55); backdrop-filter: blur(30px);">
+                    <div class="card cascading-right" style="background: hsla(0, 0%, 100%, 0.55); backdrop-filter: blur(30px); margin-top: 106px;">
                         <div class="card-body p-5 shadow-5 text-center">
                             <img src="{{ asset('images/lg_saavedra.png') }}" class="lg-saavedra rounded-4" alt="" />
                             <h2 class="fw-bold mb-5">INICIAR SESIÓN</h2>
