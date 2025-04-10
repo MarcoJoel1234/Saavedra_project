@@ -29,7 +29,7 @@ class UserController extends Controller
     }
     public function store(RegisterRequest $request){
         $user = User::create($request->validated());
-        return redirect()->to('createUser')->with('success', 'Usuario registrado correctamente');
+        return redirect()->route('createUser')->with('success', 'Usuario registrado correctamente');
     }
     public function showRecoverPassword(){
         return view('users_views.recoverPassword');
@@ -44,6 +44,6 @@ class UserController extends Controller
             return redirect()->to('recoverPassword')->withErrors('Matricula no encontrada.');
         }
         $user->update(['contrasena' => bcrypt($request->nueva_contraseña)]);
-        return redirect()->to('recoverPassword')->with('success', 'Contraseña actualizada.');
+        return redirect()->route('recoverPassword')->with('success', 'Contraseña actualizada.');
     }
 }
