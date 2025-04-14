@@ -167,6 +167,7 @@ function createRowsForm(formInputs) {
                 if (formInputs[nameInput].label != undefined) {
                     let label = document.createElement('label');
                     label.textContent = formInputs[nameInput].label;
+                    label.className = "label-form";
                     col.appendChild(label);
                 }
 

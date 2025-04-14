@@ -28,7 +28,7 @@
                         <div class="card-body p-5 shadow-5 text-center">
                             <img src="{{ asset('images/lg_saavedra.png') }}" class="lg-saavedra rounded-4" alt="" />
                             <h2 class="fw-bold mb-5">INICIAR SESIÓN</h2>
-                            <form action="{{route('loginUser')}}" method="post">
+                            <form action="{{route('loginUser')}}" method="POST">
                                 @csrf
                                 @include('layouts.partials.messages')
                                 <div class="row">

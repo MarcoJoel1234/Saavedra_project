@@ -17,6 +17,7 @@ class LoginController extends Controller
     }
     public function login(LoginRequest $request)
     {
+        die('Login successful');
         $user = User::where('matricula', $request->matricula)->first();
         if (!$user ||!Hash::check($request->contrasena, $user->contrasena)) {
             return redirect()->to('/login')->withErrors('Matricula y/o contraseña incorrecta');
@@ -29,3 +30,4 @@ class LoginController extends Controller
         return redirect()->route('home');
     }
 }
+ 

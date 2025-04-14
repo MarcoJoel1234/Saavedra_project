@@ -298,73 +298,89 @@ form {
     html,
     body {
         overflow-x: hidden;
-        overflow-y: hidden;
+        overflow-y: auto;
+        margin: 0;
         height: 100vh;
         width: 100vw;
-       
-
-        
+    }
+    .h4 {
+      
+        font-size: 1.5rem;
+    }
+    .main-layout {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 90vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+        z-index: 1;
     }
     .container-form {
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100%;
+        height: 190%;
+    }
+    .label-form {
+        position: relative;
+        top: -35px;
+    }
+    .form-control{
+        position: relative;
+        top: -35px
     }
     .div-boxes {
-        position: fixed;
-        top: calc(50% + 400px);
+        position: relative;
+        top: calc(44% + 400px);
         left: 48%;
         transform: translateX(-50%);
-        width: 95%;
-        max-width: 600px;
-      
+        width: 99%;
+        max-width: 99%;
         height: auto;
-        max-height: 50vh;
+        max-height: 42vh;
         overflow-y: auto;
         overflow-x: hidden;
-      
-        padding: 1rem;
         border-radius: 0.5rem;
-        background-color: white;
+        padding-top: 20rem;
+        background-color: transparent;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-      
-        z-index: 9998;
+        z-index: 999;
     }
     .h4 {
         font-size: 1.1rem;
-        margin-top: 0%;
-        margin-bottom: -6%;
+        margin-top: -30px;
     }
     .wrapper {
-        position: fixed;
-        top: 50%;
+        position: absolute;
+        top: 48%;
         left: 50%;
         transform: translate(-50%, -50%);
-
-        width: 95%;
-        max-width: 600px;
-
+        width: 94%;
+        max-width: 94%;
         height: auto;
-        max-height: 85vh; /* Limita la altura total */
+        max-height: 76vh; /* Limita la altura total */
         overflow-y: auto; /* Activa scroll solo dentro del wrapper */
         overflow-x: hidden;
-
         padding: 1rem;
         border-radius: 0.5rem;
-        background-color: white;
+        background-color: transparent;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-
-        z-index: 9999;
+        z-index:1;
     }
-
     .lg-saavedra {
         width: 200px;
         margin-bottom: -3%;
     }
     .btn-addClass {
         color: white;
-        margin-top: 1370px;
+        /* margin-top: 1370px; */
     }
     .wrapper {
         font-size: 0.95rem;
@@ -380,6 +396,7 @@ form {
     .scrollabe-table {
         width: 100%;
         height: 20%;
+        margin-top: -1rem;
         font-size: small;
     }
     /* Opcional: reducir tamaño de inputs si se requiere */
@@ -395,8 +412,17 @@ form {
         font-size: small;
     }
     .btn-addClass btn {
+        bottom: 20px;
+        /* right: 20px; */
+        position: fixed;
         font-size: small;
-        margin-top: 200px;
+        background-color: #0d6efd; /* ejemplo */
+        color: rgb(2, 167, 71);
+        padding: 10px 15px;
+        border-radius: 5px;
+        border: none;
+
+    font-size: small;
     }
     .div-scrollabe-table {
         width: 50%;
@@ -405,9 +431,16 @@ form {
     }
     /* INPUTS CHECKBOX */
     .checkbox-container {
+        display: flex;
+        padding: 0.1rem;;
         max-width: 100%;
         font-size: small;
-        padding: 0.5rem;
+        padding: 0.3rem;
+        top: -20px;
+        margin-bottom: 0.5rem;
+    }
+    .checkbox-container label {
+        margin-bottom: 0.1rem; /* Aún más compacto */
     }
     .checkbox,
     .checkbox-soldaduras,
@@ -421,5 +454,13 @@ form {
         width: 20%;
         margin-right: 5px;
         font-size: small;
+    }
+    .label-add-class{
+        position: relative;
+        top: -20px;
+    }
+    .checkbox-add-class{
+        position: relative;
+        top: -20px;
     }
 }
