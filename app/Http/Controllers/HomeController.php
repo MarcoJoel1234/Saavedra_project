@@ -45,7 +45,7 @@ class HomeController extends Controller
             }
             return view('home', compact('layout', 'backgroundImage', 'objectiveT', 'welcomeT'));
         } else {
-            return view('auth.login');
+            return redirect()->route('login');
         }
     }
 }
