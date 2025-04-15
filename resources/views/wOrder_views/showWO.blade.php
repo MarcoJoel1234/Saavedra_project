@@ -23,7 +23,7 @@
                     <div class="h2 text-center">
                         <img src="{{ asset('images/lg_saavedra.png') }}" class="lg-saavedra rounded-4" alt="" />
                     </div>
-                    <div class="h4 text-muted text-center">Información de la orden de trabajo</div>
+                    <div class="h4 text-center">Información de la orden de trabajo</div>
                     @include('layouts.partials.messages')
 
                     <!--Div en donde se muetran los inputs del formulario-->
@@ -34,7 +34,7 @@
 
                 <!--Segunda parte del formulario-->
                 <div class="div-boxes" id="casillas">
-                    <div class="h4 text-muted text-center mt-10">Selecciona los procesos</div>
+                    <div class="h4 text-center mt-10" id="select-procesos">Selecciona los procesos</div>
                     <div class="sections">
                         <!--Se inserta el algoritmos para generar las casillas atraves de JavaScript-->
                     </div>

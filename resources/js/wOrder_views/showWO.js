@@ -568,6 +568,7 @@ function createCheckboxAddClass() {
 
     let label = document.createElement('label');
     label.textContent = "¿Deseas agregar una clase?";
+    label.id = "label-add-class";
     label.className = "label-add-class";
 
     let checkbox = document.createElement('input');
@@ -752,6 +753,7 @@ function createCheckboxAll(value) {
 
         let label = document.createElement('label');
         label.className = "checkbox-label";
+        label.id = "all-label";
         label.innerHTML = "Seleccionar todo";
 
         let checkbox = document.createElement('input');
