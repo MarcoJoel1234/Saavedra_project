@@ -891,7 +891,7 @@ function mostrarDiv(route) {
     div_padre.id = "div-padre";
 
     let div = document.createElement('div');
-    div.className = "div-delete bg-white";
+    div.className = "div-delete";
 
     let label = document.createElement('label');
     label.className = "label-delete";
