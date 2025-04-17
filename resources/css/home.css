@@ -1,103 +1,159 @@
+/* General reset */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     font-family: sans-serif;
     padding: 0;
     margin: 0;
-    box-sizing: border-box;
+    overflow: hidden;
 }
-.filter-blur1{
+
+/* Background with blur effect */
+.filter-blur1 {
     position: absolute;
     filter: blur(4px);
     width: 100%;
     height: 100%;
 }
-.filter-blur1 img{
+
+.filter-blur1 img {
     width: 100%;
     background-image: url('/public/images/fondoadmin.jpg');
 }
-.filter-blur2{
-    position: absolute;
-    filter: blur(4px);
+
+.filter-blur2 {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
+    filter: blur(4px);
 }
-.filter-blur2 img{
+
+.filter-blur2 img {
     width: 100%;
+    height: 100%;
+    position: fixed;
+    object-fit: cover;
     background-image: url('/public/images/fondoHome.jpg');
 }
+
+/* Main container */
 .container {
     height: 53rem;
     display: flex;
     justify-content: center;
     align-items: center;
 }
-.intro{
+
+/* Introduction section */
+.intro {
     max-width: 62.5em;
     display: flex;
 }
-.intro-img{
+
+.intro-img {
     border-radius: 0.625em;
     box-shadow: 0 0 10px 0px #000000;
 }
-.intro-img{
+
+.intro-img {
     position: relative;
     max-width: 50em;
     margin-left: 13em;
 }
-.intro-text{
+
+.intro-text {
     position: absolute;
     max-width: 27em;
     z-index: 1;
     margin-top: 6em;
 }
+
 .intro-text {
     background-color: rgba(255, 255, 255, 0.744);
     box-shadow: #000000 0px 0px 10px 0px;
     padding: 3em;
 }
+
 span {
     font-size: 1.625em;
     font-weight: bold;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     color: #000000;
 }
+
 .mb-3 {
     padding: auto;
     margin-top: 5%;
     font-size: 1.3em;
 }
-.custom-btn{
+
+.custom-btn {
     background-color: black;
     color: aliceblue;
     padding: 10px;
     border-radius: 5px;
     border: none;
     transition: 0.2s;
-  }
-  .custom-btn:hover{
+}
+
+.custom-btn:hover {
     background-color: #23940f;
     transition: 0.2s;
-  }
+}
+
+/* Responsive design */
 @media screen and (max-width: 600px) {
-    .filter-blur1 img{
+    body {
+        overflow: hidden;
+    }
+    
+    .filter-blur1 img {
         height: 100%;
         background-image: url('/public/images/fondoadminCel.jpg');
     }
-    .intro-img{
-        width: 60%;
+    
+    .filter-blur2 {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
     }
-    .intro-text{
+    
+    .filter-blur2 img {
+        height: 100%;
+        object-fit: cover;
+        background-image: url('/public/images/fondoHome.jpg');
+    }
+    
+    .intro-img {
+        width: 60%;
+        height: 80%;
+        margin-left: 35%;
+    }
+    
+    .intro-text {
         position: absolute;
-        max-width: 17em;
+        max-width: 14em;
         z-index: 1;
-        margin-top: 6em;
+        margin-top: -4em; /* Ajuste para subir el contenido */
+        margin-left: 60px;
         padding: 15px;
     }
+    
     span {
-        font-size: 25px;
+        font-size: 22px;
         font-weight: bold;
         font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
         color: #000000;
     }
+    
     .mb-3 {
         padding: auto;
         margin-top: 5%;
