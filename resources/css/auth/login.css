@@ -62,4 +62,14 @@ html, body {
       align-items: flex-start;
       padding-top: 60px;
     }
+    .login-img-container {
+      display: none;
+    }
+    /* .mt-custom {
+      margin-top: 0px; 
+    } */
+     
+     
+
+     
   }
