@@ -81,6 +81,7 @@ class ProcesosController extends Controller
                 }
             }
         }
+        $workOrders = count($workOrders) > 0 ? $workOrders : null;
         return view('processes_views.cNominals_view', compact('workOrders', 'layout'));
     }
     public function verifycNominalsExisting($cNominal, $tolerance, $id_operation, $operation, )

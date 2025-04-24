@@ -1,11 +1,12 @@
 @extends('layouts.appMenu')
 
 <!--Estilos y codigo JS-->
-@vite(['resources/css/classes_views/procesos.css', 'resources/js/classes_views/procesos.js'])
+@vite(['resources/css/processes_views/cNominals.css', 'resources/js/processes_views/cNominals.js'])
 
 
 @section('head')
 <title>C.Nominales y tolerancias</title>
+<link rel="stylesheet" href="{{ asset('bootstrap/css/bootstrap.min.css') }}">
 @endsection
 
 @section('background-body', 'images/fondoLogin.jpg')
@@ -15,7 +16,7 @@
     <a href="{{route('cNominals')}}" class="btn-back">Regresar</a>
     <div class="search">
         <img src="{{asset('/images/lg_saavedra.png')}}" alt="lg-saavedra" class="search-img">
-        <form action="{{ route('verificarProceso') }}" method="post" class="form-search">
+        <form action="{{ route('searchCNominals') }}" method="post" class="form-search">
             @csrf
             @include('layouts.partials.messages')
             <div class="row">
@@ -73,18 +74,13 @@
                     @endif
                 </div>
             @else
-                <select name="wOrder-select">
-                    <option value="" selected disabled></option>
-                    @foreach ($workOrders as $workOrder => $class)
-                        <option value="{{$workOrder}}">{{$workOrder}}</option>
-                    @endforeach
-                </select>
+
             @endif
         </form>
     </div>
 </div>
 <div class="container">
-    <form action="{{ route('verificarProceso') }}" method="post" class="form-search">
+    <form action="{{ route('searchCNominals') }}" method="post" class="form-search">
         @csrf
         <div class="scrollabe-table" id="scrollabe-table" style="display: none;">
             @if (isset($existe) && $existe == 0)

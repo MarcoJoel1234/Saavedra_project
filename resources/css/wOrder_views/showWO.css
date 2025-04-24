@@ -357,7 +357,7 @@ form {
     }
     .label-form {
         position: relative;
-        top: -2px;
+        top: -6px;
     }
     .form-control {
         position: relative;
@@ -519,9 +519,7 @@ form {
         z-index: 10000;
         background: rgba(255, 255, 255, 0.15); /* Transparente */
         box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-        backdrop-filter: blur(
-            10px
-        ); /* 💫 Aquí está el efecto de vidrio borroso */
+        backdrop-filter: blur(10px); 
         -webkit-backdrop-filter: blur(5px);
         border: 1px solid rgba(255, 255, 255, 0.18);
         color: white; /* O usa #f1f1f1 para no tan blanco */

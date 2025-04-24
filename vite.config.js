@@ -18,14 +18,15 @@ export default defineConfig({
                 //Molding
                 "resources/css/molding_views/create_molding.css",
                 
-                //WOrder_vies
+                //WOrder_views
                 "resources/css/wOrder_views/manageWO.css",
                 "resources/js/wOrder_views/manageWO.js",
                 "resources/css/wOrder_views/showWO.css",
                 "resources/js/wOrder_views/showWO.js",
 
-                //Clases_views
-                "resources/css/classes_views/procesos.css",
+                //Processes_views
+                "resources/css/processes_views/cNominals.css",
+                "resources/js/processes_views/cNominals.js",
 
                 //User_views
                 "resources/css/users_views/recoverPassword.css",

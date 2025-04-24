@@ -42,6 +42,7 @@
         users: @json(route('users')),
         createUser: @json(route('createUser')),
         recoverPassword: @json(route('recoverPassword')),
+        
         cNominals: @json(route('cNominals')),
         vistaPiezas: @json(route('vistaPiezas')),
         vistaPzasGenerales: @json(route('vistaPzasGenerales')),
