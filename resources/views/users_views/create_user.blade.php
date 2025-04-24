@@ -19,7 +19,7 @@
                     <div class="card-body p-5 shadow-5 text-center">
                         <img src="{{ asset('images/lg_saavedra.png') }}" class="lg-saavedra rounded-4" alt="" />
                         <h2 class="fw-bold mb-4">REGISTRATE</h2>
-                        <form action="{{route('storeUser')}}" method="post">
+                        <form action="{{route('storeUser')}}" method="post" class="mt-custom">
                             @csrf
                             @include('layouts.partials.messages')
                             <!-- 2 column grid layout with text inputs for the first and last names -->
@@ -77,7 +77,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-6 mb-6 mb-lg-0">
+            <div class="col-lg-6 mb-6 mb-lg-0 login-img-container">
                 <img src="{{ asset('images/img-login.png') }}" class="w-100 rounded-4 shadow-10" alt="" />
             </div>
         </div>

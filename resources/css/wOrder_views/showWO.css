@@ -579,9 +579,14 @@ form {
     .div-padre{
         background-color: transparent;
     }
-    .section1, .section2{
-        margin-top: 120px;
-        position: static
-       
+    .sections{
+        margin-top: 50%;
+        position: static;
+
     }
+    /* .section1, .section2{
+        margin-top: -190px;
+        position: relative;
+       
+    } */
 }
