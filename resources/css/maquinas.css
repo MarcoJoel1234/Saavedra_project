@@ -1,0 +1,111 @@
+body {
+    padding: 0;
+    margin: 0;
+}
+.container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    min-height: 100vh;
+}
+h1 {
+    padding-bottom: 20px;
+    font-family: monospace;
+    font-size: 50px;
+    font-weight: bold;
+}
+form {
+    text-align: center;
+    border: 1px solid #ccc;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin: 0 auto;
+}
+.line{
+    flex-basis: 49%; /* Ocupa el 49% del espacio disponible, dejando un pequeño espacio entre las líneas */
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px; /* Espacio entre líneas */
+}
+
+.label-select{
+    display: block;
+    margin-top: 15px;
+    font-size: 20px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    margin: 0 auto;
+}
+/* LOGOTIPO  */
+.logo-saa{
+    text-align: center;
+    width: 150  px;
+    height: 80px;
+    
+}
+
+/* SELECT */
+select {
+    padding: 9px;
+    width: 500px;
+    display: flex;
+    height: 40px;
+    text-align: center;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 15px;
+    margin-top: 10px;
+    cursor: pointer;
+    color: rgb(9, 9, 9);
+    
+}
+
+/* SELECTTTS */
+.selecttts {
+    text-align: center;
+}
+
+.select-container {
+    display: inline-block;
+    text-align: center;
+    margin: 0 10px;
+    margin-top: 20px;
+}
+
+/* BOTON */
+.btn-search {
+    margin-top: 35px;
+    padding: 10px 20px;
+    background-color: #46484be6;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+}
+.btn-search:hover {
+    background-color: #59615ac3;
+    color: rgb(255, 255, 255);
+    transform: scale(1.05); 
+}
+/* BOTON */
+.btn-back {
+    width: 160px;
+    height: 75px;
+    margin: 20px;
+    padding: 20px 20px;
+    background-color: #043d79e6;
+    color: #FFFFFF;
+    text-decoration: none;
+    font-size: 30px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease; /* Efecto de transición al pasar el mouse */
+}
+.btn-back:hover {
+    background-color: #AED6F1;
+    color: rgb(0, 0, 0);
+    transform: scale(1.05); /* Realiza un pequeño zoom del 5% */
+}
+

@@ -1,0 +1,140 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.titles {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.title {
+    font-size: 50px;
+    font-family: Arial, Helvetica, sans-serif;
+    color: black;
+
+}
+
+.container {
+    position: absolute;
+    margin-top: 200px;
+    width: 100%;
+    padding: 5% 2%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.tablaOperadores{
+    border: 2px solid #000000;
+    background-color: rgba(217, 217, 217, 0.8);
+    height: 36px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    text-align: center;
+    font-size: 25px;
+    width: 40%;
+    margin-left: 56%;
+}
+.tablaOperadores th{
+    background-color: rgba(7, 7, 7, 0.288);
+
+}
+.tablaOperadores tr{
+    background-color:rgba(217, 217, 217, 0.8);
+}
+
+.scrollabe-table {
+    margin: auto;
+    overflow-x: auto;
+    border-radius: 5px;
+    background-color: rgba(7, 7, 7, 0.592);
+    width: 95%;
+    height: 300px;
+    padding: .5rem;
+}
+
+.tabla3 {
+    border-collapse: collapse;
+    border-color: rgba(3, 44, 0, 0.8);
+    font-size: 20px;
+    color: #fff;
+    border: 2px solid #000000;
+    background-color: rgba(7, 7, 7, 0.592);
+    width: 380%;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+.tabla3 input {
+    border: 1px solid #000000;
+    background-color: rgba(217, 217, 217, 0.8);
+    height: 36px;
+    text-align: center;
+    font-size: 25px;
+}
+
+.tabla3 th {
+    border: 2px solid #000000;
+    background-color: rgba(217, 217, 217, 0.8);
+    padding: 10px;
+    text-align: center;
+    font-size: 22px;
+    color: #000000;
+}
+
+.tabla3 td {
+    background-color: rgb(255, 255, 255);
+    font-size: 22px;
+    color: #000000;
+    text-align: center;
+    height: 100%;
+}
+
+.input {
+    width: 100%;
+}
+
+.input-medio {
+    width: 50%;
+}
+
+.title-subproceso {
+    color: #ffffff;
+    font-size: 30px;
+    font-weight: bold;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    margin-left: 750px;
+}
+
+.btn-regresar {
+    background-color: #007bffde;
+    color: #fff;
+    margin-top: -9%;
+    margin-left: -90%;
+    font-family: Arial, Helvetica, sans-serif;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn-regresar:hover {
+    background-color: #0056b3;
+    transform: scale(1.1);
+    transition: 0.2s;
+}

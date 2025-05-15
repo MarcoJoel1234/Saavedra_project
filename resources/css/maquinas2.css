@@ -1,0 +1,101 @@
+body{
+    background-color: rgb(220, 227, 225);
+}
+.divP{
+    position: absolute;
+    margin-top: 95px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.container {
+    width: 96%;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+.label-container{
+    text-align: center;
+    margin-bottom: 40px;
+}
+.label-ot, .label-margin{
+    display: inline-block;
+    font-size: 40px;
+    font-family:Century;
+    color:rgb(5, 5, 119);
+    font-weight: bold;
+}
+.label-ot, .label-margin {
+    margin-left: 80px; /* Ajusta el margen derecho según tus necesidades */
+}
+
+/* BOTON */
+.btn-back {
+    width: 160px;
+    height: 75px;
+    margin: 20px;
+    padding: 20px 20px;
+    background-color: #043d79e6;
+    color: #FFFFFF;
+    text-decoration: none;
+    font-size: 30px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease; /* Efecto de transición al pasar el mouse */
+}
+.btn-back:hover {
+    background-color: #AED6F1;
+    color: rgb(0, 0, 0);
+    transform: scale(1.05); /* Realiza un pequeño zoom del 5% */
+}
+
+/* DIVS */
+.flex-container {
+    display: grid;
+    grid-template-columns: auto auto auto;
+
+}
+.box{
+    width: 90%;
+    margin: 20px;
+    height: 300px;
+    background-color: #AED6F1; /* Color de fondo de los divs */
+    border: 1px solid #7FB3D5 ; /* Borde de los divs */
+    box-shadow: 0 0 5px #7FB3D5;
+    text-align: center;
+    overflow-y: auto;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+/* LABEL DEL TITULO DEL PROCESO */
+.titulo-proceso {
+    font-size: 32px; /* Tamaño de la fuente */
+    font-weight: bold; /* Peso de la fuente (negrita) */
+    color: #000000e6; /* Color del texto */
+    margin-top: 10px; /* Margen superior */
+    text-align: center; /* Alineación del texto al centro */
+    /* Otros estilos que desees agregar */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    
+}
+
+th, td {
+    border: 1px solid #000000;
+    padding: 8px;
+    text-align: center;
+    font-size: 18px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+th {
+    background-color: rgba(67, 62, 80, 0.527);
+    color: rgb(0, 0, 0);
+}
