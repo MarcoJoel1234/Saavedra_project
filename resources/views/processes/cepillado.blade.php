@@ -610,7 +610,7 @@
                                         <td><input type="number" class="input" value="{{$nPiezas->altura_venaHembra}}" name="altura_venaHembra[]" step="any" inputmode="decimal" required></td>
                                         <td><input type="number" class="input" value="{{$nPiezas->altura_venaMacho}}" name="altura_venaMacho[]" step="any" inputmode="decimal" required></td>
                                         <td><input type="number" class="input" value="{{$nPiezas->ancho_vena}}" name="ancho_vena[]" step="any" inputmode="decimal" required></td>
-                                        <td><input type="number" class="input" value="{{$nPiezas->laterales}}" name="ancho_vena[]" step="any" inputmode="decimal" required></td>
+                                        <td><input type="number" class="input" value="{{$nPiezas->laterales}}" name="laterales[]" step="any" inputmode="decimal" required></td>
                                         <td><input type="number" class="input-medio" value="{{$nPiezas->pin1}}" name="pin1[]" step="any" inputmode="decimal" required><input type="number" class="input-medio" value="{{$nPiezas->pin2}}" name="pin2[]" step="any" inputmode="decimal" required></td>
                                         <td>
                                             <select name="error[]" class="input">

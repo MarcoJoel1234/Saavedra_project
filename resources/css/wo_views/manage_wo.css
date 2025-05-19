@@ -1,0 +1,173 @@
+@import url('https://fonts.googleapis.com/css2?family=Kaushan+Script&family=Poppins&display=swap');
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+form {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.wrapper {
+    width: 50%;
+    border-radius: 10px;
+    padding: 10px 40px;
+    margin-top: 3%;
+    box-shadow: 20px 20px 80px rgb(0, 0, 0);
+}
+
+.sub-title {
+    margin-left: 220px;
+    font-size: 20px;
+    margin-top: 20px;
+    position: center;
+    text-align: center;
+}
+
+.lg-saavedra {
+    width: 300px;
+}
+
+.div-bttns {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bttns-add-select {
+    padding: 10px 20px;
+    font-size: 18px;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    margin: 20px;
+    transition: 0.2s;
+}
+
+.bttns-add-select:hover {
+    transform: scale(1.1);
+    transition: 0.2s;
+}
+
+#bttn-select {
+    background-color: #008CBA;
+}
+
+#bttn-add {
+    background-color: #4CAF50;
+}
+
+.form-label {
+    color: green;
+    font-weight: bold;
+}
+
+.div-button {
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+.btn.btn-block {
+    border-radius: 20px;
+    background-color: #000000;
+    color: #fff;
+}
+
+.btn.btn-block:hover {
+    background-color: #3ca109eb;
+}
+
+/* Media Queries for Responsiveness */
+
+@media (max-width: 1024px) {
+    .wrapper {
+        width: 70%;
+        padding: 10px 30px;
+    }
+    
+    .sub-title {
+        margin-left: 50px;
+        font-size: 18px;
+        position: center;
+        text-align: center;
+    }
+
+    .lg-saavedra {
+        width: 250px;
+    }
+}
+
+@media (max-width: 768px) {
+    .wrapper {
+        width: 80%;
+        padding: 10px 20px;
+    }
+    
+    .sub-title {
+        margin-left: 20px;
+        font-size: 16px;
+        position: center;
+        text-align: center;
+    }
+
+    .lg-saavedra {
+        width: 200px;
+    }
+
+    .bttns-add-select {
+        font-size: 16px;
+        padding: 8px 16px;
+    }
+
+    .div-bttns {
+        flex-direction: column;
+        margin-top: 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    html, body {
+        overflow: hidden;
+    }
+    .wrapper {
+        width: 90%;
+        padding: 15px;
+        text-align: center;
+        margin-top: -20%;
+    }
+    .sub-title {
+        margin-left: 10px;
+        position: center;
+        text-align: center;
+        font-size: 18px;
+    }
+
+    .lg-saavedra {
+        width: 180px;
+    }
+
+    .bttns-add-select {
+        font-size: 14px;
+        padding: 11px 5px;
+    }
+
+    .div-bttns {
+        flex-direction: row;
+        margin-top: 10px;
+    }
+}

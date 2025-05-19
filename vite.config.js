@@ -5,22 +5,37 @@ export default defineConfig({
     plugins: [
         laravel({
             input: [
-                "resources/css/app.css",
-                "resources/js/app.js",
-                "resources/css/login.css",
-                "resources/css/index.css",
+                //Layout appMenu
+                "resources/css/layouts/appMenu.css",
+                "resources/js/layouts/appMenu.js",
+                
+                //View home
+                "resources/css/home.css",
+
+                //View login
+                "resources/css/auth/login.css",
+                
+                //View moldings
+                "resources/css/moldings_views/create_molding.css",
+                
+                //Views OT
+                "resources/css/wo_views/manage_wo.css", 
+                "resources/css/wo_views/show_wo.css",
+
+                //Views users
+                "resources/css/users_views/recoverPassword.css",
+                
+                //Views processes
+                "resources/css/processes_views/cNominals.css",
+
                 "resources/css/cepillado.css",
                 "resources/css/barreno.css",
-                "resources/css/recoverPassword.css",
-                "resources/css/RegistrarOT/agregarOT.css",                                                                       
                 "resources/js/editarInterfaz.js",
                 "resources/js/editarTabla.js",
                 "resources/css/editarClase.css",
-                "resources/css/procesos.css",
                 "resources/css/viewpiezas.css",
                 "resources/css/verProcesos.css",
                 "resources/css/adminPzas.css",
-                "resources/css/RegistrarOT/agregarClass.css",
                 'resources/css/maquinas.css',
                 'resources/css/maquinas2.css',
                 'resources/css/rectificado.css',

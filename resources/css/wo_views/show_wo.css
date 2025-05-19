@@ -1,0 +1,592 @@
+@import url("https://fonts.googleapis.com/css2?family=Kaushan+Script&family=Poppins&display=swap");
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Poppins", sans-serif;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+label {
+    color: green;
+    font-weight: bold;
+}
+
+h2 {
+    margin-top: 10%;
+    text-align: center;
+    font-size: 2.5rem;
+    color: #000000;
+}
+.main-layout {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+    align-items: center;
+}
+.container-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+form {
+    margin-top: 5%;
+    max-height: 755px;
+    padding: 50px;
+    display: flex;
+    justify-content: center;
+}
+
+/*Estilos para el formulario*/
+.wrapper {
+    border-radius: 10px;
+    padding: 30px 150px;
+    overflow-y: auto;
+    height: 100%;
+    max-height: 100%;
+    flex-wrap: wrap;
+    overflow-x: hidden;
+    background-color: white;
+}
+
+.lg-saavedra {
+    width: 300px;
+    margin-bottom: 3%;
+}
+
+.div-rows-hidden {
+    display: none;
+}
+
+.div-btn-add {
+    display: flex;
+    justify-content: center;
+}
+
+.h4 {
+    font-size: 26px;
+    font-family: "Poppins", sans-serif;
+    padding: 22px;
+}
+
+/*Estilos para el checbox de agregar una clase*/
+.container-checkbox {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.checkbox-add-class {
+    width: 5%;
+    height: 20px;
+    margin: 5px;
+    border: 4px solid #000000;
+}
+
+.label-add-class {
+    color: black;
+    margin-top: auto;
+}
+/*Estilos para la tabla en donde se muestran las clases*/
+.scrollabe-table {
+    position: relative;
+    margin: 20px 0px;
+    border-radius: 5px;
+    background-color: rgba(57, 55, 55, 0.472);
+    width: 100%;
+    height: 17%;
+    overflow-y: auto;
+    padding: 1rem;
+}
+.table {
+    margin: 0;
+    width: 100%;
+    border: 2px solid #000000;
+    font-size: 18px;
+    color: #000000;
+    text-align: center;
+}
+.table th {
+    width: 150px;
+    border: 2px solid #000000;
+    background-color: rgba(217, 217, 217, 0.8);
+}
+.div-td {
+    width: 100%;
+    padding: 5px;
+}
+.btnClass {
+    width: 100%;
+    left: 50%;
+    right: 50%;
+    display: flex;
+    top: 50%;
+    text-align: center;
+    justify-content: space-between;
+    border: none;
+    transition: 0.2s;
+}
+
+.btnClass:hover {
+    background-color: #818180eb !important;
+    font-weight: bold;
+    transition: 0.2s;
+}
+/*Estilos para la seccion de las casillas*/
+.div-boxes {
+    background-color: white;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    max-height: 100%;
+    margin-left: 50px;
+    border-radius: 10px;
+    padding: 30px;
+}
+
+.sections {
+    display: flex;
+    flex-direction: row;
+}
+
+.section1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.section2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+/* Estilo para la casilla de verificación */
+.checkbox-container {
+    display: flex;
+    padding: 7px;
+    max-width: 60%;
+}
+
+.checkbox,
+.checkbox-soldaduras,
+.checkboxAll {
+    width: 20px;
+    margin-right: 10px;
+}
+
+.div-checkboxAll {
+    display: flex;
+    justify-content: right;
+    margin: 50px;
+}
+
+.input-machine,
+.input-machine-soldaduras {
+    width: 13%;
+    margin-right: 10px;
+    border-radius: 5px;
+    border: 1px solid #000000;
+    text-align: center;
+}
+
+/* Estilos para los botones accion de las clases*/
+.btn {
+    display: none;
+    margin-top: 10px;
+    background-color: #0a8504;
+    color: white;
+}
+
+.btn:hover {
+    background-color: #3ca109eb;
+    font-weight: bold;
+}
+
+.btn-deleteClass {
+    background-color: #ca0808;
+    padding: 10px;
+}
+
+.btn-editClass {
+    background-color: #0845ca;
+    padding: 10px 20px;
+}
+
+.action-btns {
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: 0.2s;
+    text-align: center;
+    margin: 10px;
+    border: none;
+}
+
+.action-btns:hover {
+    transition: 0.2s;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 2.2);
+}
+
+.container-WOButtons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-deleteWO {
+    background-color: #9c0303;
+    padding: 10px;
+}
+
+.btn-pdfWO {
+    background-color: #0a8504;
+    padding: 10px;
+}
+.div-padre {
+    position: absolute;
+    transition: 0.3s;
+    width: 100%;
+    height: 64.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #0000003a;
+}
+
+.div-delete {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background-color: white;
+    width: 34%;
+    transition: 0.2s;
+    padding: 15px;
+}
+
+.div-cerrar {
+    width: 5%;
+    margin-left: 95%;
+}
+
+.btn-cerrar {
+    width: 100%;
+    border: none;
+    background-color: transparent;
+    transition: 0.2s;
+}
+
+.btn-cerrar:hover {
+    transition: 0.2s;
+    transform: scale(1.3);
+}
+
+.img-cerrar {
+    width: 100%;
+}
+
+.img-delete {
+    width: 20%;
+    height: 20%;
+}
+.label-delete {
+    font-size: 20px;
+    color: rgb(0, 0, 0);
+    margin-bottom: 30px;
+}
+
+@media (max-width: 768px) {
+    html,
+    body {
+        overflow-x: hidden;
+        overflow-y: auto;
+        margin: 0;
+        height: 100vh;
+        width: 100vw;
+    }
+    .h4 {
+        margin-top: -30px;
+        top: -15px;
+        margin-bottom: -10px;
+        font-size: 1.1rem;
+    }
+    #select-procesos {
+        position: absolute;
+        width: 100%;
+        margin-top: 10px;
+        font-size: 1.2rem;
+    }
+   
+    .main-layout {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 90vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+        z-index: 1;
+    }
+    .container-form {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 192%;
+        z-index: 1000;
+    }
+    .label-form {
+        position: relative;
+        top: -6px;
+    }
+    .form-control {
+        position: relative;
+        top: -6px;
+    }
+    .div-boxes {
+        position: relative;
+        top: calc(15% + 400px);
+        left: 44%;
+        align-items: center;
+        gap: -2rem;
+        transform: translateX(-50%);
+        width: 100%;
+        max-width: 100%;
+        height: 10vh;
+        max-height: 10vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        border-radius: 0.5rem;
+        padding-top: 18rem;
+        background-color: white;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        z-index: 999;
+    }
+    .wrapper {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 94%;
+        max-width: 94%;
+        height: auto;
+        max-height: 76vh; /* Limita la altura total */
+        overflow-y: auto; /* Activa scroll solo dentro del wrapper */
+        overflow-x: hidden;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        background-color: white;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+    }
+    .lg-saavedra {
+        width: 170px;
+        margin-bottom: 3%;
+    }
+    .btn-addClass {
+        color: white;
+        /* margin-top: 1370px; */
+    }
+    .wrapper {
+        font-size: 0.95rem;
+        margin-bottom: 0.8rem;
+    }
+    .div-rows {
+        padding: 0.5rem;
+    }
+    .container-form {
+        padding: 0.5rem;
+    }
+    /* TABLA */
+    .scrollabe-table {
+        width: 100%;
+        height: 10%;
+        margin-top: 0rem;
+        font-size: 0.8rem;
+    }
+    .table th {
+        font-size: 0.8rem;
+    }
+    /* Opcional: reducir tamaño de inputs si se requiere */
+    .div-rows input,
+    .div-rows select,
+    .div-rows textarea {
+        font-size: 0.9rem;
+        padding: 0.4rem;
+    }
+    /* BOTONES */
+    .btn-deleteWO,
+    .btn-pdfWO {
+        font-size: small;
+    }
+    .btn-addClass btn {
+        bottom: 20px;
+        /* right: 20px; */
+        position: fixed;
+        font-size: small;
+        background-color: #0d6efd; /* ejemplo */
+        color: rgb(2, 167, 71);
+        padding: 10px 15px;
+        border-radius: 5px;
+        border: none;
+        font-size: small;
+    }
+    .div-scrollabe-table {
+        width: 50%;
+        font-size: small;
+        height: 20%;
+    }
+    /* INPUTS CHECKBOX */
+    .checkbox-container {
+        display: flex;
+        padding: 0.1rem;
+        max-width: 110%;
+        font-size: small;
+        margin-top: 10%;
+        margin-left: 10%;
+    }
+    /* .checkbox-container label {
+        margin-top: -15px;
+        margin: -10px  10px;
+    
+    } */
+    .checkbox-label {
+        font-size: small;
+    }
+    .checkbox,
+    .checkbox-soldaduras,
+    .checkboxAll {
+        width: 26px;
+        height: 26px;
+        margin-right: 5px;
+    }
+    .input-machine,
+    .input-machine-soldaduras {
+        width: 20%;
+        font-size: 0.9rem;
+    }
+    .label-add-class {
+        position: relative;
+        top: -28px;
+    }
+    #all-label {
+        margin-top: 0px;
+        font-size: 16px;
+    }
+    .checkboxAll {
+        margin-top: 0;
+    }
+    .checkbox-add-class {
+        position: relative;
+        top: -22px;
+        margin-top: 25px;
+        width: 24px;
+        height: 24px;
+        margin-top: 25px;
+    }
+    .checkbox {
+        width: 20px;
+        height: 20px;
+    }
+    /* ELIMINAR OT DIV */
+    .div-delete {
+        display: flex;
+        position: static;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        width: 40%;
+        z-index: 10000;
+        background: rgba(255, 255, 255, 0.15); /* Transparente */
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        backdrop-filter: blur(10px); 
+        -webkit-backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        color: white; /* O usa #f1f1f1 para no tan blanco */
+        transition: 0.3s ease-in-out;
+        margin-top: -170%;
+        transition: 0.2s;
+        padding: 15px;
+    }
+    .div-cerrar {
+        width: 5%;
+        margin-left: 80%;
+    }
+
+    .btn-cerrar {
+        width: 300%;
+        border: none;
+        background-color: transparent;
+        transition: 0.2s;
+    }
+
+    .btn-cerrar:hover {
+        transition: 0.2s;
+        transform: scale(1.3);
+    }
+
+    .img-cerrar {
+        width: 100%;
+        height: 100%;
+    }
+    .img-delete {
+        width: 40%;
+        height: 20%;
+    }
+    .label-delete {
+        font-size: 12px;
+        color: rgb(0, 0, 0);
+        align-items: center;
+        margin-bottom: 30px;
+        font-weight: bold;
+    }
+    .btn-deleteClass  {
+        background-color: #ca0808;
+        padding: 10px;
+        margin-top: -20px;
+        z-index: 1000;
+        font-size: small;
+    }
+    .btn-editClass{
+    background-color: #0845ca;
+    padding: 10px 20px;
+   
+        margin-top: -20px;
+        z-index: 1000;
+        font-size: small;
+
+    }
+    .div-padre{
+        background-color: transparent;
+    }
+    .sections{
+        margin-top: 50%;
+        position: static;
+
+    }
+    /* .section1, .section2{
+        margin-top: -190px;
+        position: relative;
+       
+    } */
+}

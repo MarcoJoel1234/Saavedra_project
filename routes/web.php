@@ -7,6 +7,7 @@ use App\Http\Controllers\BarrenoManiobraController;
 use App\Http\Controllers\BarrenoProfundidadController;
 use App\Http\Controllers\CavidadesController;
 use App\Http\Controllers\CepilladoController;
+use App\Http\Controllers\ClassController;
 use App\Http\Controllers\CopiadoController;
 use App\Http\Controllers\DatosProduccionController;
 use App\Http\Controllers\DesbasteExteriorController;
@@ -15,20 +16,15 @@ use App\Http\Controllers\GestionOTController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogoutController;
-use App\Http\Controllers\MolduraController;
 use App\Http\Controllers\OffSetController;
-use App\Http\Controllers\OTController;
 use App\Http\Controllers\PalomasController;
 use App\Http\Controllers\PrimeraOpeSoldaduraController;
-use App\Http\Controllers\ProcesosController;
 use App\Http\Controllers\ProgresoProcesosController;
 use App\Http\Controllers\PySOpeSoldaduraController;
 use App\Http\Controllers\PzasGeneralesController;
 use App\Http\Controllers\PzasLiberadasController;
 use App\Http\Controllers\RebajesController;
-use App\Http\Controllers\RecoverPasswordController;
 use App\Http\Controllers\RectificadoController;
-use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\revCalificadoController;
 use App\Http\Controllers\RevLateralesController;
 use App\Http\Controllers\SegundaOpeSoldaduraController;
@@ -36,7 +32,10 @@ use App\Http\Controllers\SoldaduraController;
 use App\Http\Controllers\SoldaduraPTAController;
 use App\Http\Controllers\TiemposProduccionController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MoldingController;
+use App\Http\Controllers\ProcessesController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WOController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -56,13 +55,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 //Ruta para el controlador LogoutController
 Route::get('/logout', [LogoutController::class, 'logout'])->name('logout');
 
-//Grupo de rutas para el controlador RegisterController
-Route::controller(RegisterController::class)->group(function () {
-    Route::get('/register', 'show')->name('register');
-    Route::post('/register', 'register')->name('registerUser');
-});
-
-//Grupo de rutas para el controlador LoginController 
+//Grupo de rutas para el controlador LoginController
 Route::controller(LoginController::class)->group(function () {
     Route::get('/login', 'show')->name('login');
     Route::post('/login', 'login')->name('loginUser');
@@ -71,43 +64,41 @@ Route::controller(LoginController::class)->group(function () {
 //Grupo de rutas para el controlador de ver usuarios en perfil de master
 Route::controller(UserController::class)->group(function () {
     Route::get('/users', 'show')->name('users'); //Vista de usuarios
-    Route::get('/alta-usuario', [UserController::class, 'altaUsuario'])->name('alta_usuario');
-    Route::get('/baja-usuario', [UserController::class, 'bajaUsuario'])->name('baja_usuario');
-    Route::get('/eliminar-usuario', [UserController::class, 'eliminarUsuario'])->name('eliminar_usuario');
-});
+    Route::get('/users/create', 'create')->name('createUser');//Vista de crear usuario
+    Route::post('/users/create/store', 'store')->name('storeUser');
+    Route::get('/users/recoverPassword', 'showRecoverPassword')->name('recoverPassword'); //Vista recuperar contraseña
+    Route::post('/users/recoverPassword', 'recoverPassword')->name('recover'); //Recuperar contraseña
 
-//Grupo de rutas para el controlador RecoverPasswordController
-Route::controller(RecoverPasswordController::class)->group(function () {
-    Route::get('/recoverPassword', 'show')->name('recoverPassword'); //Vista recuperar contraseña
-    Route::post('/recover', 'recover')->name('recover'); //Recuperar contraseña
+    // Route::get('/alta-usuario', [UserController::class, 'altaUsuario'])->name('alta_usuario');
+    // Route::get('/baja-usuario', [UserController::class, 'bajaUsuario'])->name('baja_usuario');
+    // Route::get('/eliminar-usuario', [UserController::class, 'eliminarUsuario'])->name('eliminar_usuario');
 });
 
 //Grupo de ruta para el controlador MolduraController
-Route::controller(MolduraController::class)->group(function () {
-    Route::get('/registerMoldura', 'create')->name('registerMoldura'); //Vista registrar moldura
-    Route::post('/searchMoldura', 'show')->name('searchMoldura'); //Vista buscar moldura    
-    Route::post('/registerMolduras', 'store')->name('registerMolduras'); //Registrar moldura
-    Route::get('/deleteMoldura', 'destroy')->name('deleteMoldura'); //Eliminar moldura
+Route::controller(MoldingController::class)->group(function () {
+    Route::get('/createMolding', 'create')->name('createMolding'); //Vista registrar moldura  
+    Route::post('/createMolding/storeMolding', 'store')->name('storeMolding'); //Registrar moldura
 });
 
 //Grupo de ruta para el controlador OTController
-Route::controller(OTController::class)->group(function () {
-    Route::get('/registerOT', 'show')->name('registerOT'); //Vista registrar OT
-    Route::post('/saveOT', 'store')->name('saveOT'); //Registrar OT
-    Route::get('/registerClass/{ot}', 'registerClass')->name('registerClass'); //Vista registrar clase
-    Route::post('/saveClass', 'saveProcess')->name('saveClass'); //Informacion sobre piezas agregadas
-    Route::get('/deleteClass/{clase}', 'deleteClass')->name('deleteClass'); //Eliminar clase
-    Route::get('/deleteOT/{ot}', 'deleteOT')->name('deleteOT'); //Eliminar ot
-    Route::get('/editClase/{clase}', 'editClass')->name('editClase'); //Editar clase
-    Route::get('/clases/{ot}', 'mostrarClases')->name('mostrarClases'); //Mostrar clases
-    Route::post('/saveHeader', 'saveHeader')->name('saveHeader'); //Guardar datos de HeaderProcess
+Route::controller(WOController::class)->group(function () {
+    Route::get('/manageWO', 'manage')->name('manageWO'); //Vista registrar OT
+    Route::post('/storeWO', 'store')->name('storeWO'); //Crear OT
+    Route::get('/showWO/{workOrder}', 'show')->name('showWO'); //Mostrar clases
+    Route::get('/destroyWO/{wo}', 'destroy')->name('destroyWO'); //Eliminar ot
+    Route::get('/generatePDFWO/{wo}', 'generatePDF')->name('generatePDFWO');
+    // Route::post('/saveHeader', 'saveHeader')->name('saveHeader'); //Guardar datos de HeaderProcess
+});
+Route::controller(ClassController::class)->group(function () {
+    Route::post('/saveClass', 'saveClass')->name('saveClass'); //Informacion sobre piezas agregadas
+    Route::get('/destroyClass/{idClass}', 'destroy')->name('destroyClass'); //Eliminar clase
 });
 
 //Grupo de rutas para el controlador ProcesosController
-Route::controller(ProcesosController::class)->group(function () {
-    Route::get('/procesos', 'show')->name('procesos'); //Ruta para la interfaz de los procesos para editar las cotas nominales y tolerancias
-    Route::post('/procesos', 'verificarProceso')->name('verificarProceso'); //Ruta para la interfaz de los procesos para editar las cotas nominales y tolerancias
-}); 
+Route::controller(ProcessesController::class)->group(function () {
+    Route::get('/cNominals', 'show_cNominalsView')->name('cNominals'); //Ruta para la interfaz de los procesos para editar las cotas nominales y tolerancias
+    Route::post('/cNominals/search', 'searchCNominals')->name('searchCNominals'); //Ruta para la interfaz de los procesos para editar las cotas nominales y tolerancias
+});
 
 //Grupo de rutas para GestionOTController
 Route::controller(GestionOTController::class)->group(function () {
@@ -119,7 +110,7 @@ Route::controller(GestionOTController::class)->group(function () {
 Route::get('/progresoOT', [ProgresoProcesosController::class, 'show'])->name('verProcesos');
 
 //Grupo de rutas para el controlador TiemposProduccionController
-Route::controller(TiemposProduccionController::class)->group(function(){
+Route::controller(TiemposProduccionController::class)->group(function () {
     // Route::get('/tiemposProduccion/update', 'update')->name('actualizarClases');
     Route::get('/tiemposProduccion/{clase?}', 'show')->name('mostrarTiempos');
     Route::post('/tiemposProduccion', 'store')->name('guardarTiempos');
@@ -207,7 +198,7 @@ Route::controller(SoldaduraController::class)->group(function () {
 });
 
 //Grupo de rutas para el controlador SoldaduraPTAController
-    Route::controller(SoldaduraPTAController::class)->group(function () {
+Route::controller(SoldaduraPTAController::class)->group(function () {
     Route::get('/soldaduraPTA/{error}', 'show')->name('soldaduraPTA'); //Vista de Soldadura PTA
     Route::get('/soldaduraPTAHeaderGet', 'storeheaderTable')->name('soldaduraPTAHeaderGet'); //Guardar encabezado de la tabla Soldadura PTA
     Route::post('/soldaduraPTAHeader', 'storeheaderTable')->name('soldaduraPTAHeader'); //Guardar encabezado de la tabla Soldadura PTA
@@ -317,5 +308,3 @@ Route::controller(EmbudoCMController::class)->group(function () {
     Route::post('/embudoCMHeader', 'storeheaderTable')->name('embudoCMHeader'); //Guardar encabezado de la tabla Embudo CM
     Route::post('/editEmbudoCM', 'edit')->name('editEmbudoCM'); //Ruta para editar datos de la tabla Embudo CM
 });
-
-
