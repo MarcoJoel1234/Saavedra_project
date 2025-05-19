@@ -92,7 +92,7 @@ class RevLateralesController extends Controller
         $id_proceso = RevLaterales::where('id_proceso', $id)->first();
         $pzasRevision = RevLaterales_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
         $id_procesoC = Cepillado::where('id_proceso', 'Cepillado_' . $clase->nombre . '_' . $clase->id_ot)->first();
-        if($id_procesoC != null){
+        if ($id_procesoC != null) {
             $pzasCepillado = Pza_cepillado::where('id_proceso', $id_procesoC->id)->where('estado', 2)->where('correcto', 1)->get();
             $pzasRestantes = $this->piezasRestantes($pzasCepillado, $pzasRevision, $clase);
         }
@@ -306,7 +306,20 @@ class RevLateralesController extends Controller
                 $juego = Pza_cepillado::where('n_juego', $piezaA->n_juego)->where('id_proceso', $piezaA->id_proceso)->get();
                 $estado = 0;
                 foreach ($juego as $pieza) {
-                    if ($pieza->correcto == 1) {
+                    //Obtener la pieza y verificar si esta bien y si esta rechazada
+                    $pieza_liberada = Pieza::where('n_pieza', $pieza->n_pieza)->where('proceso', 'Cepillado')->where('id_clase', $clase->id)->where(function ($query) {
+                        $query->where(function ($q) {
+                            $q->where('error', 'Ninguno')
+                                ->where('liberacion', 1);
+                        })->orWhere(function ($q) {
+                            $q->where('error', 'Maquinado')
+                                ->where('liberacion', 1);
+                        })->orWhere(function ($q) {
+                            $q->where('error', 'Ninguno')
+                                ->where('liberacion', 0);
+                        });
+                    })->first();
+                    if ($pieza_liberada) {
                         $estado++;
                     }
                 }
@@ -320,8 +333,20 @@ class RevLateralesController extends Controller
         $juegosMalos = array();
         $contadorJM = 0;
         $id_proceso = DesbasteExterior::where('id_proceso', 'desbaste_' . $clase->nombre . '_' . $clase->id_ot)->first();
-        if($id_proceso != null){
-            $piezasProcesoC = Desbaste_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('correcto', 0)->get();
+        if ($id_proceso != null) {
+            $piezasProcesoC = Pieza::where('id_ot', $clase->id_ot)->where('id_clase', $clase->id)->where(function ($query) {
+                $query->where(function ($q) {
+                    $q->where('error', 'Ninguno')
+                        ->where('liberacion', 2);
+                })->orWhere(function ($q) {
+                    $q->where('error', '!=', 'Ninguno')
+                        ->where('liberacion', 0);
+                })->orWhere(function ($q) {
+                    $q->where('error', '!=', 'Ninguno')
+                        ->where('liberacion', 2);
+                });
+            })->get();
+            // $piezasProcesoC = Desbaste_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('correcto', 0)->get();
             if (count($piezasProcesoB) > 0) {
                 foreach ($piezasProcesoC as $pzaMala) {
                     if (!in_array($pzaMala->n_juego, $juegosMalos)) {
@@ -341,7 +366,6 @@ class RevLateralesController extends Controller
                     }
                 }
             }
-
         }
         return $juegosRestantes = ($juegosRestantes - (count($piezasProcesoB) / 2)) - $contadorJM;
     }
@@ -531,8 +555,18 @@ class RevLateralesController extends Controller
         $pzasUtilizar = array();
         $pzasGuardadas = array(); //Creación de array para guardar los números de pieza.
         $numero = ""; //Creación de variable para guardar el número de pieza.
-        $pzasEncontradas = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Cepillado')->where('error', 'Ninguno')->get(); //Obtención de todas las piezas creadas.
-
+        $pzasEncontradas = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Cepillado')->where(function ($query) {
+            $query->where(function ($q) {
+                $q->where('error', 'Ninguno')
+                    ->where('liberacion', 1);
+            })->orWhere(function ($q) {
+                $q->where('error', 'Maquinado')
+                    ->where('liberacion', 1);
+            })->orWhere(function ($q) {
+                $q->where('error', 'Ninguno')
+                    ->where('liberacion', 0);
+            });
+        })->get(); //Obtención de todas las piezas creadas.
 
         $id_proceso = "revLaterales_" . $clase->nombre . "_" . $ot; //Creación de id para la tabla cepillado
         $proceso = RevLaterales::where('id_proceso', $id_proceso)->first(); //Busco el proceso de la OT.

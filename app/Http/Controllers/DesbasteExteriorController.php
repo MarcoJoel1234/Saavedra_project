@@ -94,7 +94,7 @@ class DesbasteExteriorController extends Controller
         $id_procesoC = Cepillado::where('id_proceso', 'Cepillado_' . $clase->nombre . '_' . $clase->id_ot)->first();
         $pzasRestantes = "";
         if($id_procesoC != null){
-            $pzasCepillado = Pza_cepillado::where('id_proceso', $id_procesoC->id)->where('estado', 2)->where('correcto', 1)->get();
+            $pzasCepillado = Pza_cepillado::where('id_proceso', $id_procesoC->id)->where('estado', 2)->get();
             $pzasRestantes = $this->piezasRestantes($pzasCepillado, $pzasDesbaste, $clase);
         }
 
@@ -174,7 +174,7 @@ class DesbasteExteriorController extends Controller
                 $pzaUtilizar = Desbaste_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first();
                 if ($id_proceso) {
                     $pzasDesbaste = Desbaste_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
-                    $pzasCepillado = Pza_cepillado::where('id_proceso', $id_procesoC->id)->where('estado', 2)->where('correcto', 1)->get();
+                    $pzasCepillado = Pza_cepillado::where('id_proceso', $id_procesoC->id)->where('estado', 2)->get();
                     $pzasRestantes = $this->piezasRestantes($pzasCepillado, $pzasDesbaste, $clase);
                 } else {
                     $pzasRestantes = 0;
@@ -309,13 +309,20 @@ class DesbasteExteriorController extends Controller
                 $estado = 0;
                 foreach ($juego as $pieza) {
                     //Obtener la pieza y verificar si esta bien y si esta rechazada
-                    $pieza_liberada = Pieza::where('n_pieza', $pieza->n_pieza)->where('proceso', 'Cepillado')->where('id_clase', $clase->id)->first();
-                    if ($pieza->correcto == 1 && $pieza_liberada->liberacion != 2) {
+                    $pieza_liberada = Pieza::where('n_pieza', $pieza->n_pieza)->where('proceso', 'Cepillado')->where('id_clase', $clase->id)->where(function ($query) {
+                        $query->where(function ($q) {
+                            $q->where('error', 'Ninguno')
+                                ->where('liberacion', 1);
+                        })->orWhere(function ($q) {
+                            $q->where('error', 'Maquinado')
+                                ->where('liberacion', 1);
+                        })->orWhere(function ($q) {
+                            $q->where('error', 'Ninguno')
+                                ->where('liberacion', 0);
+                        });
+                    })->first();
+                    if($pieza_liberada){
                         $estado++;
-                    } else {
-                        if ($pieza_liberada->liberacion == 1) {
-                            $estado++;
-                        }
                     }
                 }
                 if ($estado == 2) {
@@ -367,7 +374,7 @@ class DesbasteExteriorController extends Controller
         if ($id_proceso) {
             $pzasDesbaste = Desbaste_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
             $id_procesoC = Cepillado::where('id_proceso', 'Cepillado_' . $clase->nombre . '_' . $clase->id_ot)->first();
-            $pzasCepillado = Pza_cepillado::where('id_proceso', $id_procesoC->id)->where('estado', 2)->where('correcto', 1)->get();
+            $pzasCepillado = Pza_cepillado::where('id_proceso', $id_procesoC->id)->where('estado', 2)->get();
             $pzasRestantes = $this->piezasRestantes($pzasCepillado, $pzasDesbaste, $clase);
         } else {
             $pzasRestantes = 0;
@@ -455,7 +462,7 @@ class DesbasteExteriorController extends Controller
             if ($id_proceso) {
                 $pzasDesbaste = Desbaste_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
                 $id_procesoC = Cepillado::where('id_proceso', 'Cepillado_' . $clase->nombre . '_' . $clase->id_ot)->first();
-                $pzasCepillado = Pza_cepillado::where('id_proceso', $id_procesoC->id)->where('estado', 2)->where('correcto', 1)->get();
+                $pzasCepillado = Pza_cepillado::where('id_proceso', $id_procesoC->id)->where('estado', 2)->get();
                 $pzasRestantes = $this->piezasRestantes($pzasCepillado, $pzasDesbaste, $clase);
             } else {
                 $pzasRestantes = 0;

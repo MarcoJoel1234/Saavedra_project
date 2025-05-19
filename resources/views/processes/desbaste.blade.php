@@ -122,11 +122,11 @@
                             <label for="fecha" style="padding-right: 70px; margin-left:50px;">Fecha:</label>
                             <label for="fecha">Máquina:</label><br>
                             <input type="date" id="fecha" name="fecha" required>
-                            <script>
+                            <!-- <script>
                                 let today = new Date().toISOString().split("T")[0];
                                 document.getElementById("fecha").setAttribute("min", today);
                                 document.getElementById("fecha").setAttribute("max", today);
-                            </script>
+                            </script> -->
                             <select name="maquina">
                             @for ($i=1; $i<=7; $i++)
                                 <option value="{{$i}}">Máquina {{$i}}</option>

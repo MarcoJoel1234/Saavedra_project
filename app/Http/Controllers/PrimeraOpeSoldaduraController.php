@@ -395,7 +395,7 @@ class PrimeraOpeSoldaduraController extends Controller
                     if (!in_array($pzaRevision->n_juego, $pzasContadas)) {
                         $pzasR = RevLaterales_pza::where('correcto', 1)->where('estado', 2)->where('id_proceso', $procesoR->id)->where('n_juego', $pzaRevision->n_juego)->get();
                         $counter = 0;
-                        foreach($pzasD as $item){
+                        foreach($pzasR as $item){
                             $pzaFind = Pieza::where('id_ot', $clase->id_ot)->where('id_clase', $clase->id)->where('proceso', 'Revision Laterales')->where(function ($query) {
                                 $query->where(function ($q) {
                                     $q->where('error', 'Ninguno')
