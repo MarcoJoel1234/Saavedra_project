@@ -1,0 +1,13 @@
+body {
+    padding: 0;
+    margin: 0;
+}
+.container-select {
+    box-sizing: border-box;
+    padding: 20px;
+    margin: 20px auto;
+    width: 40vw;
+    background: #0ff;
+}
+h1 {
+}

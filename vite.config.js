@@ -26,7 +26,9 @@ export default defineConfig({
                 "resources/css/users_views/recoverPassword.css",
                 
                 //Views processes
-                "resources/css/processes_views/cNominals.css",
+                "resources/css/processes_views/cNominals_view.css",
+                "resources/js/processes_views/cNominals_view.js",
+                "resources/js/processes_views/Proceso.js",
 
                 "resources/css/cepillado.css",
                 "resources/css/barreno.css",

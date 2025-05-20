@@ -12,21 +12,21 @@
 <body background=@yield('background-body')>
     <header>
         @auth
-        <button class="open-menu" id="open">
+        <!--Menu-->
+        <button class="open-menu">
             <img class="icon" src="{{ asset('images/icono.png') }}">
         </button>
-        <nav class="nav" id="nav">
-            <button class="close-menu" id="close">
-                <img class="icon" src="{{ asset('images/icono.png') }}">
-            </button>
-            <ul class="nav-list">
-                <ul>
-                    <a class="btn1" href="{{ route('logout') }}">Cerrar sesión</a>
-                </ul>
-            </ul>
-            <input type="hidden" value="{{ auth()->user()->perfil }}" id="profile">
-        </nav>
-        <p class="text-header" id="t-principal">MAQUINADOS Y FUSIONES MEXICANAS S. DE R.L DE C.V.</p>
+        <div class="filter-opacity">
+            <nav class="nav" id="nav">
+                <ul class="nav-list"></ul>
+                <a class="btn-close-session" href="{{ route('logout') }}">Cerrar sesión</a>
+                <input type="hidden" value="{{ auth()->user()->perfil }}" id="profile">
+            </nav>
+        </div>
+
+        <!--Texto central-->
+        <span class="text-header">MAQUINADOS Y FUSIONES MEXICANAS S. DE R.L DE C.V.</span>
+        <!--Logo Saavedra-->
         <img src="{!! asset('images/lg_saavedra.png') !!}" alt="logo" class="logo">
         @endauth
     </header>

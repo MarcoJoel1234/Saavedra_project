@@ -1,24 +1,20 @@
 import '../bootstrap'; //Importamos boostrap
 
 //Dar funcionalidad al bonton del menu
-let btn_open = document.getElementById('open'); //Obtenemos el elemento por su id.
-let btn_close = document.getElementById('close'); //Obtenemos el elemento por su id
-let nav = document.getElementById('nav'); //Obtenemos el elemento por su id.
+let btn_open = document.querySelector('.open-menu'); //Obtenemos el elemento por su id.
+let nav = document.querySelector('.filter-opacity'); //Obtenemos el elemento por su id.
 
 //Agregamos un evento al botón de abrir 
 btn_open.addEventListener('click', function () { //Agregamos un evento al botón de abrir
-    nav.style.visibility = 'visible'; //Cambiamos la visibilidad del nav.
-    nav.style.opacity = '1'; //Cambiamos la opacidad del nav.
+    if(nav.style.visibility == 'hidden' || nav.style.visibility == ''){
+        nav.style.visibility = 'visible'; //Cambiamos la visibilidad del nav.
+        nav.style.opacity = '1'; //Cambiamos la opacidad del nav.
+    }else{
+        nav.style.visibility = 'hidden'; //Cambiamos la visibilidad del nav.
+        nav.style.opacity = '0'; //Cambiamos la opacidad del nav.
+    }
     nav.style.transition = '0.5s ease'; //Agregamos una transición al nav.
     nav.style.translationX = '0%'; //Agregamos una transición al nav.
-});
-
-//Agregamos un evento al botón de cerrar
-btn_close.addEventListener('click', function () { //Agregamos un evento al botón de cerrar
-    nav.style.visibility = 'hidden'; //Cambiamos la visibilidad del nav.
-    nav.style.opacity = '0'; //Cambiamos la opacidad del nav
-    nav.style.transition = 'all 0.5s ease'; //Agregamos una transición al nav.
-    nav.style.translationX = '-100%'; //Agregamos una transición al nav.
 });
 
 
@@ -37,6 +33,7 @@ function createList(routes){
     routes.forEach(route => {
         let li = document.createElement('li');
         let a = document.createElement('a');
+        a.classList.add('nav-link');
         a.href = window.routes[route[0]];
         a.innerHTML = route[1];
         li.appendChild(a);

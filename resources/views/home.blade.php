@@ -5,12 +5,10 @@
     <!--Styles-->
     @vite('resources/css/home.css')
 @endsection
-
+@section('background-body', asset($backgroundImage))
 @section('content')
     <!-- Main content -->
-    <div class="filter-blur2">
-        <img src="{{ asset($backgroundImage) }}" alt="..." />
-    </div>
+    <div class="filter-blur"></div>
     <div class="container">
         <div class="intro">
             <div class="intro-text">

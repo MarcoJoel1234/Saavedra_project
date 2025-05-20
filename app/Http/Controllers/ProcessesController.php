@@ -47,7 +47,7 @@ use Illuminate\Http\Request;
 
 class ProcessesController extends Controller
 {
-    protected $userController;
+    protected $userController; 
     protected $classController;
     public function __construct()
     {

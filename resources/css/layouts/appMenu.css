@@ -1,139 +1,100 @@
-*{
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
-body{
-    position: relative;
-    padding-bottom: 3em;
-    min-height: 100vh;
-}
-header{
-    position: absolute;
+header {
+    box-sizing: border-box;
     width: 100vw;
-    z-index: 2;
+    height: 4rem;
+    z-index: 10;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px;
-    background-color: rgba(255, 255, 255, 0.867);
+    padding: 15px;
+    background-color: #fff;
 }
-.logo{
-    max-width: 96px;
+.icon {
+    width: 100%;
 }
-.text-header{
-    margin-left: 32px;
-    color: rgb(0, 0, 0);
-    font-weight: bold;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    text-align: center;
-    line-height: .8;
+.open-menu {
+    border: none;
+    background: transparent;
+    width: 4em;
 }
-.nav{
+.text-header {
+    font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
+        sans-serif;
+    font-size: 2.5em;
+    letter-spacing: 2px;
+}
+.logo {
+    width: 7em;
+}
+.filter-opacity {
+    position: absolute;
+    background: #000a;
+    top: 4rem;
+    left: 0;
+    width: 100vw;
+    height: calc(100vh - 4rem);
+    z-index: 10;
     visibility: hidden;
     opacity: 0;
 }
-.nav{
-    position: absolute;
+.nav {
     display: flex;
     flex-direction: column;
-    align-items: first baseline;
-    top:0;
-    bottom: 0;
-    left: 0;
-    background-color: rgba(2, 2, 2, 0.97);
-    padding: 32px;
+    background-color: #fff;
     width: 320px;
-    height: 100vh;
-    box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.501);
+    height: 100%;
 }
-.nav-list{
+.nav-list {
     list-style-type: none;
-    display: block;
-    align-items: end;
-    flex-direction: column;
 }
-.nav-list li a{
+.nav-link {
     text-decoration: none;
-    color: rgb(255, 255, 255);
-    font-size: 1.1rem;
-    font-weight: bold;
+    color: #000;
+    font-size: 1.2rem;
+    font-weight: 600;
     font-family: sans-serif;
-    margin: 1rem 0;
-}
-.nav-list li{
-    padding-top: 16px;
-}
-.nav-list li a:hover{
-    color: #06dd51;
-}
-.open-menu {
-    display: block;
-    border: 0;
-    background-color: transparent;
-    width: 2%;
-}
-.close-menu {
-    display: block;
-    border: 0;
-    background-color: transparent;
-    color: aliceblue;
-    width: 15%;
-}
-#t-principal{
-    font-size: 32px;
-}
-#span1 {
-    color: rgb(0, 0, 0);
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    font-size: 24px;
-  }
-#span2 {
-    color: rgb(9, 162, 24);
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    font-size: 16px;
-  }
-.btn1{
-    position: absolute;
-    background-color: rgb(169, 7, 7);
-    color: rgb(255, 255, 255);
-    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-    text-align: center;
-    width: 200px;
-    padding: 10px;
-    border-radius: 5px;
-    border: none;font-weight: bold;
-    transition: 0.2s;
-    bottom: 10px;
-    text-decoration: none;
-  }
-  .btn1:hover{
-    background-color: #ffffff;
-    color:black;
-    transition: 0.2s;
-  }
-#t-secundario{
-    font-size: 32px;
-}
-.text-header{
-    margin-left: 32px;
-    color: rgb(0, 0, 0);
-    font-weight: bold;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    text-align: center;
-    line-height: .8;
-}
-.icon{
+    display: inline-block;
     width: 100%;
+    padding: 10px 15px;
+    transition: 0.2s;
 }
+.nav-link:hover {
+    background: #070;
+    color: #fff;
+    transition: 0.2s;
+}
+.btn-close-session {
+    position: absolute;
+    bottom: 2vh;
+    background-color: #a00;
+    color: #fff;
+    font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+        "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+    text-align: center;
+    width: 140px;
+    padding: 10px;
+    margin: 0 15px;
+    border-radius: 5px;
+    border: none;
+    font-weight: 700;
+    text-decoration: none;
+    transition: 0.2s;
+}
+.btn-close-session:hover {
+    background-color: #f00;
+    transition: 0.2s;
+}
+
 @media screen and (max-width: 600px) {
-    #t-principal{
-        font-size: 10px;
-    }
-    .logo{
+    .logo {
         max-width: 40px;
     }
-    .icon{
+    .icon {
         width: 100%;
     }
     .open-menu {
@@ -141,5 +102,8 @@ header{
     }
     .close-menu {
         width: 20px;
+    }
+    .text-header {
+        font-size: 1em;
     }
 }
