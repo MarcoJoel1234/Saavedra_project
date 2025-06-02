@@ -62,7 +62,7 @@ function getRoutes(profile) {
                 ['createUser', 'Registrar usuario'],
                 ['recoverPassword', 'Recuperar contraseña'],
                 ['cNominals', 'Editar C.Nominales y Tolerancias'],
-                ['vistaPiezas', 'Piezas en progreso'],
+                ['piecesInProgress', 'Piezas en progreso'],
                 ['vistaPzasGenerales', 'Reporte de piezas'],
                 ['vistaOTLiberar', 'Liberacion de piezas'],
                 ['mostrarTiempos', 'Modificar tiempos de producción'],

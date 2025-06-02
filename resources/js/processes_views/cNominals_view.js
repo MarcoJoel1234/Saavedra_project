@@ -70,7 +70,8 @@ function createSelect(options, name, id) {
     div.appendChild(select);
     div.appendChild(label);
 
-    let row = name === "workOrder"? document.querySelector(".row-principal"): document.querySelector(".row");row.appendChild(div);
+    let row = name === "workOrder"? document.querySelector(".row-principal"): document.querySelector(".row");
+    row.appendChild(div);
 }
 
 function addSelect(select) {
@@ -96,7 +97,7 @@ function addSelect(select) {
         case "3":
             if (select.value == "Copiado") {
                 selectNames.push("subProcess");
-            } else if (select.value == "1 y 2 Operacion Equipo") {
+            } else if (select.value == "Operacion Equipo") {
                 selectNames.push("operation");
             } else {
                 insertTable(newArray, select.value);
@@ -143,6 +144,9 @@ function insertTable(array, processSelected, subProcessSelected = null) {
     let scrollable_table = document.querySelector(".scrollable-table");
     scrollable_table.classList.add("visible");
 
+    let btn_submit = document.querySelector(".btn-submit");
+    btn_submit.classList.add("visible");
+
     //Posicionar el foormulario de busqueda
     let wrapper = document.querySelector(".wrapper");
     wrapper.style.position = "relative";
@@ -178,4 +182,6 @@ function hideTable() {
     let scrollable_table = document.querySelector(".scrollable-table");
     scrollable_table.innerHTML = "";
     scrollable_table.classList.remove("visible");
+    let btn_submit = document.querySelector(".btn-submit");
+    btn_submit.classList.remove("visible");
 }

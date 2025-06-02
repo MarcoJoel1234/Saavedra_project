@@ -29,21 +29,58 @@ export class Process {
                             case "entradaSalida":
                                 keyNames[i].push(`${rowName}_entrada`);
                                 keyNames[i].push(`${rowName}_salida`);
-                                
+
                                 if (this.cNomiData && this.toleData) {
                                     values[i].push(arrayValues["entrada"]);
                                     values[i].push(arrayValues["salida"]);
                                 }
                                 break;
                             default:
-                                keyNames[i].push(`${rowName}_${field}1`);
-                                keyNames[i].push(`${rowName}_${field}2`);
+                                switch (this.nameProcess) {
+                                    case "Cavidades":
+                                        let lastChar = field.slice(-1);
+                                        field = field.slice(0, -1);
 
-                                if (this.cNomiData && this.toleData) {
-                                    values[i].push(arrayValues[field + "1"]);
-                                    values[i].push(arrayValues[field + "2"]);
+                                        keyNames[i].push(
+                                            `${rowName}_${field}1_${lastChar}`
+                                        );
+                                        keyNames[i].push(
+                                            `${rowName}_${field}2_${lastChar}`
+                                        );
+
+                                        if (this.cNomiData && this.toleData) {
+                                            values[i].push(
+                                                arrayValues[
+                                                    `${field}1_${lastChar}`
+                                                ]
+                                            );
+                                            values[i].push(
+                                                arrayValues[
+                                                    `${field}2_${lastChar}`
+                                                ]
+                                            );
+                                        }
+                                        break;
+                                    case "OffSet":
+                                        break;
+                                    default:
+                                        keyNames[i].push(
+                                            `${rowName}_${field}1`
+                                        );
+                                        keyNames[i].push(
+                                            `${rowName}_${field}2`
+                                        );
+
+                                        if (this.cNomiData && this.toleData) {
+                                            values[i].push(
+                                                arrayValues[field + "1"]
+                                            );
+                                            values[i].push(
+                                                arrayValues[field + "2"]
+                                            );
+                                        }
+                                        break;
                                 }
-                                break;
                         }
                         counter++;
                     } else {
@@ -65,6 +102,7 @@ export class Process {
     }
     //prettier-ignore
     createProcess() {
+        let divisionsTitles = [];
         let divisionsCNomi = [];
         let divisionsTole = [];
         let fields = [];
@@ -130,7 +168,7 @@ export class Process {
                 divisionsCNomi = [2, 4, 6];
                 divisionsTole = [2, 4, 6];
 
-                fields = ["id", "altura", "alturaCandado1", "alturaCandado2", "alturaAsientoObturador1", "alturaAsientoObturador2", "profundidadSoldadura1", "profundidadSoldadura2", "pushUp"];
+                fields = ["id", "altura", "alturaCandado", "alturaAsientoObturador", "profundidadSoldadura", "pushUp"];
                 break;
 
             case "Calificado":
@@ -212,36 +250,62 @@ export class Process {
 
                 fields = ["id", "conexion_lineaPartida", "conexion_90G", "altura_conexion", "diametro_embudo"];
                 break;
+            case "Cavidades":
+                this.tableTitles = [["#PZ", "Altura 1", "Altura 2", "Altura 3"], ["", "Profundidad", "Diametro", "Profundidad", "Diametro", "Profundidad", "Diametro"]];
+
+                divisionsTitles = [1, 2, 3];
+                divisionsCNomi = [null];
+                divisionsTole = [1, 3, 5, 7, 9, 11];
+
+                fields = ["id", "profundidad1", "diametro1", "profundidad2", "diametro2", "profundidad3", "diametro3"];
+                break;
+            case "Off Set":
+                this.tableTitles = [["#PZ", "Ancho de altura", "Profundidad de tacon", "Simetria", "Ancho del tacon", "Barreno lateral", "Altura tacon inicial", "Altura tacon intermedia"], ["", "", "Hembra", "Macho", "Hembra", "Macho", "", "Hembra", "Macho", "", ""]];
+
+                divisionsTitles = [2, 3, 5];
+                divisionsCNomi = [null];
+                divisionsTole = [null];
+
+                fields = ["id", "anchoRanura", "profuTaconHembra", "profuTaconMacho", "simetriaHembra", "simetriaMacho", "anchoTacon", "barrenoLateralHembra", "barrenoLateralMacho", "alturaTaconInicial", "alturaTaconIntermedia"];
+                break;
         }
         values = this.getValues(fields, divisionsCNomi, divisionsTole);
-        return this.crearTabla(values[0], divisionsCNomi, divisionsTole, values[1]);
+        return this.crearTabla(values[0], divisionsCNomi, divisionsTole, values[1], divisionsTitles);
     }
     //prettier-ignore
-    crearTabla(names, divisionsCNomi, divisionsTole, values, proceso = null) {
+    crearTabla(names, divisionsCNomi, divisionsTole, values, divisionsTitles = []) {
         // Crear tabla
         const table = document.createElement("table"); // Crear tabla
         table.className = "table"; // Agregar clase a la tabla
 
         for (let i = 0; i < 3; i++) {
-            const tr = document.createElement("tr");
-
+            let tr;
             switch (i) {
                 case 0: // Crear columnas de titulos
-                    this.tableTitles.forEach((title, index) => {
+                let titles = this.tableTitles.length > 2 ? [this.tableTitles] : this.tableTitles;
+                titles.forEach((array, indexArray) => {
+                    tr = document.createElement("tr");
+                    array.forEach((title, index) => {
                         let th = document.createElement("th");
                         th.className = "table-title";
                         th.innerHTML = title;
-
                         if (index == 0) {
                             th.style = "width:150px;";
+                        }else if (indexArray == 0 && titles.length > 1) {
+                            if (divisionsTitles.includes(index)) {
+                                th.colSpan = 2;
+                            }
                         }
                         tr.appendChild(th);
                     });
-                    break;
-
+                    table.appendChild(tr); //Agregar fila a la tabla.
+                });
+                break;
+                    
                 // Crear columnas de cNominal y tolerancias
                 case 1:
                 case 2:
+                    tr = document.createElement("tr");
                     let divisions = i == 1 ? divisionsCNomi : divisionsTole;
 
                     for(let x=0; x < names[i - 1].length; x++) {
@@ -270,9 +334,9 @@ export class Process {
                         }
                         tr.appendChild(td);
                     }
+                    table.appendChild(tr); //Agregar fila a la tabla.
                     break;
             }
-            table.appendChild(tr); //Agregar fila a la tabla.
         }
         return table;
     }

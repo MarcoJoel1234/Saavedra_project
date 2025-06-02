@@ -97,7 +97,7 @@ Route::controller(ClassController::class)->group(function () {
 //Grupo de rutas para el controlador ProcesosController
 Route::controller(ProcessesController::class)->group(function () {
     Route::get('/cNominals', 'show_cNominalsView')->name('cNominals'); //Ruta para la interfaz de los procesos para editar las cotas nominales y tolerancias
-    Route::post('/cNominals/search', 'searchCNominals')->name('searchCNominals'); //Ruta para la interfaz de los procesos para editar las cotas nominales y tolerancias
+    Route::post('/cNominals/store', 'storeCNominalsData')->name('storeCNominals'); //Ruta para la interfaz de los procesos para guardar las cotas nominales y tolerancias
 });
 
 //Grupo de rutas para GestionOTController
