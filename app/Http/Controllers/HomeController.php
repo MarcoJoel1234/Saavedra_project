@@ -20,26 +20,26 @@ class HomeController extends Controller
             switch (auth()->user()->perfil) {
                 case 1:
                     $layout = "layouts.menu.appAdmin";
-                    $welcomeT = '!Bienvenido a Administración';
+                    $welcomeT = 'Bienvenido a Administración';
                     break;
                 case 2:
                     $layout = "layouts.menu.appProduction";
                     $backgroundImage = "images/fondoHome.jpg";
-                    $welcomeT = '!Bienvenido a Producción';
+                    $welcomeT = 'Bienvenido a Producción';
                     break;
                 case 3:
                     $layout = "layouts.menu.appMaster";
-                    $welcomeT = '¡Bienvenido Master';
+                    $welcomeT = 'Bienvenido Master';
                     break;
                 case 4:
                     $layout = "layouts.menu.appQuality";
                     $backgroundImage = "images/calidad.png";
-                    $welcomeT = '!Bienvenido a Control de calidad';
+                    $welcomeT = 'Bienvenido a Control de calidad';
                     $objectiveT = 'En nuestro perfil de calidad, cada milímetro importa. Nos comprometemos a inspeccionar con precisión cada pieza, asegurando medidas exactas y calidad impecable. En la búsqueda constante de la excelencia, nos destacamos por nuestra meticulosidad y compromiso con la perfección.';
                     break;
                 case 5:
                     $layout = "layouts.menu.appWarehouse";
-                    $welcomeT = '!Bienvenido a Almacen';
+                    $welcomeT = 'Bienvenido a Almacen';
                     break;
             }
             return view('home', compact('layout', 'backgroundImage', 'objectiveT', 'welcomeT'));

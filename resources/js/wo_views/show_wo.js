@@ -173,7 +173,7 @@ function createRowsForm(formInputs) {
                 //For para la creacion de los div "col" para cada input
                 nameInput = Object.keys(formInputs)[inputsCounter]; //Obtención del nombre del input
                 let col = document.createElement("div");
-                col.className = "col-md-6 mb-2";
+                col.className = "column";
 
                 //Creación del label correspondiente
                 if (formInputs[nameInput].label != undefined) {
@@ -455,7 +455,7 @@ function setOrDelete_ClassButtons(idClass, action) {
     if (!action) {
         if (idClass !== null) {
             let div_btns = document.querySelector(".div-btns"); //Obtener el div en donde se insertaran los botones de accion de la clase
-            //Ocultar el boton de agregar clase
+            //Ocultar el boton de agregar clase 
             let btn_addClass = document.querySelector(".btn-addClass");
             btn_addClass.style.display = "none";
 
@@ -1025,8 +1025,8 @@ function changeStatusSoldaduras() {
 
 function mostrarDiv(route) {
     let div_padre = document.createElement("div");
-    div_padre.className = "div-padre";
-    div_padre.id = "div-padre";
+    div_padre.className = "div-opacity";
+    div_padre.id = "div-opacity";
 
     let div = document.createElement("div");
     div.className = "div-delete";
@@ -1068,7 +1068,7 @@ function mostrarDiv(route) {
 }
 
 function cerrarDiv() {
-    let div_padre = document.getElementById("div-padre");
+    let div_padre = document.getElementById("div-opacity");
     div_padre.remove();
 }
 

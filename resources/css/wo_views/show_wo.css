@@ -1,248 +1,104 @@
-@import url("https://fonts.googleapis.com/css2?family=Kaushan+Script&family=Poppins&display=swap");
-
-* {
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: "Poppins", sans-serif;
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
-    overflow-x: hidden;
-    overflow-y: hidden;
-}
-
-label {
-    color: green;
-    font-weight: bold;
-}
-
-h2 {
-    margin-top: 10%;
-    text-align: center;
-    font-size: 2.5rem;
-    color: #000000;
-}
 .main-layout {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     display: flex;
-    flex-direction: row;
-    justify-content: center;
-    width: 100%;
-    align-items: center;
-}
-.container-form {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-form {
-    margin-top: 5%;
-    max-height: 755px;
-    padding: 50px;
-    display: flex;
+    width: 90vw;
+    height: 80vh;
     justify-content: center;
 }
-
-/*Estilos para el formulario*/
 .wrapper {
     border-radius: 10px;
-    padding: 30px 150px;
+    padding: 1em 5em;
     overflow-y: auto;
-    height: 100%;
-    max-height: 100%;
-    flex-wrap: wrap;
     overflow-x: hidden;
-    background-color: white;
+    background: #ffffff;
 }
-
 .lg-saavedra {
     width: 300px;
-    margin-bottom: 3%;
+    display: flex;
+    margin: auto;
 }
-
+h3 {
+    text-align: center;
+    font-size: 1.8em;
+    color: #404040;
+    padding: 22px;
+    font-weight: 100;
+}
+.row{
+    display: flex;
+}
+.column{
+    display: flex;
+    flex-direction: column;
+    padding: .7em;
+    width: 50%;
+}
+.form-control{
+    border-radius: 5px;
+    border: 1px solid #00000033;
+    font-size: 1.3em;
+    padding: .7em;
+    transition: 0.2s;
+    background: #03396610;
+}
+.form-control:hover{
+    border: 1px solid #0a8504;
+    transition: 0.2s;
+}
+label {
+    color: #033966;
+    font-weight: bold;
+    font-size: 1.3em;
+}
 .div-rows-hidden {
     display: none;
 }
 
-.div-btn-add {
-    display: flex;
-    justify-content: center;
-}
-
-.h4 {
-    font-size: 26px;
-    font-family: "Poppins", sans-serif;
-    padding: 22px;
-}
-
-/*Estilos para el checbox de agregar una clase*/
-.container-checkbox {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-}
-
-.checkbox-add-class {
-    width: 5%;
-    height: 20px;
-    margin: 5px;
-    border: 4px solid #000000;
-}
-
-.label-add-class {
-    color: black;
-    margin-top: auto;
-}
 /*Estilos para la tabla en donde se muestran las clases*/
 .scrollabe-table {
-    position: relative;
-    margin: 20px 0px;
+    box-sizing: border-box;;
+    margin: 20px 0;
     border-radius: 5px;
-    background-color: rgba(57, 55, 55, 0.472);
-    width: 100%;
-    height: 17%;
+    background-color: #00000033;
     overflow-y: auto;
     padding: 1rem;
 }
 .table {
-    margin: 0;
     width: 100%;
     border: 2px solid #000000;
-    font-size: 18px;
     color: #000000;
     text-align: center;
 }
-.table th {
+.t-title {
     width: 150px;
     border: 2px solid #000000;
-    background-color: rgba(217, 217, 217, 0.8);
-}
-.div-td {
-    width: 100%;
-    padding: 5px;
+    background-color: #fffa;
+    font-size: 1.3em;
 }
 .btnClass {
     width: 100%;
-    left: 50%;
-    right: 50%;
     display: flex;
-    top: 50%;
     text-align: center;
     justify-content: space-between;
     border: none;
     transition: 0.2s;
+    font-size: .9rem;
 }
-
 .btnClass:hover {
-    background-color: #818180eb !important;
-    font-weight: bold;
+    background-color: #033966 !important;
+    color: #ffffff;
     transition: 0.2s;
 }
-/*Estilos para la seccion de las casillas*/
-.div-boxes {
-    background-color: white;
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    height: 100%;
-    max-height: 100%;
-    margin-left: 50px;
-    border-radius: 10px;
-    padding: 30px;
+.div-td {
+    width: 100%;
+    padding: 5px 0;
+    font-size: 1.5em;
 }
 
-.sections {
-    display: flex;
-    flex-direction: row;
-}
-
-.section1 {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-}
-
-.section2 {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-}
-
-/* Estilo para la casilla de verificación */
-.checkbox-container {
-    display: flex;
-    padding: 7px;
-    max-width: 60%;
-}
-
-.checkbox,
-.checkbox-soldaduras,
-.checkboxAll {
-    width: 20px;
-    margin-right: 10px;
-}
-
-.div-checkboxAll {
-    display: flex;
-    justify-content: right;
-    margin: 50px;
-}
-
-.input-machine,
-.input-machine-soldaduras {
-    width: 13%;
-    margin-right: 10px;
-    border-radius: 5px;
-    border: 1px solid #000000;
-    text-align: center;
-}
-
-/* Estilos para los botones accion de las clases*/
-.btn {
-    display: none;
-    margin-top: 10px;
-    background-color: #0a8504;
-    color: white;
-}
-
-.btn:hover {
-    background-color: #3ca109eb;
-    font-weight: bold;
-}
-
-.btn-deleteClass {
-    background-color: #ca0808;
-    padding: 10px;
-}
-
-.btn-editClass {
-    background-color: #0845ca;
-    padding: 10px 20px;
-}
-
-.action-btns {
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    transition: 0.2s;
-    text-align: center;
-    margin: 10px;
-    border: none;
-}
-
-.action-btns:hover {
-    transition: 0.2s;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 2.2);
-}
-
+/*Estilos para los botones de la Orden de trabajo*/
 .container-WOButtons {
     display: flex;
     justify-content: center;
@@ -255,18 +111,162 @@ form {
 }
 
 .btn-pdfWO {
-    background-color: #0a8504;
+    background-color: #033966;
     padding: 10px;
 }
-.div-padre {
+.btn-pdfWO:hover {
+    transform: scale(1.1);
+    background-color: #0a8504;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 2.2);
+    transition: 0.2s;
+}
+
+/*Estilos para el checbox de agregar una clase*/
+.container-checkbox {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.checkbox-add-class {
+    transform: scale(2);
+    margin: 0 1.5em;
+    border: 4px solid #000000;
+}
+
+.label-add-class {
+    color: #000000;
+}
+
+
+/*Estilos para la seccion de las casillas*/
+.div-boxes {
+    position: relative;
+    display: none;
+    background-color: #fff;
+    flex-direction: column;
+    margin-left: 4em;
+    border-radius: 10px;
+    padding: 1em; 
+    justify-content: center;
+}
+.div-boxes h3 {
     position: absolute;
-    transition: 0.3s;
-    width: 100%;
-    height: 64.5rem;
+    top: 0;
+    width: 90%;
+}
+.sections {
+    display: flex;
+    flex-direction: row;
+    padding: 0 5em;
+}
+
+.section1 {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1em;
+}
+
+.section2 {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1em;
+}
+
+/* Estilo para la casilla de verificación */
+.checkbox-container {
+    display: flex;
+    padding: 1.5em 0;
+}
+
+.checkbox,
+.checkbox-soldaduras,
+.checkboxAll {
+    transform: scale(2);
+    margin: 0 1em;
+}
+
+.div-checkboxAll {
+    position: absolute;
+    display: flex;
+    right: 0;
+    bottom: 0;
+    margin: 3em;
+}
+
+.input-machine,
+.input-machine-soldaduras {
+    width: 2.2em;
+    margin-right: 10px;
+    border-radius: 5px;
+    border: 1px solid #000000;
+    text-align: center;
+    font-size: 1.5em;
+}
+
+/* Estilos para los botones accion de las clases*/
+
+.div-btns {
+    position: absolute;
+    bottom: 2em;
+    left: 50%;
+    transform: translate(-50%);
+    z-index: -1;
+}
+.btn {
+    display: none;
+    background-color: #0a8504;
+    color: white;
+    font-size: 1.2em;
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    transition: 0.2s;
+}
+.btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 2.2);
+    transition: 0.2s;
+}
+.btn-deleteClass {
+    background-color: #9c0303;
+    padding: 10px;
+}
+.btn-editClass {
+    background-color: #033966;
+    padding: 10px 20px;
+}
+.btn-editClass:hover {
+    background-color: #0a8504;
+}
+.action-btns {
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: 0.2s;
+    text-align: center;
+    margin: 0 10px;
+    border: none;
+    font-size: 1.2em;
+}
+.action-btns:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 2.2);
+    transition: 0.2s;
+}
+
+/*Estilos para los componentes al eliminar una OT o una clase*/
+.div-opacity {
+    position: absolute;
+    top:0;
+    width: 100vw;
+    height: 100vh;
+    box-sizing: border-box;
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #0000003a;
+    background: #0000003a;
 }
 
 .div-delete {
@@ -275,26 +275,26 @@ form {
     align-items: center;
     flex-direction: column;
     background-color: white;
-    width: 34%;
+    width: 50em;
     transition: 0.2s;
-    padding: 15px;
+    padding: 2em;
+    border-radius: 10px;
 }
 
 .div-cerrar {
-    width: 5%;
+    width: 3em;
     margin-left: 95%;
 }
 
 .btn-cerrar {
-    width: 100%;
     border: none;
-    background-color: transparent;
+    background: transparent;
     transition: 0.2s;
 }
 
 .btn-cerrar:hover {
-    transition: 0.2s;
     transform: scale(1.3);
+    transition: 0.2s;
 }
 
 .img-cerrar {
@@ -302,8 +302,8 @@ form {
 }
 
 .img-delete {
-    width: 20%;
-    height: 20%;
+    width: 10em;
+    padding: 10px;
 }
 .label-delete {
     font-size: 20px;
@@ -312,7 +312,7 @@ form {
 }
 
 @media (max-width: 768px) {
-    html,
+    /* html,
     body {
         overflow-x: hidden;
         overflow-y: auto;
@@ -390,8 +390,8 @@ form {
         width: 94%;
         max-width: 94%;
         height: auto;
-        max-height: 76vh; /* Limita la altura total */
-        overflow-y: auto; /* Activa scroll solo dentro del wrapper */
+        max-height: 76vh;
+        overflow-y: auto;
         overflow-x: hidden;
         padding: 1rem;
         border-radius: 0.5rem;
@@ -405,7 +405,6 @@ form {
     }
     .btn-addClass {
         color: white;
-        /* margin-top: 1370px; */
     }
     .wrapper {
         font-size: 0.95rem;
@@ -414,10 +413,7 @@ form {
     .div-rows {
         padding: 0.5rem;
     }
-    .container-form {
-        padding: 0.5rem;
-    }
-    /* TABLA */
+
     .scrollabe-table {
         width: 100%;
         height: 10%;
@@ -427,24 +423,23 @@ form {
     .table th {
         font-size: 0.8rem;
     }
-    /* Opcional: reducir tamaño de inputs si se requiere */
+
     .div-rows input,
     .div-rows select,
     .div-rows textarea {
         font-size: 0.9rem;
         padding: 0.4rem;
     }
-    /* BOTONES */
+
     .btn-deleteWO,
     .btn-pdfWO {
         font-size: small;
     }
     .btn-addClass btn {
         bottom: 20px;
-        /* right: 20px; */
         position: fixed;
         font-size: small;
-        background-color: #0d6efd; /* ejemplo */
+        background-color: #0d6efd;
         color: rgb(2, 167, 71);
         padding: 10px 15px;
         border-radius: 5px;
@@ -456,7 +451,7 @@ form {
         font-size: small;
         height: 20%;
     }
-    /* INPUTS CHECKBOX */
+
     .checkbox-container {
         display: flex;
         padding: 0.1rem;
@@ -465,11 +460,11 @@ form {
         margin-top: 10%;
         margin-left: 10%;
     }
-    /* .checkbox-container label {
+    .checkbox-container label {
         margin-top: -15px;
         margin: -10px  10px;
     
-    } */
+    } 
     .checkbox-label {
         font-size: small;
     }
@@ -508,7 +503,6 @@ form {
         width: 20px;
         height: 20px;
     }
-    /* ELIMINAR OT DIV */
     .div-delete {
         display: flex;
         position: static;
@@ -517,12 +511,12 @@ form {
         flex-direction: column;
         width: 40%;
         z-index: 10000;
-        background: rgba(255, 255, 255, 0.15); /* Transparente */
+        background: rgba(255, 255, 255, 0.15);
         box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
         backdrop-filter: blur(10px); 
         -webkit-backdrop-filter: blur(5px);
         border: 1px solid rgba(255, 255, 255, 0.18);
-        color: white; /* O usa #f1f1f1 para no tan blanco */
+        color: white;
         transition: 0.3s ease-in-out;
         margin-top: -170%;
         transition: 0.2s;
@@ -568,15 +562,13 @@ form {
         font-size: small;
     }
     .btn-editClass{
-    background-color: #0845ca;
-    padding: 10px 20px;
-   
+        background-color: #0845ca;
+        padding: 10px 20px;
         margin-top: -20px;
         z-index: 1000;
         font-size: small;
-
     }
-    .div-padre{
+    .div-opacity{
         background-color: transparent;
     }
     .sections{
@@ -584,9 +576,8 @@ form {
         position: static;
 
     }
-    /* .section1, .section2{
+    .section1, .section2{
         margin-top: -190px;
         position: relative;
-       
     } */
 }

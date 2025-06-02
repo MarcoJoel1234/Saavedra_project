@@ -20,11 +20,11 @@ function createButtonsAdd_Select() {
             //Agregar eventos a los botones
             bttn.addEventListener('click', function () {
                 event.preventDefault();
-                let divWrapper = document.querySelector('.wrapper');
-                if (divWrapper.childElementCount > 0) {
-                    divWrapper.removeChild(divWrapper.lastChild);
+                let form = document.querySelector('.form');
+                if (form.childElementCount > 0) {
+                    form.removeChild(form.lastChild);
                 }
-                divWrapper.appendChild(createDiv(name, window.workOrders, window.moldings));
+                form.appendChild(createDiv(name, window.workOrders, window.moldings));
             });
             fragment.appendChild(bttn);
         }
@@ -50,12 +50,6 @@ function createDiv(value, workOrders, moldings = null) {
     //Creacion de div
     let div = document.createElement("div");
     div.className = "container-form";
-
-    //Creacion de subtitulo (span)
-    let div_subtitle = document.createElement("div");
-    div_subtitle.className = "h4 text-muted text-center mb-3";
-    div_subtitle.textContent = value != "add" ? "¡Seleccionar orden de trabajo!" : "¡Crear orden de trabajo!";
-    div.appendChild(div_subtitle);
 
     //Creacion del div del formulario    
     let divForm = document.createElement("div");
@@ -138,10 +132,10 @@ function addWorkOrder(moldings, errorState) {
         col.className = "col-md-6 mb-3";
         let formOutline = document.createElement("div");
         formOutline.className = "form-outline";
-        let label = document.createElement("label");
+        let label = document.createElement("h4");
         label.className = "form-label";
         if (i == 0) { //Si es la primera iteracion se crea el select de las molduras
-            label.textContent = "Seleccione una moldura";
+            label.textContent = "Selecciona una moldura";
             if (moldings.length > 0) {
                 let select = document.createElement("select");
                 select.id = "moldings";
@@ -165,7 +159,7 @@ function addWorkOrder(moldings, errorState) {
                 formOutline.appendChild(div_alert);
             }
         }else{//Si es la segunda iteracion se crea el input para agregar la orden de trabajo
-            label.textContent = "Ingrese la orden de trabajo";
+            label.textContent = "Ingresa la orden de trabajo";
             let input = document.createElement("input");
             input.className = "form-control";
             input.type = "number";

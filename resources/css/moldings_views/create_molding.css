@@ -1,87 +1,72 @@
-@import url('https://fonts.googleapis.com/css2?family=Kaushan+Script&family=Poppins&display=swap');
-
-* {
+ * {
     padding: 0;
     margin: 0;
-    box-sizing: border-box
+    box-sizing: border-box;
 }
-
-body {
-    height: 100vh;
-    font-family: 'Poppins', sans-serif;
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
-    display: flex;
-}
-
 .wrapper {
-    width: 100%;
-    max-width: 500px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 1.5em;
+    width: 28vw;
+    background: #fff;
     border-radius: 10px;
-    margin: auto;
-    padding: 30px 40px;
-    box-shadow: 20px 20px 80px rgb(0, 0, 0)
+    box-shadow: 5px 10px 80px #000000b0;
 }
-
-.h2 {
-    font-family: 'Kaushan Script', cursive;
-    font-size: 3.5rem;
-    font-weight: bold;
-    color: #000000;
-    font-style: italic
+.lg-saavedra {
+    width: 25em;
+    padding: 2em 0;
 }
-
-.h4 {
-    font-family: 'Poppins', sans-serif
+h2 {
+    font-size: 1.8em;
+    margin: 1em;
+    color: #404040;
+    font-weight: 100;
 }
-
+form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
 .input-field {
     border-radius: 5px;
-    padding: 5px;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    border: 1px solid #000000;
+    padding: .7em;
+    margin: 1em;
+    border: 1px solid #00000033;
+    text-align: center;
+    font-size: 1.3em;
+    background: #03396610;
 }
 
 .input-field:hover {
-    color: #5aa04c;
-    border: 1px solid #4ca059
+    border: 1px solid #033966;
 }
-
-input {
-    border: none;
-    outline: none;
-    box-shadow: none;
-    width: 100%;
-    padding: 0px 2px;
-    font-family: 'Poppins', sans-serif
-}
-
-.fa-eye-slash.btn {
-    border: none;
-    outline: none;
-    box-shadow: none
-}
-
 
 .btn.btn-block {
+    margin: 1em auto 0 auto;
     border-radius: 20px;
-    background-color: #000000;
-    color: #fff
+    background-color: #033966;
+    color: #fff;
+    border: none;
+    width: 30%;
+    font-size: 1.3em;
+    padding: .7em;
+    letter-spacing: 1px;
+    transition: 0.2s;
 }
 
 .btn.btn-block:hover {
-    background-color: #3ca109eb;
+    transform: scale(1.1);
+    background-color: #0a8504;
+    transition: 0.2s;
 }
 
-.lg-saavedra {
-    width: 300px;
-    margin-bottom: 10%;
-}
-
-@media(max-width: 575px) {
+/* @media(max-width: 575px) {
     .wrapper {
         margin: 10px
     }
@@ -111,4 +96,4 @@ input {
         padding: 30px 40px;
         box-shadow: 20px 20px 80px rgb(0, 0, 0)
     }
-}
+} */

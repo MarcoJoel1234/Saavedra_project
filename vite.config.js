@@ -5,6 +5,10 @@ export default defineConfig({
     plugins: [
         laravel({
             input: [
+                //Layout messages
+                "resources/css/layouts/partials/messages.css",
+                "resources/js/layouts/partials/messages.js",
+
                 //Layout appMenu
                 "resources/css/layouts/appMenu.css",
                 "resources/js/layouts/appMenu.js",
@@ -23,6 +27,7 @@ export default defineConfig({
                 "resources/css/wo_views/show_wo.css",
 
                 //Views users
+                "resources/css/users_views/createUser.css",
                 "resources/css/users_views/recoverPassword.css",
                 
                 //Views processes

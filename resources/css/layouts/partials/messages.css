@@ -1,0 +1,46 @@
+.custom-alert {
+    position: relative;
+    padding: 1rem 1.25rem;
+    padding-right: 2.5rem; /* espacio para botón de cierre */
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    font-size: 1.2rem;
+    font-weight: 500;
+    display: flex;
+    align-items: flex-start;
+    margin: 0.5em;
+    transition: opacity 0.5s ease;
+    opacity: 1;
+}
+.custom-alert {
+    transition: opacity 0.3s ease;
+}
+.custom-alert ul {
+    margin-left: 1rem;
+    list-style: none;
+}
+
+/* Estilos específicos para tipos de alertas */
+.alert-danger.custom-alert {
+    background-color: #fcebea;
+    border: 1px solid #f5c6cb;
+    color: #cc1f1a;
+}
+
+.alert-success.custom-alert {
+    background-color: #e6ffed;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+/*Estilos para el boton de cerrar alertas*/
+.close-alert {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.75rem;
+    background: transparent;
+    border: none;
+    font-size: 1.25rem;
+    color: inherit;
+    cursor: pointer;
+}

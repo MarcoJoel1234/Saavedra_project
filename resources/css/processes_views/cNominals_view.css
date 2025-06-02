@@ -2,12 +2,182 @@ body {
     padding: 0;
     margin: 0;
 }
-.container-select {
+/* Estilos del div buscador */
+.wrapper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 900px;
+    width: 90%;
     box-sizing: border-box;
-    padding: 20px;
-    margin: 20px auto;
-    width: 40vw;
-    background: #0ff;
+    padding: 1.2em;
+    background: #ffffff;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 5px 10px 30px #000000b0;
+}
+.lg-saavedra {
+    width: 20em;
+    margin: 1em 0;
 }
 h1 {
+    margin: 0.7em;
+    font-size: 1.8em;
+    font-weight: 100;
+    color: #404040;
+}
+.row-principal {
+    width: 80%;
+    margin: 1em;
+}
+.row {
+    display: grid;
+    flex-direction: row;
+    width: 100%;
+}
+.form-group {
+    grid-row: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+.form-control {
+    width: 90%;
+    border-radius: 5px;
+    padding: 0.8em 1em;
+    border: 1px solid #00000033;
+    text-align: center;
+    font-size: 1.3em;
+    margin: 0.5em;
+    letter-spacing: 1px;
+    background: #033966;
+    color: #ffffff;
+}
+.form-control:hover {
+    border: 1px solid #033966;
+}
+.title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #033966;
+}
+.form-search {
+    width: 100%;
+}
+/* Estilos para la tabla de las cotas nominales y las tolerancias */
+.scrollable-table {
+    position: relative;
+    opacity: 0;
+    margin: 10em auto;
+    border-radius: 10px;
+    width: 90vw;
+    height: 20vh;
+    overflow-x: auto;
+    display: flex;
+    align-items: center;
+    transform: translateY(-20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.scrollable-table.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+.table {
+    position: absolute;
+    border-collapse: collapse;
+    border: 2px solid #032c00cc;
+    background: #fff;
+    width: max-content;    
+    margin: 10px;
+    width: 200%;
+    box-shadow: 0 0 10px rgba(0, 0, 0);
+}
+
+.table-title {
+    border: 3px solid #000;
+    background-color: #033966;
+    padding: 10px 0;
+    text-align: center;
+    color: #fff;
+    font-size: 1.2em;
+}
+
+.table input {
+    color: #000000;
+    text-align: center;
+    padding: 0.5em 0;
+    font-size: 1.2em;
+    background: #03396610;
+    
+}
+.table td{
+    text-align: center;
+    font-size: 1.3em;
+    font-weight: 700;
+    border: 3px solid #033966;
+}
+.input-medio {
+    width: 50%;
+}
+.input {
+    width: 100%;
+}
+.btn-submit {
+    background: #033966;
+    color: #ffffff;
+    padding: 0.8em 1.5em;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Estilos de alertas */
+.alert {
+    background-color: #fcebea;
+    border: 1px solid #f5c6cb;
+    color: #cc1f1a; /* color de texto tipo warning */
+    padding: 1rem 1.5rem;
+    border-radius: 0.5rem;
+    font-size: 1.2rem;
+    text-align: center;
+}
+
+.alert strong {
+    font-weight: 600;
+}
+
+/*Animaciones de elementos*/
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+}
+
+.animated-div {
+    animation: fadeIn 0.4s ease-out;
+}
+.remove-div {
+    animation: fadeOut 0.3s ease-in forwards;
 }

@@ -1,4 +1,4 @@
-import '../bootstrap'; //Importamos boostrap
+import '../layouts/partials/messages.js';
 
 //Dar funcionalidad al bonton del menu
 let btn_open = document.querySelector('.open-menu'); //Obtenemos el elemento por su id.
@@ -30,12 +30,21 @@ function createMenu(profile) {
 }
 function createList(routes){
     let fragment = document.createDocumentFragment();
+    const currentPath = window.location.pathname;
+
     routes.forEach(route => {
         let li = document.createElement('li');
         let a = document.createElement('a');
         a.classList.add('nav-link');
         a.href = window.routes[route[0]];
         a.innerHTML = route[1];
+
+        // Agregar la clase 'active' si la ruta coincide con la ruta actual
+        const linkPath = new URL(a.href, window.location.origin).pathname;
+        if (currentPath === linkPath) {
+            a.classList.add('active');
+        }
+        
         li.appendChild(a);
         fragment.appendChild(li);
     });
