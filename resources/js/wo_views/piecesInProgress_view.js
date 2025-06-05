@@ -125,15 +125,105 @@ class Dashboard {
         }
 
         //Agregar evento al div de progreso
-        processSection.addEventListener("click", () => {
-            let div = document.createElement("div");
-            div.className = "process-details";            
-        });
+        processSection.addEventListener("click", () => { this.generateDivBadPieces(processName, processesArray["piecesBadData"]); });
         return processSection;
+    }
+    generateDivBadPieces(processName, badPieces) {
+        //Creacion del div de opacidad de fondo
+        let div = document.createElement("div");
+        div.className = "opacity-div";
+
+        //Creacion del div en donde se mostrara la tabla de las piezas malas
+        let modal = document.createElement("div");
+        modal.className = "modal";
+
+        //Creacion del titulo del proceso al que se da click
+        let modalTitle = document.createElement("h2");
+        modalTitle.className = "modal-title";
+        modalTitle.innerHTML = `Proceso: ${processName}`;
+        modal.appendChild(modalTitle);
+
+        //Creacion del boton de cerrar el modal
+        let modalClose = document.createElement("button");
+        modalClose.className = "modal-close";
+
+        let imageClose = document.createElement("img");
+        imageClose.className = "img-close";
+        imageClose.src = "/images/cerrar.png";
+        modalClose.appendChild(imageClose);
+
+        modalClose.addEventListener("click", function () {
+            document.body.removeChild(div);
+            document.body.style.overflow = "auto";
+        });
+        modal.appendChild(modalClose);
+
+        //Creacion de la tabla de las piezas malas
+        let table = this.createTableBadPieces(badPieces, processName);
+        modal.appendChild(table);
+
+        div.addEventListener("click", function (e) {
+            if (e.target === div) {
+                document.body.removeChild(div);
+                document.body.style.overflow = "auto";
+            }
+        });
+        div.appendChild(modal);
+        document.body.appendChild(div);
+        document.body.style.overflow = "hidden";
+    }
+    createTableBadPieces(badPieces, processName) {
+        let table = document.createElement("table");
+        table.className = "bad-pieces-table";
+        let thead = document.createElement("thead");
+        let headerRow = document.createElement("tr");
+        let headers = processName == "Operacion Equipo" ? ["Pieza", "Numero de juego", "Operador", "Proceso", "Operacion", "Error"] : ["Pieza", "Numero de juego", "Operador", "Proceso", "Error"];
+
+        //Insertar encabezados de la tabla
+        headers.forEach((header) => {
+            let th = document.createElement("th");
+            th.innerHTML = header;
+            th.style.width = headers.length / 100 + "%"; // Ajustar el ancho de las columnas
+            headerRow.appendChild(th);
+        });
+        
+        //Insertar los datos de cada una de las piezas malas
+        //prettier-ignore
+        let tbody = document.createElement("tbody");
+        if(Object.keys(badPieces).length > 0){
+            Object.values(badPieces).forEach((piece) => {
+                let row = document.createElement("tr");
+                let pieceData = processName == "Operacion Equipo" ? [piece["piece"], piece["setNumber"], piece["operator"], piece["process"], piece["operation"], piece["error"]] : [piece["piece"], piece["setNumber"], piece["operator"], piece["process"], piece["error"]];
+                pieceData.forEach((data) => {
+                    let td = document.createElement("td");
+                    td.innerHTML = data;
+                    row.appendChild(td);
+                });
+                tbody.appendChild(row);
+            });
+        }else{
+            let row = document.createElement("tr");
+            let td = document.createElement("td");
+            td.colSpan = headers.length;
+            td.classList.add("no-bad-pieces");
+            td.innerHTML = "No hay piezas malas registradas para este proceso.";
+            row.appendChild(td);
+            tbody.appendChild(row);
+        }
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+        table.appendChild(tbody);
+        return table;
     }
 }
 
 if (Object.keys(wOrderArray).length > 0) {
     let dashboard = new Dashboard(wOrderArray);
     dashboard.createSections();
+}else {
+    let body = document.querySelector("body");
+    let noDataMessage = document.createElement("h2");
+    noDataMessage.className = "no-data-message";
+    noDataMessage.innerHTML = "No hay órdenes de trabajo en progreso.";
+    body.appendChild(noDataMessage);
 }

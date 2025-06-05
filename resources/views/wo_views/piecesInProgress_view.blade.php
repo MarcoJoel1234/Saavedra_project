@@ -8,16 +8,6 @@
 @section('background-body', 'images/fondoLogin.jpg')
 
 @section('content')
-@if(count($wOInProgress) > 0)
-@else
-<div class="fondo">
-    <div class="alerta">
-        <!-- Imagen de error dentro del formulario -->
-        <img src="{{ asset('images/error.png') }}" alt="Error">
-        <label>No hay ordenes de trabajo en proceso.</label>
-    </div>
-</div>
-@endisset
 <script>
     window.wOInProgress = @json($wOInProgress);
 </script>
