@@ -10,5 +10,8 @@
 @section('content')
 <script>
     window.wOInProgress = @json($wOInProgress);
+    setTimeout(() => {
+        location.reload();
+    }, 50000);
 </script>
 @endsection

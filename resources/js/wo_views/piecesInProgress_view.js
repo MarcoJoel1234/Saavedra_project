@@ -220,6 +220,38 @@ class Dashboard {
 if (Object.keys(wOrderArray).length > 0) {
     let dashboard = new Dashboard(wOrderArray);
     dashboard.createSections();
+    const secciones = document.querySelectorAll("section");
+    let scrollTimeout = null;
+    
+    function getClosestSection() {
+        let closest = null;
+        let minDist = Infinity;
+        const scrollY = window.scrollY;
+    
+        secciones.forEach(sec => {
+            const dist = Math.abs(sec.offsetTop - scrollY);
+            if (dist < minDist) {
+                minDist = dist;
+                closest = sec;
+            }
+        });
+    
+        return closest;
+    }
+    
+    window.addEventListener("scroll", () => {
+        if (scrollTimeout) {
+            clearTimeout(scrollTimeout);
+        }
+    
+        // Espera 200ms tras dejar de hacer scroll
+        scrollTimeout = setTimeout(() => {
+            const destino = getClosestSection();
+            if (destino) {
+                destino.scrollIntoView({ behavior: "smooth" });
+            }
+        }, 200);
+    });
 }else {
     let body = document.querySelector("body");
     let noDataMessage = document.createElement("h2");

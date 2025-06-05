@@ -5,8 +5,11 @@
     margin: 0;
     box-sizing: border-box;
 }
-
+header {
+    position: fixed;
+}
 .section {
+    padding-top: 5rem;
     box-sizing: border-box;
     width: 100%;
     height: 100vh;
