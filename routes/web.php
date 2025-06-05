@@ -102,12 +102,6 @@ Route::controller(ProcessesController::class)->group(function () {
     Route::post('/cNominals/store', 'storeCNominalsData')->name('storeCNominals'); //Ruta para la interfaz de los procesos para guardar las cotas nominales y tolerancias
 });
 
-//Grupo de rutas para GestionOTController
-Route::controller(GestionOTController::class)->group(function () {
-    Route::get('/piezas', 'show')->name('vistaPiezas');
-    Route::post('/updatePiezas', 'terminarPedido')->name('UpdatePiezas');
-});
-
 //Ruta para ver el progreso de los procesos
 Route::get('/progresoOT', [ProgresoProcesosController::class, 'show'])->name('verProcesos');
 
