@@ -84,12 +84,9 @@ use App\Models\Soldadura_pza;
 use App\Models\SoldaduraPTA;
 use App\Models\SoldaduraPTA_pza;
 use App\Models\User;
-use ArchTech\Enums\Exceptions\UndefinedCaseError;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rules\Exists;
 
-use function Symfony\Component\String\b;
 //Clase para el control de las piezas generales
 class PzasGeneralesController extends Controller
 {
@@ -97,9 +94,9 @@ class PzasGeneralesController extends Controller
     {
         if ($this->retornarOTs() != 0) {
             $arregloOT = $this->retornarOTs();
-            return view('processesAdmin.ReportePiezas.OT', compact('arregloOT'));
+            return view('pieces_views.piecesReport.piecesReport_view', compact('arregloOT'));
         } else {
-            return view('processesAdmin.ReportePiezas.OT');
+            return view('pieces_views.piecesReport.piecesReport_view');
         }
     }
     public function obtenerPiezasRequest(Request $request)

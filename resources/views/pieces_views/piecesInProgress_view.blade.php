@@ -2,7 +2,7 @@
 
 @section('head')
 <title>Progreso de piezas</title>
-@vite(['resources/css/wo_views/piecesInProgress_view.css', 'resources/js/wo_views/piecesInProgress_view.js'])
+@vite(['resources/css/pieces_views/piecesInProgress_view.css', 'resources/js/pieces_views/piecesInProgress_view.js'])
 @endsection
 
 @section('background-body', 'images/fondoLogin.jpg')

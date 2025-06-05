@@ -26,6 +26,12 @@ export default defineConfig({
                 "resources/css/wo_views/manage_wo.css", 
                 "resources/css/wo_views/show_wo.css",
 
+                //Views pieces
+                "resources/css/pieces_views/piecesInProgress_view.css",
+                "resources/js/pieces_views/piecesInProgress_view.js",
+                "resources/css/pieces_views/piecesReport/piecesReport_view.css",
+                "resources/js/pieces_views/piecesReport/piecesReport_view.js",
+
                 //Views users
                 "resources/css/users_views/createUser.css",
                 "resources/css/users_views/recoverPassword.css",
@@ -33,14 +39,13 @@ export default defineConfig({
                 //Views processes
                 "resources/css/processes_views/cNominals_view.css",
                 "resources/js/processes_views/cNominals_view.js",
-                "resources/js/processes_views/Proceso.js",
+                "resources/js/processes_views/Process.js",
+
 
                 "resources/css/cepillado.css",
                 "resources/css/barreno.css",
                 "resources/js/editarInterfaz.js",
                 "resources/js/editarTabla.js",
-                "resources/css/editarClase.css",
-                "resources/css/viewpiezas.css",
                 "resources/css/verProcesos.css",
                 "resources/css/adminPzas.css",
                 'resources/css/maquinas.css',
@@ -49,7 +54,6 @@ export default defineConfig({
                 'resources/css/copiado.css',
                 'resources/css/elegirPieza.css',
                 'resources/css/tiemposProduccion.css',
-                'resources/css/dashboard.css',
                 'resources/css/viewUsers.css',
                 'resources/js/viewUsers.js',
             ],
