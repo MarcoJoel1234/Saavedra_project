@@ -1,0 +1,114 @@
+@import url("https://fonts.googleapis.com/css2?family=Kaushan+Script&family=Poppins&display=swap");
+/*NUMEROS DE PROCENTAJES EN INTERFAZ*/
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.section {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100vh;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    box-shadow: #0a8504 0px 0px 10px;
+}
+.header-section {
+    width: 100%;
+    height: 25%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 1em;
+    box-sizing: border-box;
+}
+.title-div {
+    width: 50%;
+    background: #033966;
+    margin: 2em 8em;
+    padding: 2em;
+    color: #fff;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: #033966 0px 0px 10px;
+}
+.text-header-class {
+    margin: 5px;
+    font-size: 1.4em;
+    font-weight: 100;
+}
+.workOrder-text {
+    font-size: 3em;
+    font-weight: 700;
+    margin-bottom: 0.5em;
+}
+.pieces-text {
+    font-size: 3em;
+    font-weight: 700;
+    margin-bottom: 0.5em;
+}
+.processes-section {
+    width: 100%;
+    height: 70%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.process-section {
+    width: 20%;
+    height: 17%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0.8em;
+    padding: 0.5em;
+    border-radius: 10px;
+    background: #404040;
+    box-shadow: #000 0px 0px 10px;
+    color: #fff;
+    font-size: 1.2em;
+    transition: 0.2s;
+}
+.process-section:hover {
+    background: #033966;
+    transform: scale(1.05);
+    cursor: pointer;
+    transition: 0.2s;
+}
+.progress-bar {
+    position: relative;
+    width: 100%;
+    height: 20px;
+    background-color: #f3f3f3;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 0.3em 0;
+    box-shadow: #033966 0px 0px 5px;
+}
+.progress {
+    height: 100%;
+}
+.good-progress {
+    background-color: #0a8504;
+}
+.bad-progress {
+    background-color: #9c0303;
+}
+
+.progress-percentage {
+    position: absolute;
+    top:0;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    color: #000;
+    font-weight: 700;
+}

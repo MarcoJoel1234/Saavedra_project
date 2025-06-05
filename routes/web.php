@@ -82,11 +82,13 @@ Route::controller(MoldingController::class)->group(function () {
 
 //Grupo de ruta para el controlador OTController
 Route::controller(WOController::class)->group(function () {
-    Route::get('/manageWO', 'manage')->name('manageWO'); //Vista registrar OT
-    Route::post('/storeWO', 'store')->name('storeWO'); //Crear OT
-    Route::get('/showWO/{workOrder}', 'show')->name('showWO'); //Mostrar clases
-    Route::get('/destroyWO/{wo}', 'destroy')->name('destroyWO'); //Eliminar ot
+    Route::get('/manageWO', 'manage')->name('manageWO');
+    Route::post('/storeWO', 'store')->name('storeWO');
+    Route::get('/showWO/{workOrder}', 'show')->name('showWO');
+    Route::get('/destroyWO/{wo}', 'destroy')->name('destroyWO');
     Route::get('/generatePDFWO/{wo}', 'generatePDF')->name('generatePDFWO');
+    Route::get('/piecesInProgress', 'showViewPiecesInProgress')->name('showPiecesInProgress');
+
     // Route::post('/saveHeader', 'saveHeader')->name('saveHeader'); //Guardar datos de HeaderProcess
 });
 Route::controller(ClassController::class)->group(function () {

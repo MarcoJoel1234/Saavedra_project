@@ -43,7 +43,7 @@
         createUser: @json(route('createUser')),
         recoverPassword: @json(route('recoverPassword')),
         cNominals: @json(route('cNominals')),
-        piecesInProgress: @json(route('vistaPiezas')),
+        piecesInProgress: @json(route('showPiecesInProgress')),
 
         vistaPzasGenerales: @json(route('vistaPzasGenerales')),
         vistaOTLiberar: @json(route('vistaOTLiberar')),
