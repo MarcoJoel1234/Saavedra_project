@@ -310,14 +310,12 @@ class WOController extends Controller
                 return "Embudo CM";
         }
     }
-    function terminarPedido(Request $request)
+    function finishOrder(Request $request)
     {
-        echo $request->ot; //Imprime el id de la o
-        echo $request->clase;
-        $clase = Clase::where('id_ot', $request->ot)->where('nombre', $request->clase)->first();
+        $clase = Clase::where('id_ot', $request->wOrderName)->where('nombre', $request->className)->first();
         $clase->finalizada = 1;
-        $clase->save(); //Guarda la clase como finalizada
-        return redirect()->route('vistaPiezas'); //Redirecciona a la vista de piezas 
+        $clase->save();
+        return redirect()->route('showPiecesInProgress');
     }
     function getPieces($class, $processName, &$piecesBadData)
     {
@@ -569,24 +567,6 @@ class WOController extends Controller
         $array["operation"] = $operation;
         $array["error"] = $rechazada ? $rechazada : $piece->error; //Si la pieza no tiene ningun error pero esta rechazada
         return $array;
-    }
-    public function savePzasMalas($pzaMala, $contador, $i, &$infoPzMala)
-    {
-        $array = array();
-        for ($p = 0; $p < count($pzaMala); $p++) {
-            $info[0] = $pzaMala[$p]->n_pieza;
-            $info[1] = $pzaMala[$p]->n_juego;
-            $meta = Metas::where('id', $pzaMala[$p]->id_meta)->first();
-            $operador = User::where('matricula', $meta->id_usuario)->first();
-            $info[2] = $operador->nombre . " " . $operador->a_paterno . " "  . $operador->a_materno;
-            $info[3] = "1 y 2 Operacion equipo"; //Nombre del proceso que se está realizando
-            //Obtener la operacion en la que se encuentra la pieza
-            $procesoId = PySOpeSoldadura::find($pzaMala[$p]->id_proceso);
-            $info[4] = $procesoId->operacion;
-            $info[5] = $pzaMala[$p]->error; //Error de la pieza
-
-            array_push($infoPzMala[$i][$contador], $info);
-        }
     }
 
 

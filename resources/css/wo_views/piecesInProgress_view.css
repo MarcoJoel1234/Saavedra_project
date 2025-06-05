@@ -19,6 +19,7 @@ header {
     box-shadow: #0a8504 0px 0px 10px;
 }
 .header-section {
+    position: relative;
     width: 100%;
     height: 25%;
     display: flex;
@@ -54,6 +55,27 @@ header {
     font-size: 3em;
     font-weight: 700;
     margin-bottom: 0.5em;
+}
+.finish-order {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 1em;
+    background: #0a8504;
+    color: #fff;
+    font-size: 1.4em;
+    font-weight: 700;
+    border-radius: 10px;
+    box-shadow: #033966 0px 0px 10px;
+    text-decoration: none;
+    transition: 0.2s;
+}
+.finish-order:hover {
+    background: #033966;
+    padding: 1.1em;
+    font-size: 1.5em;
+    transition: 0.2s;
 }
 .processes-section {
     width: 100%;

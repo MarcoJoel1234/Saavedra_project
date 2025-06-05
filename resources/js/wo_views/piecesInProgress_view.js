@@ -85,6 +85,20 @@ class Dashboard {
             }
             header_section.appendChild(div);
         }
+
+        let a = document.createElement("a");
+        a.href = `/finishOrder/${wOrderName}/${className}`;
+        a.className = "finish-order";
+        a.innerHTML = "Finalizar pedido";
+        a.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (confirm("¿Estás seguro de que deseas finalizar esta orden de trabajo?")) {
+                window.location.href
+                    = `/finishOrder/${wOrderName}/${className}`;
+            }
+        });
+        header_section.appendChild(a);
+
         return header_section;
     }
 

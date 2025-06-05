@@ -88,7 +88,7 @@ Route::controller(WOController::class)->group(function () {
     Route::get('/destroyWO/{wo}', 'destroy')->name('destroyWO');
     Route::get('/generatePDFWO/{wo}', 'generatePDF')->name('generatePDFWO');
     Route::get('/piecesInProgress', 'showViewPiecesInProgress')->name('showPiecesInProgress');
-
+    Route::get('/finishOrder/{wOrderName}/{className}', 'finishOrder')->name('finishOrder'); //Finalizar pedido
     // Route::post('/saveHeader', 'saveHeader')->name('saveHeader'); //Guardar datos de HeaderProcess
 });
 Route::controller(ClassController::class)->group(function () {
