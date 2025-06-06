@@ -221,7 +221,7 @@ class WOController extends Controller
                 }
             }
         }
-        return view('wo_views.piecesInProgress_view', compact('wOInProgress'));
+        return view('pieces_views.piecesInProgress_view', compact('wOInProgress'));
     }
     public function getStringDate($date, $time)
     {
