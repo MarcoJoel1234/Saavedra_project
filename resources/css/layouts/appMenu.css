@@ -102,20 +102,48 @@ body {
     transition: 0.2s;
 }
 
-@media screen and (max-width: 600px) {
-    .logo {
-        max-width: 40px;
-    }
-    .icon {
-        width: 100%;
-    }
-    .open-menu {
-        width: 20px;
-    }
-    .close-menu {
-        width: 20px;
+@media (max-width: 991.98px) {
+    /* PARA TODOS LOS ESTILOS */
+    body {
+        overflow: hidden;
     }
     .text-header {
-        font-size: 1em;
+        font-size: 14px;
+        text-align: center;
+        letter-spacing: normal;
+        margin-left: 10px;
+    }
+    .logo{
+        width: 3em;
+    }
+    .intro-img {
+        width: 60%;
+        height: 80%;
+        margin-left: 35%;
+    }
+    .welcome-title {
+        font-size: 1.8em;
+        text-align: center;
+    }
+    .welcome-text {
+        font-size: 1.2em;
+        text-align: justify;
+    }
+    .intro-text {
+        max-width: 22em;
+        font-size: 0.9em;
+        margin-left: 60px;
+    }
+    .nav-link{
+        font-size: 12px;
+        letter-spacing: normal;
+    }
+    .btn-close-session{
+        font-size: 12px;
+        letter-spacing: normal;
+        margin-top: 5%;
+    }
+    .open-menu {
+        width: 2em;
     }
 }

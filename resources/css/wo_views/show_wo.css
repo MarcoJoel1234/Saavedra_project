@@ -27,24 +27,24 @@ h3 {
     padding: 22px;
     font-weight: 100;
 }
-.row{
+.row {
     display: flex;
 }
-.column{
+.column {
     display: flex;
     flex-direction: column;
-    padding: .7em;
+    padding: 0.7em;
     width: 50%;
 }
-.form-control{
+.form-control {
     border-radius: 5px;
     border: 1px solid #00000033;
     font-size: 1.3em;
-    padding: .7em;
+    padding: 0.7em;
     transition: 0.2s;
     background: #03396610;
 }
-.form-control:hover{
+.form-control:hover {
     border: 1px solid #0a8504;
     transition: 0.2s;
 }
@@ -59,7 +59,7 @@ label {
 
 /*Estilos para la tabla en donde se muestran las clases*/
 .scrollabe-table {
-    box-sizing: border-box;;
+    box-sizing: border-box;
     margin: 20px 0;
     border-radius: 5px;
     background-color: #00000033;
@@ -85,7 +85,7 @@ label {
     justify-content: space-between;
     border: none;
     transition: 0.2s;
-    font-size: .9rem;
+    font-size: 0.9rem;
 }
 .btnClass:hover {
     background-color: #033966 !important;
@@ -137,7 +137,6 @@ label {
     color: #000000;
 }
 
-
 /*Estilos para la seccion de las casillas*/
 .div-boxes {
     position: relative;
@@ -146,7 +145,7 @@ label {
     flex-direction: column;
     margin-left: 4em;
     border-radius: 10px;
-    padding: 1em; 
+    padding: 1em;
     justify-content: center;
 }
 .div-boxes h3 {
@@ -259,7 +258,7 @@ label {
 /*Estilos para los componentes al eliminar una OT o una clase*/
 .div-opacity {
     position: absolute;
-    top:0;
+    top: 0;
     width: 100vw;
     height: 100vh;
     box-sizing: border-box;
@@ -311,273 +310,304 @@ label {
     margin-bottom: 30px;
 }
 
-@media (max-width: 768px) {
-    /* html,
+@media (max-width: 991.98px) {
+    /* PARA TODOS LOS ESTILOS */
     body {
-        overflow-x: hidden;
         overflow-y: auto;
-        margin: 0;
-        height: 100vh;
-        width: 100vw;
     }
-    .h4 {
-        margin-top: -30px;
-        top: -15px;
-        margin-bottom: -10px;
-        font-size: 1.1rem;
-    }
-    #select-procesos {
-        position: absolute;
-        width: 100%;
-        margin-top: 10px;
-        font-size: 1.2rem;
-    }
-   
+
+    /* PARA EL FORMULARIO DE REGISTRO */
     .main-layout {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 90vh;
+        flex-direction: column;
+        position: absolute;
+        top: auto;
+        left: auto;
+        transform: none;
+        width: 100%;
+        height: auto;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .wrapper {
+        width: 95%;
+        padding: 1em;
+        height: auto;
+        margin-top: 15px;
+        border-radius: 10px;
+        box-sizing: border-box;
         overflow-y: auto;
         overflow-x: hidden;
-        padding: 1rem;
+        position: relative;
+        display: flex;
+        z-index: 1;
+        flex-direction: column;
+        align-items: center;
+        background-color: white;
+    }
+
+    .lg-saavedra {
+        width: 45%;
+        display: flex;
+        justify-content: center;
+        margin: 1em 0;
+    }
+    .alert {
+        font-size: 0.7em;
+    }
+
+    h3 {
+        font-size: 1em;
+        text-align: center;
+        padding: 0.5em 0;
+    }
+
+    .row {
+        flex-direction: column;
+        width: 100%;
+        align-items: center;
+    }
+    .column {
+        width: 100%;
+        padding: 0.5em 0;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 1.5rem;
-        z-index: 1;
-    }
-    .container-form {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 192%;
-        z-index: 1000;
-    }
-    .label-form {
-        position: relative;
-        top: -6px;
     }
     .form-control {
-        position: relative;
-        top: -6px;
+        width: 90%;
+        font-size: 0.9em;
+        padding: 0.5em;
     }
-    .div-boxes {
-        position: relative;
-        top: calc(15% + 400px);
-        left: 44%;
-        align-items: center;
-        gap: -2rem;
-        transform: translateX(-50%);
-        width: 100%;
-        max-width: 100%;
-        height: 10vh;
-        max-height: 10vh;
-        overflow-y: auto;
-        overflow-x: hidden;
-        border-radius: 0.5rem;
-        padding-top: 18rem;
-        background-color: white;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-        z-index: 999;
+    label {
+        font-size: 0.9em;
+        text-align: center;
     }
-    .wrapper {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 94%;
-        max-width: 94%;
-        height: auto;
-        max-height: 76vh;
-        overflow-y: auto;
-        overflow-x: hidden;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        background-color: white;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-        z-index: 1;
-    }
-    .lg-saavedra {
-        width: 170px;
-        margin-bottom: 3%;
-    }
-    .btn-addClass {
-        color: white;
-    }
-    .wrapper {
-        font-size: 0.95rem;
-        margin-bottom: 0.8rem;
-    }
-    .div-rows {
-        padding: 0.5rem;
-    }
-
+    /* TABLA */
     .scrollabe-table {
         width: 100%;
-        height: 10%;
-        margin-top: 0rem;
-        font-size: 0.8rem;
-    }
-    .table th {
-        font-size: 0.8rem;
+        overflow-x: auto;
+        padding: 0.5rem;
+        text-align: center;
     }
 
-    .div-rows input,
-    .div-rows select,
-    .div-rows textarea {
-        font-size: 0.9rem;
-        padding: 0.4rem;
+    .table {
+        font-size: 0.8em;
+        min-width: 100%;
+        text-align: center;
+    }
+
+    .t-title {
+        font-size: 0.9em;
+    }
+    .div-td {
+        font-size: 1em;
+        padding: 0.5em 0;
+        width: 100%;
+        text-align: center;
+    }
+    .btnClass {
+        gap: 0.5em;
+        font-size: 0.9em;
+    }
+    .container-WOButtons {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5em;
+        width: 100%;
+        font-size: 0.9em;
     }
 
     .btn-deleteWO,
     .btn-pdfWO {
-        font-size: small;
+        width: 80%;
+        text-align: center;
+        font-size: 0.7em;
     }
-    .btn-addClass btn {
-        bottom: 20px;
-        position: fixed;
-        font-size: small;
-        background-color: #0d6efd;
-        color: rgb(2, 167, 71);
-        padding: 10px 15px;
-        border-radius: 5px;
-        border: none;
-        font-size: small;
+
+    .container-checkbox {
+        text-align: center;
+        margin: 1em 0;
     }
-    .div-scrollabe-table {
+
+    .checkbox-add-class {
+        transform: scale(1.3);
+        margin: 0.5em;
+    }
+
+    .label-add-class {
+        font-size: 0.9em;
+        text-align: center;
+    }
+
+    .div-boxes {
+        width: 96%;
+        display: flex;
+        padding: 1em;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        right: auto;
+        margin: 0;
+    }
+
+    .div-boxes h3 {
+        font-size: 1.1em;
+        text-align: center;
+    }
+    .checkbox-label {
+        font-size: 0.7em;
+        width: 100%;
+        text-align: center;
+        padding: 0.7em 0.5em;
+    }
+    .section1,
+    .section2 {
+        padding: 0.5em 0;
         width: 50%;
-        font-size: small;
-        height: 20%;
+        align-items: center;
+    }
+    .sections {
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 0.6em 0;
+        flex-wrap: wrap; /* permite que se acomoden verticalmente en pantallas pequeñas */
+    }
+
+    .section1 {
+        margin-top: 15px;
+        padding: 0.5em 0;
+        width: 55%;
+        align-items: flex-start;
+        text-align: left;
+        background-color: #ffffff;
+    }
+    .section2 {
+        margin-top: 10px;
+        padding: 0.5em 0;
+        width: 55%;
+        margin-right: -5rem;
+        align-items: center;
+        background-color: #ffffff;
     }
 
     .checkbox-container {
-        display: flex;
-        padding: 0.1rem;
-        max-width: 110%;
-        font-size: small;
-        margin-top: 10%;
-        margin-left: 10%;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 0.5em 0;
     }
-    .checkbox-container label {
-        margin-top: -15px;
-        margin: -10px  10px;
-    
-    } 
-    .checkbox-label {
-        font-size: small;
-    }
+
     .checkbox,
     .checkbox-soldaduras,
     .checkboxAll {
-        width: 26px;
-        height: 26px;
-        margin-right: 5px;
+        transform: scale(1.3);
+        margin: 0.5em 0;
     }
+
+    .div-checkboxAll {
+        margin: 0.5em 0;
+        position: relative;
+        justify-content: center;
+        width: 30%;
+    }
+
     .input-machine,
     .input-machine-soldaduras {
-        width: 20%;
-        font-size: 0.9rem;
+        width: 2.5em;
+        height: 1.6em;
+        font-size: 1em;
     }
-    .label-add-class {
+
+    .div-btns {
         position: relative;
-        top: -28px;
-    }
-    #all-label {
-        margin-top: 0px;
-        font-size: 16px;
-    }
-    .checkboxAll {
-        margin-top: 0;
-    }
-    .checkbox-add-class {
-        position: relative;
-        top: -22px;
-        margin-top: 25px;
-        width: 24px;
-        height: 24px;
-        margin-top: 25px;
-    }
-    .checkbox {
-        width: 20px;
-        height: 20px;
-    }
-    .div-delete {
+        bottom: auto;
+        left: auto;
+        transform: none;
+        margin-top: 113em;
         display: flex;
+        left: 50%;
+        transform: translate(-50%);
+        width: 80%;
+        z-index: 999;
+        gap: 2em;
+        justify-content: center;
+    }
+
+    .btn {
+        display: block;
+        width: 80%;
+        text-align: center;
+        font-size: 0.9em;
+    }
+
+    .btn-deleteClass,
+    .btn-editClass {
         position: static;
+        margin-top: -125px;
+        margin: 0 0.5em;
+        text-align: center;
+    }
+
+    .action-btns {
+        font-size: 0.9em;
+        margin: 0.5em auto;
+        width: 90%;
+    }
+
+    .div-opacity {
+        width: 100vw;
+        height: 100vh;
+        padding: 1em;
         justify-content: center;
         align-items: center;
-        flex-direction: column;
-        width: 40%;
-        z-index: 10000;
-        background: rgba(255, 255, 255, 0.15);
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-        backdrop-filter: blur(10px); 
-        -webkit-backdrop-filter: blur(5px);
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        color: white;
-        transition: 0.3s ease-in-out;
-        margin-top: -170%;
-        transition: 0.2s;
-        padding: 15px;
     }
+
+    .div-delete {
+        width: 90%;
+        padding: 1em;
+        border-radius: 10px;
+        text-align: center;
+    }
+
     .div-cerrar {
-        width: 5%;
-        margin-left: 80%;
+        width: 2em;
+        margin: 0 auto;
     }
 
     .btn-cerrar {
-        width: 300%;
-        border: none;
-        background-color: transparent;
-        transition: 0.2s;
-    }
-
-    .btn-cerrar:hover {
-        transition: 0.2s;
-        transform: scale(1.3);
+        display: block;
+        margin: 0 auto;
     }
 
     .img-cerrar {
         width: 100%;
-        height: 100%;
     }
-    .img-delete {
-        width: 40%;
-        height: 20%;
-    }
-    .label-delete {
-        font-size: 12px;
-        color: rgb(0, 0, 0);
-        align-items: center;
-        margin-bottom: 30px;
-        font-weight: bold;
-    }
-    .btn-deleteClass  {
-        background-color: #ca0808;
-        padding: 10px;
-        margin-top: -20px;
-        z-index: 1000;
-        font-size: small;
-    }
-    .btn-editClass{
-        background-color: #0845ca;
-        padding: 10px 20px;
-        margin-top: -20px;
-        z-index: 1000;
-        font-size: small;
-    }
-    .div-opacity{
-        background-color: transparent;
-    }
-    .sections{
-        margin-top: 50%;
-        position: static;
 
+    .img-delete {
+        width: 5em;
+        margin: auto;
     }
-    .section1, .section2{
-        margin-top: -190px;
-        position: relative;
-    } */
+
+    .label-delete {
+        font-size: 0.9em;
+        text-align: center;
+    }
+    .btn-addClass {
+        width: 50%;
+        position: fixed;
+        top: 60px; /* ajusta según lo que necesites */
+        right: 96px;
+        margin-top: 50px; /* ajusta según lo que necesites */
+        z-index: 9999;
+        background-color: #0a8504;
+        color: white;
+        font-size: 1em;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 2rem;
+        border: none;
+        transition: 0.2s;
+    }
 }
