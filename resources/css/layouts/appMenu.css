@@ -106,7 +106,9 @@ body {
     /* PARA TODOS LOS ESTILOS */
     body {
         overflow: hidden;
+        background-size: auto;
     }
+
     .text-header {
         font-size: 14px;
         text-align: center;
