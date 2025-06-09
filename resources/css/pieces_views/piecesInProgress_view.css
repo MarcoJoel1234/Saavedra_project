@@ -256,13 +256,13 @@ header {
         text-align: center;
     }
     .process-title {
-        font-size: 1.2em;
+        font-size: 1em;
         margin-bottom: 0.2em;
     }
     .process-section {
         margin-top: 1em;
         width: 80%;
-        height: 24%;
+        height: 22%;
         margin: 0.5em auto;
     }
     .progress-bar {
