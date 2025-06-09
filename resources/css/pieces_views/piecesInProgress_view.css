@@ -236,7 +236,7 @@ header {
     .finish-order {
         position: relative;
         margin-top: auto;
-        top: 40em;
+        top: 20em;
         left: 0;
         font-size: 1em;
         transform: none;
@@ -258,10 +258,6 @@ header {
     .process-title {
         font-size: 1.2em;
         margin-bottom: 0.2em;
-    }
-    .processes-section {
-        flex-direction: column;
-        align-items: center;
     }
     .process-section {
         margin-top: 1em;
