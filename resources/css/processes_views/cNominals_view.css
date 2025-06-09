@@ -192,3 +192,83 @@ h1 {
 .remove-div {
     animation: fadeOut 0.3s ease-in forwards;
 }
+@media (max-width: 576px) {
+    .lg-saavedra {
+        width: 56%;
+        margin: 0.5em 0;
+    }
+    h1 {
+        font-size: 1.3em;
+        margin: 0em;
+    }
+    .form-control {
+        width: 90%;
+        font-size: 1em;
+    }
+    .title {
+        padding: 0.5em;
+        font-size: 1.1rem;
+    }
+    .scrollable-table {
+        position: relative;
+        opacity: 0;
+        margin: 4em auto;
+        border-radius: 8px;
+        width: 90vw;
+        height: 16vh;
+        overflow-x: auto;
+        display: flex;
+        align-items: center;
+        transform: translateY(-15px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .scrollable-table.visible {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+    .table {
+        position: absolute;
+        border-collapse: collapse;
+        border: 2px solid #032c00cc;
+        background: #fff;
+        width: max-content;
+        margin: 5px;
+        width: 150%;
+        box-shadow: 0 0 5px rgba(0, 0, 0);
+    }
+
+    .table-title {
+        border: 2px solid #000;
+        background-color: #033966;
+        padding: 5px 0;
+        text-align: center;
+        color: #fff;
+        font-size: 0.7em;
+    }
+
+    .table input {
+        color: #000000;
+        text-align: center;
+
+        padding: 0.3em 0;
+        font-size: 0.9em;
+        background: #03396610;
+    }
+
+    .table td {
+        text-align: center;
+        font-size: 1em;
+
+        font-weight: 600;
+        border: 2px solid #033966;
+    }
+
+    .input-medio {
+        width: 50%;
+    }
+
+    .input {
+        width: 100%;
+    }
+}

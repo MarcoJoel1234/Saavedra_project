@@ -93,24 +93,48 @@
     border-radius: 5px;
 }
 
-
-
-
 /* Estilos responsivos */
 @media (max-width: 991.98px) {
-    /* .cascading-right {
-        margin-right: 0;
-    } */
-}
-@media screen and (max-width: 600px) {
-    /* .lg-saavedra {
-        width: 200px;
+    /* FORMULARIO */
+    .cascading-right {
+        width: 95%;
+        height: auto;
+        top: 50%;
+        left: 7%; 
+        transform: translate(-5%, -50%); 
     }
-    .full-wrapper {
-        align-items: flex-start;
-        padding-top: 60px;
+    .lg-saavedra {
+        width: 45%;
     }
-    .login-img-container {
+
+    .sub-title {
+        font-size: 1.2em;
+    }
+
+    .form-label,
+    .form-control,
+    .form-select {
+        font-size: 0.8em;
+    }
+    .img-saavedra{
         display: none;
-    } */
+    }
+    .custom-btn {
+    display: flex;
+    margin: 5rem auto;
+    background-color: #033966;
+    color: #fff;
+    padding: .7em;
+    border-radius: 5px;
+    border: none;
+    font-size: 0.8em;
+    letter-spacing: 1px;
+    transition: 0.2s;
+    }
+    .custom-btn{
+        transform: scale(1.1);
+    background: #0a8504;
+    transition: 0.2s;
+        margin: 2rem auto;
+    }
 }

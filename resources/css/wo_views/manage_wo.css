@@ -113,80 +113,68 @@ h4 {
 
 /* Media Queries for Responsiveness */
 
-/* @media (max-width: 1024px) {
-    .wrapper {
-        width: 70%;
-        padding: 10px 30px;
-    }
-    
-    .sub-title {
-        margin-left: 50px;
-        font-size: 18px;
-        position: center;
-        text-align: center;
-    }
-
-    .lg-saavedra {
-        width: 250px;
-    }
-}
-
-@media (max-width: 768px) {
-    .wrapper {
-        width: 80%;
-        padding: 10px 20px;
-    }
-    
-    .sub-title {
-        margin-left: 20px;
-        font-size: 16px;
-        position: center;
-        text-align: center;
-    }
-
-    .lg-saavedra {
-        width: 200px;
-    }
-
-    .bttns-add-select {
-        font-size: 16px;
-        padding: 8px 16px;
-    }
-
-    .div-bttns {
-        flex-direction: column;
-        margin-top: 20px;
-    }
-}
-
-@media (max-width: 576px) {
-    html, body {
-        overflow: hidden;
-    }
+@media (max-width: 991.98px) {
+    /* PARA EL FORMULARIO DE REGISTRO */
+    /* CUANDO LE DAMOS CLIC AL BOTON CREAR OT */
     .wrapper {
         width: 90%;
-        padding: 15px;
-        text-align: center;
-        margin-top: -20%;
+        padding:10px 20px;
     }
-    .sub-title {
-        margin-left: 10px;
-        position: center;
-        text-align: center;
-        font-size: 18px;
-    }
-
     .lg-saavedra {
-        width: 180px;
+        width: 50%;
+        padding: 1em 0;
     }
-
+    h2{
+        font-size: 1.2em;
+        margin-top: 0.4em;
+        text-align: center;
+    }
+    .container-form{
+        width: 100%;
+        margin-top: 1em;
+    }
+    .btn.btn-block {
+    margin-top: 1.5em;
+    border-radius: 20px;
+    background-color: #033966;
+    color: #fff;
+    border: none;
+    width: 35%;
+    font-size: 1em;
+    padding: 0.7em;
+    letter-spacing: 1px;
+    transition: 0.2s;
+}
+.btn.btn-block:hover {
+    transform: scale(1.1);
+    background-color: #0a8504;
+    transition: 0.2s;
+}
     .bttns-add-select {
-        font-size: 14px;
-        padding: 11px 5px;
+        font-size: 1em;
+        padding: 0.5em 1em;
+        margin: 1em 1em;
     }
-
-    .div-bttns {
-        flex-direction: row;
-        margin-top: 10px;
+    .form-label{
+        font-size: 1em;
+        margin: 0.5em 0;
     }
-} */
+    .form-control {
+        width: 100%;
+        height: 200%;
+        font-size: 1em;
+        padding: 0.5em;
+        margin: 0.5em 0;
+    }
+    .close-alert {
+        font-size: 0.7em;
+        padding: 0 ;
+    }
+    .alert  {
+        font-size: 0.8em;
+        padding: 0.5em 1em;
+        text-align: left 50px;
+    }
+    
+    
+}
