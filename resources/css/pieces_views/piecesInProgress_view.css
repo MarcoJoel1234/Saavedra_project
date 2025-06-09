@@ -280,6 +280,27 @@ header {
     .bad-progress {
     background: linear-gradient(to right, #f38080, #9c0303); /* rojo claro a fuerte */
     }
+    .modal {
+        width: 90%;
+        height: 80%;
+        top: 5%;
+        padding:1.2em;
+    }
+    .modal-close {
+        width: 1.5em;
+        height: 2em;
+        font-size: 1.2em;
+    }
+    .modal-title {
+        font-size: 1em;
+        margin-bottom: 1em;
+    }
+    .bad-pieces-table th,
+    .bad-pieces-table td {
+        padding: 0.3em;
+        font-size: 0.8em;
+    }
+
 
 
 }
