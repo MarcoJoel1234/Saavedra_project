@@ -32,6 +32,8 @@ export default defineConfig({
                 "resources/css/pieces_views/piecesReport/piecesReport_view.css",
                 "resources/js/pieces_views/piecesReport/piecesReport_view.js",
                 "resources/css/pieces_views/piecesReport/chosenPiece.css",
+                "resources/js/pieces_views/releasePieces/releasePieces.js",
+                "resources/css/pieces_views/piecesReport/adminPieces.css",
 
                 //Views users
                 "resources/css/users_views/createUser.css",
@@ -48,12 +50,9 @@ export default defineConfig({
                 "resources/js/editarInterfaz.js",
                 "resources/js/editarTabla.js",
                 "resources/css/verProcesos.css",
-                "resources/css/adminPzas.css",
-                'resources/css/maquinas.css',
                 'resources/css/maquinas2.css',
                 'resources/css/rectificado.css',
                 'resources/css/copiado.css',
-                'resources/css/elegirPieza.css',
                 'resources/css/tiemposProduccion.css',
                 'resources/css/viewUsers.css',
                 'resources/js/viewUsers.js',
