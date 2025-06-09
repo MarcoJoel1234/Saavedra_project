@@ -2,19 +2,14 @@ body{
     background-repeat: no-repeat;
     background-size: cover;
 }
-.container{
-    position: absolute;
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
 form {
-    margin-top: 50px;
+    position: absolute;
     text-align: center;
-    width: 90%;
-    height: 85vh;
+    width: 75%;
+    height: 75vh;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     background-color: #ffffffbb;
     border: 1px solid #ebe8e8;
     padding: 20px;
@@ -57,46 +52,45 @@ select {
     transition: 0.2s;
 }
 .btns{
-    padding: 17px 30px;
-    background-color: black;
-    color: white;
+    padding: 10px 30px;
+    background-color: #0A8504;
+    box-shadow: 0 2px 5px #0A8504ff;
+    color: #fff;
     border: none;
-    border-radius: 5px;
+    border-radius: 10px;
     cursor: pointer;
-    font-size: 17px;
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
-    margin-left: 10px;
+    font-size: 1.5em;
+    font-weight: 700;
+    margin: 0 10px;
     transition: 0.2s;
 }
 .btns:hover {
-    background-color: #85929E;
-    color: white;
+    background-color: #0A8504;
     transition: 0.2s;
-    transform: scale(1.05); /* Realiza un pequeño zoom del 5% */
+    transform: scale(1.2); /* Realiza un pequeño zoom del 5% */
 }
 h1{
-    font-size: 50px;
-    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-size: 3em;
     margin-top: 20px;
 
 }
 .title_ot{
-    font-size: 30px; /* Tamaño de fuente */
+    font-size: 2em; /* Tamaño de fuente */
     font-family:Verdana, Geneva, Tahoma, sans-serif; /* Tipo de fuente */
-    margin: 20px 10px; /* Espaciado interno */
+    margin: 10px; /* Espaciado interno */
     display: block; /* Para que ocupe todo el ancho disponible */
 }   
 .date-label {
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 30px;
+    font-size: 2em;
 }
 /* ESTILOS PARA LA TABLA */
 .div-table{
-    height: 62%;
+    margin: 2em;
+    height: 60%;
     overflow-x: auto;
 }
 table {
-    margin-top: 20px;
     width: 200%;
     border-collapse: collapse;
     margin-top: 12px;
@@ -120,14 +114,13 @@ tr:nth-child(even) {
 /* FILTROS DE BUSQUEDA */
 .search-input, .filter-select, .date-range {
     padding: 10px;
-    border: 1px solid #ccc;
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
-    border-radius: 5px;
+    border-radius: 10px;
     margin: 0 10px;
+    font-size: 1.5em;
 }
 /* Cuando se posiciona sobre una opción del select este cambia de color a negro*/
 .filter-select:focus{
-    background-color: black
+    background-color: #0A8504;
 
 }
 .search-input {
@@ -137,7 +130,7 @@ tr:nth-child(even) {
     flex-basis: 150px;
 }
 .filter-select {
-    background-color: #707B7C;
+    background-color: #033966;
     color: #FDFEFE;
 }
 .date-range {
@@ -146,9 +139,9 @@ tr:nth-child(even) {
 }
 .btn-PDF{
     position: absolute;
-    width: 4%;
-    right: 100px;
-    top: 115px;
+    width: 10em;
+    top: 5px;
+    right: 5px;
     background-color: transparent;
     border: none;
     transition: 0.2s;
@@ -165,7 +158,7 @@ tr:nth-child(even) {
 /* ADVERTENCE */
 .advertence{
     font-size: 100px;
-    color: red;
+    color: #9C0300;
     font-family: Arial, Helvetica, sans-serif;
 }
 .letrero{
@@ -174,9 +167,9 @@ tr:nth-child(even) {
 /* BOTON */
 .btn-back {
     display: flex;
-    margin-top: 30px;
     position: absolute;
-    padding: 15px 20px;
+    top: 1em;
+    padding: 10px 15px;
     background-color: #043d79e6;
     color: #FFFFFF;
     text-decoration: none;
@@ -187,7 +180,6 @@ tr:nth-child(even) {
     transition: all 0.3s ease; /* Efecto de transición al pasar el mouse */
 }
 .btn-back:hover {
-    background-color: #AED6F1;
-    color: rgb(0, 0, 0);
+    background-color: #9C0300;
     transform: scale(1.05); /* Realiza un pequeño zoom del 5% */
 }

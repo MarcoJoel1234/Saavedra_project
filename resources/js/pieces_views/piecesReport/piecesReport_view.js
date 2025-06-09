@@ -1,37 +1,54 @@
-function crearSelect(ot, arregloOT, div) {
-    if (ot.value != "null") {
-        for (let i = 0; i < arregloOT.length; i++) {
-            if (arregloOT[i][0] == ot.value) {
+function createSelect(selectWO, arrayWo) {
+    if (selectWO.value != "null") {
+        let form = document.querySelector(".form");
+        for (let i = 0; i < arrayWo.length; i++) {
+            if (arrayWo[i][0] == selectWO.value) {
                 //Eliminar select de clases si existe
-                let label = document.getElementsByClassName("label-select")[1];
-                let select_clases = document.getElementById("clases");
+                let label = document.querySelectorAll(".label-select")[1];
+                let select_classes = document.querySelector(".select-classes");
                 let button = document.getElementsByClassName("btn-search")[0];
-                if (select_clases != null) {
+                if (select_classes != null) {
                     label.remove();
-                    select_clases.remove();
-                    button.remove();
+                    select_classes.remove();
+                    if(button != null) {
+                        button.remove();
+                    }
                 }
 
                 //Creacion de la etiqueta para el select de clases
                 label = document.createElement("label");
-                label.for = "clases";
+                label.for = "classes";
                 label.className = "label-select";
-                label.innerHTML = "Selecciona la clase:";
+                label.innerHTML = "Clase";
 
                 //Creacion del select de clases
-                select_clases = document.createElement("select");
-                select_clases.name = "clase";
-                select_clases.id = "clases";
+                select_classes = document.createElement("select");
+                select_classes.name = "class";
+                select_classes.className = "select-classes select";
 
                 //Creacion de las opciones para el select de clases
-                arregloOT[i][1].forEach((clase) => {
+                arrayWo[i][1].forEach((classArray, index) => {
                     let option = document.createElement("option");
-                    console.log(clase[0] + " " + clase[1]);
-                    option.value = clase[0];
-                    option.text = clase[1];
-                    select_clases.appendChild(option);
+                    if (index == 0) {
+                        let firstOption = document.createElement("option");
+                        firstOption.value = "null";
+                        firstOption.text = "Selecciona una opción";
+                        select_classes.appendChild(firstOption);
+                    }
+                    option.value = classArray[0];
+                    option.text = classArray[1];
+                    select_classes.appendChild(option);
                 });
 
+                //Agregar evento al select de clases
+                select_classes.addEventListener("change", function () {
+                    changeColorSelect(select_classes, select_classes.value);
+                    if (select_classes.value != "null") {
+                        form.appendChild(button);
+                    } else {
+                        button.remove();
+                    }
+                });
                 //Creacion del boton
                 button = document.createElement("button");
                 button.className = "btn-search";
@@ -39,20 +56,36 @@ function crearSelect(ot, arregloOT, div) {
                 button.innerHTML = "Buscar máquinas";
 
                 //Agregar elementos al div
-                div.appendChild(label);
-                div.appendChild(select_clases);
-                div.appendChild(button);
+                form.appendChild(select_classes);
+                form.appendChild(label);
             }
         }
     } else {
         //Eliminar select de clases
-        let label = document.getElementsByClassName("label-select")[1];
-        let select_clases = document.getElementById("clases");
+        let label = document.querySelectorAll(".label-select")[1];
+        let select_classes = document.querySelector(".select-classes");
         let button = document.getElementsByClassName("btn-search")[0];
-        if (select_clases != null) {
+        if (select_classes != null) {
             label.remove();
-            select_clases.remove();
+            select_classes.remove();
             button.remove();
         }
     }
 }
+function changeColorSelect(selectElement, value) {
+    console.log(value);
+    if (value != "null") {
+        selectElement.style.backgroundColor = "#03396610";
+        selectElement.style.color = "#000";
+    }else{
+        selectElement.style.backgroundColor = "#033966";
+        selectElement.style.color = "#fff";
+    }
+}
+
+let select_wo = document.querySelector(".select-workOrder");
+
+select_wo.addEventListener("change", function () {
+    changeColorSelect(select_wo, select_wo.value);
+    createSelect(select_wo, dataWO);
+});

@@ -31,6 +31,7 @@ export default defineConfig({
                 "resources/js/pieces_views/piecesInProgress_view.js",
                 "resources/css/pieces_views/piecesReport/piecesReport_view.css",
                 "resources/js/pieces_views/piecesReport/piecesReport_view.js",
+                "resources/css/pieces_views/piecesReport/chosenPiece.css",
 
                 //Views users
                 "resources/css/users_views/createUser.css",

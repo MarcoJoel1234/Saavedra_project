@@ -48,21 +48,20 @@ class PzasLiberadasController extends Controller
         $perfil = auth()->user()->perfil;
         return $perfil == 4 ? 'layouts.appQuality' : 'layouts.appAdmin';
     }
-    public function mostrarOTs()
+    public function show()
     {
-        $layout = $this->obtenerLayout();
-        if ($this->controladorPzas->retornarOTs() != 0) {
-            $arregloOT = $this->controladorPzas->retornarOTs();
-            return view('processesQuality.LiberarPiezas.OT', compact('arregloOT', 'layout'));
+        $arregloOT = $this->controladorPzas->getAllWorkOrders();
+        if (count($arregloOT) != 0) {
+            return view('pieces_views.releasePieces.releasePieces_view', compact('arregloOT'));
         } else {
-            return view('processesQuality.LiberarPiezas.OT', compact('layout'));
+            return view('pieces_views.releasePieces.releasePieces_view');
         }
     }
-    public function obtenerPiezasRequest(Request $request)
+    public function getPiecesRequest(Request $request)
     {
         $datosPiezas = array(
-            "ot" => $request->ot,
-            "clase" => $request->clase,
+            "workOrder" => $request->workOrder,
+            "class" => $request->class,
             "operador" => $request->operador,
             "maquina" => $request->maquina,
             "proceso" => $request->proceso,
@@ -70,13 +69,12 @@ class PzasLiberadasController extends Controller
             "fecha" => $request->fecha,
             "action" => $request->input("action"),
         );
-        return $this->show($this->controladorPzas->search($datosPiezas, 'quality'));
+        return $this->showPieces($this->controladorPzas->search($datosPiezas, "quality"));
     }
-    public function show($array)
+    public function showPieces($array)
     {
-        $layout = $this->obtenerLayout();
         if ($array[0]) {
-            return view('processesQuality.LiberarPiezas.pzasLiberar', ['layout' => $layout, 'piezas' => $array[1], 'otElegida' => $array[2], 'clase' => $array[3], 'operadores' => $array[4], 'maquina' => $array[5], 'array' => $array[6], 'proceso' => $array[7], 'error' => $array[8], 'infoPiezas' => $array[9]]);
+            return view('pieces_views.releasePieces.pzasLiberar', ['piezas' => $array[1], 'otElegida' => $array[2], 'clase' => $array[3], 'operadores' => $array[4], 'maquina' => $array[5], 'array' => $array[6], 'proceso' => $array[7], 'error' => $array[8], 'infoPiezas' => $array[9]]);
         } else {
             //Eliminar el último elemento del array
             $contador = 0;
@@ -85,7 +83,7 @@ class PzasLiberadasController extends Controller
                 $array[1][$contador] = $pza;
                 $contador++;
             }
-            $pdf = Pdf::loadView('processesAdmin.ReportePiezas.pdf', ['piezas' => $array[1], 'otElegida' => $array[2], 'clase' => $array[3], 'operadores' => $array[4], 'maquina' => $array[5], 'array' => $array[6], 'proceso' => $array[7], 'error' => $array[8], 'perfil' => "quality"]);
+            $pdf = Pdf::loadView('pieces_views.piecesReport.pdf', ['piezas' => $array[1], 'workOrder' => $array[2], 'class' => $array[3], 'operadores' => $array[4], 'maquina' => $array[5], 'array' => $array[6], 'proceso' => $array[7], 'error' => $array[8], 'profile' => "quality"]);
             return $pdf->download('Informe de piezas.pdf');
         }
     }
@@ -99,8 +97,8 @@ class PzasLiberadasController extends Controller
         //Datos de las piezas
         $request = explode(",", $request);
         $datosPiezas = array(
-            "ot" => $request[0],
-            "clase" => $request[1],
+            "workOrder" => $request[0],
+            "class" => $request[1],
             "operador" => $request[2],
             "maquina" => $request[3],
             "proceso" => $request[4],
@@ -108,7 +106,7 @@ class PzasLiberadasController extends Controller
             "fecha" => $request[6],
             "action" => null,
         );
-        return $this->show($this->controladorPzas->search($datosPiezas, 'quality'));
+        return $this->showPieces($this->controladorPzas->search($datosPiezas, 'quality'));
     }
 
     public function getPiezasLiberar($juego, $proceso, $buena)

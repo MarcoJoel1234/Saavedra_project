@@ -1,5 +1,11 @@
-@extends($perfil == 'admin' ? 'layouts.appAdmin' : 'layouts.appQuality')
-@vite('resources/css/elegirPieza.css')
+@extends('layouts.appMenu')
+
+@section('head')
+<title>Reporte de piezas</title>
+@vite('resources/css/pieces_views/piecesReport/chosenPiece.css')
+@endsection
+
+@section('background-body', '/images/fondoLogin.jpg') <!--Body background Image-->
 @section('content')
 <script>
     class Proceso {
@@ -69,7 +75,7 @@
                     tolePosiciones = [9, 11]; // Posiciones de los inputs de tolerancias
                     piezaPosiciones = [null];
 
-                    nombresCnomi = ['id', 'diametro1', 'profundidad1', 'diametro2', 'profundidad2', 'diametro3', 'profundidad3', 'diametroSoldadura',  'diametroBarreno','profundidadSoldadura', 'simetriaLinea_partida', 'pernoAlineacion', 'Simetria90G'];
+                    nombresCnomi = ['id', 'diametro1', 'profundidad1', 'diametro2', 'profundidad2', 'diametro3', 'profundidad3', 'diametroSoldadura', 'diametroBarreno', 'profundidadSoldadura', 'simetriaLinea_partida', 'pernoAlineacion', 'Simetria90G'];
 
                     nombresTole = ['id', 'diametro1', 'profundidad1', 'diametro2', 'profundidad2', 'diametro3', 'profundidad3', 'diametroSoldadura', 'profundidadSoldadura', 'diametroBarreno1', 'diametroBarreno2', 'simetriaLinea_partida1', 'simetriaLinea_partida2', 'pernoAlineacion', 'Simetria90G'];
 
@@ -83,8 +89,8 @@
                     tolePosiciones = [1, 3]; // Posiciones de los inputs de tolerancias
                     piezaPosiciones = [null];
 
-                    nombresCnomi = ['id', 'profundidad_barreno', 'diametro_machuelo', '' ];
-                    nombresTole = ['id', 'profundidad_barreno1','profundidad_barreno2', 'diametro_machuelo1', 'diametro_machuelo2', ''];
+                    nombresCnomi = ['id', 'profundidad_barreno', 'diametro_machuelo', ''];
+                    nombresTole = ['id', 'profundidad_barreno1', 'profundidad_barreno2', 'diametro_machuelo1', 'diametro_machuelo2', ''];
                     nombres = ['n_pieza', 'profundidad_barreno', 'diametro_machuelo', 'acetatoBM', 'error', 'observaciones'];
                     break;
 
@@ -150,7 +156,7 @@
                     nombresCnomi = ['id', 'diametro_ceja', 'diametro_sufridera', 'altura_sufridera', 'diametro_conexion', 'altura_conexion', 'diametro_caja', 'altura_caja', 'altura_total', 'simetria'];
 
                     nombresTole = ['id', 'diametro_ceja1', 'diametro_ceja2', 'diametro_sufridera1', 'diametro_sufridera2', 'altura_sufridera1', 'altura_sufridera2', 'diametro_conexion1', 'diametro_conexion2', 'altura_conexion1', 'altura_conexion2', 'diametro_caja1', 'diametro_caja2', 'altura_caja1', 'altura_caja2', 'altura_total1', 'altura_total2', 'simetria1', 'simetria2'];
-    
+
                     nombres = ['n_juego', 'diametro_ceja', 'diametro_sufridera', 'altura_sufridera', 'diametro_conexion', 'altura_conexion', 'diametro_caja', 'altura_caja', 'altura_total', 'simetria', 'error', 'observaciones'];
                     break;
 
@@ -162,7 +168,7 @@
                     piezaPosiciones = [null];
 
                     nombresCnomi = ['id', 'diametro_mordaza', 'diametro_ceja', 'diametro_sufridera', 'altura_mordaza', 'altura_ceja', 'altura_sufridera', '', '', '', 'altura_total', 'diametro_boca', 'diametro_asiento_corona', 'diametro_llanta', 'diametro_caja_corona', 'profundidad_corona', 'angulo_30', 'profundidad_caja_corona', 'simetria'];
-                    
+
                     nombresTole = ['id', 'diametro_mordaza1', 'diametro_mordaza2', 'diametro_ceja1', 'diametro_ceja2', 'diametro_sufridera1', 'diametro_sufridera2', 'altura_mordaza1', 'altura_mordaza2', 'altura_ceja1', 'altura_ceja2', 'altura_sufridera1', 'altura_sufridera2', '', '', '', '', 'diametro_boca1', 'diametro_boca2', 'diametro_asiento_corona1', 'diametro_asiento_corona2', 'diametro_llanta1', 'diametro_llanta2', 'diametro_caja_corona1', 'diametro_caja_corona2', 'profundidad_corona1', 'profundidad_corona2', 'angulo_301', 'angulo_302', 'profundidad_caja_corona1', 'profundidad_caja_corona2', 'simetria1', 'simetria2'];
 
                     nombres = ['n_juego', 'diametro_mordaza', 'diametro_ceja', 'diametro_sufridera', 'altura_mordaza', 'altura_ceja', 'altura_sufridera', 'gauge_ceja', 'gauge_corona', 'gauge_llanta', 'altura_total', 'diametro_boca', 'diametro_asiento_corona', 'diametro_llanta', 'diametro_caja_corona', 'profundidad_corona', 'angulo_30', 'profundidad_caja_corona', 'simetria', 'error', 'observaciones'];
@@ -174,11 +180,11 @@
                     cNomiPosiciones = [null]; // Posiciones de los inputs de c.nominal
                     tolePosiciones = [1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25, 27]; // Posiciones de los inputs de tolerancias
                     piezaPosiciones = [null];
-                    
+
                     nombresCnomi = ['id', 'diametro_mordaza', 'diametro_ceja', 'diametro_sufridera', 'altura_mordaza', 'altura_ceja', 'altura_sufridera', 'gauge_ceja', 'altura_total', 'diametro_conexion_fondo', 'diametro_llanta', 'diametro_caja_fondo', 'altura_conexion_fondo', 'profundidad_llanta', 'profundidad_caja_fondo', 'simetria'];
 
                     nombresTole = ['id', 'diametro_mordaza1', 'diametro_mordaza2', 'diametro_ceja1', 'diametro_ceja2', 'diametro_sufridera1', 'diametro_sufridera2', 'altura_mordaza1', 'altura_mordaza2', 'altura_ceja1', 'altura_ceja2', 'altura_sufridera1', 'altura_sufridera2', '', '', 'diametro_conexion_fondo1', 'diametro_conexion_fondo2', 'diametro_llanta1', 'diametro_llanta2', 'diametro_caja_fondo1', 'diametro_caja_fondo2', 'altura_conexion_fondo1', 'altura_conexion_fondo2', 'profundidad_llanta1', 'profundidad_llanta2', 'profundidad_caja_fondo1', 'profundidad_caja_fondo2', 'simetria1', 'simetria2'];
-                    
+
                     nombres = ['n_juego', 'diametro_mordaza', 'diametro_ceja', 'diametro_sufridera', 'altura_mordaza', 'altura_ceja', 'altura_sufridera', 'gauge_ceja', 'altura_total', 'diametro_conexion_fondo', 'diametro_llanta', 'diametro_caja_fondo', 'altura_conexion_fondo', 'profundidad_llanta', 'profundidad_caja_fondo', 'simetria', 'error', 'observaciones'];
                     break;
 
@@ -236,7 +242,7 @@
                     cNomiPosiciones = [null]; // Posiciones de los inputs de c.nominal
                     tolePosiciones = [null]; // Posiciones de los inputs de tolerancias
                     piezaPosiciones = [null];
-                    
+
                     nombresCnomi = ['id', 'rebaje1', 'rebaje2', 'rebaje3', 'profundidad_bordonio', 'vena1', 'vena2', 'simetria'];
                     nombresTole = ['id', 'rebaje1', 'rebaje2', 'rebaje3', 'profundidad_bordonio', 'vena1', 'vena2', 'simetria'];
                     nombres = ['n_juego', 'rebaje1', 'rebaje2', 'rebaje3', 'profundidad_bordonio', 'vena1', 'vena2', 'simetria', 'error', 'observaciones'];
@@ -248,18 +254,18 @@
                     tolePosiciones = [2, 4, 6]; // Posiciones de los inputs de tolerancias
                     piezaPosiciones = [2, 4, 6];
 
-                    nombresCnomi  = ['id', 'altura', 'alturaCandado1', 'alturaCandado2', 'alturaAsientoObturador1', 'alturaAsientoObturador2', 'profundidadSoldadura1', 'profundidadSoldadura2', 'pushUp'];
+                    nombresCnomi = ['id', 'altura', 'alturaCandado1', 'alturaCandado2', 'alturaAsientoObturador1', 'alturaAsientoObturador2', 'profundidadSoldadura1', 'profundidadSoldadura2', 'pushUp'];
                     nombresTole = ['id', 'altura', 'alturaCandado1', 'alturaCandado2', 'alturaAsientoObturador1', 'alturaAsientoObturador2', 'profundidadSoldadura1', 'profundidadSoldadura2', 'pushUp'];
                     nombres = ['n_pieza', 'altura', 'alturaCandado1', 'alturaCandado2', 'alturaAsientoObturador1', 'alturaAsientoObturador2', 'profundidadSoldadura1', 'profundidadSoldadura2', 'pushUp', 'error', 'observaciones'];
                     break;
                 case "Embudo CM": //Proceso de Rebajes
-                    titulos = ['No. Pieza', 'Conexión línea de partida', 'Conexión a 90°', 'Altura de conexión', 'Diametro embudo','Error', 'Observaciones'];
+                    titulos = ['No. Pieza', 'Conexión línea de partida', 'Conexión a 90°', 'Altura de conexión', 'Diametro embudo', 'Error', 'Observaciones'];
 
                     cNomiPosiciones = [null]; // Posiciones de los inputs de c.nominal
                     tolePosiciones = [null]; // Posiciones de los inputs de tolerancias
                     piezaPosiciones = [null];
 
-                    nombresCnomi  = ['id', 'conexion_lineaPartida', 'conexion_90G', 'altura_conexion', 'diametro_embudo'];
+                    nombresCnomi = ['id', 'conexion_lineaPartida', 'conexion_90G', 'altura_conexion', 'diametro_embudo'];
                     nombresTole = ['id', 'conexion_lineaPartida', 'conexion_90G', 'altura_conexion', 'diametro_embudo'];
                     nombres = ['n_juego', 'conexion_lineaPartida', 'conexion_90G', 'altura_conexion', 'diametro_embudo', 'error', 'observaciones'];
                     break;
@@ -270,39 +276,39 @@
             valoresCnomi = this.almacenarCNomiAndTole(nombresCnomi, this.valoresCnomi);
             valoresTole = this.almacenarCNomiAndTole(nombresTole, this.valoresTole);
             valoresPieza = this.almacenarPieza(nombres);
-            
+
             return this.crearTabla(titulos, cNomiPosiciones, tolePosiciones, piezaPosiciones, valoresCnomi, valoresTole, valoresPieza); // Crear tabla
         }
-        
-        almacenarCNomiAndTole(nombres, valoresReales){
+
+        almacenarCNomiAndTole(nombres, valoresReales) {
             let valores = [];
             //Insertar valores
-            if(valoresReales != 0){
-                for(let i = 0; i < nombres.length; i++){
-                    if(valoresReales[nombres[i]] == undefined){
+            if (valoresReales != 0) {
+                for (let i = 0; i < nombres.length; i++) {
+                    if (valoresReales[nombres[i]] == undefined) {
                         valores.push('');
-                    }else{
+                    } else {
                         valores.push(valoresReales[nombres[i]]);
                     }
                 }
                 //Insertar espacios vacios
-                for(let i = 0; i < 2; i++){
+                for (let i = 0; i < 2; i++) {
                     valores.push('');
                 }
-            }else{ 
+            } else {
                 valores = null;
             }
             return valores;
         }
 
-        almacenarPieza(nombres){
+        almacenarPieza(nombres) {
             let valores = [];
-            for(let i = 0; i < this.valoresPieza.length; i++){
+            for (let i = 0; i < this.valoresPieza.length; i++) {
                 valores.push([]);
-                for(let j=0; j < nombres.length; j++){
-                    if(this.valoresPieza[i]['correcto'] == null && j != 0){
+                for (let j = 0; j < nombres.length; j++) {
+                    if (this.valoresPieza[i]['correcto'] == null && j != 0) {
                         valores[i].push('----');
-                    }else{
+                    } else {
                         valores[i].push(this.valoresPieza[i][nombres[j]]);
                     }
                 }
@@ -387,7 +393,7 @@
                     case 3: // Crear columnas de pieza
                         for (let j = 0; j < valoresPieza.length; j++) { // Crear columnas
                             let tr = document.createElement('tr'); // Crear fila
-                            for(let p = 0 ; p < valoresPieza[j].length; p++){
+                            for (let p = 0; p < valoresPieza[j].length; p++) {
                                 let error = false;
                                 const td = document.createElement('td'); // Crear celda
                                 if (piezaPosiciones.includes(p)) { // Si la posicion esta en el array de posiciones de la pieza
@@ -473,29 +479,30 @@
                     if (parseFloat(valorPieza) < parseFloat(parseFloat(valoresCnomi[posicion]) - parseFloat(valoresTole[posicion])).toFixed(3) || parseFloat(valorPieza) > parseFloat(parseFloat(valoresCnomi[posicion]) + parseFloat(valoresTole[posicion])).toFixed(3)) {
                         error = true;
                     }
-                } 
+                }
             }
+            console.log('Valor pieza: ' + valorPieza + ' Posicion: ' + posicion + ' Valores Cnomi: ' + valoresCnomi[posicion] + ' Valores Tole: ' + valoresTole[posicionesTole[posicion]] + ' Error: ' + error);
             return error;
         }
 
         convertirObjectToArray(obj) {
             let array = [];
-            for(let i = 0; i < obj.length; i++){
+            for (let i = 0; i < obj.length; i++) {
                 array.push(Object.values(obj[i]));
             }
             return array;
         }
-        crearTablaOperadores(operadores){
+        crearTablaOperadores(operadores) {
             const table = document.createElement('table');
             table.className = "tablaOperadores";
             table.style.borderCollapse = 'collapse'; // Colapsar los bordes de las celdas
             table.style.border = '1px solid black';
-            
+
 
             const tbody = document.createElement('tbody');
             for (let i = 0; i < (operadores.length + 1); i++) {
                 const tr = document.createElement('tr');
-                switch(i){
+                switch (i) {
                     case 0:
                         const th1 = document.createElement('th');
                         th1.textContent = "No. Pieza";
@@ -505,18 +512,18 @@
                         tr.appendChild(th2);
                         th1.style.border = '1px solid black';
                         th2.style.border = '1px solid black';
-                        
+
                         break;
-                    
+
                     default:
-                        for(let j = 0; j < operadores[i - 1].length; j++){
+                        for (let j = 0; j < operadores[i - 1].length; j++) {
                             const td = document.createElement('td');
                             td.textContent = operadores[i - 1][j];
                             tr.appendChild(td);
                         }
                         tr.querySelectorAll('td').forEach(td => {
                             td.style.border = '1px solid black';
-                            
+
                             tr.appendChild(td);
                         });
                         break;
@@ -529,37 +536,38 @@
         }
     }
 </script>
-@if ($proceso == 'Soldadura' || $proceso == 'Soldadura PTA' || $proceso == 'Rectificado' || $proceso == 'Palomas')
+@if ($process == 'Soldadura' || $process == 'Soldadura PTA' || $process == 'Rectificado' || $process == 'Palomas')
 <style>
     .tabla3 {
         width: 130%;
     }
 </style>
 @endif
-@if ($proceso == 'Copiado')
+@if ($process == 'Copiado')
 <style>
     .scrollabe-table {
         height: 500px;
     }
 </style>
 @endif
+
 <body background="{{ asset('images/fondoLogin.jpg') }}">
 
     <div class="container" id="container">
 
-    <a href="javascript:history.back()"" class="btn-regresar">Regresar</a>
+        <a href="javascript:history.back()"" class=" btn-regresar">Regresar</a>
 
-    <script>        
-        let proceso = new Proceso(@json($proceso), @json($cNominal), @json($tolerancia), @json($piezasInfo)); // Crear el proceso
-        document.getElementById('container').appendChild(proceso.crearTablaOperadores(@json($operadores))); // Crear tabla de operadores
-    </script>
+        <script>
+            let process = new Proceso(@json($process), @json($cNominal), @json($tolerance), @json($piecesInfo)); // Crear el proceso
+            document.getElementById('container').appendChild(process.crearTablaOperadores(@json($operadores))); // Crear tabla de operadores
+        </script>
         @csrf
         <div class="titles">
             <label class="title">{{$ot}}</label>
-            <label class="title">{{$clase}} - {{$proceso}}</label>
+            <label class="title">{{$clase}} - {{$process}}</label>
         </div>
         <div class="scrollabe-table" id="scrollabe-table">
-            @if ($proceso == 'Asentado')
+            @if ($process == 'Asentado')
             <table border="1" class="tabla3" style="width: 100%;">
                 <tr>
                     <th class="t-title" style="width:150px">#PZ</th>
@@ -577,7 +585,7 @@
                 </tr>
             </table>
 
-            @elseif ($proceso == 'Cavidades')
+            @elseif ($process == 'Cavidades')
             <table class="tabla3">
                 <tr>
                     <th class="t-title" style="width:150px; border:none;">#PZ</th>
@@ -636,7 +644,7 @@
                     <td><input type="text" class="input" value="{{$piezasInfo->observaciones}}" disabled></td>
                 </tr>
             </table>
-            @elseif ($proceso == 'Copiado')
+            @elseif ($process == 'Copiado')
             <table border="1" class="tabla3">
                 <label class="title-subproceso"> C I L I N D R A D O</label>
                 <tr>
@@ -755,7 +763,7 @@
                     <td><input type="text" class="input" value="{{$piezasInfo->observaciones_cavidades}}" disabled></td>
                 </tr>
             </table>
-            @elseif($proceso == 'Off Set')
+            @elseif($process == 'Off Set')
             <table border="1" class="tabla3">
                 <>
                     <tr>
@@ -834,7 +842,7 @@
 
             @else
             <script>
-                document.getElementById('scrollabe-table').appendChild(proceso.crearProceso()); //Agregar tabla al div.
+                document.getElementById('scrollabe-table').appendChild(process.crearProceso()); //Agregar tabla al div.
             </script>
             @endif
         </div>

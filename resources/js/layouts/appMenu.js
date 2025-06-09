@@ -63,8 +63,8 @@ function getRoutes(profile) {
                 ['recoverPassword', 'Recuperar contraseña'],
                 ['cNominals', 'Editar C.Nominales y Tolerancias'],
                 ['piecesInProgress', 'Piezas en progreso'],
-                ['vistaPzasGenerales', 'Reporte de piezas'],
-                ['vistaOTLiberar', 'Liberacion de piezas'],
+                ['showPiecesReport_view', 'Reporte de piezas'],
+                ['showReleasePieces_view', 'Liberacion de piezas'],
                 ['mostrarTiempos', 'Modificar tiempos de producción'],
                 ['datosProduccion', 'Datos de produccion'],
             ];
@@ -102,7 +102,7 @@ function getRoutes(profile) {
             break;
         case '4':
             routes = [
-                ['vistaOTLiberar', 'Liberacion de piezas'],
+                ['showReleasePieces_view', 'Liberacion de piezas'],
                 ['cNominals', 'Editar C.Nominales y Tolerancias'],
                 ['mostrarTiempos', 'Modificar tiempos de producción']
             ];

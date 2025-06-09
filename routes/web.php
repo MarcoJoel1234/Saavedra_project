@@ -114,17 +114,18 @@ Route::controller(TiemposProduccionController::class)->group(function () {
 
 //Grupo de rutas para el controlador PzasGeneralesController
 Route::controller(PzasGeneralesController::class)->group(function () {
-    Route::get('/piezasGenerales', 'showVistaPiezas')->name('vistaPzasGenerales'); //Ruta para la vista general de piezas
-    Route::post('/searchPiezas', 'obtenerPiezasRequest')->name('searchPzasGenerales'); //Ruta para el controlador de piezas generales
-    Route::get('/admin/pieza/{piezas}/{proceso}/{perfil}', 'showPieza')->name('piezaElegida'); //Vista de la pieza elegida
+    Route::get('/pieces', 'showPiecesReport_view')->name('showPiecesReport_view'); //Ruta para la vista general de piezas
+    Route::post('/pieces/search', 'getPiecesRequest')->name('searchPieces'); //Ruta para el controlador de piezas generales
+    Route::get('/pieces/{pieces}/{process}/{profile}', 'showPiece')->name('chosenPiece'); //Vista de la pieza elegida
+
     Route::get('/piezasMaquina', 'showVistaMaquina')->name('vistaPzasMaquina'); //Ruta para la vista de piezas por maquina
     Route::post('/piezasMaquina', 'showMachinesProcess')->name('showMachinesProcess'); //Ruta para ver los procesos de las maquinas
 });
 
 //Grupo de rutas para el controlador PzasLiberadasController
 Route::controller(PzasLiberadasController::class)->group(function () {
-    Route::get('/piezasLiberar', 'mostrarOTs')->name('vistaOTLiberar'); //Ruta para la vista de piezas para liberar
-    Route::post('/piezasLiberar', 'obtenerPiezasRequest')->name('vistaPiezasLiberar'); //Ruta para ver los procesos de las maquinas
+    Route::get('/releasePieces', 'show')->name('showReleasePieces_view'); //Ruta para la vista de piezas para liberar
+    Route::post('/pieces', 'getPiecesRequest')->name('piecesRelease'); //Ruta para ver los procesos de las maquinas
     Route::get('/piezasLiberar/{pieza}/{proceso}/{liberar}/{buena}/{request}', 'liberar_rechazar')->name('liberar_rechazar'); //Ruta para liberar o rechazar
 });
 //Rutas para el controlador de DatosProduccionController

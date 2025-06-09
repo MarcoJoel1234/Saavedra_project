@@ -73,8 +73,8 @@
         }
     </style>
     <div class="contenedor">
-        <label class="title_ot">Orden de trabajo: {{ $otElegida->id }}</label><br>
-        <label class="title_ot">Clase: {{ $clase->nombre }}</label>
+        <label class="title_ot">Orden de trabajo: {{ $workOrder->id }}</label><br>
+        <label class="title_ot">Clase: {{ $class->nombre }}</label>
     </div>
     <div class="etiquetas">
         <label for="etiqueta2">Operador: {{ $array[0] }}</label><br>
@@ -102,7 +102,7 @@
             @endforeach
             <th>Errores</th>
             <th>Fecha de máquinado</th>
-            @if ($perfil == "quality")
+            @if ($profile == "quality")
                 <th>Fecha de liberación</th>
                 <th>Liberado por</th>
             @endif
@@ -165,7 +165,7 @@
                     <tr>
                 @endif
             @endif
-            @if ($perfil == "quality")
+            @if ($profile == "quality")
                 @for ($j = 1; $j < count($piezas[$i]) - 1; $j++)
                     @if ($j == 5)
                         <td></td>
@@ -186,7 +186,7 @@
             @endif
             </tr>
         @else
-            @if ($perfil == "quality")
+            @if ($profile == "quality")
                 @if ($piezas[$i][9] == 1)
                     <tr style="background-color: #acf980a8">
                 @elseif ($piezas[$i][5] == 'Incompleto')
@@ -207,7 +207,7 @@
                     <tr>
                 @endif
             @endif
-            @if ($perfil == "quality")
+            @if ($profile == "quality")
                 @for ($j = 1; $j < count($piezas[$i]) - 1; $j++)
                     <td>{{ $piezas[$i][$j] }}</td>
                 @endfor

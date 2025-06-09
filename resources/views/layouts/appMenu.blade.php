@@ -44,9 +44,9 @@
         recoverPassword: @json(route('recoverPassword')),
         cNominals: @json(route('cNominals')),
         piecesInProgress: @json(route('showPiecesInProgress')),
-
-        vistaPzasGenerales: @json(route('vistaPzasGenerales')),
-        vistaOTLiberar: @json(route('vistaOTLiberar')),
+        showPiecesReport_view: @json(route('showPiecesReport_view')),
+        showReleasePieces_view: @json(route('showReleasePieces_view')),
+        
         mostrarTiempos: @json(route('mostrarTiempos')),
         datosProduccion: @json(route('datosProduccion')),
         cepillado: @json(route('cepillado', ['error' => 0])),
