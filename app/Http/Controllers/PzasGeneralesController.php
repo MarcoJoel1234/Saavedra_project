@@ -104,8 +104,8 @@ class PzasGeneralesController extends Controller
             foreach ($workOrders as $workOrder) {
                 $classes = Clase::where('id_ot', $workOrder->id)->get();
                 if (count($classes) > 0) {
-                    $counter++;
                     $this->getDataWO($workOrder, $counter, $classes, $array);
+                    $counter++;
                 }
             }
         }
