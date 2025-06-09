@@ -47,7 +47,7 @@
         showPiecesReport_view: @json(route('showPiecesReport_view')),
         showReleasePieces_view: @json(route('showReleasePieces_view')),
         
-        mostrarTiempos: @json(route('mostrarTiempos')),
+        showTimes: @json(route('showTimes')),
         datosProduccion: @json(route('datosProduccion')),
         cepillado: @json(route('cepillado', ['error' => 0])),
         desbasteExterior: @json(route('desbasteExterior', ['error' => 0])),

@@ -1,4 +1,5 @@
 function createSelect(selectWO, arrayWo) {
+    console.log(arrayWo);
     if (selectWO.value != "null") {
         let form = document.querySelector(".form");
         for (let i = 0; i < arrayWo.length; i++) {

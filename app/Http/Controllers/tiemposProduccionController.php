@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Clase;
-use App\Models\Fecha_proceso;
-use App\Models\Orden_trabajo;
 use App\Models\Procesos;
 use App\Models\tiempoproduccion;
 use Illuminate\Http\Request;
@@ -16,7 +14,7 @@ class tiemposProduccionController extends Controller
     public function __construct()
     {
         $this->controladorPzas = new PzasLiberadasController();
-        $this->controladorOT = new OTController();
+        $this->controladorOT = new WOController();
     }
     public function show($clase = false)
     {
@@ -39,9 +37,9 @@ class tiemposProduccionController extends Controller
             $tiempos = null;
         }
         if ($clase) {
-            return view('processesAdmin.tiemposProduccion', compact('tiempos', 'clase', 'layout'));
+            return view('processes_views.productionTimes', compact('tiempos', 'clase', 'layout'));
         }
-        return view('processesAdmin.tiemposProduccion', compact('tiempos', 'layout'));
+        return view('processes_views.productionTimes', compact('tiempos', 'layout'));
     }
     public function store(Request $request)
     {

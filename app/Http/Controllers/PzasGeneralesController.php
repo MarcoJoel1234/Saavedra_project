@@ -100,10 +100,12 @@ class PzasGeneralesController extends Controller
         $workOrders = Orden_trabajo::all();
         $array = array();
         if (count($workOrders) > 0) {
-            foreach ($workOrders as $index => $workOrder) {
+            $counter = 0;
+            foreach ($workOrders as $workOrder) {
                 $classes = Clase::where('id_ot', $workOrder->id)->get();
                 if (count($classes) > 0) {
-                    $this->getDataWO($workOrder, $index, $classes, $array);
+                    $counter++;
+                    $this->getDataWO($workOrder, $counter, $classes, $array);
                 }
             }
         }

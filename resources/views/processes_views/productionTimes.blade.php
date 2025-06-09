@@ -1,3 +1,15 @@
+@extends('layouts.appMenu')
+
+<!--Estilos y codigo JS-->
+@section('head')
+<title>Tiempos de producción</title>
+@vite(['resources/css/processes_views/cNominals_view.css', 'resources/js/processes_views/cNominals_view.js'])
+@endsection
+
+@section('background-body', 'images/fondoLogin.jpg')
+@section('content')
+
+
 @extends($layout)
 @section('content')
 

@@ -108,7 +108,7 @@ Route::get('/progresoOT', [ProgresoProcesosController::class, 'show'])->name('ve
 //Grupo de rutas para el controlador TiemposProduccionController
 Route::controller(TiemposProduccionController::class)->group(function () {
     // Route::get('/tiemposProduccion/update', 'update')->name('actualizarClases');
-    Route::get('/tiemposProduccion/{clase?}', 'show')->name('mostrarTiempos');
+    Route::get('/tiemposProduccion/{clase?}', 'show')->name('showTimes');
     Route::post('/tiemposProduccion', 'store')->name('guardarTiempos');
 });
 

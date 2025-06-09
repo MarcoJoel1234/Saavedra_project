@@ -65,7 +65,7 @@ function getRoutes(profile) {
                 ['piecesInProgress', 'Piezas en progreso'],
                 ['showPiecesReport_view', 'Reporte de piezas'],
                 ['showReleasePieces_view', 'Liberacion de piezas'],
-                ['mostrarTiempos', 'Modificar tiempos de producción'],
+                ['showTimes', 'Modificar tiempos de producción'],
                 ['datosProduccion', 'Datos de produccion'],
             ];
             break;
@@ -104,7 +104,7 @@ function getRoutes(profile) {
             routes = [
                 ['showReleasePieces_view', 'Liberacion de piezas'],
                 ['cNominals', 'Editar C.Nominales y Tolerancias'],
-                ['mostrarTiempos', 'Modificar tiempos de producción']
+                ['showTimes', 'Modificar tiempos de producción']
             ];
             break;
         case '5':
