@@ -17,15 +17,24 @@
         flex-direction: column;
     }
 
-    @media screen and (max-width: 600px) {
+    @media (max-width: 991.98px){
         .container {
             width: 100%;
+        }
+        .title_ot {
+            width: 100%;
+            text-align: center;
+            font-size: 1rem;
+        }
+        /* .generar_pdf {
+            width: 10%;
+            height: 10%;
         }
 
         form {
             overflow: hidden;
-            width: 80%;
-        }
+            width: 100%;
+        } */
 
         .icono-liberar,
         .icono-rechazar {

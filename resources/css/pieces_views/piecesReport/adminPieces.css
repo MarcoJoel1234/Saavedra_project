@@ -183,3 +183,75 @@ tr:nth-child(even) {
     background-color: #9C0300;
     transform: scale(1.05); /* Realiza un pequeño zoom del 5% */
 }
+@media (max-width: 991.98px){
+    body{
+    height: 100vh;
+    }
+    form{
+    width: 90%;
+    padding: 10px;
+    }
+    .btn-back{
+    margin-top: 0;
+    font-size: 0.8em;
+    top: 10px;
+        
+    }
+    .title_ot{
+        font-size: 1.5em;
+        margin: 5px;
+        font-family: poppins; 
+        padding: 2px
+    }
+    h1{
+        font-size: 2em;
+        margin-top: 1.5em;
+        text-align: center;
+    }
+    .generar_pdf {
+        width: 44%;
+        float: right;
+        
+    }
+    .filter-select{
+        width: 28%;
+        font-size: 0.9em;
+        font-family: poppins;
+        margin: 0.5em
+    }
+    .btns{
+        width: 30%;
+        font-size: 1em;
+        padding: 10px;
+        font-family: poppins;
+        margin: 0.7em 0;
+    }
+    .date-label {
+        font-size: 1.2em;
+    }
+    .advertence{
+        font-size: 1.9em;
+        font-family: poppins;
+        text-align: center;
+    }
+    th{
+        font-size: 0.6em;
+        padding: 5px;
+        height: 100%;
+    }
+    td{
+        font-size: 0.6em;
+        padding: 5px;
+        height: 100%;
+    }
+    .ver{
+        width: 70%;
+        margin: 0 auto;
+    }
+    .div-table{
+        margin: 0;
+        height: auto;
+        overflow-x: auto;
+    }
+
+}

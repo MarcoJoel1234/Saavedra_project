@@ -95,3 +95,46 @@ h2 {
     color: rgb(0, 0, 0);
     transform: scale(1.05); /* Realiza un pequeño zoom del 5% */
 }
+/* RESPONSIVE  */
+@media (max-width: 991.98px) {
+    .wrapper {
+        width: 90%;
+        padding: 1em;
+    }
+    .lg-saavedra {
+        width: 55%;
+    }
+
+    h2 {
+        font-size: 1.3em;
+    }
+    .select-workOrder{
+        width: 100%;
+        margin: 0.5em 0;
+        padding: 0.4em 1em;
+        
+    }
+    .select-classes{
+        width: 100%;
+        margin: 0.5em 0;
+        padding: 0.4em 1em;
+    }
+    .label-select {
+        font-size: 1.2rem;
+    }
+    .form {
+        width: 100%;
+        margin: 0.5em auto;
+        flex-direction: column;
+        align-items: center;
+    }
+    .select {
+        font-size: 1.2em;
+    }
+    .btn-search {
+        width: 50%;
+        padding: 0.8em 1em;
+        margin: 1em 0;
+        font-size: 1em;
+    }
+}

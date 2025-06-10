@@ -242,6 +242,7 @@ h1 {
         border: 2px solid #000;
         background-color: #033966;
         padding: 5px 0;
+        min-width: 150px;
         text-align: center;
         color: #fff;
         font-size: 0.7em;
@@ -259,16 +260,22 @@ h1 {
     .table td {
         text-align: center;
         font-size: 1em;
-
         font-weight: 600;
         border: 2px solid #033966;
     }
+    .btn-submit {
+    opacity: 0;
+    left: 36vw;
+    background: #033966;
+    color: #ffffff;
+    width: 8w;
+    font-size: 1em;
 
-    .input-medio {
-        width: 50%;
-    }
+}
+.btn-submit:hover {
+    background: #0a8504;
+    transform: scale(1.05);
+    transition: 0.3s ease;
+}
 
-    .input {
-        width: 100%;
-    }
 }
