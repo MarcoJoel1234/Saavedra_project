@@ -19,18 +19,46 @@ class DatosProduccionController extends Controller
     public function __construct()
     {
         $this->controladorPzas = new PzasLiberadasController();
+        $this->middleware('auth');
     }
     public function index($operadores = null, $filtros = null)
     {
-        //Obtener el perfil del usuario
-        $layout = $this->controladorPzas->obtenerLayout();
         //Obtener todas las ordenes de trabajo y sus respectivas clases
         $datos = $this->obtenerDatos($this->obtenerOtArray());
         if ($operadores == null) {
-            return view('processesAdmin.datosProduccion', compact('layout', 'datos'));
+            return view('users_views.productionData', compact('datos'));
         } else {
-            return view('processesAdmin.datosProduccion', compact('layout', 'datos', 'operadores', 'filtros'));
+            return view('users_views.productionData', compact('datos', 'operadores', 'filtros'));
         }
+    }
+    public function show(Request $request)
+    {
+        //Obtener la ot conforme a su ID
+        $ot = Orden_trabajo::find($request->ot);
+        $moldura = Moldura::find($ot->id_moldura);
+
+        //Obtener la clase conforme a su ID
+        $clase = Clase::where("id_ot", $request->ot)->where("nombre", $request->clases)->first();
+
+        //Obtener el nombre del operador
+        $operador = User::where("matricula", $request->operadores)->first();
+        $operador = $operador->nombre . " " . $operador->a_paterno . " " . $operador->a_materno;
+
+        //Obtener las piezas conforme a la OT, la clase, el operador y el proceso
+        $piezas = Pieza::where("id_ot", $request->ot)->where("id_clase", $clase->id)->where("id_operador", $request->operadores)->where("proceso", $request->procesos)->get();
+
+        $operadores = $this->obtenerInformacionPiezas($piezas);
+
+        //Guardar los datos buscados de los filtros en un arreglo
+        $filtros = [
+            "ot" => $request->ot,
+            "moldura" => $moldura->nombre,
+            "clase" => $request->clases,
+            "pedido" => $clase->pedido,
+            "operador" => $operador,
+            "proceso" => $request->procesos
+        ];
+        return $this->index($operadores, $filtros);
     }
     public function obtenerOtArray()
     {
@@ -89,35 +117,7 @@ class DatosProduccionController extends Controller
             ->toArray();
         return $procesosClase_Operador;
     }
-    public function show(Request $request)
-    {
-        //Obtener la ot conforme a su ID
-        $ot = Orden_trabajo::find($request->ot);
-        $moldura = Moldura::find($ot->id_moldura);
 
-        //Obtener la clase conforme a su ID
-        $clase = Clase::where("id_ot", $request->ot)->where("nombre", $request->clases)->first();
-
-        //Obtener el nombre del operador
-        $operador = User::where("matricula", $request->operadores)->first();
-        $operador = $operador->nombre . " " . $operador->a_paterno . " " . $operador->a_materno;
-
-        //Obtener las piezas conforme a la OT, la clase, el operador y el proceso
-        $piezas = Pieza::where("id_ot", $request->ot)->where("id_clase", $clase->id)->where("id_operador", $request->operadores)->where("proceso", $request->procesos)->get();
-
-        $operadores = $this->obtenerInformacionPiezas($piezas);
-
-        //Guardar los datos buscados de los filtros en un arreglo
-        $filtros = [
-            "ot" => $request->ot,
-            "moldura" => $moldura->nombre,
-            "clase" => $request->clases,
-            "pedido" => $clase->pedido,
-            "operador" => $operador,
-            "proceso" => $request->procesos
-        ];
-        return $this->index($operadores, $filtros);
-    }
     public function obtenerInformacionPiezas($piezas)
     {
         $operadores = [];
@@ -127,7 +127,7 @@ class DatosProduccionController extends Controller
             $operadorName = $operadorName->nombre . " " . $operadorName->a_paterno . " " . $operadorName->a_materno;
 
             //Se obtiene la fecha en la que se trabajo la pieza
-            $fecha = $pieza->updated_at;
+            $fecha = $pieza->created_at;
             $fechaMeta = new DateTime($fecha);
             $fechaMeta = $fechaMeta->format("Y-m-d");
             $fecha = $fecha->format("d/m/Y");
@@ -203,7 +203,7 @@ class DatosProduccionController extends Controller
     public function obtenerMeta($ot, $operador, $fecha, $proceso)
     {
         $proceso = $this->renombrarProceso($proceso);
-        $meta = Metas::where("id_ot", $ot)->where("id_usuario", $operador)->whereDate("updated_at", $fecha)->where("proceso", $proceso[0])->where("id_proceso", $proceso[1])->first();
+        $meta = Metas::where("id_ot", $ot)->where("id_usuario", $operador)->where("fecha", $fecha)->where("proceso", $proceso[0])->where("id_proceso", $proceso[1])->first();
         return $meta->meta;
     }
 }

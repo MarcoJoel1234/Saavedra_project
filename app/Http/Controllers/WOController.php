@@ -197,6 +197,7 @@ class WOController extends Controller
             return "---";
         }
     }
+
     public function showViewPiecesInProgress()
     {
         //Obtener las ordenes de trabajo que aun siguen en progreso, es decir, que tienen clases que no han sido finalizadas.

@@ -42,6 +42,7 @@ class PzasLiberadasController extends Controller
     protected $controladorPzas;
     public function __construct()
     {
+        $this->middleware('auth');
         $this->controladorPzas = new PzasGeneralesController();
     }
     public function obtenerLayout(){

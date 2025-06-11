@@ -1,4 +1,4 @@
-let select = document.getElementsByClassName('form-select')[0];
+let select = document.querySelector('.form-select');
 
 select.addEventListener('change', function () {
     inicializarVariables();
@@ -8,9 +8,8 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function inicializarVariables(){
-    let form = document.getElementsByClassName("form")[0];
+    let form = document.querySelector(".form");
     insertarvalorSelect(select.value, form);
-    let div_tabla = document.getElementsByClassName('tabla-procesos')[0];
     let tabla = document.getElementById("tabla");
     let boton = document.getElementById("btnTabla");
     let procesos = [];
@@ -32,17 +31,16 @@ function inicializarVariables(){
             ];
             procesosDB = ["cepillado", "desbaste", "revLaterales", "primeraOpeSoldadura", "barrenoManiobra", "segundaOpeSoldadura", "soldadura", "soldaduraPTA", "rectificado", "asentado", "revCalificado", "acabadoMolde", "barrenoProfundidad", "cavidades", "copiado", "offset", "palomas", "rebajes"];
         }
-        crearTabla(procesos, procesosDB, encabezados, div_tabla, tabla, boton, tiempos, select.value, form);
+        crearTabla(procesos, procesosDB, encabezados, tabla, boton, tiempos, select.value, form);
     } else {
-        eliminarTabla(tabla, boton, div_tabla);
+        eliminarTabla(tabla, boton);
     }
 }
 
-function crearTabla(procesos, procesosDB, encabezados, div, tabla, boton, tiempos, clase, form) {
-    eliminarTabla(tabla, boton, div);
-    let div_search = document.getElementsByClassName("search")[0];
-    div_search.style.marginTop =  "0";
-    div.style.display = "block";
+function crearTabla(procesos, procesosDB, encabezados, tabla, boton, tiempos, clase, form) {
+    eliminarTabla(tabla, boton);
+    let div_table = document.createElement("div");
+    div_table.className = "div-table";
 
     let btn = document.createElement('input');
     btn.type = "submit";
@@ -50,9 +48,11 @@ function crearTabla(procesos, procesosDB, encabezados, div, tabla, boton, tiempo
     btn.id = "btnTabla";
     let table = document.createElement('table');
     table.id = "tabla"
+    table.classList.add("table");
+
     //Crear encabezado
     let encabezadosT = document.createElement('tr');
-    for (encabezado of encabezados) {
+    for (let encabezado of encabezados) {
         let th = document.createElement('th');
 
         //Cambiar guiones por espacios
@@ -62,10 +62,10 @@ function crearTabla(procesos, procesosDB, encabezados, div, tabla, boton, tiempo
     table.appendChild(encabezadosT);
 
     //Crear filas
-    for (proceso in procesos) {
+    for (let proceso in procesos) {
         let contador = 1;
         let fila = document.createElement('tr');
-        for (i = 0; i < encabezados.length; i++) {
+        for (let i = 0; i < encabezados.length; i++) {
             let columna = document.createElement('td');
             columna.style.padding = "3px";
             if (i === 0) {
@@ -90,15 +90,23 @@ function crearTabla(procesos, procesosDB, encabezados, div, tabla, boton, tiempo
         }
         table.appendChild(fila);
     }
-    div.appendChild(table);
-    form.appendChild(btn);
+    div_table.appendChild(table);
+    div_table.appendChild(btn);
+    form.appendChild(div_table);
+    setTimeout(() => {
+        div_table.classList.add("show");
+    }, 100);
 }
 
-function eliminarTabla(tabla, boton, div) {
+function eliminarTabla(tabla, boton) {
+    let div = document.querySelector(".div-table");
     if (tabla != undefined) {
         tabla.remove();
         boton.remove();
-        div.style.display = "none";
+        div.classList.remove("show");
+        setTimeout(() => {
+            div.remove();
+        }, 100);
         let div_search = document.getElementsByClassName("search")[0];
         div_search.style.margin = "auto"
         div_search.style.height = "40%";

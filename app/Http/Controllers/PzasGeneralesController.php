@@ -90,6 +90,10 @@ use Illuminate\Http\Request;
 //Clase para el control de las piezas generales
 class PzasGeneralesController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
     public function showPiecesReport_view()
     {
         $dataWO = $this->getAllWorkOrders();

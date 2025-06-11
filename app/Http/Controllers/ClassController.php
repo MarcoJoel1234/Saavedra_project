@@ -221,7 +221,7 @@ class ClassController extends Controller
         if ($dataProcess != null || auth()->user()->perfil == 5) {
             if (auth()->user()->perfil == 5) {
                 //Asignar los procesos a la clase
-                $dataProcess = $process;
+
                 $noProcess = 0;
                 for ($i = 0; $i < count($processNames); $i++) {
                     if ($dataProcess[$processNames[$i]] != 0) {
@@ -244,6 +244,11 @@ class ClassController extends Controller
                         //Crear el registro de la fecha de inicio del proceso
                         $processDates = $this->registerProcessDates($class, $processNames, $i, $noProcess, $machines[$counterMachines - 1]);
                         $noProcess++;
+                    }else{
+                        $dateProcess = Fecha_proceso::where('clase', $class->id)->where('proceso', $processNames[$i])->first();
+                        if ($dateProcess) {
+                            $dateProcess->delete(); //Eliminar el registro de la fecha del proceso si no se selecciono.
+                        }
                     }
                 }
             }
@@ -277,6 +282,7 @@ class ClassController extends Controller
         $newProcess->fecha_inicio = $fechaInicio;
         $newProcess->fecha_fin = $this->calculateEndDate($class, $processes, $i, $machines, $fechaInicio, $noProcess);
         $newProcess->save();
+        // echo $newProcess . "<br>";
         return $newProcess;
     }
 

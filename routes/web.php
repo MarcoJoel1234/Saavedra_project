@@ -109,7 +109,7 @@ Route::get('/progresoOT', [ProgresoProcesosController::class, 'show'])->name('ve
 Route::controller(TiemposProduccionController::class)->group(function () {
     // Route::get('/tiemposProduccion/update', 'update')->name('actualizarClases');
     Route::get('/tiemposProduccion/{clase?}', 'show')->name('showTimes');
-    Route::post('/tiemposProduccion', 'store')->name('guardarTiempos');
+    Route::post('/tiemposProduccion', 'store')->name('storeTimes');
 });
 
 //Grupo de rutas para el controlador PzasGeneralesController
@@ -130,8 +130,8 @@ Route::controller(PzasLiberadasController::class)->group(function () {
 });
 //Rutas para el controlador de DatosProduccionController
 Route::controller(DatosProduccionController::class)->group(function () {
-    Route::get('/datosProduccion', 'index')->name('datosProduccion'); //Vista de datos de producción
-    Route::post('/datosProduccion', 'show')->name('showProduccion'); //Vista de datos de producción
+    Route::get('/productionData', 'index')->name('productionData'); //Vista de datos de producción
+    Route::post('/productionData', 'show')->name('showProduccion'); //Vista de datos de producción
 });
 
 

@@ -3,6 +3,13 @@
     margin: 0;
     box-sizing: border-box;
 }
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
 .wrapper {
     position: absolute;
     top: 50%;
@@ -28,12 +35,8 @@ h2 {
     color: #404040;
     font-weight: 100;
 }
-form {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-}
 .input-field {
+    width: 80%;
     border-radius: 5px;
     padding: .7em;
     margin: 1em;
@@ -53,7 +56,7 @@ form {
     background-color: #033966;
     color: #fff;
     border: none;
-    width: 30%;
+    width: 50%;
     font-size: 1.3em;
     padding: .7em;
     letter-spacing: 1px;

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Clase;
+use App\Models\Fecha_proceso;
 use App\Models\Procesos;
 use App\Models\tiempoproduccion;
 use Illuminate\Http\Request;
@@ -10,17 +11,15 @@ use Illuminate\Http\Request;
 class tiemposProduccionController extends Controller
 {
     protected $controladorPzas;
-    protected $controladorOT;
+    protected $controllerClass;
     public function __construct()
     {
         $this->controladorPzas = new PzasLiberadasController();
-        $this->controladorOT = new WOController();
+        $this->controllerClass = new ClassController();
+        $this->middleware('auth');
     }
     public function show($clase = false)
     {
-        //Obtener el perfil del usuario
-        $layout = $this->controladorPzas->obtenerLayout();
-
         $tiempos = [];
         $tiemposProduccion = tiempoproduccion::whereIn('clase', ['Bombillo', 'Molde'])->get();
         if ($tiemposProduccion->count() > 0) {
@@ -37,9 +36,9 @@ class tiemposProduccionController extends Controller
             $tiempos = null;
         }
         if ($clase) {
-            return view('processes_views.productionTimes', compact('tiempos', 'clase', 'layout'));
+            return view('processes_views.productionTimes', compact('tiempos', 'clase'));
         }
-        return view('processes_views.productionTimes', compact('tiempos', 'layout'));
+        return view('processes_views.productionTimes', compact('tiempos'));
     }
     public function store(Request $request)
     {
@@ -76,7 +75,7 @@ class tiemposProduccionController extends Controller
 
         //Actualizar todas las Clases
         $this->update();
-        return redirect()->route("mostrarTiempos", compact('clase'))->with('success', 'Tiempos de producción actualizados correctamente.');
+        return redirect()->route("showTimes", compact('clase'))->with('success', 'Tiempos de producción actualizados correctamente.');
     }
     public function update()
     {
@@ -147,21 +146,25 @@ class tiemposProduccionController extends Controller
     public function calcularFechas($procesos, $clase)
     {
         $noProceso = 0;
-        for ($j = 0; $j < count($clase[1]); $j++) {
-            for ($i = 0; $i < count($procesos); $i++) {
-                if ($procesos[$i] == $clase[1][$j]) {
-                    $maquinas = $this->obtenerMaquinasClase($clase[0]->id, $clase[1][$j]);
-                    $procesoFechas = $this->controladorOT->crearRegistroFechaProceso($clase[0], $procesos, $i, $noProceso, $maquinas);
-                    $noProceso++;
-                }
+        for ($i = 0; $i < count($procesos); $i++) {
+            $pos = array_search($procesos[$i], $clase[1]);
+            if ($pos !== false) {
+                $maquinas = $this->obtenerMaquinasClase($clase[0]->id, $clase[1][$pos]);
+                // echo "Proceso nombre:" . $procesos[$i] . "<br>";
+                $procesoFechas = $this->controllerClass->registerProcessDates($clase[0], $procesos, $i, $noProceso, $maquinas);
+                $noProceso++;
             }
-            // echo "<br>" . "<br>";
         }
-        //obtener la clase
-        $clase = Clase::find($clase[0]->id);
+        echo "<br>" . "<br>";
+
         //Guardar unicamente la fecha de termino
+        $clase = Clase::find($clase[0]->id);
         $clase->fecha_termino = $procesoFechas->fecha_fin->format('Y-m-d');
         $clase->hora_termino = $procesoFechas->fecha_fin->format('H:i:s');
+        // echo $clase->nombre;
+        // echo $clase->fecha_termino;
+        // echo $clase->hora_termino;
+        // echo "<br>";
         $clase->save();
     }
     public function obtenerMaquinasClase($claseID, $proceso)

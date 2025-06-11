@@ -1,0 +1,271 @@
+h1 {
+    text-align: center;
+    font-size: 2.5em;
+    color: #333;
+    animation: slide-down 1s ease-out;
+}
+
+/* Contenedor principal */
+.container{
+    width: 100%;
+    height: calc(100vh - 5rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.dashboard {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    grid-gap: 5px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    background: #033966;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    animation: fade-in 1.5s ease-in-out;
+    box-sizing: border-box;
+}
+
+/* Estilo para las cajas de información */
+.box {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    border: 3px solid #ddd;
+    border-radius: 10px;
+    background-color: #a29e9e;
+    font-size: 16px;
+    font-family: Arial;
+    text-align: center;
+    animation: slide-left 1s ease-out;
+    transition: all 0.3s ease-in-out;
+}
+.pedido{
+    background-color: #f0f0f0;
+}
+
+.filtros{
+    font-family: Arial;
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    width: 80%;
+    max-width: 450px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    text-align: center;
+    background-size: 10px;
+}
+
+option{
+    font-size: 16px;
+    font-family: Arial;
+}
+
+/* Animación para cajas en la segunda fila */
+.pedido, .proceso {
+    animation: slide-right 1s ease-out;
+}
+
+.button-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+}
+.button {
+    padding: 10px;
+    font-family: Arial;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #333;
+    color: #fff;
+    max-width: 70%;
+    cursor: pointer; 
+    transition: all 0.3s ease-in-out;
+}
+
+/* Centra el botón */
+
+.button:hover {
+    background-color: #0056b3; 
+    transform: scale(1.1);
+    transition: all 0.3s ease-in-out;
+}
+
+/* Distribución de cajas */
+.ot {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+}
+
+.clase {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+}
+
+.pedido {
+    grid-column: 3 / 4;
+    grid-row: 1 / 2;
+}
+
+.operadores {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+}
+.procesos {
+    grid-column: 2 / 4;
+    grid-row: 2 / 3;
+}
+label{
+    font-family: Arial;
+    font-size: 26px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    display: block;
+}
+.dashboard2 {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    grid-template-rows: 1fr 1fr;
+    grid-gap: 5px;
+    margin: 1rem auto;
+    padding: 10px;
+    border: 1px solid #ddd;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    animation: fade-in 1.5s ease-in-out;
+    align-items: center;
+    box-sizing: border-box;
+    height: 40vh;
+}
+.datos {
+    background: #033966;
+    margin: 10px;
+    padding: 1.3em;
+    border-radius: 15px;
+    grid-column: 1 / 2;
+    grid-row: 1 / 3;
+    animation: slide-right 1s ease-out;
+    transition: all 0.3s ease-in-out;
+}
+h3{
+    color: #fff;
+    font-family: Arial;
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+    font-style: oblique;
+}
+.filtros2{
+    font-family: Arial;
+    background-color: #f0f0f0;
+    font-size: 1.3em;
+    color: #333;
+    margin-bottom: 10px;
+    padding: 5px 10px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    max-width: 450px;
+    transition: all 0.3s ease-in-out;
+    background-repeat: no-repeat;
+    text-align: center;
+}
+
+
+/* Estilos de la tabla */
+.div-table {
+    background-color: #033966;
+    border-radius: 15px;
+    grid-column: 2 / 3;
+    grid-row: 1 / 3;
+    margin: 10px;
+    padding: 15px;
+    animation: slide-right 1s ease-out;
+    transition: all 0.3s ease-in-out;
+}
+table {
+    width: 95%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    border-radius: 5px;
+    background-color: #ccc;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    animation: slide-right 1s ease-out;
+    transition: all 0.3s ease-in-out;
+    overflow-y: auto;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+    font-family: Arial;
+    font-size: 18px;
+}
+
+th {
+    background-color: #f2f2f2;
+    font-family: Arial;
+    font-size: 18px;
+}
+.container-progress{
+    width: 100%;
+    background-color: #757474;
+    border-radius: 10px;
+}
+.progress-bar{
+    height: 20px;
+    border-radius: 7px;
+    text-align: center;
+    background-color: #064c96;
+    color: white;
+}
+.day-green {
+    background-color: #6ae8855c;
+}
+
+.day-red {
+    background-color: #ef8c9446;
+}
+
+.progress-bar.green span {
+    background-color: #28a745; 
+}
+
+.progress-bar.red span {
+    background-color: #dc3545; 
+}
+
+/* Animaciones */
+@keyframes slide-down {
+    0% { transform: translateY(-100px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fade-in {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+@keyframes slide-left {
+    0% { transform: translateX(100%); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slide-right {
+    0% { transform: translateX(-100%); opacity: 0; }
+    100% { transform: translateX(0); opacity: 1; }
+}

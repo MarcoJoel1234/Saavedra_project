@@ -66,7 +66,7 @@ function getRoutes(profile) {
                 ['showPiecesReport_view', 'Reporte de piezas'],
                 ['showReleasePieces_view', 'Liberacion de piezas'],
                 ['showTimes', 'Modificar tiempos de producción'],
-                ['datosProduccion', 'Datos de produccion'],
+                ['productionData', 'Datos de produccion'],
             ];
             break;
         case '2':

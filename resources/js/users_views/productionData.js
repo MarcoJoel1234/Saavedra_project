@@ -13,7 +13,12 @@ const aplicarAccionesToEvents = (habilitar, campos) => {
             let box = document.querySelector(`.${campo}`);
             switch (campo) {
                 case "pedido":
-                    let pedido = (habilitar != null) ? datos[selects["ot"].value]["operadores"][selects["operadores"].value]["clases"][selects["clases"].value]["pedido"] : null;
+                    let pedido =
+                        habilitar != null
+                            ? datos[selects["ot"].value]["operadores"][
+                                  selects["operadores"].value
+                              ]["clases"][selects["clases"].value]["pedido"]
+                            : null;
                     crearInputConValor(box, pedido, "pedido");
                     break;
                 case "boton":
@@ -31,8 +36,7 @@ const aplicarAccionesToEvents = (habilitar, campos) => {
     }
 
     //Verificar si esta funcion si sirve
-
-}
+};
 const des_habilitarCampo = (box, campo, habilitar) => {
     //Declaracion de variables
     let style, elemento, newElement;
@@ -59,7 +63,7 @@ const des_habilitarCampo = (box, campo, habilitar) => {
         elemento.remove(); //Eliminar elemento si existe
     }
     return newElement;
-}
+};
 
 const insertarSelect = (campo, arrayOpciones) => {
     //Creacion del select
@@ -104,14 +108,14 @@ const insertarSelect = (campo, arrayOpciones) => {
         select.appendChild(insertarOpcion(0, "Sin opciones disponibles")); //Insertar la primera opcion del select
     }
     return select;
-}
+};
 
 const insertarOpcion = (value, text) => {
     let option = document.createElement("option");
     option.value = value;
     option.text = text;
     return option;
-}
+};
 
 const insertarInput = (campo) => {
     //Insertar input deshabilitado
@@ -122,11 +126,11 @@ const insertarInput = (campo) => {
     inputDisabled.disabled = true;
 
     return inputDisabled;
-}
+};
 
 /**
  * Insertar un valor y texto en un elemento
- * @param {input} elemento Elemento en el que se insertará el valor 
+ * @param {input} elemento Elemento en el que se insertará el valor
  * @param {string} valor Valor que tendrá el elemento
  */
 const crearInputConValor = (box, valor, campo) => {
@@ -146,18 +150,7 @@ const crearInputConValor = (box, valor, campo) => {
         input.disabled = true;
         box.appendChild(input);
     }
-}
-
-
-
-
-
-
-
-
-
-
-
+};
 
 //********FUNCTIONS TO APPLY IN THE TABLE***********
 const crearTabla = (datos) => {
@@ -168,7 +161,13 @@ const crearTabla = (datos) => {
 
         //Crear el encabezado de la tabla
         if (i == 0) {
-            let encabezado = ["Fecha", "Piezas buenas", "Piezas malas", "Meta", "Productividad"];
+            let encabezado = [
+                "Fecha",
+                "Piezas buenas",
+                "Piezas malas",
+                "Meta",
+                "Productividad",
+            ];
             let thead = document.createElement("thead");
             for (let j = 0; j < 5; j++) {
                 let th = document.createElement("th");
@@ -181,20 +180,22 @@ const crearTabla = (datos) => {
             //Insertar informacion del operador
             let tbody = document.createElement("tbody");
             for (let operador in datos) {
-                for(let fecha in datos[operador]){
+                for (let fecha in datos[operador]) {
                     let tr_body = document.createElement("tr");
 
                     let td_fecha = document.createElement("td");
                     td_fecha.innerHTML = fecha;
                     tr_body.appendChild(td_fecha);
 
-                    for(let piezasinfo in datos[operador][fecha]){
+                    for (let piezasinfo in datos[operador][fecha]) {
                         let td = document.createElement("td");
-                        if(piezasinfo != "Productividad"){
+                        if (piezasinfo != "Productividad") {
                             td.innerHTML = datos[operador][fecha][piezasinfo];
-                        }else{
-                            let porcentaje = datos[operador][fecha][piezasinfo] + "%";
-                            let container_progress = document.createElement("div");
+                        } else {
+                            let porcentaje =
+                                datos[operador][fecha][piezasinfo] + "%";
+                            let container_progress =
+                                document.createElement("div");
                             container_progress.className = "container-progress";
                             let progress_bar = document.createElement("div");
                             progress_bar.className = "progress-bar";
@@ -214,4 +215,60 @@ const crearTabla = (datos) => {
         }
     }
     return table;
+};
+
+var datos = window.datos; //Datos de las ordenes de trabajo
+
+let habilitar,
+    box,
+    selects = [];
+//Crear select de OTs y agregarlo al div
+box = document.querySelector(".ot");
+selects["ot"] = insertarSelect("ot", datos);
+box.appendChild(selects["ot"]);
+//prettier-ignore
+//Aplicar acciones cuando se seleccione una OT
+selects["ot"].addEventListener("change", () => {
+    //Habilitar o deshabilitar campos dependiendo del valor del select OT
+    habilitar = (selects["ot"].value != 0) ? datos[selects["ot"].value]["operadores"] : null;
+    aplicarAccionesToEvents(habilitar, ["operadores", "clases", "pedido", "procesos", "boton"]);
+
+    //Crear el campo de moldura
+    box = document.querySelector(".ot");
+    let moldura = (habilitar != null) ? datos[selects["ot"].value]["moldura"] : selects["ot"].value;
+    crearInputConValor(box, moldura, "moldura");
+
+    //Aplicar acciones cuando se seleccione un operador
+    selects["operadores"].addEventListener("change", () => {
+        // console.log(datos[selects["ot"]]["operadores"]);
+        habilitar = (selects["operadores"].value != 0) ? datos[selects["ot"].value]["operadores"][selects["operadores"].value]["clases"] : null;
+        aplicarAccionesToEvents(habilitar, ["clases", "pedido", "procesos", "boton"]);
+
+        //Aplicar acciones cuando se seleccione una clase
+        selects["clases"].addEventListener("change", () => {
+            // console.log(datos[selects["ot"]]["operadores"]);
+            habilitar = (selects["clases"].value != 0) ? datos[selects["ot"].value]["operadores"][selects["operadores"].value]["clases"][selects["clases"].value]["procesos"] : null;
+            aplicarAccionesToEvents(habilitar, ["procesos", "boton"]);
+
+            //Crear el campo de pedido
+            box = document.querySelector(".pedido");
+            let pedido = (habilitar != null) ? datos[selects["ot"].value]["operadores"][selects["operadores"].value]["clases"][selects["clases"].value]["pedido"] : null;
+            crearInputConValor(box, pedido, "pedido");
+
+            selects["procesos"].addEventListener("change", () => {
+                habilitar = selects["procesos"].value != 0 ? true : false;
+                let boton = document.getElementById("button");
+                if (habilitar) {
+                    boton.style.display = "block";
+                } else {
+                    boton.style.display = "none";
+                }
+            });
+        });
+    });
+});
+
+if (window.filtros !== undefined) {
+    let div_dashboard2 = document.querySelector(".div-table");
+    div_dashboard2.appendChild(crearTabla(datosOperadores));
 }

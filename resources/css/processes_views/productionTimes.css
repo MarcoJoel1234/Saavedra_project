@@ -1,0 +1,121 @@
+/* Estilos del formulario de busqueda */
+form {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: calc(100vh - 5rem);
+    box-sizing: border-box;
+}
+.search {
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 40%;
+    padding: 1.7%;
+    background-color: #ffffffe5;
+    box-shadow: 15px 15px 15px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+}
+h2 {
+    font-size: 1.8em;
+    margin: 1em;
+    color: #404040;
+    font-weight: 100;
+}
+.lg-saavedra {
+    width: 25em;
+    padding: 2em 0;
+}
+.form-select {
+    width: 90%;
+    border-radius: 5px;
+    padding: 0.8em 1em;
+    border: 1px solid #00000033;
+    text-align: center;
+    font-size: 1.3em;
+    margin: 0.5em;
+    letter-spacing: 1px;
+    background: #033966;
+    color: #ffffff;
+}
+.form-label {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #033966;
+}
+
+/* Estilos de la tabla de los tiempos de producción */
+.div-table {
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+    box-sizing: border-box;
+    width: 45%;
+    max-height: 85vh;
+    padding: 0 1em;
+    margin: 0 5em;
+    background: #ffffff;
+    box-shadow: 15px 15px 15px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+.div-table.show {
+    opacity: 1;
+    transform: scale(1);
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+.table {
+    width: 80%;
+    font-size: 1.3em;
+}
+td,
+th {
+    padding: 1em;
+    text-align: center;
+    border: 1px solid #00000033;
+}
+th {
+    color: #fff;
+    background: #033966;
+}
+td {
+    color: #404040;
+    background: #f0f0f0;
+}
+.celdas {
+    padding: 6px;
+    text-align: center;
+    font-size: 1em;
+    border: none;
+    width: 100%;
+}
+#btnTabla {
+    background: rgba(0, 128, 0, 0.849);
+    color: white;
+    font-size: 1.5em;
+    font-weight: bold;
+    padding: .5em 1em;
+    border: none;
+    border-radius: 5px;
+    transition: 0.3s;
+    margin: 1em;
+}
+#btnTabla:hover {
+    background-color: rgba(0, 100, 0, 0.93);
+    transition: 0.3s;
+}
+
+#tabla {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}

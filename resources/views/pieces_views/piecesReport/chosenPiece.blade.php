@@ -1,7 +1,7 @@
 @extends('layouts.appMenu')
 
 @section('head')
-<title>Reporte de piezas</title>
+<title>Visualizacion de pieza</title>
 @vite('resources/css/pieces_views/piecesReport/chosenPiece.css')
 @endsection
 

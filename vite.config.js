@@ -25,6 +25,8 @@ export default defineConfig({
                 //Views OT
                 "resources/css/wo_views/manage_wo.css", 
                 "resources/css/wo_views/show_wo.css",
+                'resources/js/wo_views/manage_wo.js',
+                'resources/js/wo_views/show_wo.js',
 
                 //Views pieces
                 "resources/css/pieces_views/piecesInProgress_view.css",
@@ -32,17 +34,24 @@ export default defineConfig({
                 "resources/css/pieces_views/piecesReport/piecesReport_view.css",
                 "resources/js/pieces_views/piecesReport/piecesReport_view.js",
                 "resources/css/pieces_views/piecesReport/chosenPiece.css",
+                'resources/css/pieces_views/releasePieces/releasePieces_view.css',
+                'resources/js/pieces_views/releasePieces/releasePieces_view.js',
                 "resources/js/pieces_views/releasePieces/releasePieces.js",
                 "resources/css/pieces_views/piecesReport/adminPieces.css",
+                'resources/js/pieces_views/piecesReport/adminPieces.js',
 
                 //Views users
                 "resources/css/users_views/createUser.css",
                 "resources/css/users_views/recoverPassword.css",
+                'resources/css/users_views/productionData.css',
+                'resources/js/users_views/productionData.js',
                 
                 //Views processes
                 "resources/css/processes_views/cNominals_view.css",
                 "resources/js/processes_views/cNominals_view.js",
                 "resources/js/processes_views/Process.js",
+                "resources/css/processes_views/productionTimes.css",
+                "resources/js/processes_views/productionTimes.js",
 
 
                 "resources/css/cepillado.css",
@@ -53,7 +62,6 @@ export default defineConfig({
                 'resources/css/maquinas2.css',
                 'resources/css/rectificado.css',
                 'resources/css/copiado.css',
-                'resources/css/tiemposProduccion.css',
                 'resources/css/viewUsers.css',
                 'resources/js/viewUsers.js',
             ],
