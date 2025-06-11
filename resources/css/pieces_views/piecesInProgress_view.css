@@ -1,9 +1,14 @@
 @import url("https://fonts.googleapis.com/css2?family=Kaushan+Script&family=Poppins&display=swap");
 /*NUMEROS DE PROCENTAJES EN INTERFAZ*/
 * {
-    padding: 0;
     margin: 0;
+    padding: 0;
     box-sizing: border-box;
+}
+body {
+    background-image: url("/public/images/fondoLogin.jpg");
+    background-repeat: repeat;
+    background-size: auto;
 }
 header {
     position: fixed;
@@ -130,7 +135,7 @@ header {
 
 .progress-percentage {
     position: absolute;
-    top:0;
+    top: 0;
     width: 100%;
     height: 100%;
     text-align: center;
@@ -160,8 +165,8 @@ header {
 }
 .modal-close {
     position: absolute;
-    top: .5em;
-    right: .5em;
+    top: 0.5em;
+    right: 0.5em;
     width: 2em;
     cursor: pointer;
     font-size: 1.5em;
@@ -190,7 +195,7 @@ header {
     padding: 0.5em;
     text-align: center;
 }
-.no-bad-pieces{
+.no-bad-pieces {
     font-style: italic;
     color: #404040;
     padding: 10px;
@@ -223,7 +228,7 @@ header {
         width: 90%;
         display: inline-block;
         margin: 1em auto;
-        padding: .5em;
+        padding: 0.5em;
     }
     .workOrder-text,
     .pieces-text {
@@ -275,16 +280,24 @@ header {
         font-size: 1.2em;
     }
     .good-progress {
-    background: linear-gradient(to right, #9ff390, #0a8504); /* verde claro a fuerte */
+        background: linear-gradient(
+            to right,
+            #9ff390,
+            #0a8504
+        ); /* verde claro a fuerte */
     }
     .bad-progress {
-    background: linear-gradient(to right, #f38080, #9c0303); /* rojo claro a fuerte */
+        background: linear-gradient(
+            to right,
+            #f38080,
+            #9c0303
+        ); /* rojo claro a fuerte */
     }
     .modal {
         width: 90%;
         height: 80%;
         top: 5%;
-        padding:1.2em;
+        padding: 1.2em;
     }
     .modal-close {
         width: 1.5em;
@@ -300,7 +313,4 @@ header {
         padding: 0.3em;
         font-size: 0.8em;
     }
-
-
-
 }
