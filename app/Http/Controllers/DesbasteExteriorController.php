@@ -77,7 +77,7 @@ class DesbasteExteriorController extends Controller
         }
         $ot = Orden_trabajo::where('id', $meta->id_ot)->first(); //Busco la OT que se quiere editar.
         $clase = Clase::find($meta->id_clase); //Busco la clase de la OT.
-        $id = "desbaste_" . $clase->nombre . "_" . $ot->id; //Creación de id para tabla Desbaste exterior
+        $id = "Desbaste_Exterior_" . $clase->nombre . "_" . $ot->id; //Creación de id para tabla Desbaste exterior
         $cNominal = Desbaste_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $tolerancia = Desbaste_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $moldura = Moldura::find($ot->id_moldura); //Busco la moldura de la OT.
@@ -93,7 +93,7 @@ class DesbasteExteriorController extends Controller
         $pzasDesbaste = Desbaste_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
         $id_procesoC = Cepillado::where('id_proceso', 'Cepillado_' . $clase->nombre . '_' . $clase->id_ot)->first();
         $pzasRestantes = "";
-        if($id_procesoC != null){
+        if ($id_procesoC != null) {
             $pzasCepillado = Pza_cepillado::where('id_proceso', $id_procesoC->id)->where('estado', 2)->get();
             $pzasRestantes = $this->piezasRestantes($pzasCepillado, $pzasDesbaste, $clase);
         }
@@ -212,6 +212,16 @@ class DesbasteExteriorController extends Controller
                     $newPza->n_juego = $request->n_juegoElegido; //Llenado de estado para tabla Desbaste.
                     $newPza->save(); //Guardado de datos en la tabla Desbaste.
                 }
+            } else {
+                $pieceFoundes = Desbaste_pza::where('n_juego', $request->n_juegoElegido)->where('id_proceso', $id_proceso->id)->get(); //Obtención de todas las piezas creadas.
+                foreach ($pieceFoundes as $pieceFound) {
+                    if ($pieceFound->estado == 0) {
+                        $pieceFound->id_meta = $meta->id; //Llenado de id_meta para tabla Desbaste.
+                        $pieceFound->id_proceso = $id_proceso->id; //Llenado de id_proceso para tabla Desbaste.
+                        $pieceFound->estado = 1; //Llenado de estado para tabla Desbaste.
+                        $pieceFound->save(); //Guardado de datos en la tabla Desbaste.
+                    }
+                }
             }
         }
         $id_proceso = DesbasteExterior::where('id_proceso', $id)->first();
@@ -321,7 +331,7 @@ class DesbasteExteriorController extends Controller
                                 ->where('liberacion', 0);
                         });
                     })->first();
-                    if($pieza_liberada){
+                    if ($pieza_liberada) {
                         $estado++;
                     }
                 }
@@ -363,7 +373,7 @@ class DesbasteExteriorController extends Controller
         $ot = Orden_trabajo::find($meta->id_ot); //Obtención de la OT.
         $moldura = Moldura::find($ot->id_moldura); //Busco la moldura de la OT.
         $clase = Clase::find($meta->id_clase); //Busco la clase de la OT.
-        $id = "desbaste_" . $clase->nombre . "_" . $ot->id; //Creación de id para tabla Desbaste exterior.
+        $id = "Desbaste_Exterior_" . $clase->nombre . "_" . $ot->id; //Creación de id para tabla Desbaste exterior.
         $id_proceso = DesbasteExterior::where('id_proceso', $id)->first();;
         $cNominal = Desbaste_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $tolerancia = Desbaste_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
@@ -561,7 +571,7 @@ class DesbasteExteriorController extends Controller
             });
         })->get(); //Obtención de todas las piezas creadas.
 
-        $id_proceso = "desbaste_" . $clase->nombre . "_" . $ot; //Creación de id para la tabla Desbaste exterior
+        $id_proceso = "Desbaste_Exterior_" . $clase->nombre . "_" . $ot; //Creación de id para la tabla Desbaste exterior
         $proceso = DesbasteExterior::where('id_proceso', $id_proceso)->first(); //Busco el proceso de la OT.
 
         $pzasOcupadas = Desbaste_pza::where('id_proceso', $proceso->id)->where('estado', 1)->get(); //Obtención de todas las piezas creadas.

@@ -651,13 +651,13 @@ class ProcessesController extends Controller
 
         //Llenado de tabla BarrenoManiobra_cnominal
         $cNominal->id_proceso = $id_proceso;
-        $cNominal->profundidad_barreno = $request->cNomi_profundidadBarreno;
+        $cNominal->profundidad_barreno = $request->cNomi_profundidad_barreno;
         $cNominal->diametro_machuelo = $request->cNomi_diametro_machuelo;
 
         //Llenado de tabla BarrenoManiobra_tolerancia
         $tolerance->id_proceso = $id_proceso;
-        $tolerance->profundidad_barreno1 = $request->tole_profundidadBarreno1;
-        $tolerance->profundidad_barreno2 = $request->tole_profundidadBarreno2;
+        $tolerance->profundidad_barreno1 = $request->tole_profundidad_barreno1;
+        $tolerance->profundidad_barreno2 = $request->tole_profundidad_barreno2;
         $tolerance->diametro_machuelo1 = $request->tole_diametro_machuelo1;
         $tolerance->diametro_machuelo2 = $request->tole_diametro_machuelo2;
 
@@ -683,8 +683,8 @@ class ProcessesController extends Controller
         $cNominal->diametroSoldadura = $request->cNomi_diametroSoldadura;
         $cNominal->profundidadSoldadura = $request->cNomi_profundidadSoldadura;
         $cNominal->alturaTotal = $request->cNomi_alturaTotal;
-        $cNominal->Simetria90G = $request->cNomi_Simetria90G;
-        $cNominal->simetriaLinea_partida = $request->cNomi_simetriaLinea_partida;
+        $cNominal->Simetria90G = $request->cNomi_simetria90G;
+        $cNominal->simetriaLinea_Partida = $request->cNomi_simetriaLinea_Partida;
 
         //Llenado de tabla segundaOpeSoldadura_tolerancia
         $tolerance->id_proceso = $id_proceso;
@@ -698,9 +698,9 @@ class ProcessesController extends Controller
         $tolerance->profundidadSoldadura = $request->tole_profundidadSoldadura;
         $tolerance->alturaTotal1 = $request->tole_alturaTotal1;
         $tolerance->alturaTotal2 = $request->tole_alturaTotal2;
-        $tolerance->Simetria90G1 = $request->tole_Simetria90G1;
-        $tolerance->Simetria90G2 = $request->tole_Simetria90G2;
-        $tolerance->simetriaLinea_partida = $request->tole_simetriaLinea_partida;
+        $tolerance->Simetria90G1 = $request->tole_simetria90G1;
+        $tolerance->Simetria90G2 = $request->tole_simetria90G2;
+        $tolerance->simetriaLinea_partida = $request->tole_simetriaLinea_Partida;
 
         $cNominal->save();
         $tolerance->save();
@@ -1085,17 +1085,17 @@ class ProcessesController extends Controller
 
         //Llenado de tabla Palomas_cnominal
         $cNominal->id_proceso = $id_proceso;
-        $cNominal->anchoPaloma = $request->cNomi_ancho_paloma;
-        $cNominal->gruesoPaloma = $request->cNomi_grueso_paloma;
-        $cNominal->profundidadPaloma = $request->cNomi_profundidad_paloma;
-        $cNominal->rebajeLlanta = $request->cNomi_rebaje_llanta;
+        $cNominal->anchoPaloma = $request->cNomi_anchoPaloma;
+        $cNominal->gruesoPaloma = $request->cNomi_gruesoPaloma;
+        $cNominal->profundidadPaloma = $request->cNomi_profundidadPaloma;
+        $cNominal->rebajeLlanta = $request->cNomi_rebajeLlanta;
 
         //Llenado de tabla Palomas_tolerancia
         $tolerance->id_proceso = $id_proceso;
-        $tolerance->anchoPaloma = $request->tole_ancho_paloma;
-        $tolerance->gruesoPaloma = $request->tole_grueso_paloma;
-        $tolerance->profundidadPaloma = $request->tole_profundidad_paloma;
-        $tolerance->rebajeLlanta = $request->tole_rebaje_llanta;
+        $tolerance->anchoPaloma = $request->tole_anchoPaloma;
+        $tolerance->gruesoPaloma = $request->tole_gruesoPaloma;
+        $tolerance->profundidadPaloma = $request->tole_profundidadPaloma;
+        $tolerance->rebajeLlanta = $request->tole_rebajeLlanta;
 
         $cNominal->save();
         $tolerance->save();

@@ -58,7 +58,6 @@ export default defineConfig({
                 "resources/css/barreno.css",
                 "resources/js/editarInterfaz.js",
                 "resources/js/editarTabla.js",
-                "resources/css/verProcesos.css",
                 'resources/css/maquinas2.css',
                 'resources/css/rectificado.css',
                 'resources/css/copiado.css',

@@ -78,7 +78,7 @@ class PrimeraOpeSoldaduraController extends Controller
         }
         $ot = Orden_trabajo::where('id', $meta->id_ot)->first(); //Busco la OT que se quiere editar.
         $clase = Clase::find($meta->id_clase); //Busco la clase de la OT.
-        $id = "1opeSoldadura_" . $clase->nombre . "_" . $ot->id; //Creación de id para tabla Primera operación soldadura.
+        $id = "Primera_Operacion_" . $clase->nombre . "_" . $ot->id; //Creación de id para tabla Primera operación soldadura.
         $cNominal = PrimeraOpeSoldadura_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $tolerancia = PrimeraOpeSoldadura_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $moldura = Moldura::find($ot->id_moldura); //Busco la moldura de la OT.
@@ -91,8 +91,7 @@ class PrimeraOpeSoldaduraController extends Controller
             $desbaste->save(); //Guardado de datos en la tabla Primera operación soldadura.
         }
         $id_proceso = PrimeraOpeSoldadura::where('id_proceso', $id)->first();
-        $pzasPOperacion = PrimeraOpeSoldadura_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
-        $pzasRestantes = $this->piezasRestantes($clase, $pzasPOperacion);
+        $pzasRestantes = count($this->piezasRestantes($clase));
         if (isset($request->n_pieza)) {  //Si se obtienen los datos de las piezas, se guardan en la tabla Primera operación soldadura_cnominal.
             $id_pieza = $request->n_pieza . $id_proceso->id; //Creación de id para tabla Primera operación soldadura_cnominal.
             $piezaExistente = PrimeraOpeSoldadura_pza::where('id_pza', $id_pieza)->first();
@@ -173,8 +172,7 @@ class PrimeraOpeSoldaduraController extends Controller
                 //  //Retornar la pieza siguiente
                 $pzaUtilizar = PrimeraOpeSoldadura_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first();
                 if ($id_proceso) {
-                    $pzasPOperacion = PrimeraOpeSoldadura_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
-                    $pzasRestantes = $this->piezasRestantes($clase, $pzasPOperacion);
+                    $pzasRestantes = count($this->piezasRestantes($clase));
                 } else {
                     $pzasRestantes = 0;
                 }
@@ -183,7 +181,7 @@ class PrimeraOpeSoldaduraController extends Controller
                     return view('processes.primeraOpeSoldadura', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Primera operación soldadura.
                 } else {
                     //Actualizar solo dos registros de las piezas que se van a ocupar en la tabla Primera operación soldadura
-                    $this->piezaUtilizar($ot->id, $clase);
+                    $this->piezaUtilizar($clase);
                 }
             }
         } else if (isset($request->n_juegoElegido)) {
@@ -210,6 +208,16 @@ class PrimeraOpeSoldaduraController extends Controller
                     $newPza->estado = 1; //Llenado de estado para tabla Primera operación soldadura.
                     $newPza->n_juego = $request->n_juegoElegido; //Llenado de estado para tabla Primera operación soldadura.
                     $newPza->save(); //Guardado de datos en la tabla Primera operación soldadura.
+                }
+            } else {
+                $pieceFoundes = PrimeraOpeSoldadura_pza::where('n_juego', $request->n_juegoElegido)->where('id_proceso', $id_proceso->id)->get(); //Obtención de todas las piezas creadas.
+                foreach ($pieceFoundes as $pieceFound) {
+                    if ($pieceFound->estado == 0) {
+                        $pieceFound->id_meta = $meta->id; //Llenado de id_meta para tabla Desbaste.
+                        $pieceFound->id_proceso = $id_proceso->id; //Llenado de id_proceso para tabla Desbaste.
+                        $pieceFound->estado = 1; //Llenado de estado para tabla Desbaste.
+                        $pieceFound->save(); //Guardado de datos en la tabla Desbaste.
+                    }
                 }
             }
         }
@@ -278,7 +286,7 @@ class PrimeraOpeSoldaduraController extends Controller
                     }
 
                     if (!$piezaEncontrada) {
-                        $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
+                        $pzasUtilizar = $this->piezaUtilizar($clase); //Llamado a función para obtener las piezas disponibles.
                     }
                 }
                 if (isset($pzasUtilizar)) { //Si no se encontro una pieza para utilizar, se crea una nueva pieza.
@@ -298,132 +306,115 @@ class PrimeraOpeSoldaduraController extends Controller
             return 1; //Si los datos de la pieza son iguales a los nominales y de tolerancia, se retorna 1.
         }
     }
-    public function piezasRestantes($clase, $pzasPOperacion)
+    public function piezasRestantes($clase)
     {
-        $pzasProcesos = 0;
-        $pzasContadas = array();
-        $proceso = Procesos::where('id_clase', $clase->id)->first(); //Obtención del proceso de la clase.
-        if ($proceso) {
-            if ($proceso->desbaste_exterior != 0 && $proceso->revision_laterales != 0) { //Si los dos procesos estan palomeados
-                $procesoD = DesbasteExterior::where('id_proceso', 'desbaste_' . $clase->nombre . '_' . $clase->id_ot)->first();
-                $pzasDesbaste = Desbaste_pza::where('estado', 2)->where('id_proceso', $procesoD->id)->get();
-                $procesoR = RevLaterales::where('id_proceso', 'revLaterales_' . $clase->nombre . '_' . $clase->id_ot)->first();
-                $pzasRevision = RevLaterales_pza::where('estado', 2)->where('id_proceso', $procesoR->id)->get();
-                foreach ($pzasDesbaste as $pzaDesbaste) {
-                    foreach ($pzasRevision as $pzaRevision) {
-                        if (!in_array($pzaDesbaste->n_juego, $pzasContadas) && $pzaDesbaste->n_juego == $pzaRevision->n_juego) {
-                            $pzasD = Desbaste_pza::where('estado', 2)->where('id_proceso', $procesoD->id)->where('n_juego', $pzaDesbaste->n_juego)->get();
-                            $pzasR = RevLaterales_pza::where('estado', 2)->where('id_proceso', $procesoR->id)->where('n_juego', $pzaRevision->n_juego)->get();
+        //Obtener los juegos buenos de desbaste
+        $desbastePieces =  Pieza::where('proceso', 'Desbaste Exterior')->where('id_clase', $clase->id)->where(function ($query) {
+            $query->where(function ($q) {
+                $q->where('error', 'Ninguno')
+                    ->where('liberacion', 1);
+            })->orWhere(function ($q) {
+                $q->where('error', 'Maquinado')
+                    ->where('liberacion', 1);
+            })->orWhere(function ($q) {
+                $q->where('error', 'Ninguno')
+                    ->where('liberacion', 0);
+            });
+        })->get();
 
-                            $counter = 0;
-                            foreach($pzasD as $item){
-                                $pzaFind = Pieza::where('id_ot', $clase->id_ot)->where('id_clase', $clase->id)->where('proceso', 'Desbaste Exterior')->where(function ($query) {
-                                    $query->where(function ($q) {
-                                        $q->where('error', 'Ninguno')
-                                            ->where('liberacion', 1);
-                                    })->orWhere(function ($q) {
-                                        $q->where('error', 'Maquinado')
-                                            ->where('liberacion', 1);
-                                    })->orWhere(function ($q) {
-                                        $q->where('error', 'Ninguno')
-                                            ->where('liberacion', 0);
-                                    });
-                                })->first(); //Obtención de todas las piezas creadas.
-                                if($pzaFind){
-                                    $counter++;
-                                }
-                            }
+        $juegosDesbaste = array();
+        foreach ($desbastePieces as $pieza) {
+            $n_juego = substr($pieza->n_pieza, 0, -1);
+            if (!in_array($n_juego, $juegosDesbaste)) {
+                $malePiece = Pieza::where('n_pieza', $n_juego . 'M')->where('proceso', 'Desbaste Exterior')->where('id_clase', $clase->id)->where(function ($query) {
+                    $query->where(function ($q) {
+                        $q->where('error', 'Ninguno')
+                            ->where('liberacion', 1);
+                    })->orWhere(function ($q) {
+                        $q->where('error', 'Maquinado')
+                            ->where('liberacion', 1);
+                    })->orWhere(function ($q) {
+                        $q->where('error', 'Ninguno')
+                            ->where('liberacion', 0);
+                    });
+                })->first();
+                $femalePiece = Pieza::where('n_pieza', $n_juego . 'H')->where('proceso', 'Desbaste Exterior')->where('id_clase', $clase->id)->where(function ($query) {
+                    $query->where(function ($q) {
+                        $q->where('error', 'Ninguno')
+                            ->where('liberacion', 1);
+                    })->orWhere(function ($q) {
+                        $q->where('error', 'Maquinado')
+                            ->where('liberacion', 1);
+                    })->orWhere(function ($q) {
+                        $q->where('error', 'Ninguno')
+                            ->where('liberacion', 0);
+                    });
+                })->first();
 
-                            foreach($pzasR as $item){
-                                $pzaFind = Pieza::where('id_ot', $clase->id_ot)->where('id_clase', $clase->id)->where('proceso', 'Revision Laterales')->where(function ($query) {
-                                    $query->where(function ($q) {
-                                        $q->where('error', 'Ninguno')
-                                            ->where('liberacion', 1);
-                                    })->orWhere(function ($q) {
-                                        $q->where('error', 'Maquinado')
-                                            ->where('liberacion', 1);
-                                    })->orWhere(function ($q) {
-                                        $q->where('error', 'Ninguno')
-                                            ->where('liberacion', 0);
-                                    });
-                                })->first(); //Obtención de todas las piezas creadas.
-                                if($pzaFind){
-                                    $counter++;
-                                }
-                            }
-                            if ($counter == 4) {
-                                $pzasProcesos++;
-                            }
-                        }
-                    }
-                    array_push($pzasContadas, $pzaDesbaste->n_juego);
+                if ($malePiece && $femalePiece) {
+                    array_push($juegosDesbaste, $n_juego);
                 }
-            } else if ($proceso->desbaste_exterior != 0) {
-                $procesoD = DesbasteExterior::where('id_proceso', 'desbaste_' . $clase->nombre . '_' . $clase->id_ot)->first();
-                $pzasDesbaste = Desbaste_pza::where('estado', 2)->where('id_proceso', $procesoD->id)->get();
-                foreach ($pzasDesbaste as $pzaDesbaste) {
-                    if (!in_array($pzaDesbaste->n_juego, $pzasContadas)) {
-                        $pzasD = Desbaste_pza::where('estado', 2)->where('id_proceso', $procesoD->id)->where('n_juego', $pzaDesbaste->n_juego)->get();
-                        $counter = 0;
-                        foreach($pzasD as $item){
-                            $pzaFind = Pieza::where('id_ot', $clase->id_ot)->where('id_clase', $clase->id)->where('proceso', 'Desbaste Exterior')->where(function ($query) {
-                                $query->where(function ($q) {
-                                    $q->where('error', 'Ninguno')
-                                        ->where('liberacion', 1);
-                                })->orWhere(function ($q) {
-                                    $q->where('error', 'Maquinado')
-                                        ->where('liberacion', 1);
-                                })->orWhere(function ($q) {
-                                    $q->where('error', 'Ninguno')
-                                        ->where('liberacion', 0);
-                                });
-                            })->first(); //Obtención de todas las piezas creadas.
-                            if($pzaFind){
-                                $counter++;
-                            }
-                        }
-                        if ($counter == 2) {
-                            $pzasProcesos++;
-                        }
-                    }
-                    array_push($pzasContadas, $pzaDesbaste->n_juego);
-                }
-            } else if ($proceso->revision_laterales != 0) {
-                $procesoR = RevLaterales::where('id_proceso', 'revLaterales_' . $clase->nombre . '_' . $clase->id_ot)->first();
-                $pzasRevision = RevLaterales_pza::where('estado', 2)->where('id_proceso', $procesoR->id)->get();
-                foreach ($pzasRevision as $pzaRevision) {
-                    if (!in_array($pzaRevision->n_juego, $pzasContadas)) {
-                        $pzasR = RevLaterales_pza::where('correcto', 1)->where('estado', 2)->where('id_proceso', $procesoR->id)->where('n_juego', $pzaRevision->n_juego)->get();
-                        $counter = 0;
-                        foreach($pzasR as $item){
-                            $pzaFind = Pieza::where('id_ot', $clase->id_ot)->where('id_clase', $clase->id)->where('proceso', 'Revision Laterales')->where(function ($query) {
-                                $query->where(function ($q) {
-                                    $q->where('error', 'Ninguno')
-                                        ->where('liberacion', 1);
-                                })->orWhere(function ($q) {
-                                    $q->where('error', 'Maquinado')
-                                        ->where('liberacion', 1);
-                                })->orWhere(function ($q) {
-                                    $q->where('error', 'Ninguno')
-                                        ->where('liberacion', 0);
-                                });
-                            })->first(); //Obtención de todas las piezas creadas.
-                            if($pzaFind){
-                                $counter++;
-                            }
-                        }
-                        if ($counter == 2) {
-                            $pzasProcesos++;
-                        }
-                    }
-                    array_push($pzasContadas, $pzaRevision->n_juego);
-                }
-            } else {
-                $pzasRestantes = 0;
             }
         }
-        $pzasRestantes = $pzasProcesos - (count($pzasPOperacion) / 2);
-        return $pzasRestantes;
+
+        //Obtener las piezas de Revision Laterales
+        $revisionPieces = Pieza::where("Proceso", "Revision Laterales")->where("id_clase", $clase->id)->get();
+
+        foreach ($revisionPieces as $piece) {
+            $n_juego = substr($piece->n_pieza, 0, -1);
+            $malePiece = Pieza::where('n_pieza', $n_juego . 'M')->where('proceso', 'Revision Laterales')->where('id_clase', $clase->id)->where(function ($query) {
+                $query->where(function ($q) {
+                    $q->where('error', 'Ninguno')
+                        ->where('liberacion', 1);
+                })->orWhere(function ($q) {
+                    $q->where('error', 'Maquinado')
+                        ->where('liberacion', 1);
+                })->orWhere(function ($q) {
+                    $q->where('error', 'Ninguno')
+                        ->where('liberacion', 0);
+                });
+            })->first();
+            $femalePiece = Pieza::where('n_pieza', $n_juego . 'H')->where('proceso', 'Revision Laterales')->where('id_clase', $clase->id)->where(function ($query) {
+                $query->where(function ($q) {
+                    $q->where('error', 'Ninguno')
+                        ->where('liberacion', 1);
+                })->orWhere(function ($q) {
+                    $q->where('error', 'Maquinado')
+                        ->where('liberacion', 1);
+                })->orWhere(function ($q) {
+                    $q->where('error', 'Ninguno')
+                        ->where('liberacion', 0);
+                });
+            })->first();
+            if (!$malePiece || !$femalePiece) {
+                if (in_array($n_juego, $juegosDesbaste)) {
+                    //Eliminar elemento
+                    $key = array_search($n_juego, $juegosDesbaste);
+                    if ($key !== false) {
+                        unset($juegosDesbaste[$key]);
+                    }
+                }
+            } else {
+                if (!in_array($n_juego, $juegosDesbaste)) {
+                    array_push($juegosDesbaste, $n_juego);
+                }
+            }
+        }
+
+
+        //Obtener las piezas de Primera Operacion
+        $pOperacionPieces = Pieza::where("Proceso", "Primera Operacion Soldadura")->where("id_clase", $clase->id)->get();
+        foreach ($pOperacionPieces as $pieza) {
+            $n_juego = substr($pieza->n_pieza, 0, -1);
+            if (in_array($n_juego, $juegosDesbaste)) {
+                //Eliminar elemento
+                $key = array_search($n_juego, $juegosDesbaste);
+                if ($key !== false) {
+                    unset($juegosDesbaste[$key]);
+                }
+            }
+        }
+        return $juegosDesbaste;
     }
     public function edit(Request $request) //Función para editar los datos de la pieza.
     {
@@ -431,14 +422,13 @@ class PrimeraOpeSoldaduraController extends Controller
         $ot = Orden_trabajo::find($meta->id_ot); //Obtención de la OT.
         $moldura = Moldura::find($ot->id_moldura); //Busco la moldura de la OT.
         $clase = Clase::find($meta->id_clase); //Busco la clase de la OT.
-        $id = "1opeSoldadura_" . $clase->nombre . "_" . $ot->id; //Creación de id para tabla Primera operación soldadura.
+        $id = "Primera_Operacion_" . $clase->nombre . "_" . $ot->id; //Creación de id para tabla Primera operación soldadura.
         $id_proceso = PrimeraOpeSoldadura::where('id_proceso', $id)->first();;
         $cNominal = PrimeraOpeSoldadura_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $tolerancia = PrimeraOpeSoldadura_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $pzasCreadas = PrimeraOpeSoldadura_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas.
         if ($id_proceso) {
-            $pzasPOperacion = PrimeraOpeSoldadura_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
-            $pzasRestantes = $this->piezasRestantes($clase, $pzasPOperacion);
+            $pzasRestantes = count($this->piezasRestantes($clase));
         } else {
             $pzasRestantes = 0;
         }
@@ -527,8 +517,7 @@ class PrimeraOpeSoldaduraController extends Controller
             //Retornar la pieza siguiente
             $pzaUtilizar = PrimeraOpeSoldadura_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
             if ($id_proceso) {
-                $pzasPOperacion = PrimeraOpeSoldadura_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
-                $pzasRestantes = $this->piezasRestantes($clase, $pzasPOperacion);
+                $pzasRestantes = count($this->piezasRestantes($clase));
             } else {
                 $pzasRestantes = 0;
             }
@@ -551,7 +540,7 @@ class PrimeraOpeSoldaduraController extends Controller
                     $piezaEncontrada = false; //No se encontro una pieza para utilizar.
                 }
                 if (!$piezaEncontrada) { //Si no se encontro una pieza para utilizar, se crea una nueva pieza.
-                    $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
+                    $pzasUtilizar = $this->piezaUtilizar($clase); //Llamado a función para obtener las piezas disponibles.
                 }
             }
             $pzasCreadas = PrimeraOpeSoldadura_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas.
@@ -560,7 +549,7 @@ class PrimeraOpeSoldaduraController extends Controller
             if (isset($pzasUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Primera operación soldadura 
                 return view('processes.primeraOpeSoldadura', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Primera operación soldadura.
             } else { //Si no existe una pieza para utilizar, se retorna a la vista de Primera operación soldadura 
-                $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
+                $pzasUtilizar = $this->piezaUtilizar($clase); //Llamado a función para obtener las piezas disponibles.
                 return view('processes.primeraOpeSoldadura', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Primera operación soldadura.
             }
         } else {
@@ -592,7 +581,7 @@ class PrimeraOpeSoldaduraController extends Controller
                     $piezaEncontrada = false; //No se encontro una pieza para utilizar.
                 }
                 if (!$piezaEncontrada) { //Si no se encontro una pieza para utilizar, se crea una nueva pieza.
-                    $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
+                    $pzasUtilizar = $this->piezaUtilizar($clase); //Llamado a función para obtener las piezas disponibles.
                 }
             }
             $pzasCreadas = PrimeraOpeSoldadura_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas.
@@ -601,45 +590,20 @@ class PrimeraOpeSoldaduraController extends Controller
             if (isset($pzasUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Primera operación soldadura
                 return view('processes.primeraOpeSoldadura', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Primera operación soldadura.
             } else { //Si no existe una pieza para utilizar, se retorna a la vista de primera operación soldadura.
-                $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
+                $pzasUtilizar = $this->piezaUtilizar($clase); //Llamado a función para obtener las piezas disponibles.
                 return view('processes.primeraOpeSoldadura', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Primera operación soldadura.
             }
         }
     }
 
-    public function piezaUtilizar($ot, $clase) //Función para obtener la pieza a utilizar.
+    public function piezaUtilizar($clase) //Función para obtener la pieza a utilizar.
     {
-        $pzasUtilizar = array();
-        $pzasGuardadas = array();
-        $procesos = Procesos::where('id_clase', $clase->id)->first();
-
-        //Obtener las piezas que esten terminadas y correctas en la tabla Primera Operacion para despues comparar cada una con su consecuente y asi armar los juegos
-        $id_proceso = "1opeSoldadura_" . $clase->nombre . "_" . $ot;
-        $proceso = PrimeraOpeSoldadura::where('id_proceso', $id_proceso)->first();
-        $pzasOcupadas = PrimeraOpeSoldadura_pza::where('id_proceso', $proceso->id)->where('estado', 1)->get(); //Obtención de todas las piezas creadas.
-        if ($proceso) {
-            $pzasUsadas = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Primera Operacion Soldadura')->get(); //Obtención de todas las piezas creadas en Primera Operacion.
+        $piezasUtilizar = array();
+        $piezasRestantes = $this->piezasRestantes($clase); //Obtención de las piezas restantes.
+        foreach ($piezasRestantes as $pieza) {
+            array_push($piezasUtilizar, $pieza . "J"); //Llenado de array con las piezas a utilizar.
         }
-
-        if ($procesos->desbaste_exterior != 0 && $procesos->revision_laterales != 0) {
-            $pzasUtilizarDesbaste = array();
-            $pzasUtilizarRevision = array();
-            //Obtener las piezas en los procesos desbaste y revision laterales
-            $pzasEncontradas = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Desbaste Exterior')->get();
-            $this->piezasEncontradas($ot, $clase, $pzasEncontradas, $pzasUtilizarDesbaste, $pzasGuardadas, 'Desbaste Exterior', $pzasUsadas, $pzasOcupadas);
-            $pzasEncontradas = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Revision Laterales')->get();
-            $this->piezasEncontradas($ot, $clase, $pzasEncontradas, $pzasUtilizarRevision, $pzasGuardadas, 'Revision Laterales', $pzasUsadas, $pzasOcupadas);
-            $pzasUtilizar = $this->compararPiezas($pzasUtilizarDesbaste, $pzasUtilizarRevision);
-        } else if ($procesos->desbaste_exterior != 0) {
-            //Obtener las piezas solamente en el proceso desbaste
-            $pzasEncontradas = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Desbaste Exterior')->get();
-            $this->piezasEncontradas($ot, $clase, $pzasEncontradas, $pzasUtilizar, $pzasGuardadas, 'Desbaste Exterior', $pzasUsadas, $pzasOcupadas);
-        } else if ($procesos->revision_laterales != 0) {
-            //Obtener las piezas solamente en el proceso revision laterales
-            $pzasEncontradas = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Revision Laterales')->get();
-            $this->piezasEncontradas($ot, $clase, $pzasEncontradas, $pzasUtilizar, $pzasGuardadas, 'Revision Laterales', $pzasUsadas, $pzasOcupadas);
-        }
-        return $pzasUtilizar;
+        return $piezasUtilizar;
     }
     public function compararPiezas($pzasDesbaste, $pzasRevision)
     {

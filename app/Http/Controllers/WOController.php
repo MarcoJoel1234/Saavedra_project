@@ -33,6 +33,7 @@ use App\Models\RevLaterales;
 use App\Models\SegundaOpeSoldadura;
 use App\Models\Soldadura;
 use App\Models\SoldaduraPTA;
+use App\Models\tiempoproduccion;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
 use Carbon\Carbon;
@@ -1362,6 +1363,23 @@ class WOController extends Controller
         }
     }
 
+    public function ClaseEncontradas($ot, $proceso)
+    {
+        $string = $proceso; //Asigno el nombre del proceso
+        $clases = Clase::where('id_ot', $ot)->get(); //Obtengo las clases de la OT.
+        $clasesEncontradas = array(); //Creo una matriz para guardar las clases y sus respectivas maquinas que se mostraran en cepillado.
+        $contador = 0;
+        foreach ($clases as $clase) { //Recorro las clases.
+            $proceso = Procesos::where('id_clase', $clase->id)->first(); //Se obtienen los procesos de la clase.
+            //Si existe el proceso
+            if ($proceso && $proceso->$string != 0) { //Si el proceso es diferente de 0
+                $clasesEncontradas[$contador][0] = $clase; //Guardo el nombre de la clase
+                $clasesEncontradas[$contador][1] = $proceso->$string; //Guardo el proceso
+                $contador++;
+            }
+        }
+        return $clasesEncontradas; //Retorno las clases.
+    }
     public function calcularHrs($h_inicio, $h_termino) //Función para calcular las horas trabajadas.
     {
         // $carbon1 = Carbon::createFromFormat('H:i', $h_inicio);
@@ -1372,5 +1390,23 @@ class WOController extends Controller
         //Calcular la diferencia entre las horas en minutos
         $diferencia = $carbon1->diffInMinutes($carbon2) - 60; //Calculo de las horas trabajadas.
         return $diferencia; //Retorno las horas trabajadas.
+    }
+        public function calcularMeta($t_estandar, $hrsTrabajadas) //Función para calcular la meta.
+    {
+        //Calculo de la meta.
+        $tiempo = $t_estandar != 0 ? round(($hrsTrabajadas / $t_estandar)) : 0;
+        return $tiempo;
+    }
+    public function AsignarDatos_Meta($meta, $hrsTrabajadas, $ot, $reqClase, $proceso) //Función para asignar los datos de la meta.
+    {
+        $clase = Clase::where('id_ot', $ot->id)->where('nombre', $reqClase)->first(); //Busco la clase.
+        $meta->id_clase = $clase->id;
+
+        $tiempo = tiempoproduccion::where('clase', $clase->nombre)->where('tamanio', $clase->tamanio)->where('proceso', $proceso)->first();
+        $meta->t_estandar = $tiempo->tiempo ?? 0;
+        $meta->meta = $this->calcularMeta($meta->t_estandar, $hrsTrabajadas) ?? 0; //Se calcula la meta.
+
+        $meta->save();
+        return $clase; //Se retorna la clase.
     }
 }

@@ -218,15 +218,16 @@ class ClassController extends Controller
                 $process->$field = 0;
             }
         }
-        if ($dataProcess != null || auth()->user()->perfil == 5) {
+        if ($dataProcess !== null || auth()->user()->perfil == 5) {
             if (auth()->user()->perfil == 5) {
                 //Asignar los procesos a la clase
-
                 $noProcess = 0;
                 for ($i = 0; $i < count($processNames); $i++) {
-                    if ($dataProcess[$processNames[$i]] != 0) {
+                    $processFounded = Procesos::where('id_clase', $class->id)->first();
+                    if ($processFounded) {
                         //Crear el registro de la fecha de inicio del proceso
-                        $processDates = $this->registerProcessDates($class, $processNames, $i, $noProcess, $dataProcess[$processNames[$i]]);
+                        $string = $processNames[$i]; //Asigno el nombre del proceso.
+                        $processDates = $this->registerProcessDates($class, $processNames, $i, $noProcess, $processFounded->$string);
                         $noProcess++;
                     }
                 }

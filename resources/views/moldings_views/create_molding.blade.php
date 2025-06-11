@@ -5,8 +5,8 @@
 @vite(['resources/css/moldings_views/create_molding.css'])
 @endsection
 
-@section('content')
 @section('background-body', 'images/fondoLogin.jpg') <!--Body background Image-->
+@section('content')
 <div class="wrapper">
     <img src="{{ asset('images/lg_saavedra.png') }}" class="lg-saavedra rounded-4" alt="" />
     <h2>Registrar nuevas molduras</h2>

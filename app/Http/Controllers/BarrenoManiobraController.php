@@ -76,7 +76,7 @@ class BarrenoManiobraController extends Controller
         }
         $ot = Orden_trabajo::where('id', $meta->id_ot)->first(); //Busco la OT que se quiere editar.
         $clase = Clase::find($meta->id_clase); //Busco la clase de la OT.
-        $id = "barrenoManiobra_" . $clase->nombre . "_" . $ot->id; //Creación de id para tabla Barreno maniobra
+        $id = "Barreno_Maniobra_" . $clase->nombre . "_" . $ot->id; //Creación de id para tabla Barreno maniobra
         $cNominal = BarrenoManiobra_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $tolerancia = BarrenoManiobra_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $moldura = Moldura::find($ot->id_moldura); //Busco la moldura de la OT.
@@ -90,7 +90,7 @@ class BarrenoManiobraController extends Controller
         }
         $id_proceso = BarrenoManiobra::where('id_proceso', $id)->first();
         $pzasBarrenoM = BarrenoManiobra_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
-        $id_procesoPOpe = PrimeraOpeSoldadura::where('id_proceso', '1opeSoldadura_' . $clase->nombre . '_' . $clase->id_ot)->first();
+        $id_procesoPOpe = PrimeraOpeSoldadura::where('id_proceso', 'Primera_Operacion_' . $clase->nombre . '_' . $clase->id_ot)->first();
         $pzasPrimeraOpe = PrimeraOpeSoldadura_pza::where('id_proceso', $id_procesoPOpe->id)->where('estado', 2)->get();
         $pzasRestantes = $this->piezasRestantes($clase, $pzasBarrenoM, $pzasPrimeraOpe);
         if (isset($request->n_pieza)) {  //Si se obtienen los datos de las piezas, se guardan en la tabla Barreno_maniobra_cnominal.
@@ -164,7 +164,7 @@ class BarrenoManiobraController extends Controller
                 $pzaUtilizar = BarrenoManiobra_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first();
                 if ($id_proceso) {
                     $pzasBarrenoM = BarrenoManiobra_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
-                    $id_procesoPOpe = PrimeraOpeSoldadura::where('id_proceso', '1opeSoldadura_' . $clase->nombre . '_' . $clase->id_ot)->first();
+                    $id_procesoPOpe = PrimeraOpeSoldadura::where('id_proceso', 'Primera_Operacion_' . $clase->nombre . '_' . $clase->id_ot)->first();
                     $pzasPrimeraOpe = PrimeraOpeSoldadura_pza::where('id_proceso', $id_procesoPOpe->id)->where('estado', 2)->get();
                     $pzasRestantes = $this->piezasRestantes($clase, $pzasBarrenoM, $pzasPrimeraOpe);
                 } else {
@@ -202,6 +202,16 @@ class BarrenoManiobraController extends Controller
                     $newPza->estado = 1; //Llenado de estado para tabla Barreno maniobra
                     $newPza->n_juego = $request->n_juegoElegido; //Llenado de estado para tabla Barreno maniobra
                     $newPza->save(); //Guardado de datos en la tabla Barreno maniobra
+                }
+            } else {
+                $pieceFoundes = BarrenoManiobra_pza::where('n_juego', $request->n_juegoElegido)->where('id_proceso', $id_proceso->id)->get(); //Obtención de todas las piezas creadas.
+                foreach ($pieceFoundes as $pieceFound) {
+                    if ($pieceFound->estado == 0) {
+                        $pieceFound->id_meta = $meta->id; //Llenado de id_meta para tabla Desbaste.
+                        $pieceFound->id_proceso = $id_proceso->id; //Llenado de id_proceso para tabla Desbaste.
+                        $pieceFound->estado = 1; //Llenado de estado para tabla Desbaste.
+                        $pieceFound->save(); //Guardado de datos en la tabla Desbaste.
+                    }
                 }
             }
         }
@@ -316,14 +326,14 @@ class BarrenoManiobraController extends Controller
         $ot = Orden_trabajo::find($meta->id_ot); //Obtención de la OT.
         $moldura = Moldura::find($ot->id_moldura); //Busco la moldura de la OT.
         $clase = Clase::find($meta->id_clase); //Busco la clase de la OT.
-        $id = "barrenoManiobra_" . $clase->nombre . "_" . $ot->id; //Creación de id para tabla Barreno maniobra
+        $id = "Barreno_Maniobra_" . $clase->nombre . "_" . $ot->id; //Creación de id para tabla Barreno maniobra
         $id_proceso = BarrenoManiobra::where('id_proceso', $id)->first();;
         $cNominal = BarrenoManiobra_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $tolerancia = BarrenoManiobra_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $pzasCreadas = BarrenoManiobra_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas.
         if ($id_proceso) {
             $pzasBarrenoM = BarrenoManiobra_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
-            $id_procesoPOpe = PrimeraOpeSoldadura::where('id_proceso', '1opeSoldadura_' . $clase->nombre . '_' . $clase->id_ot)->first();
+            $id_procesoPOpe = PrimeraOpeSoldadura::where('id_proceso', 'Primera_Operacion_' . $clase->nombre . '_' . $clase->id_ot)->first();
             $pzasPrimeraOpe = PrimeraOpeSoldadura_pza::where('id_proceso', $id_procesoPOpe->id)->where('estado', 2)->get();
             $pzasRestantes = $this->piezasRestantes($clase, $pzasBarrenoM, $pzasPrimeraOpe);
         } else {
@@ -404,7 +414,7 @@ class BarrenoManiobraController extends Controller
             $pzaUtilizar = BarrenoManiobra_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
             if ($id_proceso) {
                 $pzasBarrenoM = BarrenoManiobra_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
-                $id_procesoPOpe = PrimeraOpeSoldadura::where('id_proceso', '1opeSoldadura_' . $clase->nombre . '_' . $clase->id_ot)->first();
+                $id_procesoPOpe = PrimeraOpeSoldadura::where('id_proceso', 'Primera_Operacion_' . $clase->nombre . '_' . $clase->id_ot)->first();
                 $pzasPrimeraOpe = PrimeraOpeSoldadura_pza::where('id_proceso', $id_procesoPOpe->id)->where('estado', 2)->get();
                 $pzasRestantes = $this->piezasRestantes($clase, $pzasBarrenoM, $pzasPrimeraOpe);
             } else {
@@ -492,7 +502,7 @@ class BarrenoManiobraController extends Controller
         $procesos = Procesos::where('id_clase', $clase->id)->first();
 
         //Obtener las piezas que esten terminadas y correctas en la tabla Barreno maniobra para despues comparar cada una con su consecuente y asi armar los juegos
-        $id_proceso = "barrenoManiobra_" . $clase->nombre . "_" . $ot;
+        $id_proceso = "Barreno_Maniobra_" . $clase->nombre . "_" . $ot;
         $proceso = BarrenoManiobra::where('id_proceso', $id_proceso)->first();
         $pzasOcupadas = BarrenoManiobra_pza::where('id_proceso', $proceso->id)->where('estado', 1)->get(); //Obtención de todas las piezas creadas.
         if ($proceso) {

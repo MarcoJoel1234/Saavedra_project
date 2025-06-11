@@ -77,7 +77,7 @@ class RevLateralesController extends Controller
         }
         $ot = Orden_trabajo::where('id', $meta->id_ot)->first(); //Busco la OT que se quiere editar.
         $clase = Clase::find($meta->id_clase); //Busco la clase de la OT.
-        $id = "revLaterales_" . $clase->nombre . "_" . $ot->id; //Creación de id para tabla Revisión laterales.
+        $id = "Revision_Laterales_" . $clase->nombre . "_" . $ot->id; //Creación de id para tabla Revisión laterales.
         $cNominal = RevLaterales_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $tolerancia = RevLaterales_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $moldura = Moldura::find($ot->id_moldura); //Busco la moldura de la OT.
@@ -90,11 +90,9 @@ class RevLateralesController extends Controller
             $revLaterales->save(); //Guardado de datos en la tabla Revisión laterales.
         }
         $id_proceso = RevLaterales::where('id_proceso', $id)->first();
-        $pzasRevision = RevLaterales_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
         $id_procesoC = Cepillado::where('id_proceso', 'Cepillado_' . $clase->nombre . '_' . $clase->id_ot)->first();
         if ($id_procesoC != null) {
-            $pzasCepillado = Pza_cepillado::where('id_proceso', $id_procesoC->id)->where('estado', 2)->where('correcto', 1)->get();
-            $pzasRestantes = $this->piezasRestantes($pzasCepillado, $pzasRevision, $clase);
+            $pzasRestantes = $this->piezasRestantes($clase);
         }
 
         if (isset($request->n_pieza)) {  //Si se obtienen los datos de las piezas, se guardan en la tabla Revisión laterales_cnominal.
@@ -169,9 +167,7 @@ class RevLateralesController extends Controller
                 //Retornar la pieza siguiente
                 $pzaUtilizar = RevLaterales_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first();
                 if ($id_proceso) {
-                    $pzasRevision = RevLaterales_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
-                    $pzasCepillado = Pza_cepillado::where('id_proceso', $id_procesoC->id)->where('estado', 2)->where('correcto', 1)->get();
-                    $pzasRestantes = $this->piezasRestantes($pzasCepillado, $pzasRevision, $clase);
+                    $pzasRestantes = $this->piezasRestantes($clase);
                 } else {
                     $pzasRestantes = 0;
                 }
@@ -180,13 +176,12 @@ class RevLateralesController extends Controller
                     return view('processes.rev-laterales', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Revisión laterales.
                 } else {
                     //Actualizar solo dos registros de las piezas que se van a ocupar en la tabla desbaste
-                    $this->piezaUtilizar($ot->id, $clase);
+                    $this->piezaUtilizar($clase);
                 }
             }
         } else if (isset($request->n_juegoElegido)) {
             $juegoExiste = RevLaterales_pza::where('n_juego', $request->n_juegoElegido)->where('id_proceso', $id_proceso->id)->first();
             if (!$juegoExiste) {
-
                 //Obtener el numero del juego para crear las piezas
                 $numero = "";
                 $juegoDividido = str_split($request->n_juegoElegido);
@@ -208,6 +203,16 @@ class RevLateralesController extends Controller
                     $newPza->estado = 1; //Llenado de estado para tabla Desbaste.
                     $newPza->n_juego = $request->n_juegoElegido; //Llenado de estado para tabla Desbaste.
                     $newPza->save(); //Guardado de datos en la tabla Desbaste.
+                }
+            } else {
+                $pieceFoundes = RevLaterales_pza::where('n_juego', $request->n_juegoElegido)->where('id_proceso', $id_proceso->id)->get(); //Obtención de todas las piezas creadas.
+                foreach ($pieceFoundes as $pieceFound) {
+                    if ($pieceFound->estado == 0) {
+                        $pieceFound->id_meta = $meta->id; //Llenado de id_meta para tabla Desbaste.
+                        $pieceFound->id_proceso = $id_proceso->id; //Llenado de id_proceso para tabla Desbaste.
+                        $pieceFound->estado = 1; //Llenado de estado para tabla Desbaste.
+                        $pieceFound->save(); //Guardado de datos en la tabla Desbaste.
+                    }
                 }
             }
         }
@@ -273,7 +278,7 @@ class RevLateralesController extends Controller
                         $piezaEncontrada = false; //No se encontro una pieza para utilizar.
                     }
                     if (!$piezaEncontrada) {
-                        $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
+                        $pzasUtilizar = $this->piezaUtilizar($clase); //Llamado a función para obtener las piezas disponibles.
                     }
                 }
                 if (isset($pzasUtilizar)) { //Si no se encontro una pieza para utilizar, se crea una nueva pieza.
@@ -284,7 +289,7 @@ class RevLateralesController extends Controller
                 }
             }
         }
-        $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
+        $pzasUtilizar = $this->piezaUtilizar($clase); //Llamado a función para obtener las piezas disponibles.
         // return view('processes.rev-laterales', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Revisión laterales.
         return view('processes.rev-laterales', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Revisión laterales.
     }
@@ -296,78 +301,113 @@ class RevLateralesController extends Controller
             return 1; //Si los datos de la pieza son iguales a los nominales y de tolerancia, se retorna 1.
         }
     }
-    public function piezasRestantes($piezasProcesoA, $piezasProcesoB, $clase)
+    public function piezasRestantes($clase)
     {
-        $juegosRestantes = 0;
-        $juegosContados = array();
-        //Contar los juegos restantes de la piezas de cepillado
-        foreach ($piezasProcesoA as $piezaA) {
-            if (!in_array($piezaA->n_juego, $juegosContados)) {
-                $juego = Pza_cepillado::where('n_juego', $piezaA->n_juego)->where('id_proceso', $piezaA->id_proceso)->get();
-                $estado = 0;
-                foreach ($juego as $pieza) {
-                    //Obtener la pieza y verificar si esta bien y si esta rechazada
-                    $pieza_liberada = Pieza::where('n_pieza', $pieza->n_pieza)->where('proceso', 'Cepillado')->where('id_clase', $clase->id)->where(function ($query) {
-                        $query->where(function ($q) {
-                            $q->where('error', 'Ninguno')
-                                ->where('liberacion', 1);
-                        })->orWhere(function ($q) {
-                            $q->where('error', 'Maquinado')
-                                ->where('liberacion', 1);
-                        })->orWhere(function ($q) {
-                            $q->where('error', 'Ninguno')
-                                ->where('liberacion', 0);
-                        });
-                    })->first();
-                    if ($pieza_liberada) {
-                        $estado++;
-                    }
+        //Obtener los juegos buenos de cepillado
+        $cepilladoPieces =  Pieza::where('proceso', 'Cepillado')->where('id_clase', $clase->id)->where(function ($query) {
+            $query->where(function ($q) {
+                $q->where('error', 'Ninguno')
+                    ->where('liberacion', 1);
+            })->orWhere(function ($q) {
+                $q->where('error', 'Maquinado')
+                    ->where('liberacion', 1);
+            })->orWhere(function ($q) {
+                $q->where('error', 'Ninguno')
+                    ->where('liberacion', 0);
+            });
+        })->get();
+
+
+
+        $juegosCepillado = array();
+        foreach ($cepilladoPieces as $pieza) {
+            $n_juego = substr($pieza->n_pieza, 0, -1);
+            if (!in_array($n_juego, $juegosCepillado)) {
+                $malePiece = Pieza::where('n_pieza', $n_juego . 'M')->where('proceso', 'Cepillado')->where('id_clase', $clase->id)->where(function ($query) {
+                    $query->where(function ($q) {
+                        $q->where('error', 'Ninguno')
+                            ->where('liberacion', 1);
+                    })->orWhere(function ($q) {
+                        $q->where('error', 'Maquinado')
+                            ->where('liberacion', 1);
+                    })->orWhere(function ($q) {
+                        $q->where('error', 'Ninguno')
+                            ->where('liberacion', 0);
+                    });
+                })->first();
+                $femalePiece = Pieza::where('n_pieza', $n_juego . 'H')->where('proceso', 'Cepillado')->where('id_clase', $clase->id)->where(function ($query) {
+                    $query->where(function ($q) {
+                        $q->where('error', 'Ninguno')
+                            ->where('liberacion', 1);
+                    })->orWhere(function ($q) {
+                        $q->where('error', 'Maquinado')
+                            ->where('liberacion', 1);
+                    })->orWhere(function ($q) {
+                        $q->where('error', 'Ninguno')
+                            ->where('liberacion', 0);
+                    });
+                })->first();
+
+                if ($malePiece && $femalePiece) {
+                    array_push($juegosCepillado, $n_juego);
                 }
-                if ($estado == 2) {
-                    $juegosRestantes++;
-                }
-                array_push($juegosContados, $piezaA->n_juego);
             }
         }
-        //Contar las piezas malas en el proceso de Desbaste exterior
-        $juegosMalos = array();
-        $contadorJM = 0;
-        $id_proceso = DesbasteExterior::where('id_proceso', 'desbaste_' . $clase->nombre . '_' . $clase->id_ot)->first();
-        if ($id_proceso != null) {
-            $piezasProcesoC = Pieza::where('id_ot', $clase->id_ot)->where('id_clase', $clase->id)->where(function ($query) {
+
+        //Obtener las piezas de Desbaste exterior
+        $desbastePieces = Pieza::where("Proceso", "Desbaste Exterior")->where("id_clase", $clase->id)->get();
+
+        foreach($desbastePieces as $piece){
+            $n_juego = substr($piece->n_pieza, 0, -1);
+            $malePiece = Pieza::where('n_pieza', $n_juego . 'M')->where('proceso', 'Desbaste Exterior')->where('id_clase', $clase->id)->where(function ($query) {
                 $query->where(function ($q) {
                     $q->where('error', 'Ninguno')
-                        ->where('liberacion', 2);
+                        ->where('liberacion', 1);
                 })->orWhere(function ($q) {
-                    $q->where('error', '!=', 'Ninguno')
+                    $q->where('error', 'Maquinado')
+                        ->where('liberacion', 1);
+                })->orWhere(function ($q) {
+                    $q->where('error', 'Ninguno')
                         ->where('liberacion', 0);
-                })->orWhere(function ($q) {
-                    $q->where('error', '!=', 'Ninguno')
-                        ->where('liberacion', 2);
                 });
-            })->get();
-            // $piezasProcesoC = Desbaste_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('correcto', 0)->get();
-            if (count($piezasProcesoB) > 0) {
-                foreach ($piezasProcesoC as $pzaMala) {
-                    if (!in_array($pzaMala->n_juego, $juegosMalos)) {
-                        foreach ($piezasProcesoB as $pzaMala2) {
-                            if ($pzaMala->n_juego == $pzaMala2->n_juego) {
-                                $pzaMala2->n_juego;
-                                $pzasRestar = 1;
-                                break;
-                            } else {
-                                $pzasRestar = 0;
-                            }
-                        }
-                        if ($pzasRestar != 1) {
-                            $contadorJM++;
-                        }
-                        array_push($juegosMalos, $pzaMala->n_juego);
+            })->first();
+            $femalePiece = Pieza::where('n_pieza', $n_juego . 'H')->where('proceso', 'Desbaste Exterior')->where('id_clase', $clase->id)->where(function ($query) {
+                $query->where(function ($q) {
+                    $q->where('error', 'Ninguno')
+                        ->where('liberacion', 1);
+                })->orWhere(function ($q) {
+                    $q->where('error', 'Maquinado')
+                        ->where('liberacion', 1);
+                })->orWhere(function ($q) {
+                    $q->where('error', 'Ninguno')
+                        ->where('liberacion', 0);
+                });
+            })->first();
+            if(!$malePiece || !$femalePiece){
+                if(in_array($n_juego, $juegosCepillado)){
+                    //Eliminar elemento
+                    $key = array_search($n_juego, $juegosCepillado);
+                    if($key !== false){
+                        unset($juegosCepillado[$key]);
                     }
                 }
             }
         }
-        return $juegosRestantes = ($juegosRestantes - (count($piezasProcesoB) / 2)) - $contadorJM;
+
+        //Obtener las piezas de Revisión laterales
+        $revisionPieces = Pieza::where("Proceso", "Revision Laterales")->where("id_clase", $clase->id)->get();
+        foreach($revisionPieces as $pieza){
+            $n_juego = substr($pieza->n_pieza, 0, -1);
+            if(in_array($n_juego, $juegosCepillado)){
+                //Eliminar elemento
+                $key = array_search($n_juego, $juegosCepillado);
+                if($key !== false){
+                    unset($juegosCepillado[$key]);
+                }
+            }
+        }
+
+        return $juegosCepillado; //Retorno de la cantidad de juegos restantes.
     }
     public function edit(Request $request)
     {
@@ -375,7 +415,7 @@ class RevLateralesController extends Controller
         $ot = Orden_trabajo::find($meta->id_ot); //Obtención de la OT.
         $moldura = Moldura::find($ot->id_moldura); //Busco la moldura de la OT.
         $clase = Clase::find($meta->id_clase); //Busco la clase de la OT.
-        $id = "revLaterales_" . $clase->nombre . "_" . $ot->id; //Creación de id para tabla desvaste
+        $id = "Revision_Laterales_" . $clase->nombre . "_" . $ot->id; //Creación de id para tabla desvaste
         $id_proceso = RevLaterales::where('id_proceso', $id)->first(); //Busco el proceso de la OT.
         $cNominal = RevLaterales_cnominal::where('id_proceso', $id)->first(); //Busco la meta de la OT.
         $tolerancia = RevLaterales_tolerancia::where('id_proceso', $id)->first(); //Busco la meta de la OT.
@@ -384,8 +424,8 @@ class RevLateralesController extends Controller
         if ($id_proceso) {
             $pzasRevision = RevLaterales_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
             $id_procesoC = Cepillado::where('id_proceso', 'Cepillado_' . $clase->nombre . '_' . $clase->id_ot)->first();
-            $pzasCepillado = Pza_cepillado::where('id_proceso', $id_procesoC->id)->where('estado', 2)->where('correcto', 1)->get();
-            $pzasRestantes = $this->piezasRestantes($pzasCepillado, $pzasRevision, $clase);
+            $pzasCepillado = Pza_cepillado::where('id_proceso', $id_procesoC->id)->where('estado', 2)->get();
+            $pzasRestantes = $this->piezasRestantes($clase);
         } else {
             $pzasRestantes = 0;
         }
@@ -467,8 +507,8 @@ class RevLateralesController extends Controller
             $pzaUtilizar = RevLaterales_pza::where('id_proceso', $id_proceso->id)->where('estado', 1)->where('id_meta', $meta->id)->first(); //Obtención de la pieza a utilizar.
             if ($id_proceso) {
                 $pzasRevision = RevLaterales_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
-                $pzasCepillado = Pza_cepillado::where('id_proceso', $id_procesoC->id)->where('estado', 2)->where('correcto', 1)->get();
-                $pzasRestantes = $this->piezasRestantes($pzasCepillado, $pzasRevision, $clase);
+                $pzasCepillado = Pza_cepillado::where('id_proceso', $id_procesoC->id)->where('estado', 2)->get();
+                $pzasRestantes = $this->piezasRestantes($clase);
             } else {
                 $pzasRestantes = 0;
             }
@@ -491,7 +531,7 @@ class RevLateralesController extends Controller
                     $piezaEncontrada = false; //No se encontro una pieza para utilizar.
                 }
                 if (!$piezaEncontrada) { //Si no se encontro una pieza para utilizar, se crea una nueva pieza.
-                    $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
+                    $pzasUtilizar = $this->piezaUtilizar($clase); //Llamado a función para obtener las piezas disponibles.
                 }
             }
             $pzasCreadas = RevLaterales_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas.
@@ -500,7 +540,7 @@ class RevLateralesController extends Controller
             if (isset($pzasUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
                 return view('processes.rev-laterales', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Revisión laterales.
             } else { //Si no existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
-                $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
+                $pzasUtilizar = $this->piezaUtilizar($clase); //Llamado a función para obtener las piezas disponibles.
                 // return view('processes.rev-laterales', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Revisión laterales.
                 return view('processes.rev-laterales', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Revisión laterales.
             }
@@ -533,7 +573,7 @@ class RevLateralesController extends Controller
                     $piezaEncontrada = false; //No se encontro una pieza para utilizar.
                 }
                 if (!$piezaEncontrada) { //Si no se encontro una pieza para utilizar, se crea una nueva pieza.
-                    $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
+                    $pzasUtilizar = $this->piezaUtilizar($clase); //Llamado a función para obtener las piezas disponibles.
                 }
             }
             $pzasCreadas = RevLaterales_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->where('id_meta', $meta->id)->get(); //Obtención de todas las piezas creadas.
@@ -542,93 +582,21 @@ class RevLateralesController extends Controller
             if (isset($pzasUtilizar)) { //Si existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
                 return view('processes.rev-laterales', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => $pzasUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Revisión laterales.
             } else { //Si no existe una pieza para utilizar, se retorna a la vista de Desbaste Exterior.
-                $pzasUtilizar = $this->piezaUtilizar($ot->id, $clase); //Llamado a función para obtener las piezas disponibles.
+                $pzasUtilizar = $this->piezaUtilizar($clase); //Llamado a función para obtener las piezas disponibles.
                 // return view('processes.rev-laterales', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes])->with('success', 'Se han registrado todas las piezas correctamente'); //Retorno a vista de Revisión laterales.
                 return view('processes.rev-laterales', ['band' => 2, 'moldura' => $moldura->nombre, 'ot' => $ot, 'meta' => $meta, 'cNominal' => $cNominal, 'tolerancia' => $tolerancia, 'nPiezas' => $pzasCreadas, 'clase' => $clase, 'piezasUtilizar' => array(), 'piezaElegida' => $pzaUtilizar, 'pzasRestantes' => $pzasRestantes]); //Retorno a vista de Revisión laterales.
             }
         }
     }
 
-    public function piezaUtilizar($ot, $clase) //Función para obtener la pieza a utilizar.
+    public function piezaUtilizar($clase) //Función para obtener la pieza a utilizar.
     {
-        //Obtener las piezas que esten terminadas y correctas en la tabla Revisión laterales para despues comparar cada una con su consecuente y asi armar los juegos
-        $pzasUtilizar = array();
-        $pzasGuardadas = array(); //Creación de array para guardar los números de pieza.
-        $numero = ""; //Creación de variable para guardar el número de pieza.
-        $pzasEncontradas = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Cepillado')->where(function ($query) {
-            $query->where(function ($q) {
-                $q->where('error', 'Ninguno')
-                    ->where('liberacion', 1);
-            })->orWhere(function ($q) {
-                $q->where('error', 'Maquinado')
-                    ->where('liberacion', 1);
-            })->orWhere(function ($q) {
-                $q->where('error', 'Ninguno')
-                    ->where('liberacion', 0);
-            });
-        })->get(); //Obtención de todas las piezas creadas.
+        $piezasUtilizar = array(); //Array para almacenar las piezas a utilizar.
+        $piezasRestantes = $this->piezasRestantes($clase); //Obtención de las piezas restantes.
 
-        $id_proceso = "revLaterales_" . $clase->nombre . "_" . $ot; //Creación de id para la tabla cepillado
-        $proceso = RevLaterales::where('id_proceso', $id_proceso)->first(); //Busco el proceso de la OT.
-
-        $pzasOcupadas = RevLaterales_pza::where('id_proceso', $proceso->id)->where('estado', 1)->get(); //Obtención de todas las piezas creadas.
-
-        if ($proceso) {
-            $pzasUsadas = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Revision Laterales')->get(); //Obtención de todas las piezas creadas.
+        foreach ($piezasRestantes as $pieza) {
+            array_push($piezasUtilizar, $pieza . "J"); //Llenado de array con las piezas a utilizar.
         }
-        for ($i = 0; $i < count($pzasEncontradas); $i++) { //Recorro las piezas encontradas.
-            if (array_search($pzasEncontradas[$i]->n_pieza, $pzasGuardadas) == false) {
-                $numerosUsados = array();
-                if (isset($pzasUsadas)) {
-                    $numeroUsado = "";
-                    for ($x = 0; $x < count($pzasUsadas); $x++) {
-                        $pzaDividida_Usada = str_split($pzasUsadas[$x]->n_pieza); //División del número de pieza usada.
-                        for ($h = 0; $h < count($pzaDividida_Usada) - 1; $h++) { //Recorro el número de pieza usada.
-                            $numeroUsado .= $pzaDividida_Usada[$h]; //Obtención del número de pieza usada.
-                        }
-                        array_push($numerosUsados, $numeroUsado); //Guardo el número de ppieza usada.
-                        $numeroUsado = ""; //Reinicio la variable.
-                    }
-                }
-                if (isset($pzasOcupadas)) {
-                    $numeroUsado = ""; //Reinicio la variable.
-                    for ($x = 0; $x < count($pzasOcupadas); $x++) {
-                        $n_piezaUsada = $pzasOcupadas[$x]->n_pieza; //Obtención del número de pieza ocupada
-                        $pzaDividida_Usada = str_split($n_piezaUsada);
-                        for ($h = 0; $h < count($pzaDividida_Usada) - 1; $h++) {
-                            $numeroUsado .= $pzaDividida_Usada[$h];
-                        }
-                        array_push($numerosUsados, $numeroUsado);
-                        $numeroUsado = "";
-                    }
-                }
-                $n_pieza = $pzasEncontradas[$i]->n_pieza; //Obtención del número de pieza.
-                $piezaDividida = str_split($n_pieza); //División del número de pieza.
-                for ($j = 0; $j < count($piezaDividida) - 1; $j++) { //Recorro el número de pieza.
-                    $numero .= $piezaDividida[$j]; //Obtención del número de pieza.
-                }
-                //Se hace la condicion para saber si el numero de la pieza se encuentra ya usada.
-                if (array_search($numero, $numerosUsados) === false) {
-                    if (mb_substr($n_pieza, -1, null, 'UTF-8') == "M") { //Si la pieza es macho, se busca la pieza hembra.
-                        $pieza = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Cepillado')->where('n_pieza', $numero . "H")->where('error', 'Ninguno')->first(); //Busco la pieza hembra.
-                    } else {
-                        $pieza = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Cepillado')->where('n_pieza', $numero . "M")->where('error', 'Ninguno')->first(); //Busco la pieza macho.
-                    }
-
-                    $piezaDesbaste1 = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Desbaste Exterior')->where('n_pieza', $numero . "H")->first();
-                    $piezaDesbaste2 = Pieza::where('id_ot', $ot)->where('id_clase', $clase->id)->where('proceso', 'Desbaste Exterior')->where('n_pieza', $numero . "M")->first();
-
-                    if (isset($pieza)) {
-                        if ((!isset($piezaDesbaste1) && !isset($piezaDesbaste2)) || (isset($piezaDesbaste1) && $piezaDesbaste1->error == "Ninguno" && isset($piezaDesbaste2) && $piezaDesbaste2->error == "Ninguno")) {
-                            array_push($pzasUtilizar, $numero . "J"); //Guardo el número de pieza.
-                            array_push($pzasGuardadas, $pzasEncontradas[$i]->n_pieza); //Guardo el número de pieza.
-                            array_push($pzasGuardadas, $pieza->n_pieza); //Guardo el número de pieza.
-                        }
-                    }
-                }
-                $numero = "";
-            }
-        }
-        return $pzasUtilizar;
+        return $piezasUtilizar;
     }
 }

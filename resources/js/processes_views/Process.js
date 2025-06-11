@@ -141,7 +141,7 @@ export class Process {
                 divisionsCNomi = [null];
                 divisionsTole = [9, 11];
 
-                fields = ["id", "diametro1", "profundidad1", "diametro2", "profundidad2", "diametro3", "profundidad3", "diametroSoldadura", "profundidadSoldadura", "diametroBarreno", "simetriaLinea_partida",     "pernoAlineacion", "Simetria90G"];
+                fields = ["id", "diametro1", "profundidad1", "diametro2", "profundidad2", "diametro3", "profundidad3", "diametroSoldadura", "profundidadSoldadura", "diametroBarreno", "simetriaLinea_partida", "pernoAlineacion", "Simetria90G"];
                 break;
 
             case "Barreno Maniobra": //Proceso de barreno maniobra
@@ -159,7 +159,7 @@ export class Process {
                 divisionsCNomi = [null];
                 divisionsTole = [9, 11];
 
-                fields = ["id", "diametro1", "profundidad1", "diametro2", "profundidad2", "diametro3", "profundidad3", "diametroSoldadura", "profundidadSoldadura", "alturaTotal", "Simetria90G", "simetriaLinea_partida"];
+                fields = ["id", "diametro1", "profundidad1", "diametro2", "profundidad2", "diametro3", "profundidad3", "diametroSoldadura", "profundidadSoldadura", "alturaTotal", "simetria90G", "simetriaLinea_Partida"];
                 break;
 
             case "Operacion Equipo":
