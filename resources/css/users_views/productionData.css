@@ -269,3 +269,65 @@ th {
     0% { transform: translateX(-100%); opacity: 0; }
     100% { transform: translateX(0); opacity: 1; }
 }
+@media (max-width: 991.98px){
+    .dashboard label{
+        width: 100%;
+        font-size: 0.9em;
+        font-family: Arial;
+    }
+    h1{
+        font-size: 1.5em;
+        margin-top: 1em;
+    }
+    .filtros{
+        width: 100%;
+        font-size: 0.8em;
+        margin: 0.5em auto;
+    }
+
+    /* DASHBOAR2 */
+    .dashboard2 {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto;
+        height: auto;
+        padding: 10px;
+    }
+    .div-table{
+        width: 210%;
+        height: auto;
+        font-size: 0.5em;
+        margin-top: 1em;
+        transform: translateX(-56%);
+        overflow-x: auto;
+        padding: 1em;
+    }
+    table {
+        width: 100%;
+        font-size: 0.7em;
+    }
+    th, td {
+        font-size: 1.9em;
+        padding: 5px;
+    }
+    .filtros2{
+        min-width: 100%;
+        max-width: 100%;
+        font-size: 0.8em;
+        margin: 0.5em auto;
+    }
+    .datos{
+        font-size: 1em;
+        position: static;
+        width: 64%;
+        height: auto;
+    }
+    h3{
+        font-size: 1em;
+        margin: 0.5em;
+    }
+    .button {
+        font-size: 0.8em;
+    }
+    
+
+}
