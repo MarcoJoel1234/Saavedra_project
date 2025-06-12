@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Database\Seeders\InitialUserSeeder;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 
@@ -47,5 +48,8 @@ class MigrateModules extends Command
         }
 
         $this->info("All migrations executed successfully.");
+
+        $this->call(InitialUserSeeder::class);
+        $this->info("Initial user seeding completed successfully.");
     }
 }
