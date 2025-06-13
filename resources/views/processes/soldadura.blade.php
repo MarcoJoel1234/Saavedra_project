@@ -38,11 +38,6 @@
     alert("La máquina elegida esta ocupada, por favor elige otra");
 </script>
 @endisset
-@if((isset($pzasRestantes) && $pzasRestantes == 0) && $band != 4)
-<script>
-    alert("Se han registrado todas las piezas");
-</script>
-@endif
 <div class="container">
     <!--Formulario en donde se guardara la meta de Soldadura-->
     <form action="{{route('saveHeader')}}" method="post">
@@ -122,11 +117,6 @@
                     <label for="fecha" style="padding-right: 70px; margin-left:50px;">Fecha:</label>
                     <label for="fecha">Máquina:</label><br>
                     <input type="date" id="fecha" name="fecha" required>
-                    <script>
-                        let today = new Date().toISOString().split("T")[0];
-                        document.getElementById("fecha").setAttribute("min", today);
-                        document.getElementById("fecha").setAttribute("max", today);
-                    </script>
                     <select name="maquina">
                         @for ($i=1; $i<=7; $i++)
                             <option value="{{$i}}">Máquina {{$i}}</option>
@@ -302,8 +292,7 @@
                     @endif
                     @endif
                 </table>
-                @if (isset($piezasUtilizar) && $pzasRestantes
-                != 0 && !isset($piezaElegida))
+                @if (isset($piezasUtilizar) && $pzasRestantes > 0 && !isset($piezaElegida))
                 <input type="submit" value="Elegir pieza" class="btn">
                 @endif
             </div>

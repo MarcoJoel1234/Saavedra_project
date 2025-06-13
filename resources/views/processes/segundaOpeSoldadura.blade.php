@@ -37,11 +37,6 @@
     alert("La máquina elegida esta ocupada, por favor elige otra");
 </script>
 @endisset
-@if((isset($pzasRestantes) && $pzasRestantes <= 0) && $band != 4)
-<script>
-    alert("Se han registrado todas las piezas");
-</script>
-@endif
 <div class="container">
     <!--Formulario en donde se guardara la meta de desbaste-->
     <form action="{{route('saveHeader')}}" method="post">

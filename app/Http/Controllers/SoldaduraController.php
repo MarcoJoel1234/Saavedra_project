@@ -91,7 +91,7 @@ class SoldaduraController extends Controller
 
         $procesos = Procesos::where('id_clase', $clase->id)->first();
         if ($procesos->sOperacion != 0) {
-            $id_segundaOpe = SegundaOpeSoldadura::where('id_proceso', '2opeSoldadura_' . $clase->nombre . '_' . $clase->id_ot)->first();
+            $id_segundaOpe = SegundaOpeSoldadura::where('id_proceso', 'Segunda_Operacion_' . $clase->nombre . '_' . $clase->id_ot)->first();
             $pzasSegundaOpe = SegundaOpeSoldadura_pza::where('id_proceso', $id_segundaOpe->id)->where('estado', 2)->get();
             $pzasRestantes = $this->piezasRestantes($clase, $pzasSoldadura, $pzasSegundaOpe, null, 'Segunda operacion');
         } else if ($procesos->operacionEquipo != 0) {
@@ -141,7 +141,7 @@ class SoldaduraController extends Controller
                 $meta = Metas::find($meta->id); //Busco la meta de la OT.
 
                 if ($procesos->sOperacion != 0) {
-                    $id_segundaOpe = SegundaOpeSoldadura::where('id_proceso', '2opeSoldadura_' . $clase->nombre . '_' . $clase->id_ot)->first();
+                    $id_segundaOpe = SegundaOpeSoldadura::where('id_proceso', 'Segunda_Operacion_' . $clase->nombre . '_' . $clase->id_ot)->first();
                     $pzasSegundaOpe = SegundaOpeSoldadura_pza::where('id_proceso', $id_segundaOpe->id)->where('estado', 2)->get();
                     $pzasRestantes = $this->piezasRestantes($clase, $pzasSoldadura, $pzasSegundaOpe, null, 'Segunda operacion');
                 } else if ($procesos->operacionEquipo != 0) {
@@ -171,6 +171,16 @@ class SoldaduraController extends Controller
                 $newPza->estado = 1; //Llenado de estado para tabla Soldadura
                 $newPza->n_juego = $request->n_juegoElegido; //Llenado de estado para tabla Soldadura
                 $newPza->save(); //Guardado de datos en la tabla Soldadura
+            } else {
+                $pieceFoundes = Soldadura_pza::where('n_juego', $request->n_juegoElegido)->where('id_proceso', $id_proceso->id)->get(); //Obtención de todas las piezas creadas.
+                foreach ($pieceFoundes as $pieceFound) {
+                    if ($pieceFound->estado == 0) {
+                        $pieceFound->id_meta = $meta->id; //Llenado de id_meta para tabla Desbaste.
+                        $pieceFound->id_proceso = $id_proceso->id; //Llenado de id_proceso para tabla Desbaste.
+                        $pieceFound->estado = 1; //Llenado de estado para tabla Desbaste.
+                        $pieceFound->save(); //Guardado de datos en la tabla Desbaste.
+                    }
+                }
             }
         }
         $id_proceso = Soldadura::where('id_proceso', $id)->first();
@@ -263,7 +273,7 @@ class SoldaduraController extends Controller
         $pzasSoldadura = Soldadura_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
         $procesos = Procesos::where('id_clase', $clase->id)->first();
         if ($procesos->sOperacion != 0) {
-            $id_segundaOpe = SegundaOpeSoldadura::where('id_proceso', '2opeSoldadura_' . $clase->nombre . '_' . $clase->id_ot)->first();
+            $id_segundaOpe = SegundaOpeSoldadura::where('id_proceso', 'Segunda_Operacion_' . $clase->nombre . '_' . $clase->id_ot)->first();
             $pzasSegundaOpe = SegundaOpeSoldadura_pza::where('id_proceso', $id_segundaOpe->id)->where('estado', 2)->get();
             $pzasRestantes = $this->piezasRestantes($clase, $pzasSoldadura, $pzasSegundaOpe, null, 'Segunda operacion');
         } else if ($procesos->operacionEquipo != 0) {

@@ -246,7 +246,7 @@ class ProcessesController extends Controller
             'Barreno Profundidad' => $this->barrenoProfundidad($id_process, $request),
             'Cavidades' => $this->cavidades($id_process, $request),
             'Copiado' => $this->copiado($id_process, $request),
-            'OffSet' => $this->offSet($id_process, $request),
+            'Off Set' => $this->offSet($id_process, $request),
             'Palomas' => $this->palomas($id_process, $request),
             'Rebajes' => $this->rebajes($id_process, $request),
             'Operacion Equipo' => $this->pySOpeSoldadura($id_process, $request),

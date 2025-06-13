@@ -211,6 +211,16 @@ class SegundaOpeSoldaduraController extends Controller
                     $newPza->n_juego = $request->n_juegoElegido; //Llenado de estado para tabla Desbaste.
                     $newPza->save(); //Guardado de datos en la tabla Desbaste.
                 }
+            } else {
+                $pieceFoundes = SegundaOpeSoldadura_pza::where('n_juego', $request->n_juegoElegido)->where('id_proceso', $id_proceso->id)->get(); //Obtención de todas las piezas creadas.
+                foreach ($pieceFoundes as $pieceFound) {
+                    if ($pieceFound->estado == 0) {
+                        $pieceFound->id_meta = $meta->id; //Llenado de id_meta para tabla Desbaste.
+                        $pieceFound->id_proceso = $id_proceso->id; //Llenado de id_proceso para tabla Desbaste.
+                        $pieceFound->estado = 1; //Llenado de estado para tabla Desbaste.
+                        $pieceFound->save(); //Guardado de datos en la tabla Desbaste.
+                    }
+                }
             }
         }
         $id_proceso = SegundaOpeSoldadura::where('id_proceso', $id)->first();
@@ -300,23 +310,69 @@ class SegundaOpeSoldaduraController extends Controller
     }
     public function piezasRestantes($clase, $pzasProcesoA, $pzasProcesoB)
     {
-        $pzasProcesos = 0;
-        $pzasRestantes = 0;
-        $pzasContadas = array();
-        $proceso = Procesos::where('id_clase', $clase->id)->first(); //Obtención del proceso de la clase.
-        if ($proceso) {
-            foreach ($pzasProcesoB as $pzaB) {
-                if (!in_array($pzaB->n_juego, $pzasContadas)) {
-                    $pzasB = BarrenoManiobra_pza::where('n_juego', $pzaB->n_juego)->where('correcto', 1)->where('id_proceso', $pzaB->id_proceso)->get();
-                    if (count($pzasB) == 2) {
-                        $pzasProcesos++;
-                    }
-                    array_push($pzasContadas, $pzaB->n_juego);
+        $barrenoPieces = Pieza::where('id_clase', $clase->id)->where('proceso', 'Barreno Maniobra')->where(function ($query) {
+            $query->where(function ($q) {
+                $q->where('error', 'Ninguno')
+                    ->where('liberacion', 1);
+            })->orWhere(function ($q) {
+                $q->where('error', 'Maquinado')
+                    ->where('liberacion', 1);
+            })->orWhere(function ($q) {
+                $q->where('error', 'Ninguno')
+                    ->where('liberacion', 0);
+            });
+        })->get();
+
+        $barrenoJuegos = array();
+        //Obtener todas las piezas buenas o liberadas y completas de barreno
+        foreach ($barrenoPieces as $piece) {
+            $n_juego = substr($piece->n_pieza, 0, -1);
+            if (!in_array($n_juego, $barrenoJuegos)) {
+                $malePiece = Pieza::where('n_pieza', $n_juego . 'M')->where('proceso', 'Barreno Maniobra')->where('id_clase', $clase->id)->where(function ($query) {
+                    $query->where(function ($q) {
+                        $q->where('error', 'Ninguno')
+                            ->where('liberacion', 1);
+                    })->orWhere(function ($q) {
+                        $q->where('error', 'Maquinado')
+                            ->where('liberacion', 1);
+                    })->orWhere(function ($q) {
+                        $q->where('error', 'Ninguno')
+                            ->where('liberacion', 0);
+                    });
+                })->first();
+                $femalePiece = Pieza::where('n_pieza', $n_juego . 'H')->where('proceso', 'Barreno Maniobra')->where('id_clase', $clase->id)->where(function ($query) {
+                    $query->where(function ($q) {
+                        $q->where('error', 'Ninguno')
+                            ->where('liberacion', 1);
+                    })->orWhere(function ($q) {
+                        $q->where('error', 'Maquinado')
+                            ->where('liberacion', 1);
+                    })->orWhere(function ($q) {
+                        $q->where('error', 'Ninguno')
+                            ->where('liberacion', 0);
+                    });
+                })->first();
+
+                if ($malePiece && $femalePiece) {
+                    array_push($barrenoJuegos, $n_juego);
                 }
             }
         }
-        $pzasRestantes = $pzasProcesos - (count($pzasProcesoA) / 2);
-        return $pzasRestantes;
+
+        //Obtener las piezas de Revisión laterales
+        $sOpePieces = Pieza::where("Proceso", "Segunda Operacion Soldadura")->where("id_clase", $clase->id)->get();
+        foreach ($sOpePieces as $piece) {
+            $n_juego = substr($piece->n_pieza, 0, -1);
+            if (in_array($n_juego, $barrenoJuegos)) {
+                //Eliminar elemento
+                $key = array_search($n_juego, $barrenoJuegos);
+                if ($key !== false) {
+                    unset($barrenoJuegos[$key]);
+                }
+            }
+        }
+
+        return count($barrenoJuegos);
     }
     public function edit(Request $request)
     {
@@ -538,7 +594,7 @@ class SegundaOpeSoldaduraController extends Controller
                                 $numeroUsado .= $pzaDividida_Usada[$h]; //Obtención del número de pieza usada.
                             }
                             array_push($numerosUsados, $numeroUsado); //Guardo el número de pieza usada.
-                            $numeroUsado = ""; //Reinicio la variable.
+                            $numeroUsado = ""; //Reinicio la variable
                         } //Recorro las piezas ocupadas en Desbaste
                     }
                     if (count($pzasOcupadas) > 0) {
