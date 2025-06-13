@@ -11,19 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pysOpeSoldadura_cnominal', function (Blueprint $table) {
-            $table->id();
-            $table->string('id_proceso');
-            $table->decimal('altura', 8, 3)->nullable();
-            $table->decimal('alturaCandado1', 8, 3)->nullable();
-            $table->decimal('alturaCandado2', 8, 3)->nullable();
-            $table->decimal('alturaAsientoObturador1', 8, 3)->nullable();
-            $table->decimal('alturaAsientoObturador2', 8, 3)->nullable();
-            $table->decimal('profundidadSoldadura1', 8, 3)->nullable();
-            $table->decimal('profundidadSoldadura2', 8, 3)->nullable();
-            $table->decimal('pushUp', 8, 3)->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('pysOpeSoldadura_cnominal')) {
+            Schema::create('pysOpeSoldadura_cnominal', function (Blueprint $table) {
+                $table->id();
+                $table->string('id_proceso');
+                $table->decimal('altura', 8, 3)->nullable();
+                $table->decimal('alturaCandado1', 8, 3)->nullable();
+                $table->decimal('alturaCandado2', 8, 3)->nullable();
+                $table->decimal('alturaAsientoObturador1', 8, 3)->nullable();
+                $table->decimal('alturaAsientoObturador2', 8, 3)->nullable();
+                $table->decimal('profundidadSoldadura1', 8, 3)->nullable();
+                $table->decimal('profundidadSoldadura2', 8, 3)->nullable();
+                $table->decimal('pushUp', 8, 3)->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

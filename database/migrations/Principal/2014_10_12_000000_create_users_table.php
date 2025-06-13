@@ -11,18 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('matricula')->unique();
-            $table->string('nombre');
-            $table->string('a_paterno');
-            $table->string('a_materno');
-            $table->string('contrasena');
-            $table->string('perfil');
-            $table->timestamp('matricula_verified_at')->nullable();
-            $table->rememberToken();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('users')) {
+            Schema::create('users', function (Blueprint $table) {
+                $table->id();
+                $table->string('matricula')->unique();
+                $table->string('nombre');
+                $table->string('a_paterno');
+                $table->string('a_materno');
+                $table->string('contrasena');
+                $table->string('perfil');
+                $table->timestamp('matricula_verified_at')->nullable();
+                $table->rememberToken();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

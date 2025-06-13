@@ -11,24 +11,26 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('segundaOpeSoldadura_tolerancia', function (Blueprint $table) {
-            $table->id();
-            $table->string('id_proceso');
-            $table->decimal('diametro1', 8, 3)->nullable();
-            $table->decimal('profundidad1', 8, 3)->nullable();
-            $table->decimal('diametro2', 8, 3)->nullable();
-            $table->decimal('profundidad2', 8, 3)->nullable();
-            $table->decimal('diametro3', 8, 3)->nullable();
-            $table->decimal('profundidad3', 8, 3)->nullable();
-            $table->decimal('diametroSoldadura', 8, 3)->nullable();
-            $table->decimal('profundidadSoldadura', 8, 3)->nullable();
-            $table->decimal('alturaTotal1', 8, 3)->nullable();
-            $table->decimal('alturaTotal2', 8, 3)->nullable();
-            $table->decimal('simetria90G1', 8, 3)->nullable();
-            $table->decimal('simetria90G2', 8, 3)->nullable();
-            $table->decimal('simetriaLinea_Partida', 8, 3)->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('segundaOpeSoldadura_tolerancia')) {
+            Schema::create('segundaOpeSoldadura_tolerancia', function (Blueprint $table) {
+                $table->id();
+                $table->string('id_proceso');
+                $table->decimal('diametro1', 8, 3)->nullable();
+                $table->decimal('profundidad1', 8, 3)->nullable();
+                $table->decimal('diametro2', 8, 3)->nullable();
+                $table->decimal('profundidad2', 8, 3)->nullable();
+                $table->decimal('diametro3', 8, 3)->nullable();
+                $table->decimal('profundidad3', 8, 3)->nullable();
+                $table->decimal('diametroSoldadura', 8, 3)->nullable();
+                $table->decimal('profundidadSoldadura', 8, 3)->nullable();
+                $table->decimal('alturaTotal1', 8, 3)->nullable();
+                $table->decimal('alturaTotal2', 8, 3)->nullable();
+                $table->decimal('simetria90G1', 8, 3)->nullable();
+                $table->decimal('simetria90G2', 8, 3)->nullable();
+                $table->decimal('simetriaLinea_Partida', 8, 3)->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

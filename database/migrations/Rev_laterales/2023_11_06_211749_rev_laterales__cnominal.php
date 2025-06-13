@@ -11,16 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('revLaterales_cnominal', function (Blueprint $table) {
-            $table->id();
-            $table->string('id_proceso');
-            $table->decimal('desfasamiento_entrada', 8, 3);
-            $table->decimal('desfasamiento_salida', 8, 3);
-            $table->decimal('ancho_simetriaEntrada', 8, 3);
-            $table->decimal('ancho_simetriaSalida', 8, 3);
-            $table->decimal('angulo_corte', 8, 3);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('revLaterales_cnominal')) {
+            Schema::create('revLaterales_cnominal', function (Blueprint $table) {
+                $table->id();
+                $table->string('id_proceso');
+                $table->decimal('desfasamiento_entrada', 8, 3);
+                $table->decimal('desfasamiento_salida', 8, 3);
+                $table->decimal('ancho_simetriaEntrada', 8, 3);
+                $table->decimal('ancho_simetriaSalida', 8, 3);
+                $table->decimal('angulo_corte', 8, 3);
+                $table->timestamps();
+            });
+        }
     }
 
     /**

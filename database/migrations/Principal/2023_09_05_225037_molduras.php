@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('molduras', function (Blueprint $table) {
-            $table->id();
-            $table->string('nombre')->unique();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('molduras')) {
+            Schema::create('molduras', function (Blueprint $table) {
+                $table->id();
+                $table->string('nombre')->unique();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

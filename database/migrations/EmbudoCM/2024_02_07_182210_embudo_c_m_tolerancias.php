@@ -11,15 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('embudoCM_tolerancia', function (Blueprint $table) {
-            $table->id();
-            $table->string('id_proceso');
-            $table->decimal('conexion_lineaPartida', 8, 3)->nullable();
-            $table->decimal('conexion_90G', 8, 3)->nullable();
-            $table->decimal('altura_conexion', 8, 3)->nullable();
-            $table->decimal('diametro_embudo', 8, 3)->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('embudoCM_tolerancia')) {
+            Schema::create('embudoCM_tolerancia', function (Blueprint $table) {
+                $table->id();
+                $table->string('id_proceso');
+                $table->decimal('conexion_lineaPartida', 8, 3)->nullable();
+                $table->decimal('conexion_90G', 8, 3)->nullable();
+                $table->decimal('altura_conexion', 8, 3)->nullable();
+                $table->decimal('diametro_embudo', 8, 3)->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

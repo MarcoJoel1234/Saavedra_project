@@ -5,6 +5,9 @@ namespace App\Console\Commands;
 use Database\Seeders\InitialUserSeeder;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+
 
 class MigrateModules extends Command
 {
@@ -27,6 +30,13 @@ class MigrateModules extends Command
      */
     public function handle()
     {
+        //Borrar todas las tablas excepto 'users'
+        $this->info("Truncating all tables except 'users'...");
+        $this->truncateAllExceptUsers();
+        $this->info("All tables truncated successfully, except 'users'.");
+
+
+        //Correr todas las migraciones
         $this->info("Executing Principal Module Migration");
         $this->call('migrate', ['--path' => 'database/migrations/Principal']);
 
@@ -51,5 +61,27 @@ class MigrateModules extends Command
 
         $this->call(InitialUserSeeder::class);
         $this->info("Initial user seeding completed successfully.");
+    }
+    protected function truncateAllExceptUsers()
+    {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+        // Obtener todas las tablas
+        $tables = DB::connection()->getDoctrineSchemaManager()->listTableNames();
+
+        foreach ($tables as $table) {
+            if ($table === 'users') {
+                continue; // Saltar la tabla 'users'
+            }
+
+            try {
+                DB::table($table)->truncate();
+                $this->info("Table '$table' truncated.");
+            } catch (\Exception $e) {
+                $this->warn("Could not truncate table '$table': " . $e->getMessage());
+            }
+        }
+
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 }

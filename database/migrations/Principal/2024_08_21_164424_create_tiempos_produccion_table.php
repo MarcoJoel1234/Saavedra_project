@@ -11,14 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tiempos_produccion', function (Blueprint $table) {
-            $table->id();
-            $table->string("clase");
-            $table->string("tamanio");
-            $table->string("proceso");
-            $table->string("tiempo");
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('tiempos_produccion')) {
+            Schema::create('tiempos_produccion', function (Blueprint $table) {
+                $table->id();
+                $table->string("clase");
+                $table->string("tamanio");
+                $table->string("proceso");
+                $table->string("tiempo");
+                $table->timestamps();
+            });
+        }
     }
 
     /**

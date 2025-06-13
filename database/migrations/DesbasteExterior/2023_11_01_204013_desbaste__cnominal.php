@@ -11,18 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('desbaste_cnominal', function (Blueprint $table) {
-            $table->id();
-            $table->string('id_proceso');
-            $table->decimal('diametro_mordaza', 8, 3);
-            $table->decimal('diametro_ceja', 8, 3);
-            $table->decimal('diametro_sufrideraExtra', 8, 3);
-            $table->decimal('simetria_ceja', 8, 3);
-            $table->decimal('simetria_mordaza', 8, 3);
-            $table->decimal('altura_ceja', 8, 3);
-            $table->decimal('altura_sufridera', 8, 3);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('desbaste_cnominal')) {
+            Schema::create('desbaste_cnominal', function (Blueprint $table) {
+                $table->id();
+                $table->string('id_proceso');
+                $table->decimal('diametro_mordaza', 8, 3);
+                $table->decimal('diametro_ceja', 8, 3);
+                $table->decimal('diametro_sufrideraExtra', 8, 3);
+                $table->decimal('simetria_ceja', 8, 3);
+                $table->decimal('simetria_mordaza', 8, 3);
+                $table->decimal('altura_ceja', 8, 3);
+                $table->decimal('altura_sufridera', 8, 3);
+                $table->timestamps();
+            });
+        }
     }
 
     /**

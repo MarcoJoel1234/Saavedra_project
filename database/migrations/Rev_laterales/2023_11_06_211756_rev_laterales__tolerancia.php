@@ -11,23 +11,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('revLaterales_tolerancia', function (Blueprint $table) {
-            $table->id();
-            $table->string('id_proceso');
-            $table->decimal('desfasamiento_entrada1', 8, 3);
-            $table->decimal('desfasamiento_entrada2', 8, 3);
-            $table->decimal('desfasamiento_salida1', 8, 3);
-            $table->decimal('desfasamiento_salida2', 8, 3);
-            $table->decimal('ancho_simetriaEntrada1', 8, 3);
-            $table->decimal('ancho_simetriaEntrada2', 8, 3);
-            $table->decimal('ancho_simetriaSalida1', 8, 3);
-            $table->decimal('ancho_simetriaSalida2', 8, 3);
-            $table->decimal('angulo_corte1', 8, 3);
-            $table->decimal('angulo_corte2', 8, 3);
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('revLaterales_tolerancia')) {
+            Schema::create('revLaterales_tolerancia', function (Blueprint $table) {
+                $table->id();
+                $table->string('id_proceso');
+                $table->decimal('desfasamiento_entrada1', 8, 3);
+                $table->decimal('desfasamiento_entrada2', 8, 3);
+                $table->decimal('desfasamiento_salida1', 8, 3);
+                $table->decimal('desfasamiento_salida2', 8, 3);
+                $table->decimal('ancho_simetriaEntrada1', 8, 3);
+                $table->decimal('ancho_simetriaEntrada2', 8, 3);
+                $table->decimal('ancho_simetriaSalida1', 8, 3);
+                $table->decimal('ancho_simetriaSalida2', 8, 3);
+                $table->decimal('angulo_corte1', 8, 3);
+                $table->decimal('angulo_corte2', 8, 3);
+                $table->timestamps();
+            });
+        }
     }
-    
+
 
     /**
      * Reverse the migrations.

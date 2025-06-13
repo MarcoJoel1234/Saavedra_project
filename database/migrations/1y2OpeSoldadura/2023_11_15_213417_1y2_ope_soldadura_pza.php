@@ -11,29 +11,31 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('PySOpeSoldadura_pza', function (Blueprint $table) {
-            $table->id();
-            $table->string('id_pza');
-            $table->unsignedBigInteger('id_meta')->nullable();
-            $table->unsignedBigInteger('id_proceso');
-            $table->integer('correcto')->nullable();
-            $table->integer('estado')->default(0);
-            $table->string('n_juego')->nullable();
-            $table->string('n_pieza')->nullable();
-            $table->decimal('altura', 8, 3)->nullable();
-            $table->decimal('alturaCandado1', 8, 3)->nullable();
-            $table->decimal('alturaCandado2', 8, 3)->nullable();
-            $table->decimal('alturaAsientoObturador1', 8, 3)->nullable();
-            $table->decimal('alturaAsientoObturador2', 8, 3)->nullable();
-            $table->decimal('profundidadSoldadura1', 8, 3)->nullable();
-            $table->decimal('profundidadSoldadura2', 8, 3)->nullable();
-            $table->decimal('pushUp', 8, 3)->nullable();
-            $table->string('observaciones')->nullable();
-            $table->string('error')->nullable();
-            $table->timestamps();
-            $table->foreign('id_meta')->references('id')->on('metas');
-            $table->foreign('id_proceso')->references('id')->on('PySOpeSoldadura');
-        });
+        if (!Schema::hasTable('PySOpeSoldadura_pza')) {
+            Schema::create('PySOpeSoldadura_pza', function (Blueprint $table) {
+                $table->id();
+                $table->string('id_pza');
+                $table->unsignedBigInteger('id_meta')->nullable();
+                $table->unsignedBigInteger('id_proceso');
+                $table->integer('correcto')->nullable();
+                $table->integer('estado')->default(0);
+                $table->string('n_juego')->nullable();
+                $table->string('n_pieza')->nullable();
+                $table->decimal('altura', 8, 3)->nullable();
+                $table->decimal('alturaCandado1', 8, 3)->nullable();
+                $table->decimal('alturaCandado2', 8, 3)->nullable();
+                $table->decimal('alturaAsientoObturador1', 8, 3)->nullable();
+                $table->decimal('alturaAsientoObturador2', 8, 3)->nullable();
+                $table->decimal('profundidadSoldadura1', 8, 3)->nullable();
+                $table->decimal('profundidadSoldadura2', 8, 3)->nullable();
+                $table->decimal('pushUp', 8, 3)->nullable();
+                $table->string('observaciones')->nullable();
+                $table->string('error')->nullable();
+                $table->timestamps();
+                $table->foreign('id_meta')->references('id')->on('metas');
+                $table->foreign('id_proceso')->references('id')->on('PySOpeSoldadura');
+            });
+        }
     }
 
     /**

@@ -11,17 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cavidades_cnominal', function (Blueprint $table) {
-            $table->id();
-            $table->string('id_proceso');
-            $table->decimal('profundidad1', 8, 3)->nullable();
-            $table->decimal('diametro1', 8, 3)->nullable();
-            $table->decimal('profundidad2', 8, 3)->nullable();
-            $table->decimal('diametro2', 8, 3)->nullable();
-            $table->decimal('profundidad3', 8, 3)->nullable();
-            $table->decimal('diametro3', 8, 3)->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('cavidades_cnominal')) {
+            Schema::create('cavidades_cnominal', function (Blueprint $table) {
+                $table->id();
+                $table->string('id_proceso');
+                $table->decimal('profundidad1', 8, 3)->nullable();
+                $table->decimal('diametro1', 8, 3)->nullable();
+                $table->decimal('profundidad2', 8, 3)->nullable();
+                $table->decimal('diametro2', 8, 3)->nullable();
+                $table->decimal('profundidad3', 8, 3)->nullable();
+                $table->decimal('diametro3', 8, 3)->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

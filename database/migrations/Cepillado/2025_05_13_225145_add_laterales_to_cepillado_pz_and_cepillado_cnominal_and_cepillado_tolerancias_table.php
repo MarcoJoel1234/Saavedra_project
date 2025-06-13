@@ -11,6 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('cepillado_pza') && Schema::hasTable('cepillado_cnominal') && Schema::hasTable('cepillado_tolerancia')) {
+            return;
+        }
         Schema::table('cepillado_pza', function (Blueprint $table) {
             $table->decimal('laterales', 8, 3)->nullable()->default(0)->after('ancho_vena');
         });
@@ -30,6 +33,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        
         Schema::table('cepillado_pza', function (Blueprint $table) {
             $table->dropColumn('laterales');
         });

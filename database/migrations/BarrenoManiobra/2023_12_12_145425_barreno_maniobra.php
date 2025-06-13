@@ -11,13 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('barrenoManiobra', function (Blueprint $table) {
-            $table->id();
-            $table->string('id_proceso')->unique();
-            $table->string('id_ot');
-            $table->foreign('id_ot')->references('id')->on('orden_trabajo');
-            $table->timestamps();
-        });    }
+        if (!Schema::hasTable('barrenoManiobra')) {
+            Schema::create('barrenoManiobra', function (Blueprint $table) {
+                $table->id();
+                $table->string('id_proceso')->unique();
+                $table->string('id_ot');
+                $table->foreign('id_ot')->references('id')->on('orden_trabajo');
+                $table->timestamps();
+            });
+        }
+    }
 
     /**
      * Reverse the migrations.

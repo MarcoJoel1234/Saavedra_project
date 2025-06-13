@@ -11,22 +11,24 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('barrenoProfundidad_tolerancia', function (Blueprint $table) {
-            $table->id();
-            $table->string('id_proceso');
-            $table->decimal('broca1', 8, 3)->nullable();
-            $table->decimal('tiempo1', 8, 3)->nullable();
-            $table->decimal('broca2', 8, 3)->nullable();
-            $table->decimal('tiempo2', 8, 3)->nullable();
-            $table->decimal('broca3', 8, 3)->nullable();
-            $table->decimal('tiempo3', 8, 3)->nullable();
-            $table->decimal('entrada', 8, 3)->nullable();
-            $table->decimal('salida', 8, 3)->nullable();
-            $table->decimal('diametro_arrastre1', 8, 3)->nullable();
-            $table->decimal('diametro_arrastre2', 8, 3)->nullable();
-            $table->decimal('diametro_arrastre3', 8, 3)->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('barrenoProfundidad_tolerancia')) {
+            Schema::create('barrenoProfundidad_tolerancia', function (Blueprint $table) {
+                $table->id();
+                $table->string('id_proceso');
+                $table->decimal('broca1', 8, 3)->nullable();
+                $table->decimal('tiempo1', 8, 3)->nullable();
+                $table->decimal('broca2', 8, 3)->nullable();
+                $table->decimal('tiempo2', 8, 3)->nullable();
+                $table->decimal('broca3', 8, 3)->nullable();
+                $table->decimal('tiempo3', 8, 3)->nullable();
+                $table->decimal('entrada', 8, 3)->nullable();
+                $table->decimal('salida', 8, 3)->nullable();
+                $table->decimal('diametro_arrastre1', 8, 3)->nullable();
+                $table->decimal('diametro_arrastre2', 8, 3)->nullable();
+                $table->decimal('diametro_arrastre3', 8, 3)->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

@@ -11,23 +11,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cavidades_tolerancia', function (Blueprint $table) {
-            $table->id();
-            $table->string('id_proceso');
-            $table->decimal('profundidad1_1', 8, 3)->nullable();
-            $table->decimal('profundidad2_1', 8, 3)->nullable();
-            $table->decimal('diametro1_1', 8, 3)->nullable();
-            $table->decimal('diametro2_1', 8, 3)->nullable();
-            $table->decimal('profundidad1_2', 8, 3)->nullable();
-            $table->decimal('profundidad2_2', 8, 3)->nullable();
-            $table->decimal('diametro1_2', 8, 3)->nullable();
-            $table->decimal('diametro2_2', 8, 3)->nullable();
-            $table->decimal('profundidad1_3', 8, 3)->nullable();
-            $table->decimal('profundidad2_3', 8, 3)->nullable();
-            $table->decimal('diametro1_3', 8, 3)->nullable();
-            $table->decimal('diametro2_3', 8, 3)->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('cavidades_tolerancia')) {
+            Schema::create('cavidades_tolerancia', function (Blueprint $table) {
+                $table->id();
+                $table->string('id_proceso');
+                $table->decimal('profundidad1_1', 8, 3)->nullable();
+                $table->decimal('profundidad2_1', 8, 3)->nullable();
+                $table->decimal('diametro1_1', 8, 3)->nullable();
+                $table->decimal('diametro2_1', 8, 3)->nullable();
+                $table->decimal('profundidad1_2', 8, 3)->nullable();
+                $table->decimal('profundidad2_2', 8, 3)->nullable();
+                $table->decimal('diametro1_2', 8, 3)->nullable();
+                $table->decimal('diametro2_2', 8, 3)->nullable();
+                $table->decimal('profundidad1_3', 8, 3)->nullable();
+                $table->decimal('profundidad2_3', 8, 3)->nullable();
+                $table->decimal('diametro1_3', 8, 3)->nullable();
+                $table->decimal('diametro2_3', 8, 3)->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

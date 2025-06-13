@@ -11,15 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('palomas_cnominal', function (Blueprint $table) {
-            $table->id();
-            $table->string('id_proceso');
-            $table->decimal('anchoPaloma', 8, 3)->nullable();
-            $table->decimal('gruesoPaloma', 8, 3)->nullable();
-            $table->decimal('profundidadPaloma', 8, 3)->nullable();
-            $table->decimal('rebajeLlanta', 8, 3)->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('palomas_cnominal')) {
+            Schema::create('palomas_cnominal', function (Blueprint $table) {
+                $table->id();
+                $table->string('id_proceso');
+                $table->decimal('anchoPaloma', 8, 3)->nullable();
+                $table->decimal('gruesoPaloma', 8, 3)->nullable();
+                $table->decimal('profundidadPaloma', 8, 3)->nullable();
+                $table->decimal('rebajeLlanta', 8, 3)->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

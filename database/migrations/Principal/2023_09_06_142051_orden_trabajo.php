@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('orden_trabajo', function (Blueprint $table) {
-            $table->string('id')->primary();
-            $table->unsignedBigInteger('id_moldura');
-            $table->timestamps();
-            $table->foreign('id_moldura')->references('id')->on('molduras');
-        });
+        if (!Schema::hasTable('orden_trabajo')) {
+            Schema::create('orden_trabajo', function (Blueprint $table) {
+                $table->string('id')->primary();
+                $table->unsignedBigInteger('id_moldura');
+                $table->timestamps();
+                $table->foreign('id_moldura')->references('id')->on('molduras');
+            });
+        }
     }
     /**
      * Reverse the migrations.

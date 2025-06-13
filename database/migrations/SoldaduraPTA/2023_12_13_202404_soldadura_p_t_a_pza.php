@@ -11,23 +11,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('soldaduraPTA_pza', function (Blueprint $table) {
-            $table->id();
-            $table->string('id_pza');
-            $table->unsignedBigInteger('id_meta')->nullable();
-            $table->unsignedBigInteger('id_proceso');
-            $table->integer('estado')->default(0);
-            $table->string('n_juego');
-            $table->decimal('temp_calentado', 8, 3)->nullable();
-            $table->decimal('temp_dispositivo', 8, 3)->nullable();
-            $table->char('limpieza')->nullable();
-            $table->string('error')->nullable();
-            $table->string('observaciones')->nullable();
-            $table->timestamps();
-            $table->foreign('id_meta')->references('id')->on('metas');
-            $table->foreign('id_proceso')->references('id')->on('soldaduraPTA');
-        });
-    } 
+        if (!Schema::hasTable('soldaduraPTA_pza')) {
+            Schema::create('soldaduraPTA_pza', function (Blueprint $table) {
+                $table->id();
+                $table->string('id_pza');
+                $table->unsignedBigInteger('id_meta')->nullable();
+                $table->unsignedBigInteger('id_proceso');
+                $table->integer('estado')->default(0);
+                $table->string('n_juego');
+                $table->decimal('temp_calentado', 8, 3)->nullable();
+                $table->decimal('temp_dispositivo', 8, 3)->nullable();
+                $table->char('limpieza')->nullable();
+                $table->string('error')->nullable();
+                $table->string('observaciones')->nullable();
+                $table->timestamps();
+                $table->foreign('id_meta')->references('id')->on('metas');
+                $table->foreign('id_proceso')->references('id')->on('soldaduraPTA');
+            });
+        }
+    }
 
     /**
      * Reverse the migrations.

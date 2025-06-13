@@ -11,24 +11,26 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('barrenoManiobra_pza', function (Blueprint $table) {
-            $table->id();
-            $table->string('id_pza');
-            $table->unsignedBigInteger('id_meta')->nullable();
-            $table->unsignedBigInteger('id_proceso');
-            $table->integer('correcto')->nullable();
-            $table->integer('estado')->default(0);
-            $table->string('n_juego')->nullable();
-            $table->string('n_pieza')->nullable();
-            $table->decimal('profundidad_barreno', 8, 3)->nullable();
-            $table->decimal('diametro_machuelo', 8, 3)->nullable();
-            $table->string('acetatoBM')->nullable();
-            $table->string('observaciones')->nullable();
-            $table->string('error')->nullable();
-            $table->timestamps();
-            $table->foreign('id_meta')->references('id')->on('metas');
-            $table->foreign('id_proceso')->references('id')->on('barrenoManiobra');
-        });
+        if (!Schema::hasTable('barrenoManiobra_pza')) {
+            Schema::create('barrenoManiobra_pza', function (Blueprint $table) {
+                $table->id();
+                $table->string('id_pza');
+                $table->unsignedBigInteger('id_meta')->nullable();
+                $table->unsignedBigInteger('id_proceso');
+                $table->integer('correcto')->nullable();
+                $table->integer('estado')->default(0);
+                $table->string('n_juego')->nullable();
+                $table->string('n_pieza')->nullable();
+                $table->decimal('profundidad_barreno', 8, 3)->nullable();
+                $table->decimal('diametro_machuelo', 8, 3)->nullable();
+                $table->string('acetatoBM')->nullable();
+                $table->string('observaciones')->nullable();
+                $table->string('error')->nullable();
+                $table->timestamps();
+                $table->foreign('id_meta')->references('id')->on('metas');
+                $table->foreign('id_proceso')->references('id')->on('barrenoManiobra');
+            });
+        }
     }
 
     /**

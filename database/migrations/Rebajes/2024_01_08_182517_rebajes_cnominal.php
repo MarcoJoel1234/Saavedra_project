@@ -11,18 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('rebajes_cnominal', function (Blueprint $table) {
-            $table->id();
-            $table->string('id_proceso');
-            $table->decimal('rebaje1', 8, 3)->nullable();
-            $table->decimal('rebaje2', 8, 3)->nullable();
-            $table->decimal('rebaje3', 8, 3)->nullable();
-            $table->decimal('profundidad_bordonio', 8, 3)->nullable();
-            $table->decimal('vena1', 8, 3)->nullable();
-            $table->decimal('vena2', 8, 3)->nullable();
-            $table->decimal('simetria', 8, 3)->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('rebajes_cnominal')) {
+            Schema::create('rebajes_cnominal', function (Blueprint $table) {
+                $table->id();
+                $table->string('id_proceso');
+                $table->decimal('rebaje1', 8, 3)->nullable();
+                $table->decimal('rebaje2', 8, 3)->nullable();
+                $table->decimal('rebaje3', 8, 3)->nullable();
+                $table->decimal('profundidad_bordonio', 8, 3)->nullable();
+                $table->decimal('vena1', 8, 3)->nullable();
+                $table->decimal('vena2', 8, 3)->nullable();
+                $table->decimal('simetria', 8, 3)->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

@@ -11,15 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('barrenoManiobra_tolerancia', function (Blueprint $table) {
-            $table->id();
-            $table->string('id_proceso');
-            $table->decimal('profundidad_barreno1', 8, 3)->nullable();
-            $table->decimal('profundidad_barreno2', 8, 3)->nullable();
-            $table->decimal('diametro_machuelo1', 8, 3)->nullable();
-            $table->decimal('diametro_machuelo2', 8, 3)->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('barrenoManiobra_tolerancia')) {
+            Schema::create('barrenoManiobra_tolerancia', function (Blueprint $table) {
+                $table->id();
+                $table->string('id_proceso');
+                $table->decimal('profundidad_barreno1', 8, 3)->nullable();
+                $table->decimal('profundidad_barreno2', 8, 3)->nullable();
+                $table->decimal('diametro_machuelo1', 8, 3)->nullable();
+                $table->decimal('diametro_machuelo2', 8, 3)->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

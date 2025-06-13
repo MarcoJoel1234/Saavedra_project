@@ -11,18 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('PySOpeSoldadura', function (Blueprint $table) {
-            $table->id();
-            $table->string('id_proceso')->unique();
-            $table->string('id_ot');
-            $table->unsignedBigInteger('id_clase');
-            $table->integer('operacion');
-            $table->foreign('id_ot')->references('id')->on('orden_trabajo');
-            $table->foreign('id_clase')->references('id')->on('clases');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('PySOpeSoldadura')) {
+            Schema::create('PySOpeSoldadura', function (Blueprint $table) {
+                $table->id();
+                $table->string('id_proceso')->unique();
+                $table->string('id_ot');
+                $table->unsignedBigInteger('id_clase');
+                $table->integer('operacion');
+                $table->foreign('id_ot')->references('id')->on('orden_trabajo');
+                $table->foreign('id_clase')->references('id')->on('clases');
+                $table->timestamps();
+            });
+        }
     }
-    
+
     /**
      * Reverse the migrations.
      */

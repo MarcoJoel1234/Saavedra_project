@@ -11,20 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('revCalificado_cnominal', function (Blueprint $table) {
-            $table->id();
-            $table->string('id_proceso');
-            $table->decimal('diametro_ceja', 8, 3)->nullable();
-            $table->decimal('diametro_sufridera', 8, 3)->nullable();
-            $table->decimal('altura_sufridera')->nullable();
-            $table->decimal('diametro_conexion')->nullable();
-            $table->decimal('altura_conexion')->nullable();
-            $table->decimal('diametro_caja')->nullable();
-            $table->decimal('altura_caja')->nullable();
-            $table->decimal('altura_total')->nullable();
-            $table->decimal('simetria')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('revCalificado_cnominal')) {
+            Schema::create('revCalificado_cnominal', function (Blueprint $table) {
+                $table->id();
+                $table->string('id_proceso');
+                $table->decimal('diametro_ceja', 8, 3)->nullable();
+                $table->decimal('diametro_sufridera', 8, 3)->nullable();
+                $table->decimal('altura_sufridera')->nullable();
+                $table->decimal('diametro_conexion')->nullable();
+                $table->decimal('altura_conexion')->nullable();
+                $table->decimal('diametro_caja')->nullable();
+                $table->decimal('altura_caja')->nullable();
+                $table->decimal('altura_total')->nullable();
+                $table->decimal('simetria')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**
