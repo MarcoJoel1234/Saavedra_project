@@ -220,97 +220,128 @@ header {
 }
 /* RESPONSIVE */
 @media (max-width: 991.98px) {
+    body {
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    .section {
+        height: auto;
+        min-height: 100vh;
+        overflow-y: auto;
+        padding-bottom: 2em;
+    }
+
     .header-section {
-        flex-direction: row;
+        flex-direction: column;
         align-items: center;
     }
+
     .title-div {
         width: 90%;
-        display: inline-block;
         margin: 1em auto;
         padding: 0.5em;
     }
+
     .workOrder-text,
     .pieces-text {
         font-size: 1.5em;
         margin-bottom: 0.2em;
     }
+
     .text-header-class {
         font-size: 1.2em;
+        text-align: center;
     }
+
     .finish-order {
         position: relative;
-        margin-top: auto;
-        top: 20em;
-        left: 0;
-        font-size: 1em;
-        transform: none;
         margin: 1em auto;
+        top: auto;
+        left: auto;
+        transform: none;
+        font-size: 1em;
         padding: 0.8em 2em;
     }
+
     .finish-order:hover {
         padding: 0.9em 2.2em;
         font-size: 1.1em;
         transition: 0.2s;
     }
-    .header-section {
-        flex-direction: column;
-        align-items: center;
-    }
-    .text-header-class {
-        text-align: center;
-    }
+
     .process-title {
         font-size: 1em;
         margin-bottom: 0.2em;
     }
-    .process-section {
-        margin-top: 1em;
-        width: 80%;
-        height: 22%;
+
+    .processes-section {
+        flex-direction: column;
+        width: 90%;
+        height: auto;
         margin: 0.5em auto;
     }
+
+    .process-section {
+        width: 100%;
+        height: auto;
+        padding: 1em;
+        font-size: 1.2em;
+    }
+
+    .process-section {
+        width: 100%;
+        font-size: 0.9em;
+        height: auto;
+        margin: 0.8em 0;
+    }
+
     .progress-bar {
         height: 24px;
     }
+
     .progress-percentage {
         font-size: 1em;
     }
+
     .bad-pieces-table {
         font-size: 1.2em;
+        max-height: 60%;
+        overflow-y: auto;
+        display: block;
     }
+
     .good-progress {
-        background: linear-gradient(
-            to right,
-            #9ff390,
-            #0a8504
-        ); /* verde claro a fuerte */
+        background: linear-gradient(to right, #9ff390, #0a8504);
     }
+
     .bad-progress {
-        background: linear-gradient(
-            to right,
-            #f38080,
-            #9c0303
-        ); /* rojo claro a fuerte */
+        background: linear-gradient(to right, #f38080, #9c0303);
     }
+
     .modal {
         width: 90%;
         height: 80%;
         top: 5%;
         padding: 1.2em;
+        overflow-y: auto;
     }
+
     .modal-close {
         width: 1.5em;
         height: 2em;
         font-size: 1.2em;
     }
+
     .modal-title {
         font-size: 1em;
         margin-bottom: 1em;
     }
+
     .bad-pieces-table th,
     .bad-pieces-table td {
         padding: 0.3em;
         font-size: 0.8em;
     }
 }
+
