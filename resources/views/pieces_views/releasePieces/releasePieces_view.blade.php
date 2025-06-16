@@ -22,13 +22,13 @@
         </select>
         <label for="title" class="label-select">Orden de trabajo</label>
     </div>
+    <script>
+        window.arregloOT = @json($arregloOT);
+    </script>
     @else
     <div class="select-container">
         <label for="title" class="label-select">Sin ordenes de trabajo registradas</label>
     </div>
     @endisset
 </form>
-<script>
-    window.arregloOT = @json($arregloOT);
-</script>
 @endsection
