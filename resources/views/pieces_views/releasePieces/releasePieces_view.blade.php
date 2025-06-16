@@ -5,7 +5,7 @@
 @vite(['resources/css/pieces_views/releasePieces/releasePieces_view.css', 'resources/js/pieces_views/releasePieces/releasePieces_view.js'])
 @endsection
 
-@section('background-body', '/images/fondoLogin.jpg') <!--Body background Image-->
+@section('background-body', 'images/fondoLogin.jpg') <!--Body background Image-->
 @section('content')
 <form action="{{route('piecesRelease')}}" method="post" class="wrapper">
     @csrf
