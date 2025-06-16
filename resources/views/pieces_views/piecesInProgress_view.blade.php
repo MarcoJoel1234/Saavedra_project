@@ -5,7 +5,7 @@
 @vite(['resources/css/pieces_views/piecesInProgress_view.css', 'resources/js/pieces_views/piecesInProgress_view.js'])
 @endsection
 
-@section('background-body', '/images/fondoLogin.jpg')
+@section('background-body', 'images/fondoLogin.jpg')
 
 @section('content')
 <script>
