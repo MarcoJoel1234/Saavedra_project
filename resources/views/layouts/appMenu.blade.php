@@ -9,7 +9,7 @@
     @yield('head')
 </head>
 
-<body background=@yield('background-body')>
+<body style="@yield('background-body')">
     <header>
         @auth
         <!--Menu-->

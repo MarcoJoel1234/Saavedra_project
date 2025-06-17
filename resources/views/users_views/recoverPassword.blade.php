@@ -5,7 +5,7 @@
 @vite('resources/css/users_views/recoverPassword.css')
 @endsection
 
-@section('background-body', '../images/fondoLogin.jpg')
+@section('background-body', 'background-image:url("' . asset("images/fondoLogin.jpg") . '")')
 
 @section('content')
 <div class="wrapper">

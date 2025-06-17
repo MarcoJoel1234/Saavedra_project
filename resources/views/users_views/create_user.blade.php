@@ -4,7 +4,7 @@
 @vite(['resources/css/users_views/createUser.css'])
 @endsection
 
-@section('background-body', '../images/fondoLogin.jpg')
+@section('background-body', 'background-image:url("' . asset("images/fondoLogin.jpg") . '")')
 
 @section('content')
 <div class="container py-4">

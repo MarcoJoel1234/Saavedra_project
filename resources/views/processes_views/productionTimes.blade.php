@@ -6,7 +6,7 @@
 @vite(['resources/css/processes_views/productionTimes.css', 'resources/js/processes_views/productionTimes.js'])
 @endsection
 
-@section('background-body', 'images/fondoLogin.jpg')
+@section('background-body', 'background-image:url("' . asset("images/fondoLogin.jpg") . '")')
 @section('content')
 
 <!--Sección de busqueda-->

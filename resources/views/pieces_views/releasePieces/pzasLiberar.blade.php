@@ -2,10 +2,15 @@
 
 @section('head')
 <title>Liberación de piezas</title>
+<script>
+    window.liberar = "{{ asset('images/Liberar.png') }}"
+    window.rechazar = "{{ asset('images/Rechazar.png') }}"
+    window.ojito = "{{ asset('images/ojito.png') }}"
+</script>
 @vite(['resources/js/pieces_views/releasePieces/releasePieces.js', 'resources/css/pieces_views/piecesReport/adminPieces.css'])
 @endsection
 
-@section('background-body', '/images/fondoLogin.jpg') <!--Body background Image-->
+@section('background-body', 'background-image:url("' . asset("images/fondoLogin.jpg") . '")') <!--Body background Image-->
 
 @section('content')
 @if(!isset($otElegida))

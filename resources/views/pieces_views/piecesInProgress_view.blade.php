@@ -2,10 +2,13 @@
 
 @section('head')
 <title>Progreso de piezas</title>
+<script>
+    window.cerrarImgUrl = "{{ asset('images/cerrar.png') }}";
+</script>
 @vite(['resources/css/pieces_views/piecesInProgress_view.css', 'resources/js/pieces_views/piecesInProgress_view.js'])
 @endsection
 
-@section('background-body', 'images/fondoLogin.jpg')
+@section('background-body', 'background-image:url("' . asset("images/fondoLogin.jpg") . '")')
 
 @section('content')
 <script>

@@ -5,7 +5,7 @@
 <!--Styles-->
 @vite('resources/css/home.css')
 @endsection
-@section('background-body', asset($backgroundImage))
+@section('background-body', 'background-image:url("' . asset($backgroundImage) . '")')
 @section('content')
 <!-- Main content -->
 <div class="filter-blur"></div>

@@ -5,7 +5,7 @@
 @vite(['resources/css/barreno.css', 'resources/js/editarInterfaz.js', 'resources/js/editarTabla.js'])
 @endsection
 
-@section('background-body', '/images/hola.jpg') <!--Body background Image-->
+@section('background-body', 'background-image:url("' . asset("images/hola.jpg") . '")') <!--Body background Image-->
 @section('content')
 
 @if (isset($band) && $band == 1 || isset($band) && $band == 2 || isset($band) && $band == 4)

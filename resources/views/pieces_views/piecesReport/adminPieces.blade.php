@@ -4,8 +4,12 @@
 <title>Reporte de piezas</title>
 @vite(['resources/css/pieces_views/piecesReport/adminPieces.css', 'resources/js/pieces_views/piecesReport/adminPieces.js'])
 @endsection
-
-@section('background-body', '/images/fondoLogin.jpg') <!--Body background Image-->
+<script>
+    window.liberar = "{{ asset('images/Liberar.png') }}"
+    window.rechazar = "{{ asset('images/Rechazar.png') }}"
+    window.ojito = "{{ asset('images/ojito.png') }}"
+</script>
+@section('background-body', 'background-image:url("' . asset("images/fondoLogin.jpg") . '")') <!--Body background Image-->
 @section('content')
 
 @if(!isset($workOrder))

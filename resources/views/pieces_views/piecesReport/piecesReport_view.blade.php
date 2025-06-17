@@ -5,7 +5,7 @@
 @vite(['resources/css/pieces_views/piecesReport/piecesReport_view.css', 'resources/js/pieces_views/piecesReport/piecesReport_view.js'])
 @endsection
 
-@section('background-body', 'images/fondoLogin.jpg') <!--Body background Image-->
+@section('background-body', 'background-image:url("' . asset("images/fondoLogin.jpg") . '")') <!--Body background Image-->
 @section('content')
 
 <div class="wrapper">

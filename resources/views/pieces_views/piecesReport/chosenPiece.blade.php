@@ -5,7 +5,7 @@
 @vite('resources/css/pieces_views/piecesReport/chosenPiece.css')
 @endsection
 
-@section('background-body', '/images/fondoLogin.jpg') <!--Body background Image-->
+@section('background-body', 'background-image:url("' . asset("images/fondoLogin.jpg") . '")') <!--Body background Image-->
 @section('content')
 <script>
     class Proceso {

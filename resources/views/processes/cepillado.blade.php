@@ -5,7 +5,7 @@
 @vite(['resources/css/cepillado.css', 'resources/js/editarInterfaz.js', 'resources/js/editarTabla.js'])
 @endsection
 
-@section('background-body', '/images/hola.jpg') <!--Body background Image-->
+@section('background-body', 'background-image:url("' . asset("images/hola.jpg") . '")') <!--Body background Image-->
 @section('content')
 
 <!--Si ya se ha registrado la primera parte de la meta-->

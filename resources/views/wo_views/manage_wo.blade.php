@@ -5,7 +5,7 @@
 @vite(['resources/css/wo_views/manage_wo.css', 'resources/js/wo_views/manage_wo.js'])
 @endsection
 
-@section('background-body', 'images/fondoLogin.jpg')
+@section('background-body', 'background-image:url("' . asset("images/fondoLogin.jpg") . '")')
 
 @section('content')
 <!--Formulario para seleccionar o crear una orden de trabajo-->

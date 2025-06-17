@@ -1037,9 +1037,10 @@ function mostrarDiv(route) {
         ? "¿Estás seguro de eliminar la clase?"
         : "¿Estás seguro de eliminar la orden de trabajo?";
 
+    
     let image = document.createElement("img");
     image.className = "img-delete";
-    image.src = "/images/delete.png";
+    image.src = window.deleteImgUrl;
 
     let div_cerrar = document.createElement("div");
     div_cerrar.className = "div-cerrar";
@@ -1050,7 +1051,7 @@ function mostrarDiv(route) {
     });
     let imageCerrar = document.createElement("img");
     imageCerrar.className = "img-cerrar";
-    imageCerrar.src = "/images/cerrar.png";
+    imageCerrar.src = window.cerrarImgUrl;
     btn_cerrar.appendChild(imageCerrar);
     div_cerrar.appendChild(btn_cerrar);
 

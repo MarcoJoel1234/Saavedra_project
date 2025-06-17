@@ -6,7 +6,7 @@
 @vite(['resources/css/processes_views/cNominals_view.css', 'resources/js/processes_views/cNominals_view.js'])
 @endsection
 
-@section('background-body', 'images/fondoLogin.jpg')
+@section('background-body', 'background-image:url("' . asset("images/fondoLogin.jpg") . '")')
 @section('content')
 <form action="{{ route('storeCNominals') }}" method="post" class="form-search">
     <div class="wrapper">

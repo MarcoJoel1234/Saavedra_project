@@ -163,7 +163,7 @@ class Dashboard {
 
         let imageClose = document.createElement("img");
         imageClose.className = "img-close";
-        imageClose.src = "/images/cerrar.png";
+        imageClose.src = window.cerrarImgUrl;
         modalClose.appendChild(imageClose);
 
         modalClose.addEventListener("click", function () {

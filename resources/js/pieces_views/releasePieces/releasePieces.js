@@ -189,7 +189,7 @@ function crearBotonLiberar(infoPiezas, i, piezas) {
     a.href = url;
 
     const image = document.createElement("img");
-    image.src = "/images/Liberar.png";
+    image.src = window.liberar;
     image.alt = "Liberar";
     image.className = "ver";
     a.appendChild(image);
@@ -204,7 +204,7 @@ function crearBotonRechazar(infoPiezas, i) {
     a.href = url;
 
     const image = document.createElement("img");
-    image.src = "/images/Rechazar.png";
+    image.src = window.rechazar;
     image.alt = "Rechazar";
     image.className = "ver";
     a.appendChild(image);
@@ -223,7 +223,7 @@ function crearBotonVer(infoPiezas, i, usuarios) {
     a.href = url;
 
     const image = document.createElement("img");
-    image.src = "/images/ojito.png";
+    image.src = window.ojito;
     image.alt = "Ver";
     image.className = "ver";
     a.appendChild(image);

@@ -2,11 +2,16 @@
 
 @section('head')
 <title>Orden de trabajo</title>
+<script>
+    //Rutas de imagenes
+    window.deleteImgUrl = "{{ asset('images/delete.png') }}";
+    window.cerrarImgUrl = "{{ asset('images/cerrar.png') }}";
+</script>
 @vite(['resources/css/wo_views/show_wo.css', 'resources/js/wo_views/show_wo.js'])
 @endsection
 
 @section('content')
-@section('background-body', '../images/fondoLogin.jpg' )
+@section('background-body', 'background-image:url("' . asset("images/fondoLogin.jpg") . '")')
 
 <form action="{{ route('saveClass') }}" method="POST" id="form" class="container-form pt-3">
     @csrf
