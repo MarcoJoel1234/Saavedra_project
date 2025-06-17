@@ -183,9 +183,7 @@ function crearBotonLiberar(infoPiezas, i, piezas) {
     } else {
         bool = false;
     }
-    let url = `/piezasLiberar/${infoPiezas[i][0]}/${
-        infoPiezas[i][1]
-    }/${true}/${bool}/${obtenerRequest()}`;
+    let url = `${window.baseUrl}/piezasLiberar/${infoPiezas[i][0]}/${infoPiezas[i][1]}/${true}/${bool}/${obtenerRequest()}`;
     a.href = url;
 
     const image = document.createElement("img");
@@ -198,9 +196,7 @@ function crearBotonLiberar(infoPiezas, i, piezas) {
 function crearBotonRechazar(infoPiezas, i) {
     const a = document.createElement("a");
     a.className = "btn-liberar";
-    let url = `/piezasLiberar/${infoPiezas[i][0]}/${
-        infoPiezas[i][1]
-    }/${false}/${false}/${obtenerRequest()}`;
+    let url = `${window.baseUrl}/piezasLiberar/${infoPiezas[i][0]}/${infoPiezas[i][1]}/${false}/${false}/${obtenerRequest()}`;
     a.href = url;
 
     const image = document.createElement("img");
@@ -219,7 +215,7 @@ function crearBotonVer(infoPiezas, i, usuarios) {
         nPiezas.push(infoPiezas[i][0][j]);
     }
     //INFORMACIÓN DE LAS PIEZAS O PIEZA
-    let url = `/pieces/${nPiezas}/${infoPiezas[i][1]}/quality`;
+    let url = `${window.baseUrl}/pieces/${nPiezas}/${infoPiezas[i][1]}/quality`;
     a.href = url;
 
     const image = document.createElement("img");

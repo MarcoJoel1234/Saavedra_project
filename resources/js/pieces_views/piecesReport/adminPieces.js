@@ -131,18 +131,14 @@ function crearFecha(fecha) {
 function crearBotonLiberar(infoPiezas, i, piezas) {
     const a = document.createElement("a");
     a.className = "btn-liberar";
-    let url =
-        "{{ route('liberar_rechazar', ['pieza' => ':pieza', 'proceso' => ':proceso', 'liberar' => ':liberar', 'buena' => ':buena', 'request' => ':request']) }}";
-    url = url.replace(":pieza", infoPiezas[i][0]);
-    url = url.replace(":proceso", infoPiezas[i][1]);
-    url = url.replace(":liberar", true);
-    url = url.replace(":request", this.obtenerRequest());
 
+    let boolean;
     if (infoPiezas[i][2] == "Ninguno" && piezas[i][piezas[i].length - 2] != 2) {
-        url = url.replace(":buena", true);
+        boolean = true;
     } else {
-        url = url.replace(":buena", false);
+        boolean = false;
     }
+    let url = `${window.baseUrl}/piezasLiberar/${infoPiezas[i][0]}/${infoPiezas[i][1]}/${true}/${boolean}/${this.obtenerRequest()}`;
     a.href = url;
 
     const image = document.createElement("img");
@@ -155,13 +151,10 @@ function crearBotonLiberar(infoPiezas, i, piezas) {
 function crearBotonRechazar(infoPiezas, i) {
     const a = document.createElement("a");
     a.className = "btn-liberar";
-    let url =
-        "{{ route('liberar_rechazar', ['pieza' => ':pieza', 'proceso' => ':proceso', 'liberar' => ':liberar', 'buena' => ':buena', 'request' => ':request']) }}";
-    url = url.replace(":pieza", infoPiezas[i][0]);
-    url = url.replace(":proceso", infoPiezas[i][1]);
-    url = url.replace(":liberar", false);
-    url = url.replace(":buena", false);
-    url = url.replace(":request", this.obtenerRequest());
+
+    let url = `${window.baseUrl}/piezasLiberar/${infoPiezas[i][0]}/${infoPiezas[i][1]}/${false}/${false}/${this.obtenerRequest()}`;
+
+
     a.href = url;
 
     const image = document.createElement("img");
@@ -179,7 +172,7 @@ function crearBotonVer(infoPiezas, i, usuarios) {
     for (let j = 0; j < infoPiezas[i][0].length; j++) {
         nPiezas.push(infoPiezas[i][0][j]);
     }
-    let url = `/pieces/${nPiezas}/${infoPiezas[i][1]}/${document.getElementsByName("profile")[0].value}`;
+    let url = `${window.baseUrl}/pieces/${nPiezas}/${infoPiezas[i][1]}/${document.getElementsByName("profile")[0].value}`;
     a.href = url;
 
     console.log(url);
@@ -207,7 +200,7 @@ function obtenerRequest() {
     }
     return request;
 }
-if(pieces.length > 0){
+if (pieces.length > 0) {
     crearTabla(pieces, piecesData);
 }
 const pdf = document.getElementById("pdf");
