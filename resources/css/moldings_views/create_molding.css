@@ -72,11 +72,11 @@ h2 {
 @media (max-width: 991.98px) {
     /* PARA TODOS LOS ESTILOS */
     body {
-        overflow-y: auto;
+        overflow-y: hidden;
     }
 
     h2 {
-        font-size: 1.4em;
+        font-size: 1.2em;
         margin: 0.5em;
         text-align: center;
     }
