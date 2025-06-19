@@ -91,8 +91,13 @@ class BarrenoManiobraController extends Controller
         $id_proceso = BarrenoManiobra::where('id_proceso', $id)->first();
         $pzasBarrenoM = BarrenoManiobra_pza::where('id_proceso', $id_proceso->id)->where('estado', 2)->get();
         $id_procesoPOpe = PrimeraOpeSoldadura::where('id_proceso', 'Primera_Operacion_' . $clase->nombre . '_' . $clase->id_ot)->first();
-        $pzasPrimeraOpe = PrimeraOpeSoldadura_pza::where('id_proceso', $id_procesoPOpe->id)->where('estado', 2)->get();
-        $pzasRestantes = $this->piezasRestantes($clase, $pzasBarrenoM, $pzasPrimeraOpe);
+        if($id_procesoPOpe){
+            $pzasPrimeraOpe = PrimeraOpeSoldadura_pza::where('id_proceso', $id_procesoPOpe->id)->where('estado', 2)->get();
+            $pzasRestantes = $this->piezasRestantes($clase, $pzasBarrenoM, $pzasPrimeraOpe);
+        }else{
+            $pzasRestantes = 0;
+        }
+
         if (isset($request->n_pieza)) {  //Si se obtienen los datos de las piezas, se guardan en la tabla Barreno_maniobra_cnominal.
             $id_pieza = $request->n_pieza . $id_proceso->id; //Creación de id para tabla Barreno_maniobra_cnominal.
             $piezaExistente = BarrenoManiobra_pza::where('id_pza', $id_pieza)->first();
