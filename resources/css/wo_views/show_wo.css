@@ -525,7 +525,7 @@ label {
         bottom: auto;
         left: auto;
         transform: none;
-        margin-top: 113em;
+        margin-top: 114em;
         display: flex;
         left: 50%;
         transform: translate(-50%);
@@ -610,4 +610,26 @@ label {
         border: none;
         transition: 0.2s;
     }
+    .div-delete{
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 80%;
+        height: 30%;
+        margin-top: 60%;
+        margin-left:10%;
+        background-color: #ffffff;
+        z-index: 1000;
+    }
+    .div-opacity{
+        background: none;
+    }
+    .img-cerrar{
+        margin-left: 500%;
+    }
+    .btn-cerrar:hover {
+    all: unset;
+    cursor: default;
+}
+
 }
