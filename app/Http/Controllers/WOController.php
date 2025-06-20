@@ -1402,7 +1402,7 @@ class WOController extends Controller
         $clase = Clase::where('id_ot', $ot->id)->where('nombre', $reqClase)->first(); //Busco la clase.
         $meta->id_clase = $clase->id;
 
-        $tiempo = tiempoproduccion::where('clase', $clase->nombre)->where('tamanio', $clase->tamanio)->where('proceso', $proceso)->first();
+        $tiempo = tiempoproduccion::where('id_clase', $clase->id)->where('proceso', $proceso)->first();
         $meta->t_estandar = $tiempo->tiempo ?? 0;
         $meta->meta = $this->calcularMeta($meta->t_estandar, $hrsTrabajadas) ?? 0; //Se calcula la meta.
 

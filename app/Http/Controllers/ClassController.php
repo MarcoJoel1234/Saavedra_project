@@ -318,8 +318,8 @@ class ClassController extends Controller
             }
             $dateAux = new DateTime($date->format('Y-m-d H:i:s'));
             //Se calcula cuanto tiempo se tarda en generar una pieza para calcular el tiempo de retraso entre el proceso
-            $piecesProcesses = ["cepillado", "desbaste", "revLaterales", "primeraOpeSoldadura", "barrenoManiobra", "segundaOpeSoldadura", "soldadura", "soldaduraPTA", "rectificado", "asentado", "revCalificado", "acabadoBombillo", "acabadoMolde", "barrenoProfundidad", "cavidades", "copiado", "offset", "palomas", "rebajes"];
-            $delayTime = tiempoproduccion::where('clase', $class->nombre)->where('proceso', $piecesProcesses[$i - $counter])->where('tamanio', $class->tamanio)->first();
+            $piecesProcesses = ["cepillado", "desbaste", "revLaterales", "primeraOpeSoldadura", "barrenoManiobra", "segundaOpeSoldadura", "soldadura", "soldaduraPTA", "rectificado", "asentado", "revCalificado", "acabadoBombillo", "acabadoMolde", "barrenoProfundidad", "cavidades", "copiado", "offset", "palomas", "rebajes", "operacionEquipo", "embudoCM"];
+            $delayTime = tiempoproduccion::where('id_clase', $class->id)->where('proceso', $piecesProcesses[$i - $counter])->first();
             if ($delayTime) {
                 //Agregar el factor de seguridad
                 $safetyFactor = $delayTime->tiempo * .08;
@@ -453,10 +453,32 @@ class ClassController extends Controller
     }
     public function pieces_machShift($i, $clase)
     {
-        $procesos = ["cepillado", "desbaste", "revLaterales", "primeraOpeSoldadura", "barrenoManiobra", "segundaOpeSoldadura", "soldadura", "soldaduraPTA", "rectificado", "asentado", "revCalificado", "acabadoBombillo", "acabadoMolde", "barrenoProfundidad", "cavidades", "copiado", "offset", "palomas", "rebajes"];
+
+        switch($clase->nombre) {
+            case "Bombillo":
+            case "Molde":
+                $procesos = ["cepillado", "desbaste", "revLaterales", "primeraOpeSoldadura", "barrenoManiobra", "segundaOpeSoldadura", "soldadura", "soldaduraPTA", "rectificado", "asentado", "revCalificado", "acabadoBombillo", "acabadoMolde", "barrenoProfundidad", "cavidades", "copiado", "offSet", "palomas", "rebajes"];
+                break;
+            case "Fondo":
+            case "Obturador":
+                $procesos = ["operacionEquipo", "soldadura", "soldaduraPTA"];
+                break;
+            case "Corona":
+                $procesos = ["cepillado", "desbaste"];
+                break;
+            case "Plato":
+                $procesos = ["operacionEquipo", "barreno_profundidad"];
+                break;
+            case "Embudo":
+                $procesos = ["operacionEquipo", "embudoCM"];
+                break;
+            default:
+                $procesos = [];
+                break;
+        }
 
         $juegos = 0;
-        $t_estandar = tiempoproduccion::where('clase', $clase->nombre)->where('proceso', $procesos[$i])->where('tamanio', $clase->tamanio)->first();
+        $t_estandar = tiempoproduccion::where('id_clase', $clase->id)->where('proceso', $procesos[$i])->first();
         if ($t_estandar && $t_estandar->tiempo != 0) {
             $juegos = 420 / $t_estandar->tiempo;
             $juegos = floor($juegos * 10) / 10;
@@ -481,7 +503,7 @@ class ClassController extends Controller
         $class = Clase::where('id_ot', $workOrder->id)->where('nombre', $className)->first(); //Busco la clase.
         $goal->id_clase = $class->id;
 
-        $time = tiempoproduccion::where('clase', $class->nombre)->where('tamanio', $class->tamanio)->where('proceso', $process)->first();
+        $time = tiempoproduccion::where('id_clase', $class->id)->where('proceso', $process)->first();
         $goal->t_estandar = $time->tiempo ?? 0;
         $goal->meta = $this->calculateGoal($goal->t_estandar, $hrsWorked) ?? 0; //Se calcula la meta.
 

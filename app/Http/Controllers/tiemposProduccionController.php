@@ -3,74 +3,84 @@
 namespace App\Http\Controllers;
 
 use App\Models\Clase;
-use App\Models\Fecha_proceso;
+use App\Models\Moldura;
+use App\Models\Orden_trabajo;
 use App\Models\Procesos;
 use App\Models\tiempoproduccion;
 use Illuminate\Http\Request;
+use PhpParser\Node\Stmt\Break_;
 
 class tiemposProduccionController extends Controller
 {
     protected $controladorPzas;
-    protected $controllerClass;
+    protected $classController;
     public function __construct()
     {
         $this->controladorPzas = new PzasLiberadasController();
-        $this->controllerClass = new ClassController();
+        $this->classController = new ClassController();
         $this->middleware('auth');
     }
     public function show($clase = false)
     {
-        $tiempos = [];
-        $tiemposProduccion = tiempoproduccion::whereIn('clase', ['Bombillo', 'Molde'])->get();
-        if ($tiemposProduccion->count() > 0) {
-            foreach ($tiemposProduccion as $tiempo) {
-                $tiempos[$tiempo->clase][$tiempo->proceso][$tiempo->tamanio] = $tiempos[$tiempo->clase][$tiempo->proceso][$tiempo->tamanio] ?? [];
-                foreach ($tiempo->toArray() as $columna => $valor) {
-                    if ($columna == 'clase' || $columna == 'proceso' || $columna == 'tamanio' || $columna == 'created_at' || $columna == 'updated_at') {
-                        continue;
+
+        $wOrdersFounded = Orden_trabajo::all();
+        $workOrders = array();
+        if (count($wOrdersFounded) > 0) {
+            foreach ($wOrdersFounded as $workOrder) {
+                $classes = $this->classController->getClasses($workOrder);
+                if (count($classes) > 0) {
+                    $workOrders[$workOrder->id] = array();
+                    foreach ($classes as $class) {
+                        $workOrders[$workOrder->id][$class->nombre] = array();
+                        $tiemposProduccion = tiempoproduccion::where('id_clase', $class->id)->get();
+                        if ($tiemposProduccion->count() > 0) {
+                            foreach ($tiemposProduccion as $tiempo) {
+                                // Inicializar el array si no existe
+                                $workOrders[$workOrder->id][$class->nombre][$tiempo->proceso] = $workOrders[$workOrder->id][$class->nombre][$tiempo->proceso] ?? [];
+                                // Inicializar el array de tiempos si no existe
+                                foreach ($tiempo->toArray() as $columna => $valor) {
+                                    if ($columna == 'id_clase' || $columna == 'clase' || $columna == 'proceso' || $columna == 'tamanio' || $columna == 'created_at' || $columna == 'updated_at') {
+                                        continue;
+                                    }
+                                    $workOrders[$workOrder->id][$class->nombre][$tiempo->proceso][$columna] = $valor;
+                                }
+                            }
+                        } else {
+                            $workOrders[$workOrder->id][$class->nombre] = null;
+                        }
                     }
-                    $tiempos[$tiempo->clase][$tiempo->proceso][$tiempo->tamanio][$columna] = $valor;
                 }
             }
-        } else {
-            $tiempos = null;
         }
+
         if ($clase) {
-            return view('processes_views.productionTimes', compact('tiempos', 'clase'));
+            return view('processes_views.productionTimes', compact('workOrders', 'clase'));
         }
-        return view('processes_views.productionTimes', compact('tiempos'));
+        return view('processes_views.productionTimes', compact('workOrders'));
     }
     public function store(Request $request)
     {
         foreach ($request->all() as $key => $value) {
-            if ($key == '_token' || $key == "clase") {
+            if ($key == '_token' || $key == "class" || $key == "workOrder") {
                 continue;
             }
-            $tamanios = ['Chico', 'Mediano', 'Grande'];
-            foreach ($value as $k => $v) {
-                $tiempo = tiempoproduccion::where('clase', $request->input('clase'))->where('tamanio', $tamanios[$k])->where('proceso', $key)->first();
-                if ($tiempo) {
-                    if ($v == null) {
-                        $v = 0;
-                    } else {
-                        $tiempo->tiempo = $v;
-                    }
-                    $tiempo->save();
-                } else {
-                    $tiempo = new tiempoproduccion();
-                    $tiempo->clase = $request->input('clase');
-                    $tiempo->tamanio = $tamanios[$k];
-                    $tiempo->proceso = $key;
-                    if ($v == null) {
-                        $v = 0;
-                    } else {
-                        $tiempo->tiempo = $v;
-                    }
-                    $tiempo->save();
-                }
+            $class = Clase::where('nombre', $request->input('class'))->where("id_ot", $request->input('workOrder'))->first();
+            $tiempo = tiempoproduccion::where('id_clase', $class->id)->where('proceso', $key)->first();
+            if ($tiempo) {
+                $tiempo->tamanio = "DISABLED";
+                $tiempo->tiempo = $value;
+                $tiempo->save();
+            } else {
+                $tiempo = new tiempoproduccion();
+                $tiempo->id_clase = $class->id;
+                $tiempo->clase = $request->input('class');
+                $tiempo->tamanio = "DISABLED";
+                $tiempo->proceso = $key;
+                $tiempo->tiempo = $value;
+                $tiempo->save();
             }
         }
-        $clase = $request->input('clase');
+        $clase = $request->input('class');
 
 
         //Actualizar todas las Clases
@@ -90,7 +100,6 @@ class tiemposProduccionController extends Controller
                 }
             }
         }
-        // die();
     }
     public function guardarClasesInArray()
     {
@@ -124,6 +133,16 @@ class tiemposProduccionController extends Controller
             case "Bombillo":
             case "Molde":
                 return array("cepillado", "desbaste_exterior", "revision_laterales", "pOperacion", "barreno_maniobra", "sOperacion", "soldadura", "soldaduraPTA", "rectificado", "asentado", "calificado", "acabadoBombillo", "acabadoMolde", "barreno_profundidad", "cavidades", "copiado", "offSet", "palomas", "rebajes");
+            case "Obturador":
+            case "Fondo":
+                return array("operacionEquipo", "soldadura", "soldaduraPTA");
+                break;
+            case "Corona":
+                return array("cepillado", "desbaste_exterior");
+            case "Plato":
+                return array("operacionEquipo", "barreno_profundidad", "soldaduraPTA");
+            case "Embudo":
+                return array("operacionEquipo", "embudoCM");
             default:
                 return;
         }
@@ -150,12 +169,10 @@ class tiemposProduccionController extends Controller
             $pos = array_search($procesos[$i], $clase[1]);
             if ($pos !== false) {
                 $maquinas = $this->obtenerMaquinasClase($clase[0]->id, $clase[1][$pos]);
-                // echo "Proceso nombre:" . $procesos[$i] . "<br>";
-                $procesoFechas = $this->controllerClass->registerProcessDates($clase[0], $procesos, $i, $noProceso, $maquinas);
+                $procesoFechas = $this->classController->registerProcessDates($clase[0], $procesos, $i, $noProceso, $maquinas);
                 $noProceso++;
             }
         }
-        echo "<br>" . "<br>";
 
         //Guardar unicamente la fecha de termino
         $clase = Clase::find($clase[0]->id);
