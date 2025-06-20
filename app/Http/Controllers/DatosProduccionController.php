@@ -154,8 +154,12 @@ class DatosProduccionController extends Controller
                     $operadores[$operadorName][$fecha]["Piezas malas"] += $cantidad;
                 }
             }
-            $operadores[$operadorName][$fecha]["Productividad"] = ($operadores[$operadorName][$fecha]["Piezas buenas"] / $operadores[$operadorName][$fecha]["meta"]) * 100;
-            $operadores[$operadorName][$fecha]["Productividad"] = round($operadores[$operadorName][$fecha]["Productividad"], 2);
+            if ($operadores[$operadorName][$fecha]["meta"] != 0) {
+                $operadores[$operadorName][$fecha]["Productividad"] = ($operadores[$operadorName][$fecha]["Piezas buenas"] / $operadores[$operadorName][$fecha]["meta"]) * 100;
+                $operadores[$operadorName][$fecha]["Productividad"] = round($operadores[$operadorName][$fecha]["Productividad"], 2);
+            } else {
+                $operadores[$operadorName][$fecha]["Productividad"] = 0;
+            }
         }
         // Imprimir los datos del arreglo
         // foreach ($operadores as $operador => $fechas) {
