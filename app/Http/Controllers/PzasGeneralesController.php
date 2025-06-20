@@ -409,7 +409,7 @@ class PzasGeneralesController extends Controller
                 case 'Primera Operacion Soldadura':
                     $id_proceso = 'Primera_Operacion_' . $clase . "_" . $pieza[0];
                     $id_proceso = PrimeraOpeSoldadura::where('id_proceso', $id_proceso)->first();
-                    $infoPiezas[$contador][1] = 'Primera Operacion';
+                    $infoPiezas[$contador][1] = 'Primera Operacion Soldadura';
                     break;
                 case 'Barreno Maniobra':
                     $id_proceso = 'Barreno_Maniobra_' . $clase . "_" . $pieza[0];
@@ -419,7 +419,7 @@ class PzasGeneralesController extends Controller
                 case 'Segunda Operacion Soldadura':
                     $id_proceso = 'Segunda_Operacion_' . $clase . "_" . $pieza[0];
                     $id_proceso = SegundaOpeSoldadura::where('id_proceso', $id_proceso)->first();
-                    $infoPiezas[$contador][1] = 'Segunda Operacion';
+                    $infoPiezas[$contador][1] = 'Segunda Operacion Soldadura';
                     break;
                 case 'Soldadura':
                     $id_proceso = 'Soldadura_' . $clase . "_" . $pieza[0];
@@ -570,7 +570,7 @@ class PzasGeneralesController extends Controller
                 $id_process = PrimeraOpeSoldadura::find($pieceInfo[0]->id_proceso);
                 $cNominal = PrimeraOpeSoldadura_cnominal::where('id_proceso', $id_process->id_proceso)->first()->toArray();
                 $tolerance = PrimeraOpeSoldadura_tolerancia::where('id_proceso', $id_process->id_proceso)->first()->toArray();
-                $process = 'Primera Operacion';
+                $process = 'Primera Operacion Soldadura';
                 break;
             case 'Barreno Maniobra':
                 //Obtener informacion de la pieza elegida
@@ -596,7 +596,7 @@ class PzasGeneralesController extends Controller
                 $id_process = SegundaOpeSoldadura::find($pieceInfo[0]->id_proceso);
                 $cNominal = SegundaOpeSoldadura_cnominal::where('id_proceso', $id_process->id_proceso)->first()->toArray();
                 $tolerance = SegundaOpeSoldadura_tolerancia::where('id_proceso', $id_process->id_proceso)->first()->toArray();
-                $process = 'Segunda Operacion';
+                $process = 'Segunda Operacion Soldadura';
                 break;
             case 'Soldadura':
                 //Obtener informacion de la pieza elegida

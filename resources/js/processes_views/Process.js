@@ -107,6 +107,7 @@ export class Process {
         let divisionsTole = [];
         let fields = [];
         let values = [];
+        console.log(this.nameProcess);
         switch (this.nameProcess) {
             case "Cepillado":
                 this.tableTitles = ["", "Radio final de mordaza", "Radio final mayor", "Radio final de sufridera", "Profundidad final conexión Fondo/Corona", "Profundidad final mitad de Molde/Bombillo", "Profundidad final Pico/Conexión de obturador", "Ensamble", "Distancia de barreno de alineación", "Profundidad de barreno de alineación Hembra", "Profundidad de barreno de alineación Macho", "Altura de vena Hembra", "Altura de vena Macho", "Ancho de vena", "Laterales", "PIN"];
@@ -135,8 +136,8 @@ export class Process {
                 fields = [ "id", "desfasamiento_entrada", "desfasamiento_salida", "ancho_simetriaEntrada", "ancho_simetriaSalida", "angulo_corte"];
                 break;
 
-            case "Primera Operacion": //Proceso de primera operacion
-                this.tableTitles = [ "", "Diametro 1", "Profundidad 1 ", "Diametro 2", "Profundidad 2", "Diametro 3", "Profunfidad 3", "Diametro de soldadura", "Profundidad de soldadura", "Diametro de    barreno", "Simetria línea de partida", "Perno de alineación", "Simetría a 90°"];
+            case "Primera Operacion Soldadura": //Proceso de primera operacion
+                this.tableTitles = [ "", "Diametro 1", "Profundidad 1 ", "Diametro 2", "Profundidad 2", "Diametro 3", "Profunfidad 3", "Diametro de soldadura", "Profundidad de soldadura", "Diametro de barreno", "Simetria línea de partida", "Perno de alineación", "Simetría a 90°"];
 
                 divisionsCNomi = [null];
                 divisionsTole = [9, 11];
@@ -153,7 +154,7 @@ export class Process {
                 fields = ["id", "profundidad_barreno", "diametro_machuelo"];
                 break;
 
-            case "Segunda Operacion": //Proceso de segunda operacion
+            case "Segunda Operacion Soldadura": //Proceso de segunda operacion
                 this.tableTitles = [ "", "Diametro 1", "Profundidad 1 ", "Diametro 2", "Profundidad 2", "Diametro 3", "Profunfidad 3", "Diametro de soldadura", "Profundidad de soldadura", "Altura total", "Simetría a 90°", "Simetria línea de partida"];
 
                 divisionsCNomi = [null];

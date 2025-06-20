@@ -33,6 +33,8 @@ use App\Models\Palomas_tolerancia;
 use App\Models\Pieza;
 use App\Models\PrimeraOpeSoldadura_cnominal;
 use App\Models\PrimeraOpeSoldadura_tolerancia;
+use App\Models\PrimeraOpeSoldadura;
+use App\Models\PrimeraOpeSoldadura_pza;
 use App\Models\Procesos;
 use App\Models\PySOpeSoldadura_cnominal;
 use App\Models\PySOpeSoldadura_tolerancia;
@@ -118,7 +120,7 @@ class ProcessesController extends Controller
         return view('processes_views.cNominals_view', compact('workOrders', 'layout'));
     }
     public function searchCNominals($class, $process, $subprocess = null)
-    {
+    {   
         switch ($process) {
             case 'Cepillado':
                 $id_operation = 'Cepillado_' . $class->nombre . "_" . $class->id_ot;
@@ -135,7 +137,7 @@ class ProcessesController extends Controller
                 $cNominal = RevLaterales_cnominal::where('id_proceso', $id_operation)->first();
                 $tolerance = RevLaterales_tolerancia::where('id_proceso', $id_operation)->first();
                 break;
-            case 'Primera Operacion':
+            case 'Primera Operacion Soldadura':
                 $id_operation = 'Primera_Operacion_' . $class->nombre . "_" . $class->id_ot;
                 $cNominal = PrimeraOpeSoldadura_cnominal::where('id_proceso', $id_operation)->first();
                 $tolerance = PrimeraOpeSoldadura_tolerancia::where('id_proceso', $id_operation)->first();
@@ -145,7 +147,7 @@ class ProcessesController extends Controller
                 $cNominal = BarrenoManiobra_cnominal::where('id_proceso', $id_operation)->first();
                 $tolerance = BarrenoManiobra_tolerancia::where('id_proceso', $id_operation)->first();
                 break;
-            case 'Segunda Operacion':
+            case 'Segunda Operacion Soldadura':
                 $id_operation = 'Segunda_Operacion_' . $class->nombre . "_" . $class->id_ot;
                 $cNominal = SegundaOpeSoldadura_cnominal::where('id_proceso', $id_operation)->first();
                 $tolerance = SegundaOpeSoldadura_tolerancia::where('id_proceso', $id_operation)->first();
@@ -329,11 +331,11 @@ class ProcessesController extends Controller
             case "revision_laterales":
                 return "Revision Laterales";
             case "pOperacion":
-                return "Primera Operacion";
+                return "Primera Operacion Soldadura";
             case "barreno_maniobra":
                 return "Barreno Maniobra";
             case "sOperacion":
-                return "Segunda Operacion";
+                return "Segunda Operacion Soldadura";
             case "rectificado":
                 return "Rectificado";
             case "asentado":
@@ -411,6 +413,19 @@ class ProcessesController extends Controller
                         $controladorRevLaterales = new RevLateralesController();
                         foreach ($piezas as $pieza) {
                             $this->actualizarError($controladorRevLaterales, $pieza, $cNominal, $tolerancia, $idProceso, "Revision_Laterales", $proceso);
+                        }
+                    }
+                }
+                break;
+            case 'Primera Operacion Soldadura':
+                $idProceso = PrimeraOpeSoldadura::where('id_proceso', $id_proceso)->first();
+                if ($idProceso) {
+                    $piezas = PrimeraOpeSoldadura_pza::where('id_proceso', $idProceso->id)->where('estado', 2)->get();
+
+                    if ($piezas->count() > 0) {
+                        $controller = new PrimeraOpeSoldaduraController();
+                        foreach ($piezas as $pieza) {
+                            $this->actualizarError($controller, $pieza, $cNominal, $tolerancia, $idProceso, "Primera_Operacion", $proceso);
                         }
                     }
                 }

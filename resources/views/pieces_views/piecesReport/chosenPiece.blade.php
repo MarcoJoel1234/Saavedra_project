@@ -68,14 +68,14 @@
                     nombres = ['n_pieza', 'desfasamiento_entrada', 'desfasamiento_salida', 'ancho_simetriaEntrada', 'ancho_simetriaSalida', 'angulo_corte', 'error', 'observaciones'];
                     break;
 
-                case "Primera Operacion": //Proceso de primera operacion
+                case "Primera Operacion Soldadura": //Proceso de primera operacion
                     titulos = ['No.Pieza', 'Diametro 1', 'Profundidad 1 ', 'Diametro 2', 'Profundidad 2', 'Diametro 3', 'Profunfidad 3', 'Diametro de soldadura', 'Profundidad de soldadura', 'Diametro de barreno', 'Simetria línea de partida', 'Perno de alineación', 'Simetría a 90°', 'Error', 'Observaciones'];
 
                     cNomiPosiciones = [null]; // Posiciones de los inputs de c.nominal
                     tolePosiciones = [9, 11]; // Posiciones de los inputs de tolerancias
                     piezaPosiciones = [null];
 
-                    nombresCnomi = ['id', 'diametro1', 'profundidad1', 'diametro2', 'profundidad2', 'diametro3', 'profundidad3', 'diametroSoldadura', 'diametroBarreno', 'profundidadSoldadura', 'simetriaLinea_partida', 'pernoAlineacion', 'Simetria90G'];
+                    nombresCnomi = ['id', 'diametro1', 'profundidad1', 'diametro2', 'profundidad2', 'diametro3', 'profundidad3', 'diametroSoldadura', 'profundidadSoldadura', 'diametroBarreno', 'simetriaLinea_partida', 'pernoAlineacion', 'Simetria90G'];
 
                     nombresTole = ['id', 'diametro1', 'profundidad1', 'diametro2', 'profundidad2', 'diametro3', 'profundidad3', 'diametroSoldadura', 'profundidadSoldadura', 'diametroBarreno1', 'diametroBarreno2', 'simetriaLinea_partida1', 'simetriaLinea_partida2', 'pernoAlineacion', 'Simetria90G'];
 
@@ -94,7 +94,7 @@
                     nombres = ['n_pieza', 'profundidad_barreno', 'diametro_machuelo', 'acetatoBM', 'error', 'observaciones'];
                     break;
 
-                case "Segunda Operacion": //Proceso de segunda operacion
+                case "Segunda Operacion Soldadura": //Proceso de segunda operacion
                     titulos = ['No. Pieza', 'Diametro 1', 'Profundidad 1 ', 'Diametro 2', 'Profundidad 2', 'Diametro 3', 'Profunfidad 3', 'Diametro de soldadura', 'Profundidad de soldadura', 'Altura total', 'Simetría a 90°', 'Simetria línea de partida', 'Error', 'Observaciones'];
 
                     cNomiPosiciones = [null]; // Posiciones de los inputs de c.nominal
@@ -842,6 +842,7 @@
 
             @else
             <script>
+                console.log();
                 document.getElementById('scrollabe-table').appendChild(process.crearProceso()); //Agregar tabla al div.
             </script>
             @endif
