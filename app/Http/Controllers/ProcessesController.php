@@ -137,7 +137,7 @@ class ProcessesController extends Controller
                 $cNominal = RevLaterales_cnominal::where('id_proceso', $id_operation)->first();
                 $tolerance = RevLaterales_tolerancia::where('id_proceso', $id_operation)->first();
                 break;
-            case 'Primera Operacion Soldadura':
+            case 'Primera Operacion':
                 $id_operation = 'Primera_Operacion_' . $class->nombre . "_" . $class->id_ot;
                 $cNominal = PrimeraOpeSoldadura_cnominal::where('id_proceso', $id_operation)->first();
                 $tolerance = PrimeraOpeSoldadura_tolerancia::where('id_proceso', $id_operation)->first();
@@ -147,7 +147,7 @@ class ProcessesController extends Controller
                 $cNominal = BarrenoManiobra_cnominal::where('id_proceso', $id_operation)->first();
                 $tolerance = BarrenoManiobra_tolerancia::where('id_proceso', $id_operation)->first();
                 break;
-            case 'Segunda Operacion Soldadura':
+            case 'Segunda Operacion':
                 $id_operation = 'Segunda_Operacion_' . $class->nombre . "_" . $class->id_ot;
                 $cNominal = SegundaOpeSoldadura_cnominal::where('id_proceso', $id_operation)->first();
                 $tolerance = SegundaOpeSoldadura_tolerancia::where('id_proceso', $id_operation)->first();
@@ -331,11 +331,11 @@ class ProcessesController extends Controller
             case "revision_laterales":
                 return "Revision Laterales";
             case "pOperacion":
-                return "Primera Operacion Soldadura";
+                return "Primera Operacion";
             case "barreno_maniobra":
                 return "Barreno Maniobra";
             case "sOperacion":
-                return "Segunda Operacion Soldadura";
+                return "Segunda Operacion";
             case "rectificado":
                 return "Rectificado";
             case "asentado":
@@ -372,7 +372,7 @@ class ProcessesController extends Controller
     }
     //Se actualiza las piezas de cada proceso para verificar que este correcta
     public function updatePieces($id_proceso, $cNominal, $tolerancia, $proceso)
-    {
+    {   
         switch ($proceso) {
             case 'Cepillado':
                 $idProceso = Cepillado::where('id_proceso', $id_proceso)->first();
@@ -417,7 +417,7 @@ class ProcessesController extends Controller
                     }
                 }
                 break;
-            case 'Primera Operacion Soldadura':
+            case 'Primera Operacion':
                 $idProceso = PrimeraOpeSoldadura::where('id_proceso', $id_proceso)->first();
                 if ($idProceso) {
                     $piezas = PrimeraOpeSoldadura_pza::where('id_proceso', $idProceso->id)->where('estado', 2)->get();
@@ -425,7 +425,7 @@ class ProcessesController extends Controller
                     if ($piezas->count() > 0) {
                         $controller = new PrimeraOpeSoldaduraController();
                         foreach ($piezas as $pieza) {
-                            $this->actualizarError($controller, $pieza, $cNominal, $tolerancia, $idProceso, "Primera_Operacion", $proceso);
+                            $this->actualizarError($controller, $pieza, $cNominal, $tolerancia, $idProceso, "Primera_Operacion", "Primera Operacion Soldadura");
                         }
                     }
                 }

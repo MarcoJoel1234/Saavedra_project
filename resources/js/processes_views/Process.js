@@ -136,7 +136,7 @@ export class Process {
                 fields = [ "id", "desfasamiento_entrada", "desfasamiento_salida", "ancho_simetriaEntrada", "ancho_simetriaSalida", "angulo_corte"];
                 break;
 
-            case "Primera Operacion Soldadura": //Proceso de primera operacion
+            case "Primera Operacion": //Proceso de primera operacion
                 this.tableTitles = [ "", "Diametro 1", "Profundidad 1 ", "Diametro 2", "Profundidad 2", "Diametro 3", "Profunfidad 3", "Diametro de soldadura", "Profundidad de soldadura", "Diametro de barreno", "Simetria línea de partida", "Perno de alineación", "Simetría a 90°"];
 
                 divisionsCNomi = [null];
@@ -154,7 +154,7 @@ export class Process {
                 fields = ["id", "profundidad_barreno", "diametro_machuelo"];
                 break;
 
-            case "Segunda Operacion Soldadura": //Proceso de segunda operacion
+            case "Segunda Operacion": //Proceso de segunda operacion
                 this.tableTitles = [ "", "Diametro 1", "Profundidad 1 ", "Diametro 2", "Profundidad 2", "Diametro 3", "Profunfidad 3", "Diametro de soldadura", "Profundidad de soldadura", "Altura total", "Simetría a 90°", "Simetria línea de partida"];
 
                 divisionsCNomi = [null];
