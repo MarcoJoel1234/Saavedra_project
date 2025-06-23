@@ -331,11 +331,11 @@ class ProcessesController extends Controller
             case "revision_laterales":
                 return "Revision Laterales";
             case "pOperacion":
-                return "Primera Operacion";
+                return "Primera Operacion Soldadura";
             case "barreno_maniobra":
                 return "Barreno Maniobra";
             case "sOperacion":
-                return "Segunda Operacion";
+                return "Segunda Operacion Soldadura";
             case "rectificado":
                 return "Rectificado";
             case "asentado":
