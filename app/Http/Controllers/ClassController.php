@@ -245,7 +245,7 @@ class ClassController extends Controller
                         //Crear el registro de la fecha de inicio del proceso
                         $processDates = $this->registerProcessDates($class, $processNames, $i, $noProcess, $machines[$counterMachines - 1]);
                         $noProcess++;
-                    }else{
+                    } else {
                         $dateProcess = Fecha_proceso::where('clase', $class->id)->where('proceso', $processNames[$i])->first();
                         if ($dateProcess) {
                             $dateProcess->delete(); //Eliminar el registro de la fecha del proceso si no se selecciono.
@@ -317,8 +317,29 @@ class ClassController extends Controller
                 $date = new DateTime($previousProcess->fecha_fin);
             }
             $dateAux = new DateTime($date->format('Y-m-d H:i:s'));
-            //Se calcula cuanto tiempo se tarda en generar una pieza para calcular el tiempo de retraso entre el proceso
-            $piecesProcesses = ["cepillado", "desbaste", "revLaterales", "primeraOpeSoldadura", "barrenoManiobra", "segundaOpeSoldadura", "soldadura", "soldaduraPTA", "rectificado", "asentado", "revCalificado", "acabadoBombillo", "acabadoMolde", "barrenoProfundidad", "cavidades", "copiado", "offset", "palomas", "rebajes", "operacionEquipo", "embudoCM"];
+            //Se calcula cuanto tiempo se tarda en generar una pieza para calcular el tiempo de retraso entre el procesos
+            switch ($class->nombre) {
+                case "Bombillo":
+                    $piecesProcesses = ["cepillado", "desbaste", "revLaterales", "primeraOpeSoldadura", "barrenoManiobra", "segundaOpeSoldadura", "soldadura", "soldaduraPTA", "rectificado", "asentado", "revCalificado", "acabadoBombillo", "barrenoProfundidad", "cavidades", "copiado", "offset", "palomas", "rebajes", "grabado"];
+                    break;
+                case "Molde":
+                    $piecesProcesses = ["cepillado", "desbaste", "revLaterales", "primeraOpeSoldadura", "barrenoManiobra", "segundaOpeSoldadura", "soldadura", "soldaduraPTA", "rectificado", "asentado", "revCalificado", "acabadoMolde", "barrenoProfundidad", "cavidades", "copiado", "offset", "palomas", "rebajes", "grabado"];
+                    break;
+                case "Fondo":
+                case "Obturador":
+                    $piecesProcesses = ["operacionEquipo", "soldadura", "soldaduraPTA"];
+                    break;
+                case "Corona":
+                    $piecesProcesses = ["cepillado", "desbaste"];
+                    break;
+                case "Plato":
+                    $piecesProcesses = ["operacionEquipo", "barrenoProfundidad", "soldaduraPTA"];
+                    break;
+                case "Embudo":
+                    $piecesProcesses = ["operacionEquipo", "embudoCM"];
+                    break;
+            }
+
             $delayTime = tiempoproduccion::where('id_clase', $class->id)->where('proceso', $piecesProcesses[$i - $counter])->first();
             if ($delayTime) {
                 //Agregar el factor de seguridad
@@ -398,6 +419,7 @@ class ClassController extends Controller
     public function calculateMachiningDays($class, $i, $machines)
     {
         $piecesShift = $machines * $this->pieces_machShift($i, $class);
+
         $piecesDay = $piecesShift * 2;
         if ($piecesDay != 0) {
             $diasMaq = $class->pedido / $piecesDay;
@@ -454,10 +476,12 @@ class ClassController extends Controller
     public function pieces_machShift($i, $clase)
     {
 
-        switch($clase->nombre) {
+        switch ($clase->nombre) {
             case "Bombillo":
+                $procesos = ["cepillado", "desbaste", "revLaterales", "primeraOpeSoldadura", "barrenoManiobra", "segundaOpeSoldadura", "soldadura", "soldaduraPTA", "rectificado", "asentado", "revCalificado", "acabadoBombillo", "barrenoProfundidad", "cavidades", "copiado", "offSet", "palomas", "rebajes"];
+                break;
             case "Molde":
-                $procesos = ["cepillado", "desbaste", "revLaterales", "primeraOpeSoldadura", "barrenoManiobra", "segundaOpeSoldadura", "soldadura", "soldaduraPTA", "rectificado", "asentado", "revCalificado", "acabadoBombillo", "acabadoMolde", "barrenoProfundidad", "cavidades", "copiado", "offSet", "palomas", "rebajes"];
+                $procesos = ["cepillado", "desbaste", "revLaterales", "primeraOpeSoldadura", "barrenoManiobra", "segundaOpeSoldadura", "soldadura", "soldaduraPTA", "rectificado", "asentado", "revCalificado", "acabadoMolde", "barrenoProfundidad", "cavidades", "copiado", "offSet", "palomas", "rebajes"];
                 break;
             case "Fondo":
             case "Obturador":
