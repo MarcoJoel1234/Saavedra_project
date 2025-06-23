@@ -143,7 +143,10 @@ body {
     .btn-close-session{
         font-size: 12px;
         letter-spacing: normal;
-        margin-top: 5%;
+        position: absolute;
+        bottom: 70px;
+        right: 10px;
+
     }
     .open-menu {
         width: 2em;

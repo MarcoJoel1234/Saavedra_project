@@ -266,6 +266,7 @@ h1 {
     .btn-submit {
     opacity: 0;
     left: 36vw;
+    bottom: 1vh;
     background: #033966;
     color: #ffffff;
     width: 8w;
