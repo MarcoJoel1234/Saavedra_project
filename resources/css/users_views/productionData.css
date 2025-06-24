@@ -57,7 +57,7 @@ h1 {
     padding: 10px 20px;
     border: 2px solid #ccc;
     border-radius: 5px;
-    width: 80%;
+    width: 100%;
     max-width: 450px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease-in-out;
@@ -173,12 +173,13 @@ h3{
 .filtros2{
     font-family: Arial;
     background-color: #f0f0f0;
-    font-size: 1.3em;
+    font-size: 1em;
     color: #333;
     margin-bottom: 10px;
     padding: 5px 10px;
     border: 2px solid #ccc;
     border-radius: 5px;
+    width: 100%;
     max-width: 450px;
     transition: all 0.3s ease-in-out;
     background-repeat: no-repeat;
