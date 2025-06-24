@@ -2,12 +2,53 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AcabadoBombilo;
+use App\Models\AcabadoBombilo_pza;
+use App\Models\AcabadoMolde;
+use App\Models\AcabadoMolde_pza;
+use App\Models\Asentado;
+use App\Models\Asentado_pza;
+use App\Models\BarrenoManiobra;
+use App\Models\BarrenoManiobra_pza;
+use App\Models\BarrenoProfundidad;
+use App\Models\Cavidades;
+use App\Models\Cavidades_pza;
+use App\Models\Cepillado;
 use App\Models\Clase;
+use App\Models\Copiado;
+use App\Models\Copiado_pza;
+use App\Models\Desbaste_pza;
+use App\Models\DesbasteExterior;
+use App\Models\EmbudoCM;
+use App\Models\EmbudoCM_pza;
 use App\Models\Metas;
 use App\Models\Moldura;
+use App\Models\OffSet;
+use App\Models\OffSet_pza;
 use App\Models\Orden_trabajo;
+use App\Models\Palomas;
+use App\Models\Palomas_pza;
 use App\Models\Pieza;
+use App\Models\PrimeraOpeSoldadura;
+use App\Models\PrimeraOpeSoldadura_pza;
 use App\Models\Procesos;
+use App\Models\PySOpeSoldadura;
+use App\Models\PySOpeSoldadura_pza;
+use App\Models\Pza_cepillado;
+use App\Models\Rebajes;
+use App\Models\Rebajes_pza;
+use App\Models\Rectificado;
+use App\Models\Rectificado_pza;
+use App\Models\revCalificado;
+use App\Models\revCalificado_pza;
+use App\Models\RevLaterales;
+use App\Models\RevLaterales_pza;
+use App\Models\SegundaOpeSoldadura;
+use App\Models\SegundaOpeSoldadura_pza;
+use App\Models\Soldadura;
+use App\Models\Soldadura_pza;
+use App\Models\SoldaduraPTA;
+use App\Models\SoldaduraPTA_pza;
 use App\Models\User;
 use DateTime;
 use Illuminate\Http\Request;
@@ -47,7 +88,7 @@ class DatosProduccionController extends Controller
         //Obtener las piezas conforme a la OT, la clase, el operador y el proceso
         $piezas = Pieza::where("id_ot", $request->ot)->where("id_clase", $clase->id)->where("id_operador", $request->operadores)->where("proceso", $request->procesos)->get();
 
-        $operadores = $this->obtenerInformacionPiezas($piezas);
+        $operadores = $this->obtenerInformacionPiezas($piezas, $clase);
 
         //Guardar los datos buscados de los filtros en un arreglo
         $filtros = [
@@ -118,7 +159,7 @@ class DatosProduccionController extends Controller
         return $procesosClase_Operador;
     }
 
-    public function obtenerInformacionPiezas($piezas)
+    public function obtenerInformacionPiezas($piezas, $clase)
     {
         $operadores = [];
         foreach ($piezas as $pieza) {
@@ -128,16 +169,14 @@ class DatosProduccionController extends Controller
 
             //Se obtiene la fecha en la que se trabajo la pieza
             $fecha = $pieza->created_at;
-            $fechaMeta = new DateTime($fecha);
-            $fechaMeta = $fechaMeta->format("Y-m-d");
             $fecha = $fecha->format("d/m/Y");
             if (!array_key_exists($operadorName, $operadores)) {
                 $operadores[$operadorName] = [];
-                $meta = $this->obtenerMeta($pieza->id_ot, $pieza->id_operador, $fechaMeta, $pieza->proceso);
+                $meta = $this->obtenerMeta($pieza, $clase->nombre);
                 $operadores[$operadorName][$fecha] = ["Piezas buenas" => 0, "Piezas malas" => 0, "meta" => $meta, "Productividad" => 0];
             } else if (!array_key_exists($fecha, $operadores[$operadorName])) {
                 $operadores[$operadorName][$fecha] = ["Piezas buenas" => 0, "Piezas malas" => 0];
-                $meta = $this->obtenerMeta($pieza->id_ot, $pieza->id_operador, $fechaMeta, $pieza->proceso);
+                $meta = $this->obtenerMeta($pieza, $clase->nombre);
                 $operadores[$operadorName][$fecha] = ["Piezas buenas" => 0, "Piezas malas" => 0, "meta" => $meta, "Productividad" => 0];
             }
             $cantidad = ($pieza->proceso == "Cepillado" || $pieza->proceso == "Desbaste Exterior" || $pieza->proceso == "Revision laterales") ? 0.5 : 1;
@@ -204,11 +243,111 @@ class DatosProduccionController extends Controller
         };
         return $procesoName;
     }
-    public function obtenerMeta($ot, $operador, $fecha, $proceso)
+    public function obtenerMeta($pieza, $nameClass)
     {
-        $proceso = $this->renombrarProceso($proceso);
-        $meta = Metas::where("id_ot", $ot)->where("id_usuario", $operador)->where("fecha", $fecha)->where("proceso", $proceso[0])->where("id_proceso", $proceso[1])->first();
-
+        //Obtener el id_proceso que esta asociado a la pieza
+        $processName = match($pieza->proceso) {
+            "Primera Operacion Soldadura" => "Primera_Operacion",
+            "Segunda Operacion Soldadura" => "Segunda_Operacion",
+            default => str_replace(" ", "_", $pieza->proceso),
+        };
+        $idString = $processName . "_" . $nameClass . "_" . $pieza->id_ot;
+        $meta = $this->get_idMeta($idString, $pieza);
         return $meta->meta;
+    }
+
+    public function get_idMeta($idString, $pieza)
+    {
+        switch ($pieza->proceso) {
+            case "Cepillado":
+                $id_proceso = Cepillado::where('id_proceso', $idString)->first();
+                $piezaFounded = Pza_cepillado::where('id_proceso', $id_proceso->id)->where("n_pieza", $pieza->n_pieza)->first();
+                break;
+            case "Desbaste Exterior":
+                $id_proceso = DesbasteExterior::where('id_proceso', $idString)->first();
+                $piezaFounded = Desbaste_pza::where('id_proceso', $id_proceso->id)->where("n_pieza", $pieza->n_pieza)->first();
+                break;
+            case "Revision Laterales":
+                $id_proceso = RevLaterales::where('id_proceso', $idString)->first();
+                $piezaFounded = RevLaterales_pza::where('id_proceso', $id_proceso->id)->where("n_pieza", $pieza->n_pieza)->first();
+                break;
+            case "Primera Operacion Soldadura":
+                $id_proceso = PrimeraOpeSoldadura::where('id_proceso', $idString)->first();
+                $piezaFounded = PrimeraOpeSoldadura_pza::where('id_proceso', $id_proceso->id)->where("n_pieza", $pieza->n_pieza)->first();
+                break;
+            case "Barreno Maniobra":
+                $id_proceso = BarrenoManiobra::where('id_proceso', $idString)->first();
+                $piezaFounded = BarrenoManiobra_pza::where('id_proceso', $id_proceso->id)->where("n_pieza", $pieza->n_pieza)->first();
+                break;
+            case "Segunda Operacion Soldadura":
+                $id_proceso = SegundaOpeSoldadura::where('id_proceso', $idString)->first();
+                $piezaFounded = SegundaOpeSoldadura_pza::where('id_proceso', $id_proceso->id)->where("n_pieza", $pieza->n_pieza)->first();
+                break;
+            case "Soldadura":
+                $id_proceso = Soldadura::where('id_proceso', $idString)->first();
+                $piezaFounded = Soldadura_pza::where('id_proceso', $id_proceso->id)->where("n_pieza", $pieza->n_pieza)->first();
+                break;
+            case "Soldadura PTA":
+                $id_proceso = SoldaduraPTA::where('id_proceso', $idString)->first();
+                $piezaFounded = SoldaduraPTA_pza::where('id_proceso', $id_proceso->id)->where("n_pieza", $pieza->n_pieza)->first();
+                break;
+            case "Rectificado":
+                $id_proceso = Rectificado::where('id_proceso', $idString)->first();
+                $piezaFounded = Rectificado_pza::where('id_proceso', $id_proceso->id)->where("n_pieza", $pieza->n_pieza)->first();
+                break;
+            case "Asentado":
+                $id_proceso = Asentado::where('id_proceso', $idString)->first();
+                $piezaFounded = Asentado_pza::where('id_proceso', $id_proceso->id)->where("n_pieza", $pieza->n_pieza)->first();
+                break;
+            case "Revision Calificado":
+                $id_proceso = revCalificado::where('id_proceso', $idString)->first();
+                $piezaFounded = revCalificado_pza::where('id_proceso', $id_proceso->id)->where("n_pieza", $pieza->n_pieza)->first();
+                break;
+            case "Acabado Bombillo":
+                $id_proceso = AcabadoBombilo::where('id_proceso', $idString)->first();
+                $piezaFounded = AcabadoBombilo_pza::where('id_proceso', $id_proceso->id)->where("n_pieza", $pieza->n_pieza)->first();
+                break;
+            case "Acabado Molde":
+                $id_proceso = AcabadoMolde::where('id_proceso', $idString)->first();
+                $piezaFounded = AcabadoMolde_pza::where('id_proceso', $id_proceso->id)->where("n_pieza", $pieza->n_pieza)->first();
+                break;
+            case "Cavidades":
+                $id_proceso = Cavidades::where('id_proceso', $idString)->first();
+                $piezaFounded = Cavidades_pza::where('id_proceso', $id_proceso->id)->where("n_pieza", $pieza->n_pieza)->first();
+                break;
+            case "Barreno Profundidad":
+                $id_proceso = BarrenoProfundidad::where('id_proceso', $idString)->first();
+                $piezaFounded = BarrenoManiobra_pza::where('id_proceso', $id_proceso->id)->where("n_pieza", $pieza->n_pieza)->first();
+                break;
+            case "Copiado":
+                $id_proceso = Copiado::where('id_proceso', $idString)->first();
+                $piezaFounded = Copiado_pza::where('id_proceso', $id_proceso->id)->where("n_pieza", $pieza->n_pieza)->first();
+                break;
+            case "Off Set":
+                $id_proceso = OffSet::where('id_proceso', $idString)->first();
+                $piezaFounded = OffSet_pza::where('id_proceso', $id_proceso->id)->where("n_pieza", $pieza->n_pieza)->first();
+                break;
+            case "Palomas":
+                $id_proceso = Palomas::where('id_proceso', $idString)->first();
+                $piezaFounded = Palomas_pza::where('id_proceso', $id_proceso->id)->where("n_pieza", $pieza->n_pieza)->first();
+                break;
+            case "Rebajes":
+                $id_proceso = Rebajes::where('id_proceso', $idString)->first();
+                $piezaFounded = Rebajes_pza::where('id_proceso', $id_proceso->id)->where("n_pieza", $pieza->n_pieza)->first();
+                break;
+            // case "Grabado":
+            //     $id_proceso = Grabado::where('id_proceso', $idString)->first();
+            //     break;
+            case "Operacion Equipo_1":
+            case "Operacion Equipo_2":
+                $id_proceso = PySOpeSoldadura::where('id_proceso', $idString)->first();
+                $piezaFounded = PySOpeSoldadura_pza::where('id_proceso', $id_proceso->id)->where("n_pieza", $pieza->n_pieza)->first();
+                break;
+            case "embudoCm":
+                $id_proceso = EmbudoCM::where('id_proceso', $idString)->first();
+                $piezaFounded = EmbudoCM_pza::where('id_proceso', $id_proceso->id)->where("n_pieza", $pieza->n_pieza)->first();
+                break;
+        }
+        return $meta = Metas::find($piezaFounded->id_meta);
     }
 }
