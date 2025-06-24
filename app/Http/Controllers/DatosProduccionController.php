@@ -208,6 +208,7 @@ class DatosProduccionController extends Controller
     {
         $proceso = $this->renombrarProceso($proceso);
         $meta = Metas::where("id_ot", $ot)->where("id_usuario", $operador)->where("fecha", $fecha)->where("proceso", $proceso[0])->where("id_proceso", $proceso[1])->first();
+
         return $meta->meta;
     }
 }
