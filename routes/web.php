@@ -91,6 +91,7 @@ Route::controller(WOController::class)->group(function () {
     Route::get('/finishOrder/{wOrderName}/{className}', 'finishOrder')->name('finishOrder'); //Finalizar pedido
     Route::post('/saveHeader', 'saveHeader')->name('saveHeader'); //Guardar datos de HeaderProcess
 });
+
 Route::controller(ClassController::class)->group(function () {
     Route::post('/saveClass', 'saveClass')->name('saveClass'); //Informacion sobre piezas agregadas
     Route::get('/destroyClass/{idClass}', 'destroy')->name('destroyClass'); //Eliminar clase

@@ -142,7 +142,7 @@ class WOController extends Controller
                 foreach ($processesFounded as $idClass => $process) {
                     $processes[$idClass] = "";
                     foreach ($process as $processName => $value) {
-                        $processes[$idClass] .= $this->processesController->convertProcessToString($processName) . ", ";
+                        $processes[$idClass] .= $this->nombreProceso($processName) . ", ";
                     }
                 }
             }
@@ -174,7 +174,7 @@ class WOController extends Controller
         if ($processesFounded) {
             foreach ($processesFounded->getAttributes() as $field => $value) {
                 if ($value != 0 && $field != 'id' && $field != 'id_clase') {
-                    $processName = $this->processesController->convertProcessToString($field);
+                    $processName = $this->nombreProceso($field);
                     $processes[$processName] = array();
                     $piecesBadData = array();
                     $processes[$processName]['pieces'] = $this->getPieces($class, $processName, $piecesBadData);

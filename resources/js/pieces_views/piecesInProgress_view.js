@@ -1,5 +1,5 @@
 let wOrderArray = window.wOInProgress;
-
+console.log("wOrderArray", wOrderArray);
 class Dashboard {
     constructor(wOrderArray) {
         this.wOrderArray = wOrderArray;
