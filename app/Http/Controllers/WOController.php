@@ -161,7 +161,6 @@ class WOController extends Controller
     {
         $array[$class->nombre] = array();
         $array[$class->nombre]["pieces"] = $class->piezas;
-        // $array[$class->nombre]["pieces"] = $class->piezas;
         $array[$class->nombre]["order"] = $class->pedido;
         $array[$class->nombre]["startDate"] = $this->getStringDate($class->fecha_inicio, $class->hora_inicio);
         $array[$class->nombre]["endDate"] = $class->fecha_termino ? $this->getStringDate($class->fecha_termino, $class->hora_termino) : "-";

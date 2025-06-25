@@ -1,5 +1,4 @@
 let wOrderArray = window.wOInProgress;
-console.log("wOrderArray", wOrderArray);
 class Dashboard {
     constructor(wOrderArray) {
         this.wOrderArray = wOrderArray;
@@ -59,7 +58,7 @@ class Dashboard {
                 `Clase: ${className}`,
             ],
             [
-                `Pedido: 0/${classArray["pieces"]}`,
+                `Pedido: ${this.getCompletedPieces(classArray)}/${classArray["pieces"]}`,
                 `Fecha de inicio: ${classArray["startDate"]}`,
                 `Fecha de término: ${classArray["endDate"]}`,
             ],
@@ -102,6 +101,11 @@ class Dashboard {
         return header_section;
     }
 
+    getCompletedPieces(classArray){
+        //Obtener las piezas del ultimo proceso de la clase
+        let completedPieces = Object.values(classArray["processes"])[Object.keys(classArray["processes"]).length - 1]["pieces"]["good"];
+        return completedPieces;
+    }
     generateProcessSection(processesArray, processName, order) {
         let processSection = document.createElement("div");
         processSection.className = "process-section";
