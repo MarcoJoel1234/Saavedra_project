@@ -28,28 +28,7 @@ function createMenu(profile) {
     let ul = document.querySelector(".nav-list");
     ul.appendChild(createList(routes));
 }
-// function createList(routes) {
-//     let fragment = document.createDocumentFragment();
-//     const currentPath = window.location.pathname;
 
-//     routes.forEach((route) => {
-//         let li = document.createElement("li");
-//         let a = document.createElement("a");
-//         a.classList.add("nav-link");
-//         a.href = window.routes[route[0]];
-//         a.innerHTML = route[1];
-
-//         // Agregar la clase 'active' si la ruta coincide con la ruta actual
-//         const linkPath = new URL(a.href, window.location.origin).pathname;
-//         if (currentPath === linkPath) {
-//             a.classList.add("active");
-//         }
-
-//         li.appendChild(a);
-//         fragment.appendChild(li);
-//     });
-//     return fragment;
-// }
 function createList(sections) {
     const fragment = document.createDocumentFragment();
     const currentPath = window.location.pathname;
@@ -75,8 +54,7 @@ function createList(sections) {
                 a.href = window.routes[route[0]];
                 a.textContent = route[1];
 
-                const linkPath = new URL(a.href, window.location.origin)
-                    .pathname;
+                const linkPath = new URL(a.href, window.location.origin).pathname;
                 if (currentPath === linkPath) {
                     a.classList.add("active");
                     liSection.classList.add("active"); // para mostrar sección activa
@@ -248,7 +226,13 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".submenu-toggle").forEach((toggle) => {
         toggle.addEventListener("click", function (e) {
             e.preventDefault();
-            this.parentElement.classList.toggle("active");
+            if(this.parentElement.classList.contains("active")) {
+                this.parentElement.classList.remove("active");
+                this.nextElementSibling.style.display = "none";
+            } else {
+                this.parentElement.classList.add("active");
+                this.nextElementSibling.style.display = "block";
+            }
         });
     });
 });
