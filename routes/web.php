@@ -78,6 +78,8 @@ Route::controller(UserController::class)->group(function () {
 Route::controller(MoldingController::class)->group(function () {
     Route::get('/createMolding', 'create')->name('createMolding'); //Vista registrar moldura  
     Route::post('/createMolding/storeMolding', 'store')->name('storeMolding'); //Registrar moldura
+    Route::get('/editMolding', 'edit')->name('editMolding'); //Vista editar moldura
+    Route::post('/editMolding/update', 'update')->name('updateMolding'); //Actualizar moldura
 });
 
 //Grupo de ruta para el controlador OTController

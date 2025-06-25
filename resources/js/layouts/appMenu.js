@@ -106,7 +106,10 @@ function getRoutes(profile) {
                 },
                 {
                     title: "Molduras",
-                    routes: [["createMolding", "Crear nueva moldura"]],
+                    routes: [
+                        ["createMolding", "Crear nueva moldura"],
+                        ["editMolding", "Editar moldura"],
+                    ],
                 },
                 {
                     title: "Orden de Trabajo",
@@ -123,12 +126,12 @@ function getRoutes(profile) {
                         // ['users', 'Ver usuarios'],
                         ["createUser", "Registrar usuario"],
                         ["recoverPassword", "Recuperar contraseña"],
-                        ["productionData", "Datos de produccion"],
                     ],
                 },
                 {
                     title: "Producción",
                     routes: [
+                        ["productionData", "Datos de produccion"],
                         ["cNominals", "Editar C.Nominales y Tolerancias"],
                         ["showTimes", "Modificar tiempos de producción"],
                     ],

@@ -38,6 +38,7 @@
     window.routes = {
         home: @json(route('home')),
         createMolding: @json(route('createMolding')),
+        editMolding: @json(route('editMolding')),
         manageWO: @json(route('manageWO')),
         users: @json(route('users')), // PENDING
         createUser: @json(route('createUser')),

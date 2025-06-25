@@ -21,6 +21,10 @@ class MoldingController extends Controller
         return redirect()->to('createMolding')->with('success', 'Moldura registrada correctamente.');
     }
 
+    public function edit(){
+        $moldings = Moldura::all();
+        return view('moldings_views.edit_molding', compact('moldings'));
+    }
     // public function destroy(Request $request)
     // {
     //     $moldura = Moldura::find($request->id);
