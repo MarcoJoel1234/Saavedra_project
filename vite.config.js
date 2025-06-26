@@ -21,6 +21,8 @@ export default defineConfig({
                 
                 //View moldings
                 "resources/css/moldings_views/create_molding.css",
+                "resources/css/moldings_views/edit_molding.css",
+                "resources/js/moldings_views/edit_molding.js",
                 
                 //Views OT
                 "resources/css/wo_views/manage_wo.css", 
