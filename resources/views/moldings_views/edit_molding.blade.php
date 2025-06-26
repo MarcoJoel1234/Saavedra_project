@@ -18,6 +18,6 @@
     </form>
 </div>
 <script>
-    const moldings = @json($moldings);  
+    const moldings = @json($moldings);
 </script>
 @endsection

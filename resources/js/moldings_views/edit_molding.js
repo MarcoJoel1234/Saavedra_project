@@ -34,7 +34,7 @@ function createTable(moldings, form) {
             tdName.classList.add("molding-name");
             let input = document.createElement("input");
             input.type = "text";
-            input.name = "moldingName[]";
+            input.name = "moldingName";
             input.value = molding.nombre;
             input.disabled = true;
             tdName.appendChild(input);
@@ -50,6 +50,7 @@ function createTable(moldings, form) {
 
                 if (editButton.textContent === "Cancelar") {
                     editButton.style.background = "#0a8504";
+                    input.value = molding.nombre;
                     input.disabled = true;
                     form.removeChild(
                         document.querySelector("button[type='submit']")
@@ -70,48 +71,73 @@ function createTable(moldings, form) {
                             row.classList.remove("disabled-row");
                         });
                 } else {
-                    let input = tdName.querySelector("input");
-                    if (input.disabled) {
-                        input.disabled = false;
-                        input.focus();
-                    }
-                    let submit = document.createElement("button");
-                    submit.classList.add(
-                        "btn",
-                        "btn-block",
-                        "text-center",
-                        "my-3"
-                    );
-                    submit.textContent = "Guardar";
-                    submit.type = "submit";
-                    form.appendChild(submit);
-                    editButton.style.background = "#9C0303";
-                    editButton.textContent = "Cancelar";
+                    if (!form.querySelector("button[type='submit']")) {
+                        let input = tdName.querySelector("input");
+                        if (input.disabled) {
+                            input.disabled = false;
+                            input.focus();
+                        }
+                        let inputHidden = document.querySelector(".molding-id");
+                        if (inputHidden) {
+                            inputHidden.remove();
+                        }
+                        inputHidden = document.createElement("input");
+                        inputHidden.type = "hidden";
+                        inputHidden.name = "moldingId";
+                        inputHidden.classList.add("molding-id");
+                        inputHidden.value = molding.id;
+                        tdName.appendChild(inputHidden);
 
-                    let nextElementSibling = editButton.nextElementSibling;
-                    if (
-                        nextElementSibling &&
-                        nextElementSibling.tagName === "BUTTON"
-                    ) {
-                        nextElementSibling.style.display = "none";
-                    }
+                        let submit = document.createElement("button");
+                        submit.classList.add(
+                            "btn",
+                            "btn-block",
+                            "text-center",
+                            "my-3"
+                        );
+                        submit.textContent = "Guardar";
+                        submit.type = "submit";
+                        form.appendChild(submit);
 
-                    document
-                        .querySelectorAll(".molding-table-row")
-                        .forEach((row) => {
-                            if (row !== tr) {
-                                row.classList.add("disabled-row");
-                            }
-                        });
+                        editButton.style.background = "#9C0303";
+                        editButton.textContent = "Cancelar";
+
+                        let nextElementSibling = editButton.nextElementSibling;
+                        if (
+                            nextElementSibling &&
+                            nextElementSibling.tagName === "BUTTON"
+                        ) {
+                            nextElementSibling.style.display = "none";
+                        }
+
+                        document
+                            .querySelectorAll(".molding-table-row")
+                            .forEach((row) => {
+                                if (row !== tr) {
+                                    row.classList.add("disabled-row");
+                                }
+                            });
+                    }
                 }
             };
             tdActions.appendChild(editButton);
+
             let deleteButton = document.createElement("button");
             deleteButton.classList.add("btn", "btn-delete");
             deleteButton.textContent = "Eliminar";
-            deleteButton.onclick = () => {};
-            tdActions.appendChild(deleteButton);
 
+            deleteButton.onclick = (e) => {
+                e.preventDefault();
+                if (
+                    confirm(
+                        "¿Estás seguro de que deseas eliminar esta moldura?"
+                    )
+                ) {
+                    let moldingId = molding.id;
+                    window.location.href = `/deleteMolding/${moldingId}`;
+                }
+            };
+            tdActions.appendChild(deleteButton);
             tr.appendChild(tdActions);
             tbody.appendChild(tr);
         });
