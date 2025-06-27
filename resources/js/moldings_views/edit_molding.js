@@ -34,6 +34,7 @@ function createTable(moldings, form) {
             tdName.classList.add("molding-name");
             let input = document.createElement("input");
             input.type = "text";
+            input.maxLength = 100;
             input.name = "moldingName";
             input.value = molding.nombre;
             input.disabled = true;

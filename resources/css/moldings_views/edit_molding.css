@@ -1,4 +1,4 @@
- * {
+* {
     padding: 0;
     margin: 0;
     box-sizing: border-box;
@@ -50,9 +50,10 @@ tbody {
     background-color: #f9f9f9;
 }
 th {
-    padding: .7em 0;
+    padding: 0.7em 0;
 }
-th, td {
+th,
+td {
     border: 1px solid #ddd;
     text-align: center;
     border-bottom: 1px solid #ddd;
@@ -79,7 +80,7 @@ input[type="text"] {
     padding: 0.5em 1em;
     margin: 0.2em;
     border-radius: 5px;
-    letter-spacing: .5px;
+    letter-spacing: 0.5px;
     transition: 0.2s;
 }
 .btn:hover {
@@ -90,7 +91,7 @@ input[type="text"] {
     background-color: #0a8504;
 }
 .btn.btn-delete {
-    background-color: #9C0303;
+    background-color: #9c0303;
 }
 .btn.btn-block {
     margin: 1em auto 0 auto;
@@ -100,7 +101,7 @@ input[type="text"] {
     border: none;
     width: 20%;
     font-size: 1.3em;
-    padding: .7em;
+    padding: 0.7em;
     letter-spacing: 1px;
     transition: 0.2s;
 }
@@ -120,4 +121,57 @@ input[type="text"] {
 .disabled-row * {
     pointer-events: none;
     opacity: 0.5;
+}
+@media (max-width: 991.98px) {
+    /* PARA TODOS LOS ESTILOS */
+    body {
+        overflow: hidden;
+        background-size: auto;
+    }
+    .lg-saavedra {
+        width: 60%;
+        padding: 1em 0;
+    }
+    h2 {
+        font-size: 1.4em;
+        margin: 0.5em;
+    }
+    .wrapper {
+        width: 90vw;
+        padding: 1em;
+    }
+    table {
+        font-size: 0.9em;
+    }
+    .molding-name {
+        font-size: 0.7em;
+    }
+    .td {
+        padding: 0.5em;
+    }
+    .btn {
+        font-size: 0.9em;
+    }
+    .btn.btn-edit {
+        background-color: #0a8504;
+    }
+    .btn.btn-block {
+        width: 40%;
+        font-size: 0.9em;
+        padding: 0.5em;
+    }
+    th {
+        width: 50%;
+    }
+    input[type="text"] {
+        font-weight: 700;
+        text-align: center;
+        padding: 5px;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .alert {
+        font-size: 0.8em;
+    }
 }
