@@ -50,6 +50,9 @@
         showReleasePieces_view: @json(route('showReleasePieces_view')),
         showTimes: @json(route('showTimes')),
         productionData: @json(route('productionData')),
+        panelProgreso: @json(route('panelProgreso')),
+
+        
 
         processProduction: @json(route('processProduction')),
 
