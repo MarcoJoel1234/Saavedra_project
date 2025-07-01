@@ -118,6 +118,7 @@ function getRoutes(profile) {
                         ["piecesInProgress", "Piezas en progreso"],
                         ["showPiecesReport_view", "Reporte de piezas"],
                         ["showReleasePieces_view", "Liberacion de piezas"],
+                        ["show_panelWO", "Panel de progreso de O.T"],
                     ],
                 },
                 {

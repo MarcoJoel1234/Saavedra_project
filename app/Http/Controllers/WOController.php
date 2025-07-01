@@ -151,6 +151,9 @@ class WOController extends Controller
         return $pdf->download('Orden_de_trabajo_' . $workOrder->id . '.pdf');
     }
 
+    public function show_panelWO(){
+        return view('wo_views.progressPanel_wo');
+    }
 
     public function getMolding($moldingId)
     {

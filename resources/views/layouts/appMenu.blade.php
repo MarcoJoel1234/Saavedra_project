@@ -40,6 +40,7 @@
         createMolding: @json(route('createMolding')),
         editMolding: @json(route('editMolding')),
         manageWO: @json(route('manageWO')),
+        show_panelWO: @json(route('show_panelWO')),
         users: @json(route('users')), // PENDING
         createUser: @json(route('createUser')),
         recoverPassword: @json(route('recoverPassword')),

@@ -92,6 +92,9 @@ Route::controller(WOController::class)->group(function () {
     Route::get('/generatePDFWO/{wo}', 'generatePDF')->name('generatePDFWO');
     Route::get('/piecesInProgress', 'showViewPiecesInProgress')->name('showPiecesInProgress');
     Route::get('/finishOrder/{wOrderName}/{className}', 'finishOrder')->name('finishOrder'); //Finalizar pedido
+    Route::get('/show_panelWO', 'show_panelWO')->name('show_panelWO');
+
+
     Route::post('/saveHeader', 'saveHeader')->name('saveHeader'); //Guardar datos de HeaderProcess
 });
 
