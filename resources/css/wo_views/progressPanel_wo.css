@@ -1,0 +1,80 @@
+
+.tex-center {
+    text-align: center;
+}
+
+h1 {
+    color: #000000;
+    margin-bottom: 20px;
+    font-size: 2rem;
+    text-align: center;
+}
+
+.tablas {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    margin: 0 auto;
+    padding: 20px;
+    width: 100%;
+    max-width: 1200px;
+}
+
+.tabla-box {
+    background-color: #1a1a1a;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px #404040;
+}
+
+.tabla-box h2 {
+    color: #0a8504;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.fila {
+    display: grid;
+    grid-template-columns: 0.7fr 2fr 1fr 1fr 1fr 1fr;
+    padding: 10px;
+    border-bottom: 1px solid #404040;
+    align-items: center;
+    gap: 10px;
+    color: #ffffff;
+    word-wrap: break-word;
+}
+
+.fila.header {
+    background-color: #033966;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.barra {
+    grid-column: span 6;
+    background-color: #404040;
+    height: 14px;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+.barra .progreso {
+    height: 100%;
+    background-color: #0a8504; /* verde para a tiempo */
+    transition: width 0.3s ease-in-out;
+}
+
+.fila.demora .progreso {
+    background-color: #9c0303; /* rojo para demoras */
+}
+
+@media (max-width: 768px) {
+    .fila {
+        grid-template-columns: repeat(2, 1fr);
+        font-size: 0.85rem;
+    }
+    .barra {
+        grid-column: span 2;
+    }
+}

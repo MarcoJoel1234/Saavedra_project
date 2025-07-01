@@ -41,6 +41,8 @@ export default defineConfig({
                 "resources/js/pieces_views/releasePieces/releasePieces.js",
                 "resources/css/pieces_views/piecesReport/adminPieces.css",
                 'resources/js/pieces_views/piecesReport/adminPieces.js',
+                'resources/css/wo_views/progressPanel_wo.css',
+                'resources/js/wo_views/progressPanel_wo.js',
 
                 //Views users
                 "resources/css/users_views/createUser.css",

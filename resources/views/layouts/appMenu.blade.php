@@ -50,6 +50,9 @@
         showReleasePieces_view: @json(route('showReleasePieces_view')),
         showTimes: @json(route('showTimes')),
         productionData: @json(route('productionData')),
+        panelProgreso: @json(route('panelProgreso')),
+
+        
 
         cepillado: @json(route('cepillado', ['error' => 0])),
         desbasteExterior: @json(route('desbasteExterior', ['error' => 0])),

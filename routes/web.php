@@ -141,6 +141,11 @@ Route::controller(DatosProduccionController::class)->group(function () {
     Route::post('/productionData', 'show')->name('showProduccion'); //Vista de datos de producción
 });
 
+//Rutas para el controlador de ProgressPanelController
+Route::get('/panel-progreso', function () {
+    return view('progress'); // o el nombre de tu vista Blade
+})->name('panelProgreso');
+
 
 
 //PROCESOS*************************************************************************************
