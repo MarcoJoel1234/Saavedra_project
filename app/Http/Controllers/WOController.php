@@ -90,7 +90,6 @@ class WOController extends Controller
         }
         //Busqueda de la orden de trabajo ingresada o creada
         $workOrder = Orden_trabajo::find(isset($request->workOrderAdded) ? $request->workOrderAdded : $request->workOrderSelected);
-
         return redirect()->route('showWO', ['workOrder' => $workOrder]);
     }
 
