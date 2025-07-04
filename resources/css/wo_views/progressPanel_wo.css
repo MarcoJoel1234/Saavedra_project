@@ -1,12 +1,4 @@
-
 .tex-center {
-    text-align: center;
-}
-
-h1 {
-    color: #000000;
-    margin-bottom: 20px;
-    font-size: 2rem;
     text-align: center;
 }
 
@@ -17,30 +9,34 @@ h1 {
     margin: 0 auto;
     padding: 20px;
     width: 100%;
-    max-width: 1200px;
+    max-width: 2200px;
 }
 
 .tabla-box {
     background-color: #1a1a1a;
-    padding: 20px;
+    padding: 25px;
     border-radius: 12px;
     box-shadow: 0 0 10px #404040;
+    overflow-x: auto;
 }
 
 .tabla-box h2 {
-    color: #0a8504;
     text-align: center;
     margin-bottom: 15px;
+    font-family: 'Poppins';
+    letter-spacing: 2px;
+    font-size: 2.4rem;
 }
 
 .fila {
     display: grid;
-    grid-template-columns: 0.7fr 2fr 1fr 1fr 1fr 1fr;
-    padding: 10px;
+    grid-template-columns: 1fr 3fr 1.2fr 1.2fr 1.2fr 1.2fr;
+    padding: 14px 12px;
     border-bottom: 1px solid #404040;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
     color: #ffffff;
+    font-size: 1.5rem;
     word-wrap: break-word;
 }
 
@@ -51,9 +47,9 @@ h1 {
 }
 
 .barra {
-    grid-column: span 6;
+    grid-column: span 8;
     background-color: #404040;
-    height: 14px;
+    height: 16px;
     border-radius: 6px;
     overflow: hidden;
     margin-top: 5px;
@@ -61,19 +57,37 @@ h1 {
 
 .barra .progreso {
     height: 100%;
-    background-color: #0a8504; /* verde para a tiempo */
+    background-color: #0a8504;
     transition: width 0.3s ease-in-out;
 }
 
 .fila.demora .progreso {
-    background-color: #9c0303; /* rojo para demoras */
+    background-color: #9c0303;
 }
 
-@media (max-width: 768px) {
+.pdf-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.icono-pdf {
+    width: 70px;
+    height: auto;
+    transition: transform 0.2s ease;
+    cursor: pointer;
+}
+
+.icono-pdf:hover {
+    transform: scale(1.2);
+}
+
+@media (max-width: 1024px) {
     .fila {
         grid-template-columns: repeat(2, 1fr);
-        font-size: 0.85rem;
+        font-size: 1rem;
     }
+
     .barra {
         grid-column: span 2;
     }

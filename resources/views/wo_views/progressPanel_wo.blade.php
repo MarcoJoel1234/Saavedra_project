@@ -6,26 +6,25 @@
     @vite(['resources/css/wo_views/progressPanel_wo.css', 'resources/js/wo_views/progressPanel_wo.js'])
 @endsection
 
-
 @section('content')
     <div class="tablas">
-        <!-- A Tiempo -->
+        <!-- A Tiempo tabla-->
         <div class="tabla-box">
-            <h2 style="color: #0a8504">A TIEMPO</h2>
+            <h2 style="color: #0a8504; font-weight: bold;">A TIEMPO</h2>
             <div class="fila header">
                 <div class="tex-center">OT</div>
-                <div class="tex-center">Nombre</div>
-                <div class="tex-center">Tipo</div>
-                <div>Fecha Pronóstico</div>
-                <div>Fecha Compromiso</div>
-                <div>Fecha Real</div>
+                <div class="tex-center">NOMBRE</div>
+                <div class="tex-center">TIPO</div>
+                <div>F. PRONÓSTICO</div>
+                <div>F. COMPROMISO</div>
+                <div>FECHA REAL</div>
             </div>
 
-            <!-- Ejemplo de fila -->
+            <!-- Fila 1 -->
             <div class="fila">
                 <div class="tex-center">6507</div>
-                <div class="tex-center">Sra. Leona Extra Grande Especial 2da Serie</div>
-                <div class="tex-center">Molde</div>
+                <div class="tex-center">SRA. LEONA EXTRA GRANDE 2 SET NUEVA EDICIÓN</div>
+                <div class="tex-center">BOMBILLO</div>
                 <div>2025-06-21</div>
                 <div>2025-06-23</div>
                 <div>2025-06-23</div>
@@ -33,29 +32,68 @@
                     <div class="progreso" style="width: 95%"></div>
                 </div>
             </div>
+
+            <!-- Fila 2 -->
+            <div class="fila">
+                <div class="tex-center">6541</div>
+                <div class="tex-center">FRASCO DE AGUA MINERAL 355ML</div>
+                <div class="tex-center">MOLDE</div>
+                <div>2025-06-25</div>
+                <div>2025-06-28</div>
+                <div>2025-06-27</div>
+                <div class="barra">
+                    <div class="progreso" style="width: 88%"></div>
+                </div>
+            </div>
+            <!-- Fila 3 -->
+            <div class="fila">
+                <div class="tex-center">2013</div>
+                <div class="tex-center">MASON GARAT 16 OZ CUADRADO</div>
+                <div class="tex-center">MOLDE</div>
+                <div>2025-06-25</div>
+                <div>2025-06-28</div>
+                <div>2025-06-27</div>
+                <div class="barra">
+                    <div class="progreso" style="width: 88%"></div>
+                </div>
+            </div>
         </div>
 
-        <!-- Demora -->
+        <!-- Demora tabla-->
         <div class="tabla-box">
-            <h2 style="color: #9c0303">DEMORA</h2>
+            <h2 style="color: #9c0303; font-weight: bold;">DEMORA</h2>
             <div class="fila header">
                 <div class="tex-center">OT</div>
-                <div class="tex-center">Nombre</div>
-                <div class="tex-center">Tipo</div>
-                <div>Fecha Pronóstico</div>
-                <div>Fecha Compromiso</div>
-                <div>Fecha Real</div>
+                <div class="tex-center">NOMBRE</div>
+                <div class="tex-center">TIPO</div>
+                <div>F. PRONÓSTICO</div>
+                <div>F. COMPROMISO</div>
+                <div>FECHA REAL</div>
             </div>
 
+            <!-- Fila 1 -->
             <div class="fila demora">
                 <div class="tex-center">8754</div>
-                <div class="tex-center">Bikendi 60ml</div>
-                <div class="tex-center">Molde</div>
+                <div class="tex-center">BIKENDI 60 ML</div>
+                <div class="tex-center">MOLDE</div>
                 <div>2025-06-18</div>
                 <div>2025-06-20</div>
                 <div>2025-06-22</div>
                 <div class="barra">
                     <div class="progreso" style="width: 40%"></div>
+                </div>
+            </div>
+
+            <!-- Fila 2 -->
+            <div class="fila demora">
+                <div class="tex-center">8999</div>
+                <div class="tex-center">PANTALONES 70CL</div>
+                <div class="tex-center">MOLDE</div>
+                <div>2025-06-15</div>
+                <div>2025-06-18</div>
+                <div>2025-06-25</div>
+                <div class="barra">
+                    <div class="progreso" style="width: 25%"></div>
                 </div>
             </div>
         </div>
