@@ -148,6 +148,8 @@ function getRoutes(profile) {
                 {
                     title: null,
                     routes: [
+                        ["processProduction", "Proceso de Producción"],
+
                         ["cepillado", "Cepillado"],
                         ["desbasteExterior", "Desbaste exterior"],
                         ["revisionLaterales", "Revisión de laterales"],

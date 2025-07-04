@@ -54,6 +54,9 @@
 
         
 
+        processProduction: @json(route('processProduction')),
+
+
         cepillado: @json(route('cepillado', ['error' => 0])),
         desbasteExterior: @json(route('desbasteExterior', ['error' => 0])),
         revisionLaterales: @json(route('revisionLaterales', ['error' => 0])),

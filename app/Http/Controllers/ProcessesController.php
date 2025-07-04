@@ -51,19 +51,14 @@ use Illuminate\Http\Request;
 
 class ProcessesController extends Controller
 {
-    protected $userController;
     protected $classController;
     public function __construct()
     {
         $this->middleware('auth');
-        $this->userController = new UserController();
         $this->classController = new ClassController();
     }
     public function show_cNominalsView()
     {
-        //Obtener el perfil del usuario
-        $layout = $this->userController->getLayout();
-
         $wOrdersFounded = Orden_trabajo::all();
         $workOrders = array();
         if (count($wOrdersFounded) > 0) {
@@ -117,7 +112,7 @@ class ProcessesController extends Controller
             }
         }
         $workOrders = count($workOrders) > 0 ? $workOrders : null;
-        return view('processes_views.cNominals_view', compact('workOrders', 'layout'));
+        return view('processes_views.cNominals_view', compact('workOrders'));
     }
     public function searchCNominals($class, $process, $subprocess = null)
     {   

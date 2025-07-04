@@ -34,6 +34,7 @@ use App\Http\Controllers\TiemposProduccionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MoldingController;
 use App\Http\Controllers\ProcessesController;
+use App\Http\Controllers\ProcessProductionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WOController;
 use Illuminate\Support\Facades\Route;
@@ -93,9 +94,6 @@ Route::controller(WOController::class)->group(function () {
     Route::get('/piecesInProgress', 'showViewPiecesInProgress')->name('showPiecesInProgress');
     Route::get('/finishOrder/{wOrderName}/{className}', 'finishOrder')->name('finishOrder'); //Finalizar pedido
     Route::get('/show_panelWO', 'show_panelWO')->name('show_panelWO');
-
-
-    Route::post('/saveHeader', 'saveHeader')->name('saveHeader'); //Guardar datos de HeaderProcess
 });
 
 Route::controller(ClassController::class)->group(function () {
@@ -107,6 +105,15 @@ Route::controller(ClassController::class)->group(function () {
 Route::controller(ProcessesController::class)->group(function () {
     Route::get('/cNominals', 'show_cNominalsView')->name('cNominals'); //Ruta para la interfaz de los procesos para editar las cotas nominales y tolerancias
     Route::post('/cNominals/store', 'storeCNominalsData')->name('storeCNominals'); //Ruta para la interfaz de los procesos para guardar las cotas nominales y tolerancias
+});
+
+Route::controller(ProcessProductionController::class)->group(function () {
+    Route::get('/processProduction', 'show')->name('processProduction'); //Ruta para ver los procesos de producción
+    Route::post('/processProduction/selected', 'selectProcess')->name('selectProcess'); //Ruta para ver los procesos de producción
+    Route::post('/processProduction/saveHeader', 'saveHeader')->name('saveHeaderProcess'); //Guardar datos de HeaderProcess
+    // Route::post('/processProduction', 'store')->name('storeProcessProduction'); //Ruta para guardar los procesos de producción
+    // Route::get('/processProduction/{id}', 'edit')->name('editProcessProduction'); //Ruta para editar los procesos de producción
+    // Route::post('/processProduction/update', 'update')->name('updateProcessProduction'); //Ruta para actualizar los procesos de producción
 });
 
 //Ruta para ver el progreso de los procesos
