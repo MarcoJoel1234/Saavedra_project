@@ -36,10 +36,10 @@ class Dashboard {
                 let section = document.createElement("section");
                 section.className = "section";
                 let className = Object.keys(workOrder["classes"])[indexClass];
-                let headerSection = this.generateHeaderofWorkOrder( wOrderName, workOrder["molding"], className, classArray);
+                let headerSection = this.generateHeaderofWorkOrder(wOrderName, workOrder["molding"], className, classArray);
                 let processesSection = document.createElement("div");
                 processesSection.className = "processes-section";
-            
+
                 Object.values(classArray["processes"]).forEach((processesArray, indexProcess) => {
                     let processName = Object.keys(classArray["processes"])[indexProcess];
                     processesSection.appendChild(this.generateProcessSection(processesArray, processName, classArray["pieces"]));
@@ -92,8 +92,8 @@ class Dashboard {
         a.addEventListener("click", (e) => {
             e.preventDefault();
             if (confirm("¿Estás seguro de que deseas finalizar esta orden de trabajo?")) {
-                window.location.href
-                    = `/finishOrder/${wOrderName}/${className}`;
+                let url = `${window.baseUrl}/finishOrder/${wOrderName}/${className}`;
+                window.location.href = url;
             }
         });
         header_section.appendChild(a);
@@ -101,7 +101,7 @@ class Dashboard {
         return header_section;
     }
 
-    getCompletedPieces(classArray){
+    getCompletedPieces(classArray) {
         //Obtener las piezas del ultimo proceso de la clase
         let completedPieces = Object.values(classArray["processes"])[Object.keys(classArray["processes"]).length - 1]["pieces"]["good"];
         return completedPieces;
@@ -204,11 +204,11 @@ class Dashboard {
             th.style.width = headers.length / 100 + "%"; // Ajustar el ancho de las columnas
             headerRow.appendChild(th);
         });
-        
+
         //Insertar los datos de cada una de las piezas malas
         //prettier-ignore
         let tbody = document.createElement("tbody");
-        if(Object.keys(badPieces).length > 0){
+        if (Object.keys(badPieces).length > 0) {
             Object.values(badPieces).forEach((piece) => {
                 let row = document.createElement("tr");
                 let pieceData = processName == "Operacion Equipo" ? [piece["piece"], piece["setNumber"], piece["operator"], piece["process"], piece["operation"], piece["error"]] : [piece["piece"], piece["setNumber"], piece["operator"], piece["process"], piece["error"]];
@@ -219,7 +219,7 @@ class Dashboard {
                 });
                 tbody.appendChild(row);
             });
-        }else{
+        } else {
             let row = document.createElement("tr");
             let td = document.createElement("td");
             td.colSpan = headers.length;
@@ -240,12 +240,12 @@ if (Object.keys(wOrderArray).length > 0) {
     dashboard.createSections();
     const secciones = document.querySelectorAll("section");
     let scrollTimeout = null;
-    
+
     function getClosestSection() {
         let closest = null;
         let minDist = Infinity;
         const scrollY = window.scrollY;
-    
+
         secciones.forEach(sec => {
             const dist = Math.abs(sec.offsetTop - scrollY);
             if (dist < minDist) {
@@ -253,15 +253,15 @@ if (Object.keys(wOrderArray).length > 0) {
                 closest = sec;
             }
         });
-    
+
         return closest;
     }
-    
+
     window.addEventListener("scroll", () => {
         if (scrollTimeout) {
             clearTimeout(scrollTimeout);
         }
-    
+
         // Espera 200ms tras dejar de hacer scroll
         scrollTimeout = setTimeout(() => {
             const destino = getClosestSection();
@@ -270,7 +270,7 @@ if (Object.keys(wOrderArray).length > 0) {
             }
         }, 200);
     });
-}else {
+} else {
     let body = document.querySelector("body");
     let noDataMessage = document.createElement("h2");
     noDataMessage.className = "no-data-message";

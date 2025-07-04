@@ -64,7 +64,7 @@ Route::controller(LoginController::class)->group(function () {
 //Grupo de rutas para el controlador de ver usuarios en perfil de master
 Route::controller(UserController::class)->group(function () {
     Route::get('/users', 'show')->name('users'); //Vista de usuarios
-    Route::get('/users/create', 'create')->name('createUser');//Vista de crear usuario
+    Route::get('/users/create', 'create')->name('createUser'); //Vista de crear usuario
     Route::post('/users/create/store', 'store')->name('storeUser');
     Route::get('/users/recoverPassword', 'showRecoverPassword')->name('recoverPassword'); //Vista recuperar contraseña
     Route::post('/users/recoverPassword', 'recoverPassword')->name('recover'); //Recuperar contraseña
@@ -92,6 +92,7 @@ Route::controller(WOController::class)->group(function () {
     Route::get('/generatePDFWO/{wo}', 'generatePDF')->name('generatePDFWO');
     Route::get('/piecesInProgress', 'showViewPiecesInProgress')->name('showPiecesInProgress');
     Route::get('/finishOrder/{wOrderName}/{className}', 'finishOrder')->name('finishOrder'); //Finalizar pedido
+    Route::get('/show_panelWO', 'show_panelWO')->name('show_panelWO');
     Route::post('/saveHeader', 'saveHeader')->name('saveHeader'); //Guardar datos de HeaderProcess
 });
 
