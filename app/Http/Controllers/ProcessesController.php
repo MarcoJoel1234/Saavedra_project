@@ -219,7 +219,7 @@ class ProcessesController extends Controller
     public function verifycNominalsExisting($cNominal, $tolerance, $id_operation, $operation)
     {
         if ($cNominal && $tolerance) {
-            $this->updatePieces($id_operation, $cNominal, $tolerance, $operation);
+            // $this->updatePieces($id_operation, $cNominal, $tolerance, $operation);
             return true;
         }
         return false;
@@ -235,6 +235,7 @@ class ProcessesController extends Controller
         } else {
             $id_process = $processModified . '_' . $request->class . "_" . $request->workOrder;
         }
+
         $array = match ($request->process) {
             'Cepillado' => $this->cepillado($id_process, $request),
             'Desbaste Exterior' => $this->desbasteExterior($id_process, $request),
@@ -615,11 +616,13 @@ class ProcessesController extends Controller
     {
         $cNominal = PrimeraOpeSoldadura_cnominal::where('id_proceso', $id_proceso)->first();
         $tolerance = PrimeraOpeSoldadura_tolerancia::where('id_proceso', $id_proceso)->first();
-        if (!$cNominal && !$tolerance) {
+        if (!$cNominal) {
             $cNominal = new PrimeraOpeSoldadura_cnominal();
+        }
+        if(!$tolerance){
             $tolerance = new PrimeraOpeSoldadura_tolerancia();
         }
-
+        
         //Llenado de tabla primeraOpeSoldadura_cnominal
         $cNominal->id_proceso = $id_proceso;
         $cNominal->diametro1 = $request->cNomi_diametro1;
