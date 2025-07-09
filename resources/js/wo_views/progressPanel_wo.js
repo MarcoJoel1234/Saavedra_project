@@ -24,3 +24,4 @@ function simulateProgress() {
         }
     }, 500);
 }
+

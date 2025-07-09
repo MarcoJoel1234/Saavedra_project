@@ -1,7 +1,13 @@
 .tex-center {
-    text-align: center;
+    text-align: center; 
+    color: black;
+    font-weight: 900;
 }
 
+#header {
+    color: #ffffff;
+    font-weight: bold;
+}
 .tablas {
     display: flex;
     flex-direction: column;
@@ -13,7 +19,7 @@
 }
 
 .tabla-box {
-    background-color: #1a1a1a;
+    background-color: #ffffff;
     padding: 25px;
     border-radius: 12px;
     box-shadow: 0 0 10px #404040;
@@ -30,7 +36,7 @@
 
 .fila {
     display: grid;
-    grid-template-columns: 1fr 3fr 1.2fr 1.2fr 1.2fr 1.2fr;
+    grid-template-columns: 0.7fr 3.6fr 1fr 1.4fr 1.4fr 1.3fr;
     padding: 14px 12px;
     border-bottom: 1px solid #404040;
     align-items: center;
@@ -45,7 +51,6 @@
     font-weight: bold;
     color: #ffffff;
 }
-
 .barra {
     grid-column: span 8;
     background-color: #404040;
@@ -65,7 +70,7 @@
     background-color: #9c0303;
 }
 
-.pdf-icon {
+/* .pdf-icon {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -80,15 +85,15 @@
 
 .icono-pdf:hover {
     transform: scale(1.2);
-}
+} */
 
 @media (max-width: 1024px) {
     .fila {
-        grid-template-columns: repeat(2, 1fr);
-        font-size: 1rem;
+        grid-template-columns: repeat(6, 1fr);
+        font-size: 0.5rem;
     }
 
     .barra {
-        grid-column: span 2;
+        grid-column: span 6;
     }
 }
