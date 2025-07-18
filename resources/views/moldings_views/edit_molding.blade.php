@@ -4,7 +4,10 @@
 <title>Editar molduras</title>
 @vite(['resources/css/moldings_views/edit_molding.css', 'resources/js/moldings_views/edit_molding.js'])
 @endsection
-
+<script>
+    window.baseUrl = "{{ url('/') }}";
+    const moldings = @json($moldings);
+</script>
 @section('background-body', 'background-image:url("' . asset("images/fondoLogin.jpg") . '")') <!--Body background Image-->
 @section('content')
 <div class="wrapper">
@@ -17,7 +20,4 @@
         <!--La tabla y el boton se crea en JavaScript-->
     </form>
 </div>
-<script>
-    const moldings = @json($moldings);
-</script>
 @endsection
